@@ -11,4 +11,9 @@ public class HomeController {
 		return "home";
 	}
 	
+	@GetMapping("/sample")
+	public String sampleView() {
+		return "sample";
+	}
+	
 }
