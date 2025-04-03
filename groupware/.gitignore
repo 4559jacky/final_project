@@ -1,13 +1,15 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java,windows,macos,intellij,eclipse,visualstudiocode,gradle,maven
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,windows,macos,intellij,eclipse,visualstudiocode,gradle,maven
 
+application-secret.properties
+
+.env
 HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
 
 ### Eclipse ###
 .metadata
@@ -322,6 +324,10 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+*.png
+*.jpg
+*.jpeg
 
 ### Gradle ###
 .gradle
