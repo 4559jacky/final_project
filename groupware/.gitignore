@@ -11,6 +11,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+
 ### Eclipse ###
 .metadata
 bin/
@@ -325,9 +326,12 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# static resources
 *.png
 *.jpg
 *.jpeg
+*.svg
+*.gif
 
 ### Gradle ###
 .gradle
