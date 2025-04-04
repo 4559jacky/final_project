@@ -1,12 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 	<th:block th:fragment="navLayout">
-		<!-- Core Css -->
-  		<link th:href="stylesheet" href="./assets/css/styles.css" />
-		
-		<!-- Sidebar scroll-->
-        <div>
+
           <!-- Sidebar navigation-->
           <nav id="sidebarnavh" class="sidebar-nav scroll-sidebar container-fluid">
             <ul id="sidebarnav">
@@ -700,71 +695,9 @@
             </ul>
           </nav>
           <!-- End Sidebar navigation -->
-        </div>
-		
-		<!-- 톱니 버튼 -->
-		<button class="btn btn-primary p-3 rounded-circle d-flex align-items-center justify-content-center customizer-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-        	<i class="icon ti ti-settings fs-7"></i>
-        </button>
 
-        <div class="offcanvas customizer offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-        	<div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-          		<h4 class="offcanvas-title fw-semibold" id="offcanvasExampleLabel">
-           			Settings
-          		</h4>
-          		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        	</div>
-        	<div class="offcanvas-body h-n80" data-simplebar>
-          		<h6 class="fw-semibold fs-4 mb-2">Theme</h6>
-
-          		<div class="d-flex flex-row gap-3 customizer-box" role="group">
-            		<input type="radio" class="btn-check light-layout" name="theme-layout" id="light-layout" autocomplete="off" />
-            		<label class="btn p-9 btn-outline-primary rounded-2" for="light-layout">
-              			<i class="icon ti ti-brightness-up fs-7 me-2"></i>Light
-            		</label>
-
-            		<input type="radio" class="btn-check dark-layout" name="theme-layout" id="dark-layout" autocomplete="off" />
-            		<label class="btn p-9 btn-outline-primary rounded-2" for="dark-layout">
-              			<i class="icon ti ti-moon fs-7 me-2"></i>Dark
-            		</label>
-          		</div>
-
-          		<h6 class="mt-5 fw-semibold fs-4 mb-2">Layout Type</h6>
-          		<div class="d-flex flex-row gap-3 customizer-box" role="group">
-            		<div>
-              			<input type="radio" class="btn-check" name="page-layout" id="vertical-layout" autocomplete="off" />
-              			<label class="btn p-9 btn-outline-primary" for="vertical-layout">
-                			<i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Vertical
-              			</label>
-            		</div>
-            		<div>
-              			<input type="radio" class="btn-check" name="page-layout" id="horizontal-layout" autocomplete="off" />
-              			<label class="btn p-9 btn-outline-primary" for="horizontal-layout">
-                			<i class="icon ti ti-layout-navbar fs-7 me-2"></i>Horizontal
-              			</label>
-            		</div>
-          		</div>
-        	</div>
-        </div>
-        
-		
 		
 		
               
-
-  		<script src="./assets/js/vendor.min.js"></script>
-  		<!-- Import Js Files -->
-  		<script src="./assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  		<script src="./assets/libs/simplebar/dist/simplebar.min.js"></script>
-  		<script src="./assets/js/theme/app.init.js"></script>
-  		<script src="./assets/js/theme/theme.js"></script>
-  		<script src="./assets/js/theme/app.min.js"></script>
-  		<script src="./assets/js/theme/sidebarmenu.js"></script>
-
-  		<!-- solar icons -->
-  		<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  		<script src="./assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
-  		<script src="./assets/libs/apexcharts/dist/apexcharts.min.js"></script>
-  		<script src="./assets/js/dashboards/dashboard.js"></script>
 	</th:block>
 </html>
