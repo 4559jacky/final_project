@@ -4,7 +4,9 @@ xmlns:th="http://www.thymeleaf.org"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-	<a href="/sample">샘플페이지로 이동하기</a>
+	<a th:href="@{/home}">여기는 홈화면입니다.</a>
+	<br>
+	<a th:href="@{/sample}">샘플페이지로 이동하기</a>
 </th:block>
 
 </html>
