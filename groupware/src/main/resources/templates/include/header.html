@@ -9,6 +9,7 @@
           <!-- ---------------------------------- -->
           <nav class="navbar navbar-expand-lg p-0">
             <ul class="navbar-nav">
+            <!-- 햄버거 메뉴 (동적) -->
               <li class="nav-item nav-icon-hover-bg rounded-circle ms-n2">
                 <a class="nav-link sidebartoggler" id="headerCollapse" href="javascript:void(0)">
                   <i class="ti ti-menu-2"></i>
@@ -194,7 +195,7 @@
             </ul>
 
             <div class="d-block d-lg-none py-4">
-              <a href="./main/index.html" class="text-nowrap logo-img">
+              <a th:href="@{/home}" class="text-nowrap logo-img">
                 <img src="./assets/images/logos/dark-logo.svg" class="dark-logo" alt="Logo-Dark" />
                 <img src="./assets/images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
               </a>
@@ -219,6 +220,7 @@
                       <i class="ti ti-sun sun"></i>
                     </a>
                   </li>
+                  <!--
                   <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
                     <a class="nav-link" href="javascript:void(0)" id="drop2" aria-expanded="false">
                       <img src="./assets/images/svgs/icon-flag-en.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
@@ -252,6 +254,7 @@
                       </div>
                     </div>
                   </li>
+                  -->
                   <!-- ------------------------------- -->
                   <!-- end language Dropdown -->
                   <!-- ------------------------------- -->
@@ -402,6 +405,7 @@
                             </div>
                           </a>
                         </div>
+                        <!--
                         <div class="d-grid py-4 px-7 pt-8">
                           <div class="upgrade-plan bg-primary-subtle position-relative overflow-hidden rounded-2 p-4 mb-9">
                             <div class="row">
@@ -418,6 +422,7 @@
                           </div>
                           <a href="./main/authentication-login.html" class="btn btn-outline-primary">Log Out</a>
                         </div>
+                        -->
                       </div>
                     </div>
                   </li>
@@ -601,13 +606,14 @@
         <div class="app-header with-horizontal">
           <nav class="navbar navbar-expand-xl container-fluid p-0">
             <ul class="navbar-nav align-items-center">
+            <!-- 햄버거 메뉴 (동적) --> 
               <li class="nav-item nav-icon-hover-bg rounded-circle d-flex d-xl-none ms-n2">
                 <a class="nav-link sidebartoggler" id="sidebarCollapse" href="javascript:void(0)">
                   <i class="ti ti-menu-2"></i>
                 </a>
               </li>
               <li class="nav-item d-none d-xl-block">
-                <a href="./main/index.html" class="text-nowrap nav-link">
+                <a th:href="@{/home}" class="text-nowrap nav-link">
                   <img src="./assets/images/logos/dark-logo.svg" class="dark-logo" alt="flexy-img" />
                   <img src="./assets/images/logos/light-logo.svg" class="light-logo" alt="flexy-img" />
                 </a>
@@ -790,7 +796,7 @@
               </li>
             </ul>
             <div class="d-block d-xl-none">
-              <a href="./main/index.html" class="text-nowrap nav-link">
+              <a th:href="@{/home}" class="text-nowrap nav-link">
                 <img src="./assets/images/logos/dark-logo.svg" width="180" alt="flexy-img" />
               </a>
             </div>
@@ -806,8 +812,9 @@
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
                   <!-- ------------------------------- -->
-                  <!-- start language Dropdown -->
+                  <!-- start light/dark Dropdown -->
                   <!-- ------------------------------- -->
+                  
                   <li class="nav-item nav-icon-hover-bg rounded-circle">
                     <a class="nav-link moon dark-layout" href="javascript:void(0)">
                       <i class="ti ti-moon moon"></i>
@@ -816,6 +823,11 @@
                       <i class="ti ti-sun sun"></i>
                     </a>
                   </li>
+                  
+                  <!-- ------------------------------- -->
+                  <!-- start language Dropdown -->
+                  <!-- ------------------------------- -->
+                  <!--
                   <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
                     <a class="nav-link" href="javascript:void(0)" id="drop2" aria-expanded="false">
                       <img src="./assets/images/svgs/icon-flag-en.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
@@ -849,6 +861,7 @@
                       </div>
                     </div>
                   </li>
+                  -->
                   <!-- ------------------------------- -->
                   <!-- end language Dropdown -->
                   <!-- ------------------------------- -->
@@ -999,6 +1012,7 @@
                             </div>
                           </a>
                         </div>
+                        <!--
                         <div class="d-grid py-4 px-7 pt-8">
                           <div class="upgrade-plan bg-primary-subtle position-relative overflow-hidden rounded-2 p-4 mb-9">
                             <div class="row">
@@ -1015,6 +1029,7 @@
                           </div>
                           <a href="./main/authentication-login.html" class="btn btn-outline-primary">Log Out</a>
                         </div>
+                        -->
                       </div>
                     </div>
                   </li>

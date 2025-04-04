@@ -16,11 +16,11 @@
               <!-- Dashboard -->
               <!-- =================== -->
               <li class="sidebar-item">
-              <a class="sidebar-link" href="" id="get-url" aria-expanded="false">
+              <a class="sidebar-link" th:href="@{/home}" id="get-url" aria-expanded="false">
                 <span>
                   <i class="ti ti-aperture"></i>
                 </span>
-                <span class="hide-menu">Analytical</span>
+                <span class="hide-menu">Home</span>
               </a>
               </li>
               <li class="sidebar-item">
@@ -28,21 +28,59 @@
                   <span>
                     <i class="ti ti-home-2"></i>
                   </span>
-                  <span class="hide-menu">Dashboard</span>
+                  <span class="hide-menu">임시태그</span>
                 </a>
                 <ul aria-expanded="false" class="collapse first-level">
                   <li class="sidebar-item">
-                    <a href="./main/index.html" class="sidebar-link">
+                    <a th:href="@{/sample}" class="sidebar-link">
                       <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">Analytical</span>
+                      <span class="hide-menu">Sample</span>
                     </a>
                   </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">전자결재</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">채팅</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">일정관리</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">공유문서함</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">자유게시판</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">사원등록</span>
+                    </a>
+                  </li>
+                  <!--
                   <li class="sidebar-item">
                     <a href="./main/index2.html" class="sidebar-link">
                       <i class="ti ti-shopping-cart"></i>
                       <span class="hide-menu">eCommerce</span>
                     </a>
                   </li>
+                  -->
                 </ul>
               </li>
               <!-- ============================= -->
@@ -57,7 +95,7 @@
                   <span>
                     <i class="ti ti-archive"></i>
                   </span>
-                  <span class="hide-menu">Apps</span>
+                  <span class="hide-menu">공유 문서함</span>
                 </a>
                 <ul aria-expanded="false" class="collapse first-level">
                   <li class="sidebar-item">
