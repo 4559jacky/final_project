@@ -1,7 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<th:block th:fragment="headerLayout">
+	
+	<style>
+  		.logout-button:hover {
+   			background-color: #f0f8ff;
+    		color: #003366;
+    		transition: background-color 0.3s ease, color 0.3s ease;
+    		cursor: pointer;
+  		}
 
+  		.logout-button:hover h6,
+  		.logout-button:hover span {
+    		color: #003366;
+  		}
+	</style>
+	
 	  <!--  Header Start -->
       <header class="topbar">
         <div class="with-vertical"><!-- ---------------------------------- -->
@@ -210,7 +224,7 @@
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
                   <!-- ------------------------------- -->
-                  <!-- start language Dropdown -->
+                  <!-- darkmode btn -->
                   <!-- ------------------------------- -->
                   <li class="nav-item nav-icon-hover-bg rounded-circle">
                     <a class="nav-link moon dark-layout" href="javascript:void(0)">
@@ -220,6 +234,9 @@
                       <i class="ti ti-sun sun"></i>
                     </a>
                   </li>
+                  <!-- ------------------------------- -->
+                  <!-- start language Dropdown -->
+                  <!-- ------------------------------- -->
                   <!--
                   <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
                     <a class="nav-link" href="javascript:void(0)" id="drop2" aria-expanded="false">
@@ -404,6 +421,18 @@
                               <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
                             </div>
                           </a>
+						  <form th:action="@{/logout}" method="post">
+  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
+								<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+									<img src="./assets/images/svgs/icon-dd-lifebuoy.svg" alt="flexy-img" width="24" height="24" />
+								</span>
+								<div class="w-100 ps-3">
+									<h6 class="mb-0 fs-4 lh-base">로그아웃</h6>
+									<span class="fs-3 d-block text-body-secondary">Sign out</span>
+								</div>
+							</button>
+						  </form>
+						  
                         </div>
                         <!--
                         <div class="d-grid py-4 px-7 pt-8">

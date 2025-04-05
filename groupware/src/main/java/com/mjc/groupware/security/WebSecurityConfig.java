@@ -45,12 +45,12 @@ public class WebSecurityConfig {
 		.formLogin(login -> login
 				.loginPage("/login")
 				.successHandler(new MyLoginSuccessHandler())
-				.failureHandler(new MyLoginFailureHandler()));
-//		.logout(logout -> logout
-//				.deleteCookies("remember-me")
-//				.clearAuthentication(true)
-//				.logoutSuccessUrl("/login")
-//				.invalidateHttpSession(true));
+				.failureHandler(new MyLoginFailureHandler()))
+		.logout(logout -> logout
+				.clearAuthentication(true)
+				.logoutSuccessUrl("/login")
+				.invalidateHttpSession(true)
+				.deleteCookies("remember-me"));
 		
 		return http.build();
 	}
