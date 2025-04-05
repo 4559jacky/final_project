@@ -218,10 +218,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
             <div class="card mb-0">
               <div class="card-body">
                 <a href="../main/index.html" class="text-nowrap logo-img text-center d-block mb-5 w-100">
-                  <img src="../assets/images/logos/dark-logo.svg" class="dark-logo" alt="Logo-Dark" />
-                  <img src="../assets/images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
+                  <img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
+				  <!-- <img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" /> -->
                 </a>
-                <form name="login_form" action="/login" method="post">
+                <form name="login_form" th:action="@{/login}" method="post">
                   <div class="mb-3">
                   	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                   </div>
@@ -252,11 +252,57 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
         </div>
       </div>
     </div>
+	
+	<th:block th:if="${error == 'true'}">
+		<div id="custom-alert" class="alert bg-danger text-white d-flex align-items-center alert-dismissible fade show" role="alert" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
+    		<i class="bi bi-exclamation-triangle-fill me-2"></i>
+    		<div id="alert-msg" th:text="${errorMsg}" style="font-size: 1.0rem; text-align: center;"></div>
+    		<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	</th:block>
+	
     <script>
+    	// 다크모드
   		function handleColorTheme(e) {
     		document.documentElement.setAttribute("data-color-theme", e);
   		}
 	</script>
+	
+	<script>
+		// 얼럿창 생성 및 소멸
+		document.addEventListener('DOMContentLoaded', function () {
+	    	const alertBox = document.getElementById("custom-alert");
+			
+	    	if (alertBox) {
+				setTimeout(function () {
+					alertBox.classList.remove('show');
+					alertBox.classList.add('fade');
+				
+					setTimeout(function () {
+						alertBox.classList.add('d-none');
+						
+						setTimeout(function () {
+							location.href = "/login";
+						}, 3);
+					}, 300);
+				}, 3000);
+			}
+	  	});
+	</script>
+	
+	<script>
+		// 얼럿창 x버튼
+    	document.addEventListener('DOMContentLoaded', function() {
+        	const alertCloseButton = document.querySelector('.btn-close');
+        	if (alertCloseButton) {
+            	alertCloseButton.addEventListener('click', function() {
+                	const alertBox = document.getElementById("custom-alert");
+                	alertBox.classList.add('d-none');
+            	});
+        	}
+    	});
+	</script>
+	
 </th:block>
 </body>
 </html>

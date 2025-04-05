@@ -1040,6 +1040,17 @@
                               <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
                             </div>
                           </a>
+                           <form th:action="@{/logout}" method="post">
+  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
+								<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+									<img src="./assets/images/svgs/icon-dd-lifebuoy.svg" alt="flexy-img" width="24" height="24" />
+								</span>
+								<div class="w-100 ps-3">
+									<h6 class="mb-0 fs-4 lh-base">로그아웃</h6>
+									<span class="fs-3 d-block text-body-secondary">Sign out</span>
+								</div>
+							</button>
+						  </form>
                         </div>
                         <!--
                         <div class="d-grid py-4 px-7 pt-8">
