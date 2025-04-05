@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>새 결재 양식 생성</title>
+
+  <!-- 부트스트랩 CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- jQuery 먼저! -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- 부트스트랩 JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <!-- Summernote CSS & JS -->
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+
+  <!-- 한글 설정 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-ko-KR.min.js"></script>
+</head>
+<body>
+  <div class="post-form">
+    <textarea name="postContent" id="summernote"></textarea>
+  </div>
+
+  <script>
+    // (필요 시 가짜 업로더)
+    function imageUploader(file, el) {
+      console.log("업로드된 이미지:", file);
+    }
+
+    $(document).ready(function () {
+      $('#summernote').summernote({
+        height: 800,
+        lang: 'ko-KR',
+        toolbar: [
+          ['fontsize', ['fontsize']],
+          ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
+          ['color', ['color']],
+          ['table', ['table']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['height', ['height']],
+          ['insert',['picture']]
+        ],
+        fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋음체','바탕체'],
+        fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72','96'],
+        focus : true,
+        callbacks : {
+          onImageUpload : function(files, editor, welEditable) {
+            for (var i = 0; i < files.length; i++) {
+              imageUploader(files[i], this);
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

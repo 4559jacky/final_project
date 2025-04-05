@@ -1,0 +1,59 @@
+// ----------------------------------------------
+// SideBar Style
+// ----------------------------------------------
+[data-side-type="stylish"] {
+
+    //
+    // Above Large screen
+    //
+    @include media-breakpoint-up(xl) {
+        .left-sidebar.with-vertical {
+            left: 30px;
+            border: 0;
+            height: auto;
+            margin-top: calc(#{$headerHeight} + 30px);
+            border-radius: $border-radius;
+
+            .scroll-sidebar {
+                height: calc(100vh - 300px);
+            }
+        }
+
+        .brand-logo {
+            padding: 0;
+            max-width: 260px;
+            width: 100%;
+        }
+
+        .topbar {
+            width: 100%;
+            left: 0;
+        }
+
+        body {
+            .page-wrapper {
+                margin-left: calc(#{$sidebar-width-full} + 30px);
+            }
+        }
+
+        &[data-layout="vertical"] {
+            body {
+
+                &[data-sidebartype="mini-sidebar"] {
+                    .topbar {
+                        width: calc(100%);
+
+                    }
+                }
+            }
+        }
+
+        &[data-layout="horizontal"]{
+            body {
+                .page-wrapper {
+                    margin-left: 0;
+                }
+            }
+        }
+    }
+}
