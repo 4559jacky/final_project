@@ -8,19 +8,19 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	
 	<!-- Spring Security -->
-	<!-- <meta id="_csrf" name="_csrf" th:attr="content=${_csrf.token}"> -->
-	<!-- <meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}"> -->
+	<meta id="_csrf" name="_csrf" th:attr="content=${_csrf.token}">
+	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
 	
 	<!-- Favicon icon-->
-	<link rel="shortcut icon" type="image/png" href="./assets/images/logos/favicon.png" />
+	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.png}" />
 	
 	<title>Groupware</title>
 	
 	<!-- Core Css -->
-	<link rel="stylesheet" href="./assets/css/styles.css" />
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}" />
 	
 	<!-- Owl Carousel  -->
-	<link rel="stylesheet" href="./assets/libs/owl.carousel/dist/assets/owl.carousel.min.css" />
+	<link rel="stylesheet" th:href="@{/assets/libs/owl.carousel/dist/assets/owl.carousel.min.css}" />
 	
 	<!-- Custom Css : Override - 992px 기준으로 모바일 화면 -->
 	<style>
