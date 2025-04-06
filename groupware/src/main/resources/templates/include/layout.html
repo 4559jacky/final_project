@@ -13,7 +13,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
 	
 	<!-- Favicon icon-->
-	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.png}" />
+	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.ico}" />
 	
 	<title>Groupware</title>
 	
@@ -235,7 +235,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
         <ul class="mb-0">
           <li class="pb-7">
             <div class="d-flex align-items-center">
-              <img src="./assets/images/products/product-1.jpg" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
+              <img th:src="@{/assets/images/products/product-1.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
               <div>
                 <h6 class="mb-1">Supreme toys cooker</h6>
                 <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
@@ -256,7 +256,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
           </li>
           <li class="pb-7">
             <div class="d-flex align-items-center">
-              <img src="./assets/images/products/product-2.jpg" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
+              <img th:src="@{/assets/images/products/product-2.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
               <div>
                 <h6 class="mb-1">Supreme toys cooker</h6>
                 <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
@@ -277,7 +277,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
           </li>
           <li class="pb-7">
             <div class="d-flex align-items-center">
-              <img src="./assets/images/products/product-3.jpg" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
+              <img th:src="@{/assets/images/products/product-3.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
               <div>
                 <h6 class="mb-1">Supreme toys cooker</h6>
                 <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
@@ -317,20 +317,21 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <div class="dark-transparent sidebartoggler"></div>
 	
 	<!-- Import vendorJs Files -->
-	<script src="./assets/js/vendor.min.js"></script>
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	
   	<!-- Import Js Files -->
-  	<script src="./assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  	<script src="./assets/libs/simplebar/dist/simplebar.min.js"></script>
-  	<script src="./assets/js/theme/app.init.js"></script>
-  	<script src="./assets/js/theme/theme.js"></script>
-  	<script src="./assets/js/theme/app.min.js"></script>
-  	<script src="./assets/js/theme/sidebarmenu.js"></script>
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
 
   	<!-- solar icons -->
   	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  	<script src="./assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
-  	<script src="./assets/libs/apexcharts/dist/apexcharts.min.js"></script>
-  	<script src="./assets/js/dashboards/dashboard.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
 </body>
 </html>
