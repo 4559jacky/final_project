@@ -1,4 +1,4 @@
-package com.mjc.groupware.controller;
+package com.mjc.groupware.home.comtroller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.mjc.groupware.dto;
+package com.mjc.groupware.member.dto;
 
 import groovy.transform.ToString;
 import lombok.AllArgsConstructor;

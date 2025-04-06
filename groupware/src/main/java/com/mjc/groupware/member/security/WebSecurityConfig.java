@@ -1,4 +1,4 @@
-package com.mjc.groupware.security;
+package com.mjc.groupware.member.security;
 
 import javax.sql.DataSource;
 

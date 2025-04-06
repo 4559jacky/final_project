@@ -1,4 +1,4 @@
-package com.mjc.groupware.entity;
+package com.mjc.groupware.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

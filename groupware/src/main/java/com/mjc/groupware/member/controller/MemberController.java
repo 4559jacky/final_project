@@ -1,4 +1,4 @@
-package com.mjc.groupware.controller;
+package com.mjc.groupware.member.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

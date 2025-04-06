@@ -1,4 +1,4 @@
-package com.mjc.groupware.service;
+package com.mjc.groupware.member.service;
 
 import javax.sql.DataSource;
 
@@ -6,9 +6,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.mjc.groupware.dto.MemberDto;
-import com.mjc.groupware.entity.Member;
-import com.mjc.groupware.repository.MemberRepository;
+import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 

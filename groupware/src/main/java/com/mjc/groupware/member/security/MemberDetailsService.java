@@ -1,11 +1,11 @@
-package com.mjc.groupware.security;
+package com.mjc.groupware.member.security;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.mjc.groupware.entity.Member;
-import com.mjc.groupware.repository.MemberRepository;
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
