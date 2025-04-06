@@ -5,6 +5,96 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-	사원등록 페이지
+	<div class="page-titles mb-7 mb-md-5">
+    	<div class="row">
+        	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+            	<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                      		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                        		<i class="ti ti-home fs-5"></i>
+                      		</a>
+                    	</li>
+                    	<li class="breadcrumb-item" aria-current="page">OnBoarding</li>
+                  	</ol>
+                </nav>
+            	<h2 class="mb-0 fw-bolder fs-8" style="padding-top:5px;">사원 등록</h2>
+			</div>
+		</div>
+	</div>
+	<div class="card">
+        <div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+                	<div class="row">
+                    	<div class="col-lg-6 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">계정 정보 등록</h4>
+                          			<p class="card-subtitle mb-4">To register a new account, please confirm account info.</p>
+                          			<form>
+                            			<div class="mb-3">
+                              				<label for="member_id" class="form-label">아이디</label>
+                              				<input type="text" class="form-control" id="member_id" name="member_id">
+                            			</div>
+                            			<div class="mb-3">
+                              				<label for="member_pw" class="form-label">비밀번호</label>
+                              				<input type="password" class="form-control" id="member_pw" name="member_pw">
+                            			</div>
+                            			<div>
+                              				<label for="member_pw_chk" class="form-label">비밀번호 확인</label>
+                              				<input type="password" class="form-control" id="member_pw_chk" name="member_pw_chk">
+                            			</div>
+                          			</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                   		<div class="col-lg-6 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">기본 정보 등록</h4>
+                          			<p class="card-subtitle mb-4">To register a new account, please confirm employee info.</p>
+                          			<form>
+                            			<div class="mb-3">
+                              				<label for="member_name" class="form-label">이름</label>
+                              				<input type="text" class="form-control" id="member_name" name="member_name">
+                            			</div>
+                            			<div class="mb-3">
+                                  			<label for="department" class="form-label">부서</label>
+                                  			<select class="form-select" id="department" name="department" aria-label="department-select">
+                                    			<option selected>-</option>
+                                    			<option value="1">영업지원</option>
+                                    			<option value="2">인사</option>
+                                    			<option value="3">영업</option>
+                                    			<option value="4">디자인</option>
+                                  			</select>
+                                		</div>
+                            			<div class="mb-3">
+                                  			<label for="position" class="form-label">직급</label>
+                                  			<select class="form-select" id="position" name="position" aria-label="position-select">
+                                    			<option selected>-</option>
+                                    			<option value="1">대표이사</option>
+                                    			<option value="2">이사</option>
+                                    			<option value="3">부장</option>
+                                    			<option value="4">과장</option>
+                                    			<option value="5">주임</option>
+                                    			<option value="6">사원</option>
+                                  			</select>
+                                		</div>
+                          			</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                   		<div class="col-12">
+                      		<div class="d-flex align-items-center justify-content-center gap-6">
+                        		<button class="btn btn-primary">등록</button>
+                        		<button class="btn bg-danger-subtle text-danger">취소</button>
+                      		</div>
+                    	</div>
+                  	</div>
+                </div>
+			</div>
+		</div>
+	</div>
 </th:block>
 </html>
