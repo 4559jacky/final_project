@@ -5,6 +5,7 @@ if ((at = "vertical")) {
   // Active 2 file at same time 
   // ----------------------------------------
 
+  /*
   var currentNewURL =
     window.location != window.parent.location
       ? document.referrer
@@ -18,8 +19,8 @@ if ((at = "vertical")) {
   } else {
     current_link.setAttribute("href", "./");
   }
+  */
   // end
-
 
   function findMatchingElement() {
     var currentUrl = window.location.href;

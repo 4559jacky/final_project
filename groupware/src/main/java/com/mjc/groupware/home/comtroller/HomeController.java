@@ -11,6 +11,11 @@ public class HomeController {
 		return "home";
 	}
 	
+	@GetMapping("/starter")
+	public String starterView() {
+		return "starter";
+	}
+	
 	@GetMapping("/sample")
 	public String sampleView() {
 		return "sample";
