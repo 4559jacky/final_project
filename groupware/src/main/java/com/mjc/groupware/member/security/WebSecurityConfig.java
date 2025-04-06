@@ -41,6 +41,7 @@ public class WebSecurityConfig {
 		http.userDetailsService(customUserDetailsService)
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/signup","/logout").permitAll()
+				.requestMatchers("/member/create").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")

@@ -33,4 +33,9 @@ public class MemberController {
 		return "member/login";
 	}
 	
+	@GetMapping("/member/create")
+	public String createMemberView() {
+		return "member/create";
+	}
+	
 }

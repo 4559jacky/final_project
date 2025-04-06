@@ -23,7 +23,8 @@ public class MemberDetails implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// 기본권한 = user
-		return List.of(new SimpleGrantedAuthority("user"));
+		// return List.of(new SimpleGrantedAuthority("user"));
+		return List.of(new SimpleGrantedAuthority(member.getRole().getRoleName()));
 	}
 	
 	// 사용자 PW 반환
