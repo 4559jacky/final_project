@@ -1,4 +1,4 @@
-package com.mjc.groupware.member.entity;
+package com.mjc.groupware.department.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,8 +6,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.mjc.groupware.department.entity.Department;
-import com.mjc.groupware.position.entity.Position;
+import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,48 +25,38 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="member")
+@Table(name="department")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class Member {
+public class Department {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="member_no")
-	public Long memberNo;
+	@Column(name="dept_no")
+	private Long deptNo;
 	
-	@Column(name="member_id")
-	public String memberId;
+	@Column(name="dept_name")
+	private String deptName;
 	
-	@Column(name="member_pw")
-	public String memberPw;
+	@Column(name="parent_dept_no")
+	private Long parentDeptNo;
 	
-	@Column(name="member_name")
-	private String memberName;
+	@Column(name="dept_phone")
+	private String deptPhone;
 	
-	@Column(name="member_birth")
-	private String memberBirth;
-	
-	@Column(name="member_gender")
-	private String memberGender;
-	
-	@Column(name="member_addr")
-	private String memberAddr;
-	
-	@Column(name="member_phone")
-	private String memberPhone;
+	@Column(name="dept_location")
+	private String deptLocation;
 	
 	public enum Status {
-        EMPLOYED,
-        RESIGNED,
-        ON_LEAVE
+        INACTIVE,
+        ACTIVE
     }
 	
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private Status status;
+    @Column(name = "dept_status")
+    private Status deptStatus;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -77,22 +66,11 @@ public class Member {
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
 	
-	@Column(name = "end_date")
-	private LocalDateTime endDate;
-	
 	@ManyToOne
-	@JoinColumn(name="dept_no")
-	private Department department;
+	@JoinColumn(name="member_no")
+	private Member member;
 	
-	@ManyToOne
-	@JoinColumn(name="pos_no")
-	private Position position;
-	
-	@ManyToOne
-	@JoinColumn(name="role_no")
-	private Role role;
-	
-	@OneToMany(mappedBy="member")
-	private List<Department> departments;
+	@OneToMany(mappedBy="department")
+	private List<Member> members;
 	
 }
