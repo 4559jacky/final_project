@@ -12,6 +12,8 @@ import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
+
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {

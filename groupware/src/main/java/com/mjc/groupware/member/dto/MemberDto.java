@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 
-import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import lombok.ToString;
+	
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

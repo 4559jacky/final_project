@@ -5,6 +5,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+
 	<div class="page-titles mb-7 mb-md-5">
     	<div class="row">
         	<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -94,6 +95,7 @@ layout:decorate="~{/include/layout}">
 			</div>
 		</div>
 	</div>
+	
 	<script>
 		const form = document.create_member_form;
 		form.addEventListener('submit',(event) => {
@@ -149,5 +151,6 @@ layout:decorate="~{/include/layout}">
 			}
 		});
 	</script>
+	
 </th:block>
 </html>

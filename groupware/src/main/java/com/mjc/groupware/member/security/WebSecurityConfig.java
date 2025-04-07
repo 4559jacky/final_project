@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 import lombok.RequiredArgsConstructor;
 
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -41,7 +42,7 @@ public class WebSecurityConfig {
 		http.userDetailsService(customUserDetailsService)
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/logout").permitAll()
-				.requestMatchers("/member/create", "/pos/create", "/dept/create").hasRole("ADMIN")
+				.requestMatchers("/admin/**", "/member/create", "/pos/create", "/dept/create").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")
