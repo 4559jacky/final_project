@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 	
+	// 브랜치 테스트 ysw
+	
 	@GetMapping({"", "/", "/home"})
 	public String homeView() {
 		return "home";
