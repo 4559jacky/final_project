@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"
+      data-bs-theme="light"
+      data-color-theme="Blue_Theme"
+      data-layout="horizontal"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/include/layout}">
+
+<th:block layout:fragment="content">
+
+  <div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>게시판 목록</h2>
+      <a class="btn btn-primary" th:href="@{/board/create}">글쓰기</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>번호</th>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>등록일</th>
+          <th>수정일</th>
+          <th>조회수</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="board : ${boards}">
+          <td th:text="${board.boardNo}"></td>
+          <td th:text="${board.boardTitle}"></td>
+          <td th:text="${member.memberNo}"></td>
+          <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${#temporals.format(board.modDate, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${board.views}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</th:block>
+</html>
