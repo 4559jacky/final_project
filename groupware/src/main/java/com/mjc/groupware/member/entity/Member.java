@@ -6,8 +6,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.mjc.groupware.department.entity.Department;
-import com.mjc.groupware.position.entity.Position;
+import com.mjc.groupware.dept.entity.Dept;
+import com.mjc.groupware.pos.entity.Pos;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -75,17 +75,17 @@ public class Member {
 	
 	@ManyToOne
 	@JoinColumn(name="dept_no")
-	private Department department;
+	private Dept dept;
 	
 	@ManyToOne
 	@JoinColumn(name="pos_no")
-	private Position position;
+	private Pos pos;
 	
 	@ManyToOne
 	@JoinColumn(name="role_no")
 	private Role role;
 	
 	@OneToMany(mappedBy="member")
-	private List<Department> departments;
+	private List<Dept> depts;
 	
 }

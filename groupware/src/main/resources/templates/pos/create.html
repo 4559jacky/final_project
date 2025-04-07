@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+
+	<style>
+		
+  		#pos-list li {
+			cursor: move;
+			user-select: none;
+			padding: 12px 16px;
+			background-color: white;
+			border: 1px solid #dee2e6;
+			margin-bottom: 4px;
+			border-radius: 4px;
+			display: block;
+		}
+
+		#pos-list li.dragging {
+			opacity: 0.5;
+			background-color: #e9ecef;
+		}
+  		
+  		li.empty-message {
+			color: #6c757d;
+			font-style: italic;
+			padding: 8px;
+			border-radius: 6px;
+		}
+		
+	</style>
+
+	<div class="page-titles mb-7 mb-md-5">
+		<div class="row">
+  			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+ 					<ol class="breadcrumb align-items-center">
+						<li class="breadcrumb-item">
+                      		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                        		<i class="ti ti-home fs-5"></i>
+                      		</a>
+                    	</li>
+                    	<li class="breadcrumb-item" aria-current="page">직급 등록</li>
+                  	</ol>
+                </nav>
+                <h2 class="mb-0 fw-bolder fs-8" style="padding-top:5px;">직급 등록</h2>
+			</div>
+		</div>
+	</div>
+	<div class="card">
+        <div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+					<div class="row">
+                    	<div class="col-lg-6 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">직급</h4>
+                          			<p class="card-subtitle mb-4">To register a new account, please confirm account info.</p>
+                            		
+                            		<th:block th:if="${posList != null}">
+                            			<ul id="pos-list" class="list-group">
+                            				<li th:each="pos : ${posList}"
+                            					class="list-group-item"
+                            					draggable="true"
+                            					th:attr="data-id=${pos.posNo}"
+                            					th:text="${pos.posName}">
+                            				</li>
+                            			</ul>
+                            		</th:block>
+                            		<th:block th:if="${posList == null}">
+										<ul class="list-group">
+											<li class="empty-message">등록된 직급이 없습니다.</li>
+										</ul>
+                            		</th:block>
+  									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		<div class="col-lg-6 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="create_pos_form">
+                          				<h4 class="card-title" style="font-weight: bold;">직급 등록</h4>
+                          				<p class="card-subtitle mb-4">To register a new position, please provide the position details.</p>
+                            			<div class="mb-3">
+                              				<label for="pos_name" class="form-label">직급명*</label>
+                              				<input type="text" class="form-control" id="pos_name" name="pos_name">
+                            			</div>
+                            			<div class="d-flex align-items-center justify-content-end gap-6">
+                        					<button type="submit" class="btn btn-primary">등록</button>
+                        					<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/'">취소</button>
+                      					</div>
+                      				</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                  	</div>            	
+                </div>
+			</div>
+		</div>
+	</div>
+	<script>
+		// 직급 등록 로직
+		const form = document.create_pos_form;
+		form.addEventListener('submit',(event) => {
+			event.preventDefault();
+			
+			// 1. 유효성 검사
+			let vali_chk = false;
+			let vali_msg = "";
+			
+			if(!form.pos_name.value) {
+				vali_msg += "직급명을 입력하세요";
+				form.pos_name.focus();
+			} else {
+				vali_chk = true;
+			}
+			
+			if(vali_chk == false) {
+				alert(vali_msg);
+			} else {
+				// 2. 직급 등록
+				const payload = new FormData(form);
+				
+				fetch("/pos/create", {
+					method : "post",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body : payload
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/pos/create";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+	</script>
+	
+	<script>
+		// 드래그 앤 드랍 로직
+		document.addEventListener('DOMContentLoaded', () => {
+			const list = document.getElementById('pos-list');
+			let draggingEle = null;
+			
+			// 드래그 시작
+			list.addEventListener('dragstart', (e) => {
+				if (e.target.tagName === 'LI') {
+					draggingEle = e.target;
+					draggingEle.classList.add('dragging');
+				}
+			});
+			
+			// 드래그 끝
+			list.addEventListener('dragend', () => {
+				if (draggingEle) {
+					draggingEle.classList.remove('dragging');
+					draggingEle = null;
+				}
+			});
+			
+			// 드래그 중인 요소 위치 조정
+			list.addEventListener('dragover', (e) => {
+				e.preventDefault();
+
+				const afterElement = getDragAfterElement(list, e.clientY);
+				const dragging = document.querySelector('.dragging');
+				
+				if (!dragging) return;
+				
+				if (afterElement == null) {
+					list.appendChild(dragging);
+				} else {
+					list.insertBefore(dragging, afterElement);
+				}
+			});
+			
+			// 기준 요소보다 위에 위치한 가장 가까운 요소를 찾아야함
+			function getDragAfterElement(container, y) {
+				const items = [...container.querySelectorAll('li:not(.dragging)')];
+				
+				return items.reduce((closest, child) => {
+					const box = child.getBoundingClientRect();
+					const offset = y - box.top - box.height / 2;
+					
+					if (offset < 0 && offset > closest.offset) {
+						return { offset, element: child };
+					} else {
+						return closest;
+					}
+				}, { offset: Number.NEGATIVE_INFINITY }).element;
+			}
+		});
+	</script>
+</th:block>
+</html>

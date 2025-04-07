@@ -22,17 +22,17 @@ public class MemberService {
 	private final UserDetailsService userDetailsService;
 	
 	public Member selectMemberOne(MemberDto dto) {
-		Member member = repository.findByMemberId(dto.getMember_id());
+		Member result = repository.findByMemberId(dto.getMember_id());
 		
-		return member;
+		return result;
 	}
 	
 	public Member createMember(MemberDto dto) {
 		dto.setMember_pw(passwordEncoder.encode(dto.getMember_pw()));
 		
-		Member member = repository.save(dto.toEntity());
+		Member result = repository.save(dto.toEntity());
 		
-		return member;
+		return result;
 	}
 	
 }
