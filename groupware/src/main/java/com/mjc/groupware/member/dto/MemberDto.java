@@ -3,6 +3,7 @@ package com.mjc.groupware.member.dto;
 import java.time.LocalDateTime;
 
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.Role;
 
 import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
@@ -29,8 +30,8 @@ public class MemberDto {
 	private String member_phone;
 	private Long dept_no;
 	private Long pos_no;
-	private Long role_no;
-	private Enum<?> status;
+	private Long role_no = (long) 3;
+	private String status = "EMPLOYED";
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	private LocalDateTime end_date;
@@ -41,6 +42,8 @@ public class MemberDto {
 				.memberId(this.getMember_id())
 				.memberPw(this.getMember_pw())
 				.memberName(this.getMember_name())
+				.role(Role.builder().roleNo(this.getRole_no()).build())
+				.status(this.getStatus())
 				.build();
 	}
 	

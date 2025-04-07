@@ -58,16 +58,9 @@ public class Member {
 	
 	@Column(name="member_phone")
 	private String memberPhone;
-	
-	public enum Status {
-        EMPLOYED,
-        RESIGNED,
-        ON_LEAVE
-    }
-	
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "status")
-    private Status status;
+    private String status;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")

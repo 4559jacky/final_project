@@ -51,10 +51,6 @@ public class MemberController {
 	@PostMapping("member/create")
 	@ResponseBody
 	public Map<String, String> createMemberApi(MemberDto dto) {
-		System.out.println(dto.getMember_id());
-		System.out.println(dto.getMember_pw());
-		System.out.println(dto.getMember_name());
-		
 		Map<String, String> resultMap = new HashMap<>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
