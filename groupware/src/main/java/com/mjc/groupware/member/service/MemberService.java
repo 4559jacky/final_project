@@ -27,4 +27,12 @@ public class MemberService {
 		return member;
 	}
 	
+	public Member createMember(MemberDto dto) {
+		dto.setMember_pw(passwordEncoder.encode(dto.getMember_pw()));
+		
+		Member member = repository.save(dto.toEntity());
+		
+		return member;
+	}
+	
 }
