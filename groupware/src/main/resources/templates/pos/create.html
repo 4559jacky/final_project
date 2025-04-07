@@ -126,7 +126,7 @@ layout:decorate="~{/include/layout}">
 				// 2. 직급 등록
 				const payload = new FormData(form);
 				
-				fetch("/pos/create", {
+				fetch("/admin/pos/create", {
 					method : "post",
 					headers : {
 						'header': document.querySelector('meta[name="_csrf_header"]').content,

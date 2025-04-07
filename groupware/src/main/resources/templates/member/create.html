@@ -130,7 +130,7 @@ layout:decorate="~{/include/layout}">
 				// 2. 회원정보 등록
 				const payload = new FormData(form);
 				
-				fetch("/member/create", {
+				fetch("/admin/member/create", {
 					method : "post",
 					headers : {
 						'header': document.querySelector('meta[name="_csrf_header"]').content,

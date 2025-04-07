@@ -43,12 +43,12 @@ public class MemberController {
 		return "member/login";
 	}
 	
-	@GetMapping("/member/create")
+	@GetMapping("/admin/member/create")
 	public String createMemberView() {
 		return "member/create";
 	}
 	
-	@PostMapping("member/create")
+	@PostMapping("/admin/member/create")
 	@ResponseBody
 	public Map<String, String> createMemberApi(MemberDto dto) {
 		Map<String, String> resultMap = new HashMap<>();

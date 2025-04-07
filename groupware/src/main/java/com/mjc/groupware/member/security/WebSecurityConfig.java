@@ -42,7 +42,7 @@ public class WebSecurityConfig {
 		http.userDetailsService(customUserDetailsService)
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/logout").permitAll()
-				.requestMatchers("/admin/**", "/member/create", "/pos/create", "/dept/create").hasRole("ADMIN")
+				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")
