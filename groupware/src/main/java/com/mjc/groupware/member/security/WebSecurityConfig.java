@@ -32,7 +32,7 @@ public class WebSecurityConfig {
 		return (web -> web.ignoring()
 					.requestMatchers(PathRequest.toStaticResources().atCommonLocations())
 					.requestMatchers("/assets/**", "/favicon.ico")
-				);
+		);
 	}
 	
 	// 시큐리티 환경 설정
