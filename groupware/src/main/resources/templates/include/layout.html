@@ -208,7 +208,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     	}
 	}
 	</style>
-
+	
+	<!-- jQuery -->
+  	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+  	
 </head>
 <body>
   	<div class="page-wrapper" style="position: relative; width: 100%; z-index: 10; padding-bottom: 45px;">
@@ -220,6 +223,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<div class="body-wrapper" style="padding-top:0px;">
         <div class="container-fluid" style="padding-top:0px !important;">
 			<th:block layout:fragment="content"></th:block>
+			<th:block layout:fragment="scripts"></th:block>
 		</div>
 	</div>
 	
@@ -332,6 +336,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
   	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
   	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Summernote JS -->
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/lang/summernote-ko-KR.min.js"></script>
   	
 </body>
 </html>
