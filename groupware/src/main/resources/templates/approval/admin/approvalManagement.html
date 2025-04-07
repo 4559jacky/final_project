@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<title>결재 관리</title>
-</head>
-<body>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
 	<a th:href="@{/admin/approval/create}">양식 추가</a>
-	<a th:href="@{/approval}">전자 결재 시스템(사원)</a>
-</body>
+</th:block>
 </html>
