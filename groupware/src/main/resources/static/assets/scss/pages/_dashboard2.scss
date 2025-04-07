@@ -1,0 +1,26 @@
+// ----------------------------------------------
+// Dashboard2 Style
+// ----------------------------------------------
+
+.welcome-card2::before {
+    content: "";
+    background-image: url("../images/backgrounds/welcome-bg.png");
+    background-repeat: no-repeat;
+    background-position: left 19px center;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@media (min-width: 1500px) {
+    .welcome-card2 {
+        background-position: right -237px center !important;
+    }
+}
+
+@include media-breakpoint-only(md) {
+    .welcome-card2 {
+        background-position: right -195px center !important;
+    }
+}
