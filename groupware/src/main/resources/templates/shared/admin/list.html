@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<div class="container-fluid px-4">
+	   <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb align-items-center">
+          <li class="breadcrumb-item">
+            <a class="text-muted text-decoration-none" th:href="@{/home}">
+              <i class="ti ti-home fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item" aria-current="page">공유문서함 게시판</li>
+        </ol>
+      </nav><br>
+      <h2 class="mb-0 fw-bolder fs-8">공유문서함 게시판</h2>
+    </div><br>
+      <!-- Search + Button -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+	<form action="/approval/search" method="get" 
+	     class="d-flex align-items-center px-3 py-2"
+	     style="background-color: #f8f9fa; border-radius: 50px; max-width: 400px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);">
+	
+		<button type="submit" class="btn p-0 border-0 bg-transparent">
+		  <i class="ti ti-search fs-5 text-primary"></i>
+		</button>
+	
+		<input type="text" name="keyword"
+		       class="form-control border-0 bg-transparent ms-2"
+		       placeholder="검색어를 입력하세요."
+		       style="box-shadow: none;">
+	</form>
+      <button type="button" class="btn btn-primary rounded-pill" onclick="location.href='/admin/shared/create'">게시글 작성</button>
+    </div>
+	<!-- Table -->
+    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+		  <div class="table-responsive">
+		    <table class="table align-middle text-center">
+		      <!-- 테이블 헤더 -->
+		      <thead class="table-light">
+		        <tr>
+		          <th>번호</th>
+		          <th>제목</th>
+		          <th>작성자</th>
+		          <th>등록일</th>
+		          <th>수정일</th>
+		          <th>조회수</th>
+		        </tr>
+		      </thead>
+		      <!-- 테이블 바디 -->
+		      <tbody>
+		        <!-- 예시 데이터 -->
+		       
+		        <!-- ... -->
+		      </tbody>
+		    </table>
+		  </div>
+		</div>
+	<!-- --------------------- -->
+	</div>
+</th:block>
+</html>
