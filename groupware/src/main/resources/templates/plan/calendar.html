@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+<html lang="ko" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -15,23 +15,11 @@ layout:decorate="~{/include/layout}">
                         <i class="ti ti-home fs-5"></i>
                       </a>
                     </li>
-                    <li class="breadcrumb-item" aria-current="page">Calendar</li>
+                    <li class="breadcrumb-item" aria-current="page">일정</li>
                   </ol>
-                </nav>
-                <h2 class="mb-0 fw-bolder fs-8">Calendar</h2>
-              </div>
-              <div class="col-lg-4 col-md-6 d-none d-md-flex align-items-center justify-content-end">
-                <select class="form-select w-auto bg-primary-subtle border-0" aria-label="Default select example">
-                  <option selected="">Today 23 March</option>
-                  <option value="1">Today 23 March</option>
-                  <option value="2">Today 24 March</option>
-                  <option value="3">Today 25 March</option>
-                </select>
-                <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center ms-2">
-                  <i class="ti ti-plus me-1"></i>
-                  Add New
-                </a>
-              </div>
+                </nav><br>
+                <h2 class="mb-0 fw-bolder fs-8">일정</h2>
+              </div><br>
             </div>
           </div>
           <div class="card">
@@ -45,7 +33,7 @@ layout:decorate="~{/include/layout}">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="eventModalLabel">
-                    Add / Edit Event
+                    일정 등록/수정
                   </h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -53,37 +41,37 @@ layout:decorate="~{/include/layout}">
                   <div class="row">
                     <div class="col-md-12">
                       <div>
-                        <label class="form-label">Event Title</label>
+                        <label class="form-label">일정 내용</label>
                         <input id="event-title" type="text" class="form-control" />
                       </div>
                     </div>
                     <div class="col-md-12 mt-6">
                       <div>
-                        <label class="form-label">Event Color</label>
+                        <label class="form-label">일정 타입</label>
                       </div>
                       <div class="d-flex">
                         <div class="n-chk">
                           <div class="form-check form-check-primary form-check-inline">
                             <input class="form-check-input" type="radio" name="event-level" value="Danger" id="modalDanger" />
-                            <label class="form-check-label" for="modalDanger">Danger</label>
+                            <label class="form-check-label" for="modalDanger">부서</label>
                           </div>
                         </div>
                         <div class="n-chk">
                           <div class="form-check form-check-warning form-check-inline">
                             <input class="form-check-input" type="radio" name="event-level" value="Success" id="modalSuccess" />
-                            <label class="form-check-label" for="modalSuccess">Success</label>
+                            <label class="form-check-label" for="modalSuccess">개인</label>
                           </div>
                         </div>
                         <div class="n-chk">
                           <div class="form-check form-check-success form-check-inline">
                             <input class="form-check-input" type="radio" name="event-level" value="Primary" id="modalPrimary" />
-                            <label class="form-check-label" for="modalPrimary">Primary</label>
+                            <label class="form-check-label" for="modalPrimary">회사</label>
                           </div>
                         </div>
                         <div class="n-chk">
                           <div class="form-check form-check-danger form-check-inline">
                             <input class="form-check-input" type="radio" name="event-level" value="Warning" id="modalWarning" />
-                            <label class="form-check-label" for="modalWarning">Warning</label>
+                            <label class="form-check-label" for="modalWarning">휴가</label>
                           </div>
                         </div>
                       </div>
@@ -91,14 +79,14 @@ layout:decorate="~{/include/layout}">
 
                     <div class="col-md-12 mt-6">
                       <div>
-                        <label class="form-label">Enter Start Date</label>
+                        <label class="form-label">시작일</label>
                         <input id="event-start-date" type="date" class="form-control" />
                       </div>
                     </div>
 
                     <div class="col-md-12 mt-6">
                       <div>
-                        <label class="form-label">Enter End Date</label>
+                        <label class="form-label">종료일</label>
                         <input id="event-end-date" type="date" class="form-control" />
                       </div>
                     </div>
@@ -106,22 +94,23 @@ layout:decorate="~{/include/layout}">
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn bg-danger-subtle text-danger" data-bs-dismiss="modal">
-                    Close
+                    취소
                   </button>
                   <button type="button" class="btn btn-success btn-update-event" data-fc-event-public-id="">
-                    Update changes
+                    수정
                   </button>
                   <button type="button" class="btn btn-primary btn-add-event">
-                    Add Event
+                    일정등록
                   </button>
                 </div>
               </div>
             </div>
           </div>
-          <script>
+<script>
   function handleColorTheme(e) {
     document.documentElement.setAttribute("data-color-theme", e);
   }
+
 </script>
       <button class="btn btn-primary p-3 rounded-circle d-flex align-items-center justify-content-center customizer-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
         <i class="icon ti ti-settings fs-7"></i>
@@ -361,7 +350,6 @@ layout:decorate="~{/include/layout}">
         </div>
       </div>
     </div>
-          
           
           <div class="dark-transparent sidebartoggler"></div>
   <!-- Import Js Files -->
