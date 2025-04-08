@@ -31,7 +31,7 @@
 	    color: black !important;
 	  }
 	</style>
-	<form name="create_approval_form" action="/admin/approval/create" method="post">
+	<form name="create_approval_form" action="/admin/approvalForm/create" method="post">
 	<div>
 		<label>제목 : <input type="text" name="approval_form_name"></label>
 		<input type="submit" value="양식 생성">
@@ -118,7 +118,7 @@
 
     	    const payload = new FormData(form);
 
-    	    fetch("/admin/approval/create", {
+    	    fetch("/admin/approvalForm/create", {
     	      method: 'post',
     	      body: payload
     	    })
