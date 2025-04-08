@@ -47,9 +47,25 @@ public class PosService {
 		for (PosOrderDto dto : posOrderList) {
 	        Pos pos = repository.findById(dto.getPosNo())
 	                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직급입니다."));
-
-	        pos.changeOrder(dto.getOrder().longValue()); // 도메인 메서드 호출
+	        
+	        pos.changeOrder(dto.getOrder().longValue());
 	    }
 	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateName(PosDto dto) {
+		 Pos pos = repository.findById(dto.getPos_no())
+	                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직급입니다."));
+
+		 pos.changeName(dto.getPos_name());
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+    public void deletePos(PosDto posDto) throws Exception {
+        Pos pos = repository.findById(posDto.getPos_no())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직급입니다."));
+
+        repository.delete(pos);
+    }
 	
 }

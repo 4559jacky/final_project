@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +59,10 @@ public class PosController {
 		} catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
 	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			logger.error("직급 등록 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "직급 등록 도중 알 수 없는 오류가 발생하였습니다.");
 		}
 		
 		return resultMap;
@@ -71,8 +76,7 @@ public class PosController {
 		logger.info("posOrderList: {}", posOrderList);
 	    
 		try {
-			resultMap.put("res_code", "500");
-			resultMap.put("res_msg", "직급 순서 변경 도중 알 수 없는 오류가 발생하였습니다.");
+
 			
 	        if (posOrderList == null || posOrderList.isEmpty()) {
 	            resultMap.put("res_code", "400");
@@ -87,6 +91,61 @@ public class PosController {
 	    } catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
 	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			logger.error("직급 순서 변경 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "직급 순서 변경 도중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	@PostMapping("/admin/pos/update/name")
+	@ResponseBody
+	public Map<String, String> updatePosNameApi(@RequestBody PosDto posDto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		logger.info("posDto : {}", posDto);
+
+		try {
+			service.updateName(posDto);
+			
+			resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "직급명이 변경되었습니다.");	
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		} catch (DataIntegrityViolationException e) {
+	        resultMap.put("res_code", "409");
+	        resultMap.put("res_msg", "이미 존재하는 직급명입니다.");
+		} catch(Exception e) {
+			logger.error("직급명 변경 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "직급명 변경 도중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	@PostMapping("/admin/pos/delete")
+	@ResponseBody
+	public Map<String, String> deletePosApi(@RequestBody PosDto posDto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		logger.info("posDto : {}", posDto);
+		
+		try {
+			service.deletePos(posDto);
+			
+			resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "직급이 삭제되었습니다.");	
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			logger.error("직급명 변경 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "직급 삭제 도중 알 수 없는 오류가 발생하였습니다.");
 		}
 		
 		return resultMap;

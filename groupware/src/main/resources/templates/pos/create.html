@@ -15,7 +15,6 @@ layout:decorate="~{/include/layout}">
 			border: 1px solid #dee2e6;
 			margin-bottom: 4px;
 			border-radius: 4px;
-			display: block;
 			cursor: default;
 		}
 
@@ -39,6 +38,24 @@ layout:decorate="~{/include/layout}">
 		
 		.dragging .drag-handle {
 			cursor: grabbing;
+		}
+		
+		.edit-btn,
+		.save-btn,
+		.cancel-btn,
+		.delete-btn {
+  			border-color: #ccc !important;
+  			color: #666 !important;
+  			background-color: transparent !important;
+  			transition: all 0.3s ease;
+		}
+
+		.edit-btn:hover,
+		.save-btn:hover,
+		.cancel-btn:hover,
+		.delete-btn:hover {
+  			border-color: #999 !important;
+  			color: #222 !important;
 		}
 		
 	</style>
@@ -74,14 +91,21 @@ layout:decorate="~{/include/layout}">
                             		<th:block th:if="${posList != null}">
                             			<ul id="pos-list" class="list-group">
                             				<li th:each="pos : ${posList}"
-                            					class="list-group-item"
+                            					class="list-group-item d-flex align-items-center justify-content-start gap-2"
                             					th:attr="data-id=${pos.posNo}">
 												
-                            					<span class="drag-handle me-3" draggable="true" style="cursor: grab;">
+                            					<span class="drag-handle me-2" draggable="true" style="cursor: grab;">
 													&#9776;
 												</span>
 												
-												<span th:text="${pos.posName}"></span>
+      											<span class="pos-name flex-grow-1" th:text="${pos.posName}"></span>
+
+      											<input type="text" class="edit-input form-control flex-grow-1 d-none" th:value="${pos.posName}" />
+      											
+      											<button class="edit-btn btn btn-sm btn-outline-primary">✏️</button>
+      											<button class="save-btn btn btn-sm btn-outline-success d-none">✅</button>
+      											<button class="cancel-btn btn btn-sm btn-outline-danger d-none">❌</button>
+      											<button class="delete-btn btn btn-sm btn-outline-primary">🗑️</button>
                             				</li>
 											
                             			</ul>
@@ -249,6 +273,134 @@ layout:decorate="~{/include/layout}">
 					}
 				}, { offset: Number.NEGATIVE_INFINITY }).element;
 			}
+		});
+	</script>
+	
+	<script>
+		// 직급명 수정 로직
+		document.addEventListener('DOMContentLoaded', function () {
+		  	const posList = document.getElementById('pos-list');
+			
+		  	posList.querySelectorAll('li').forEach(li => {
+		   	 	const posNameSpan = li.querySelector('.pos-name');
+		    	const input = li.querySelector('.edit-input');
+		    	const editBtn = li.querySelector('.edit-btn');
+		    	const saveBtn = li.querySelector('.save-btn');
+		    	const cancelBtn = li.querySelector('.cancel-btn');
+				
+		    	let originalValue = input.value;
+				
+		    	// 수정 버튼 클릭
+		    	editBtn.addEventListener('click', () => {
+		      		posNameSpan.classList.add('d-none');
+		      		input.classList.remove('d-none');
+		      		input.focus();
+					
+		      		editBtn.classList.add('d-none');
+		      		saveBtn.classList.remove('d-none');
+		      		cancelBtn.classList.remove('d-none');
+					
+		      		originalValue = input.value;
+		    	});
+				
+		    	// 저장 버튼 클릭
+		    	saveBtn.addEventListener('click', () => {
+		      		const newName = input.value.trim();
+		      		const posNo = li.dataset.id;
+					
+		      		if (!newName) {
+		      			alert("직급명은 비워둘 수 없습니다.");
+		        		input.focus();
+		        		return;
+		      		}
+
+		      		// 서버에 업데이트 요청
+		      		fetch(`/admin/pos/update/name`, {
+		        		method: 'post',
+		        		headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		        		},
+		        		body: JSON.stringify({
+							posNo: Number(posNo),
+							posName: newName
+						})
+		      		})
+		        	.then(response => response.json())
+		        	.then(data => {
+		          		posNameSpan.textContent = newName;
+
+		          		input.classList.add('d-none');
+		         		posNameSpan.classList.remove('d-none');
+
+		          		saveBtn.classList.add('d-none');
+		          		cancelBtn.classList.add('d-none');
+		          		editBtn.classList.remove('d-none');
+		          		
+						alert(data.res_msg);
+						if(data.res_code == '200') {
+							location.href = "/admin/pos/create";
+						} else {
+							location.href = "/admin/pos/create";
+						}
+		        	})
+		        	.catch(error => {
+		        		console.log(error);
+		        	});
+		    	});
+
+		    	// 취소 버튼 클릭
+		    	cancelBtn.addEventListener('click', () => {
+		      		input.value = originalValue;
+
+		      		input.classList.add('d-none');
+		      		posNameSpan.classList.remove('d-none');
+
+		      		saveBtn.classList.add('d-none');
+		      		cancelBtn.classList.add('d-none');
+		      		editBtn.classList.remove('d-none');
+		    	});
+		  	});
+		});
+	</script>
+	
+	<script>
+		// 직급 삭제 로직
+		document.addEventListener('DOMContentLoaded', function () {
+			const posList = document.getElementById('pos-list');
+			
+			posList.querySelectorAll('li').forEach(li => {
+				const deleteBtn = li.querySelector('.delete-btn');
+				const posNo = li.dataset.id;
+				
+				deleteBtn.addEventListener('click', () => {
+					if (!confirm("정말 이 직급을 삭제하시겠습니까?")) return;
+					
+					fetch("/admin/pos/delete", {
+						method: "post",
+						headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+		        		body: JSON.stringify({
+							posNo: Number(posNo)
+						})
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if (data.res_code === '200') {
+							li.remove();
+							location.href = "/admin/pos/create";
+						}
+					})
+					.catch(error => {
+		        		console.log(error);
+		        	});
+				});
+			});
 		});
 	</script>
 </th:block>
