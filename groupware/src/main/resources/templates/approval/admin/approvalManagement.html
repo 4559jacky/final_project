@@ -18,6 +18,48 @@ layout:decorate="~{/include/layout}">
       </nav><br>
       <h2 class="mb-0 fw-bolder fs-8">결재 관리</h2>
     </div><br>
-	<a th:href="@{/admin/approvalForm/create}">양식 추가</a>
+    <div class="container-fluid my-5 px-4 position-relative">
+	  <div class="row">
+		  <!-- 왼쪽 결재 양식 선택 영역 -->
+		  <div class="col-md-3">
+		    <div class="card shadow-sm rounded-4 p-4">
+		      <h5 class="fw-bold mb-4 text-center">결재 양식 선택</h5>
+		      <div class="d-grid gap-3">
+		        <button class="btn btn-outline-primary">일반 기안서</button>
+		        <button class="btn btn-outline-primary">업무 보고서</button>
+		        <button class="btn btn-outline-primary">지출 내역서</button>
+		        <button class="btn btn-outline-primary">연차 신청서</button>
+		        <button class="btn btn-primary">휴가 신청서</button>
+		        <button class="btn btn-outline-primary" onclick="createForm();">결재 양식 추가</button>
+		      </div>
+		    </div>
+		  </div>
+		
+		  <!-- 오른쪽 결재 양식 내용 영역 -->
+			<div class="col-md-9">
+			  <div class="card shadow-sm rounded-4 p-4 bg-white" style="min-height: 600px; position: relative;">
+			    <h5 class="fw-bold mb-4">양식 내용</h5>
+			
+			    <!-- 여기에 동적 양식 들어감 -->
+			    <div id="approval-content">
+			      <!-- JS로 들어오는 HTML이 여기 렌더링됨 -->
+			    </div>
+			
+			    <!-- 하단 버튼 -->
+			    <div class="d-flex justify-content-end gap-2 position-absolute bottom-0 end-0 m-4">
+			      <button class="btn btn-outline-primary px-4">임시 저장</button>
+			      <button class="btn btn-primary px-4">승인 요청</button>
+			    </div>
+			  </div>
+			</div>
+		</div>
+
+	</div>
+	<script>
+	  function createForm() {
+	    // fetch() 대신 페이지 이동
+	    window.location.href = '/admin/approvalForm/create';
+	  }
+	</script>
 </th:block>
 </html>
