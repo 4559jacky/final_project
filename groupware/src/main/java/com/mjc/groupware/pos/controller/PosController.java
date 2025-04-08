@@ -76,8 +76,6 @@ public class PosController {
 		logger.info("posOrderList: {}", posOrderList);
 	    
 		try {
-
-			
 	        if (posOrderList == null || posOrderList.isEmpty()) {
 	            resultMap.put("res_code", "400");
 	            resultMap.put("res_msg", "변경할 순서 정보가 없습니다.");
