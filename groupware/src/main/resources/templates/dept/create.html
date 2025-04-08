@@ -6,6 +6,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
 
+	<link th:href="@{/css/cjs/dept_create.css}" rel="stylesheet">
+	
 	<div class="page-titles mb-7 mb-md-5">
 		<div class="row">
 			<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -33,7 +35,12 @@ layout:decorate="~{/include/layout}">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
                           			<h4 class="card-title" style="font-weight: bold;">부서</h4>
-                          			<p class="card-subtitle mb-4">To change the position order, please use drag and drop.</p>
+                          			<p class="card-subtitle mb-4">To view the status of departments, please check the org chart.</p>
+  									
+  									<div class="d-flex justify-content-start mb-3">
+  										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
+  										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
+									</div>
   									
   									<div id="jstree">
     									<ul>

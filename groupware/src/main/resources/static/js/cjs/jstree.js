@@ -33,4 +33,15 @@ $(document).ready(function() {
     	var selectedNodes = $('#jstree').jstree('get_selected');
     	alert('선택된 노드: ' + selectedNodes);
   	});
+	
+	// 펼치기 버튼 (+)
+	$('#expand_all').on('click', function () {
+		$('#jstree').jstree('open_all');
+	});
+
+	// 접기 버튼 (-)
+	$('#collapse_all').on('click', function () {
+		$('#jstree').jstree('close_all');
+	});
+	
 });
