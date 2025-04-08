@@ -9,55 +9,45 @@
 
   <!-- Summernote CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css">
-  
-  <div class="col-lg-8 col-md-6 col-12 align-self-center">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb align-items-center">
-        <li class="breadcrumb-item">
-          <a class="text-muted text-decoration-none" th:href="@{/home}">
-            <i class="ti ti-home fs-5"></i>
-          </a>
-        </li>
-        <li class="breadcrumb-item" aria-current="page">게시판 작성</li>
-      </ol>
-    </nav><br>
-  </div><br>
 
   <div class="container mt-5" style="max-width: 800px;">
     <h3 class="text-center mb-4">자유게시판 작성</h3>
 
     <form th:action="@{/board/create}" method="post" enctype="multipart/form-data" id="board_form">
-      
-      <!-- 제목 및 투표 추가 버튼 -->
-      <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div style="flex-grow: 1;">
-          <label class="form-label" for="board_title"><strong>제목</strong></label>
-          <input type="text" class="form-control" id="board_title" name="board_title" placeholder="제목을 입력하세요">
+
+      <!-- 제목 + 투표 버튼 -->
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-end">
+          <label class="form-label mb-0"><strong>제목</strong></label>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="addVote()">투표 추가</button>
         </div>
-        <button type="button" class="btn btn-outline-primary ms-3" onclick="addVote()">투표 추가</button>
+        <input type="text" class="form-control mt-1" id="board_title" name="board_title" placeholder="제목을 입력하세요">
       </div>
 
-      <!-- 파일 첨부 -->
+      <!-- 파일 첨부 + 파일 버튼 -->
       <div class="mb-3">
-        <label class="form-label"><strong>파일 첨부</strong></label>
-        <div class="dropzone" id="dropzone">
-          <p>여기에 파일을 끌고 오세요. 파일을 선택하세요.</p>
+        <div class="d-flex justify-content-between align-items-end">
+          <label class="form-label mb-0"><strong>파일 첨부</strong></label>
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input').click()">파일 추가</button>
+        </div>
+        <div class="dropzone mt-2" id="dropzone" style="border: 1px dashed #ccc; padding: 20px; text-align: center;">
+          <p class="mb-0">여기에 파일을 끌어다 놓거나 파일 추가 버튼을 누르세요.</p>
         </div>
         <input type="file" id="file_input" name="files" multiple style="display: none;">
-        <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('file_input').click()">파일 선택</button>
       </div>
 
-      <!-- 내용 입력 -->
+      <!-- 내용 + Summernote -->
       <div class="mb-3">
         <label class="form-label" for="board_content"><strong>내용</strong></label>
         <textarea id="board_content" name="board_content"></textarea>
       </div>
-      
-      <!-- 하단 버튼 -->
+
+      <!-- 등록 / 임시저장 버튼 -->
       <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="submit" class="btn btn-primary">등록</button>
+        <button type="submit" class="btn btn-primary">등록 완료</button>
         <button type="button" class="btn btn-secondary" onclick="saveTemp()">임시저장</button>
       </div>
+
     </form>
   </div>
 
@@ -71,6 +61,7 @@
       height: 300,
       lang: 'ko-KR',
       placeholder: '300자 이내로 입력하세요',
+      width: '100%',
       callbacks: {
         onImageUpload: function(files) {
           let data = new FormData();
@@ -108,6 +99,14 @@
       const files = e.dataTransfer.files;
       fileInput.files = files;
     });
+
+    function addVote() {
+      alert("투표 추가 준비중!");
+    }
+
+    function saveTemp() {
+      alert("임시저장 준비중!");
+    }
   </script>
 
 </th:block>

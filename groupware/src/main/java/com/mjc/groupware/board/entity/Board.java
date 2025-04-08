@@ -38,4 +38,8 @@ public class Board {
     private LocalDateTime modDate; // 게시글 수정일
 
     private Long memberNo; // 사원 번호
+    
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "member_no", insertable = false, updatable = false)
+//    private Member member;
 }

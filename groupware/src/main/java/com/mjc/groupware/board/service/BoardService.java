@@ -32,7 +32,7 @@ public class BoardService {
     }
 
     // 게시글 목록 조회
-    public List<BoardDto> getBoardList() {
+    public List<BoardDto> selectBoardList() {
         return boardRepository.findAll().stream()
                 .map(board -> BoardDto.builder()
                         .board_no(board.getBoardNo())
