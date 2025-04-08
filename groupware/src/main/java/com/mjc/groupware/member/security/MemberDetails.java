@@ -12,6 +12,7 @@ import com.mjc.groupware.member.entity.Member;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+
 @Getter
 @RequiredArgsConstructor
 public class MemberDetails implements UserDetails {
