@@ -28,7 +28,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr th:each="board : ${boards}">
+     <tr th:if="${#lists.isEmpty(boardList)}">
+		<td colspan="6">게시글이 없습니다.</td>
+	</tr>
+        <tr th:each="board : ${boardList}">
           <td th:text="${board.boardNo}"></td>
           <td th:text="${board.boardTitle}"></td>
           <td th:text="${member.memberNo}"></td>
