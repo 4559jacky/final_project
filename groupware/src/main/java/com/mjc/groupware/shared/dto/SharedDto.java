@@ -28,7 +28,7 @@ public class SharedDto {
 	public Shared toEntity() {
 		return Shared.builder()
 				.sharedNo(shared_no)
-				.sharedTitle(shared_content)
+				.sharedTitle(shared_title)
 				.sharedContent(shared_content)
 				.build();
 	}

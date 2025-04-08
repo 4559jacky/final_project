@@ -53,11 +53,16 @@ layout:decorate="~{/include/layout}">
 		        </tr>
 		      </thead>
 		      <!-- 테이블 바디 -->
-		      <tbody>
-		        <!-- 예시 데이터 -->
-		       
-		        <!-- ... -->
-		      </tbody>
+		        <tbody>
+  					<tr th:each="item, iterStat : ${sharedList}">
+    					<td th:text="${iterStat.count}">1</td>
+   						<td th:text="${item.sharedTitle}">제목</td>
+    					<td>-</td> <!-- 작성자 정보 없음 -->
+    					<td th:text="${#temporals.format(item.regDate, 'yyyy-MM-dd')}">등록일</td>
+    					<td th:text="${#temporals.format(item.modDate, 'yyyy-MM-dd')}">수정일</td>
+    					<td>-</td> <!-- 조회수 정보 없음 -->
+  					</tr>
+			 	</tbody>
 		    </table>
 		  </div>
 		</div>

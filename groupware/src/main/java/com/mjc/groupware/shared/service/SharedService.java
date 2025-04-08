@@ -1,5 +1,8 @@
 package com.mjc.groupware.shared.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.shared.dto.SharedDto;
@@ -26,5 +29,9 @@ public class SharedService {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	public List<Shared> getSharedList() {
+		return repository.findAll(Sort.by(Sort.Direction.DESC, "sharedNo"));
 	}
 }
