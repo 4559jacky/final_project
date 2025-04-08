@@ -1,5 +1,7 @@
 package com.mjc.groupware.member.service;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,6 +31,12 @@ public class MemberService {
 		Member result = repository.findByMemberId(dto.getMember_id());
 		
 		return result;
+	}
+	
+	public List<Member> selectMemberAll() {
+		List<Member> resultList = repository.findAll();
+		
+		return resultList;
 	}
 	
 	@Transactional(rollbackFor = Exception.class)

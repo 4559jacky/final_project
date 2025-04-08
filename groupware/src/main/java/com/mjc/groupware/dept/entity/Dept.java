@@ -10,8 +10,6 @@ import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,11 +35,12 @@ public class Dept {
 	@Column(name="dept_no")
 	private Long deptNo;
 	
-	@Column(name="dept_name")
+	@Column(name="dept_name", nullable = false, unique = true)
 	private String deptName;
 	
-	@Column(name="parent_dept_no")
-	private Long parentDeptNo;
+	@ManyToOne
+	@JoinColumn(name="parent_dept_no")
+	private Dept parentDept;
 	
 	@Column(name="dept_phone")
 	private String deptPhone;
@@ -49,14 +48,8 @@ public class Dept {
 	@Column(name="dept_location")
 	private String deptLocation;
 	
-	public enum Status {
-        INACTIVE,
-        ACTIVE
-    }
-	
-    @Enumerated(EnumType.STRING)
     @Column(name = "dept_status")
-    private Status deptStatus;
+    private String deptStatus;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")

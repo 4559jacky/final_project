@@ -31,7 +31,7 @@ public class PosController {
 	
 	@GetMapping("/admin/pos/create")
 	public String createPosView(Model model) {
-		List<Pos> posList = service.selectPosAll();
+		List<Pos> posList = service.selectPosAllByPosOrderAsc();
 		
 		if(!posList.isEmpty()) {
 			model.addAttribute("posList", posList);
@@ -45,17 +45,16 @@ public class PosController {
 	public Map<String, String> createPosApi(PosDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "직급 등록 도중 알 수 없는 오류가 발생하였습니다.");
+		
+		logger.info("posDto : {}", dto);
+		
 		try {
-			resultMap.put("res_code", "500");
-			resultMap.put("res_msg", "직급 등록 도중 알 수 없는 오류가 발생하였습니다.");
+			service.createPos(dto);
 			
-			Pos pos = service.createPos(dto);
-			
-			if(pos != null) {
-				resultMap.put("res_code", "200");
-				resultMap.put("res_msg", "직급 등록이 성공적으로 완료되었습니다.");
-			}
-			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "직급 등록이 성공적으로 완료되었습니다.");
 		} catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
 	        resultMap.put("res_msg", e.getMessage());
@@ -72,13 +71,17 @@ public class PosController {
 	@ResponseBody
 	public Map<String, String> updatePosOrderApi(@RequestBody List<PosOrderDto> posOrderList) {
 		Map<String, String> resultMap = new HashMap<>();
+	    
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "직급 순서 변경 도중 알 수 없는 오류가 발생하였습니다.");
 		
 		logger.info("posOrderList: {}", posOrderList);
-	    
+		
 		try {
 	        if (posOrderList == null || posOrderList.isEmpty()) {
 	            resultMap.put("res_code", "400");
 	            resultMap.put("res_msg", "변경할 순서 정보가 없습니다.");
+	            
 	            return resultMap;
 	        }
 
@@ -100,13 +103,16 @@ public class PosController {
 	
 	@PostMapping("/admin/pos/update/name")
 	@ResponseBody
-	public Map<String, String> updatePosNameApi(@RequestBody PosDto posDto) {
+	public Map<String, String> updatePosNameApi(@RequestBody PosDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
-		logger.info("posDto : {}", posDto);
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "직급명 변경 도중 알 수 없는 오류가 발생하였습니다.");
+		
+		logger.info("posDto : {}", dto);
 
 		try {
-			service.updateName(posDto);
+			service.updateName(dto);
 			
 			resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "직급명이 변경되었습니다.");	
@@ -127,13 +133,16 @@ public class PosController {
 	
 	@PostMapping("/admin/pos/delete")
 	@ResponseBody
-	public Map<String, String> deletePosApi(@RequestBody PosDto posDto) {
+	public Map<String, String> deletePosApi(@RequestBody PosDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
-		logger.info("posDto : {}", posDto);
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "직급 삭제 도중 알 수 없는 오류가 발생하였습니다.");
+		
+		logger.info("posDto : {}", dto);
 		
 		try {
-			service.deletePos(posDto);
+			service.deletePos(dto);
 			
 			resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "직급이 삭제되었습니다.");	
@@ -141,7 +150,7 @@ public class PosController {
 			resultMap.put("res_code", "400");
 	        resultMap.put("res_msg", e.getMessage());
 		} catch(Exception e) {
-			logger.error("직급명 변경 중 오류 발생", e);
+			logger.error("직급 삭제 중 오류 발생", e);
 			resultMap.put("res_code", "500");
 			resultMap.put("res_msg", "직급 삭제 도중 알 수 없는 오류가 발생하였습니다.");
 		}
