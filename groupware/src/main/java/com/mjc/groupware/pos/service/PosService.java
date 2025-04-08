@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.pos.dto.PosDto;
+import com.mjc.groupware.pos.dto.PosOrderDto;
 import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.repository.PosRepository;
 
@@ -39,6 +40,16 @@ public class PosService {
 		List<Pos> resultList = repository.findAllOrderByPosOrderAsc();
 		
 		return resultList;
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateOrder(List<PosOrderDto> posOrderList) {
+		for (PosOrderDto dto : posOrderList) {
+	        Pos pos = repository.findById(dto.getPosNo())
+	                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직급입니다."));
+
+	        pos.changeOrder(dto.getOrder().longValue()); // 도메인 메서드 호출
+	    }
 	}
 	
 }

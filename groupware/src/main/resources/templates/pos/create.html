@@ -9,7 +9,6 @@ layout:decorate="~{/include/layout}">
 	<style>
 		
   		#pos-list li {
-			cursor: move;
 			user-select: none;
 			padding: 12px 16px;
 			background-color: white;
@@ -17,6 +16,7 @@ layout:decorate="~{/include/layout}">
 			margin-bottom: 4px;
 			border-radius: 4px;
 			display: block;
+			cursor: default;
 		}
 
 		#pos-list li.dragging {
@@ -29,6 +29,16 @@ layout:decorate="~{/include/layout}">
 			font-style: italic;
 			padding: 8px;
 			border-radius: 6px;
+		}
+		
+		.drag-handle {
+				cursor: grab;
+				color: #6c757d;
+				padding-left: 8px;
+			}
+		
+		.dragging .drag-handle {
+			cursor: grabbing;
 		}
 		
 	</style>
@@ -59,16 +69,21 @@ layout:decorate="~{/include/layout}">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
                           			<h4 class="card-title" style="font-weight: bold;">직급</h4>
-                          			<p class="card-subtitle mb-4">To register a new account, please confirm account info.</p>
+                          			<p class="card-subtitle mb-4">To change the position order, please use drag and drop.</p>
                             		
                             		<th:block th:if="${posList != null}">
                             			<ul id="pos-list" class="list-group">
                             				<li th:each="pos : ${posList}"
                             					class="list-group-item"
-                            					draggable="true"
-                            					th:attr="data-id=${pos.posNo}"
-                            					th:text="${pos.posName}">
+                            					th:attr="data-id=${pos.posNo}">
+												
+                            					<span class="drag-handle me-3" draggable="true" style="cursor: grab;">
+													&#9776;
+												</span>
+												
+												<span th:text="${pos.posName}"></span>
                             				</li>
+											
                             			</ul>
                             		</th:block>
                             		<th:block th:if="${posList == null}">
@@ -113,7 +128,7 @@ layout:decorate="~{/include/layout}">
 			let vali_chk = false;
 			let vali_msg = "";
 			
-			if(!form.pos_name.value) {
+			if(!form.pos_name.value.trim()) {
 				vali_msg += "직급명을 입력하세요";
 				form.pos_name.focus();
 			} else {
@@ -138,7 +153,7 @@ layout:decorate="~{/include/layout}">
 				.then(data => {
 					alert(data.res_msg);
 					if(data.res_code == '200') {
-						location.href = "/pos/create";
+						location.href = "/admin/pos/create";
 					}
 				})
 				.catch(error => {
@@ -152,12 +167,14 @@ layout:decorate="~{/include/layout}">
 		// 드래그 앤 드랍 로직
 		document.addEventListener('DOMContentLoaded', () => {
 			const list = document.getElementById('pos-list');
+			if (!list) return;
+			
 			let draggingEle = null;
 			
 			// 드래그 시작
 			list.addEventListener('dragstart', (e) => {
-				if (e.target.tagName === 'LI') {
-					draggingEle = e.target;
+				if (e.target.classList.contains('drag-handle')) {
+					draggingEle = e.target.closest('li');
 					draggingEle.classList.add('dragging');
 				}
 			});
@@ -167,6 +184,37 @@ layout:decorate="~{/include/layout}">
 				if (draggingEle) {
 					draggingEle.classList.remove('dragging');
 					draggingEle = null;
+					
+					// 순서 배열 만들기 - 리스트가 없을 때 걸러주는 것까지 추가
+					const orderedIds = [...list.children]
+					.filter(li => li.dataset.id)
+					.map((li, index) => ({
+						posNo: Number(li.dataset.id),
+						order: index + 1
+					}));
+					
+					if (orderedIds.length === 0) return;
+					
+					// 순서 저장 요청
+					fetch('/admin/pos/update/order', {
+						method: 'post',
+						headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+						body: JSON.stringify(orderedIds)
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if(data.res_code == '200') {
+							location.href = "/admin/pos/create";
+						}
+					})
+					.catch(error => {
+						console.log(error);
+					});
 				}
 			});
 			

@@ -50,4 +50,8 @@ public class Pos {
 	@OneToMany(mappedBy="pos")
 	private List<Member> members;
 	
+	public void changeOrder(Long posOrder) {
+	    this.posOrder = posOrder;
+	}
+	
 }
