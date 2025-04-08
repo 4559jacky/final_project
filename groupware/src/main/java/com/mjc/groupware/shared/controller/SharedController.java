@@ -31,7 +31,7 @@ public class SharedController {
 	
 	@GetMapping("/admin/shared/create")
 	public String createSharedAdminView() {
-		return "/shared/admin/detail";
+		return "/shared/admin/create";
 	}
 	
 	@PostMapping("/admin/shared/create")
