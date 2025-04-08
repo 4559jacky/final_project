@@ -3,6 +3,8 @@ package com.mjc.groupware.member.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +15,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
+import com.mjc.groupware.pos.controller.PosController;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
+	
+	private Logger logger = LoggerFactory.getLogger(PosController.class);
 	
 	private static int cnt = 0;
 	private final MemberService service;
@@ -53,15 +58,21 @@ public class MemberController {
 	public Map<String, String> createMemberApi(MemberDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
-		
-		Member member = service.createMember(dto);
-		
-		if(member != null) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "사원 등록이 성공적으로 완료되었습니다.");
-		}
+		try {
+			Member member = service.createMember(dto);
+			
+			if(member != null) {
+				resultMap.put("res_code", "200");
+				resultMap.put("res_msg", "사원 등록이 성공적으로 완료되었습니다.");
+			}
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			logger.error("직급 등록 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
+		} 
 		
 		return resultMap;
 	}
