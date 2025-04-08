@@ -9,18 +9,18 @@ layout:decorate="~{/include/layout}">
 	<div class="page-titles mb-7 mb-md-5">
     	<div class="row">
         	<div class="col-lg-8 col-md-6 col-12 align-self-center">
-            	<nav aria-label="breadcrumb">
+				<nav aria-label="breadcrumb">
                 	<ol class="breadcrumb align-items-center">
                 		<li class="breadcrumb-item">
-                      		<a class="text-muted text-decoration-none" th:href="@{/home}">
-                        		<i class="ti ti-home fs-5"></i>
-                      		</a>
-                    	</li>
-                    	<li class="breadcrumb-item" aria-current="page">사원 등록</li>
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">인사 관리 / 사원 등록</li>
                   	</ol>
-                </nav>
-            	<h2 class="mb-0 fw-bolder fs-8" style="padding-top:5px;">사원 등록</h2>
-			</div>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">사원 등록</h2>
+			</div><br>
 		</div>
 	</div>
 	<div class="card">
@@ -142,7 +142,7 @@ layout:decorate="~{/include/layout}">
 				.then(data => {
 					alert(data.res_msg);
 					if(data.res_code == '200') {
-						location.href = "/";
+						location.href = "/admin/member/create";
 					}
 				})
 				.catch(error => {

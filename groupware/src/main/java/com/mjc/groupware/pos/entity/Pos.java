@@ -50,4 +50,16 @@ public class Pos {
 	@OneToMany(mappedBy="pos")
 	private List<Member> members;
 	
+	public void changeOrder(Long posOrder) {
+	    this.posOrder = posOrder;
+	}
+	
+	public void changeName(String newName) {
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("직급명은 비워둘 수 없습니다.");
+        }
+
+        this.posName = newName.trim();
+    }
+	
 }
