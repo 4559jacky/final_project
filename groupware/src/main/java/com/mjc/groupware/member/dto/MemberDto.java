@@ -2,8 +2,10 @@ package com.mjc.groupware.member.dto;
 
 import java.time.LocalDateTime;
 
+import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
+import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,8 +30,8 @@ public class MemberDto {
 	private String member_gender;
 	private String member_addr;
 	private String member_phone;
-	private Long dept_no;
 	private Long pos_no;
+	private Long dept_no;
 	private Long role_no = (long) 3;
 	private String status = "EMPLOYED";
 	private LocalDateTime reg_date;
@@ -42,6 +44,11 @@ public class MemberDto {
 				.memberId(this.getMember_id())
 				.memberPw(this.getMember_pw())
 				.memberName(this.getMember_name())
+				.memberBirth(this.getMember_birth())
+				.memberGender(this.getMember_gender())
+				.memberAddr(this.getMember_addr())
+				.pos(Pos.builder().posNo(this.getPos_no()).build())
+				.dept(Dept.builder().deptNo(this.getDept_no()).build())
 				.role(Role.builder().roleNo(this.getRole_no()).build())
 				.status(this.getStatus())
 				.build();

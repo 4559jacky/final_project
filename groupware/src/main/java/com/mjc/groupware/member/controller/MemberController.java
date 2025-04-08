@@ -78,6 +78,11 @@ public class MemberController {
 	public Map<String, String> createMemberApi(MemberDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
+		
+		logger.info("MemberDto : {}", dto);
+		
 		try {
 			Member member = service.createMember(dto);
 			

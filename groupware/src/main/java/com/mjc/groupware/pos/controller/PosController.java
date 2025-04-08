@@ -48,7 +48,7 @@ public class PosController {
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "직급 등록 도중 알 수 없는 오류가 발생하였습니다.");
 		
-		logger.info("posDto : {}", dto);
+		logger.info("PosDto : {}", dto);
 		
 		try {
 			service.createPos(dto);
@@ -75,7 +75,7 @@ public class PosController {
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "직급 순서 변경 도중 알 수 없는 오류가 발생하였습니다.");
 		
-		logger.info("posOrderList: {}", posOrderList);
+		logger.info("List<PosOrderDto> : {}", posOrderList);
 		
 		try {
 	        if (posOrderList == null || posOrderList.isEmpty()) {
@@ -109,7 +109,7 @@ public class PosController {
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "직급명 변경 도중 알 수 없는 오류가 발생하였습니다.");
 		
-		logger.info("posDto : {}", dto);
+		logger.info("PosDto : {}", dto);
 
 		try {
 			service.updateName(dto);
@@ -139,7 +139,7 @@ public class PosController {
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "직급 삭제 도중 알 수 없는 오류가 발생하였습니다.");
 		
-		logger.info("posDto : {}", dto);
+		logger.info("PosDto : {}", dto);
 		
 		try {
 			service.deletePos(dto);
