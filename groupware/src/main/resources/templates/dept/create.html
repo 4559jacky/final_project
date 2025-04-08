@@ -5,7 +5,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-	
+
 	<div class="page-titles mb-7 mb-md-5">
 		<div class="row">
 			<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -35,7 +35,21 @@ layout:decorate="~{/include/layout}">
                           			<h4 class="card-title" style="font-weight: bold;">부서</h4>
                           			<p class="card-subtitle mb-4">To change the position order, please use drag and drop.</p>
   									
-  									
+  									<div id="jstree">
+    									<ul>
+      										<li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}">
+        										<span th:text="${dept.name}"></span>
+        										<ul>
+          											<li th:each="member : ${dept.members}" th:id="'member_' + ${member.id}">
+           												<span th:text="${member.name}"></span>
+          											</li>
+        										</ul>
+      										</li>
+    									</ul>
+  									</div>
+
+									<!-- jsTree 데이터 확인용 버튼 -->
+  									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
   									
                         		</div>
                       		</div>
@@ -93,6 +107,8 @@ layout:decorate="~{/include/layout}">
 		</div>
 	</div>
 	
+
+	
 	<script>
 		// 부서 추가 로직
 		const form = document.create_dept_form;
@@ -146,5 +162,8 @@ layout:decorate="~{/include/layout}">
 			}
 		});
 	</script>
+
+
+
 </th:block>
 </html>
