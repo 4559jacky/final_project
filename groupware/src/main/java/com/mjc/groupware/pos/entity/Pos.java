@@ -1,4 +1,4 @@
-package com.mjc.groupware.position.entity;
+package com.mjc.groupware.pos.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,12 +21,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="position")
+@Table(name="pos")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class Position {
+public class Pos {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -36,8 +36,8 @@ public class Position {
 	@Column(name="pos_name")
 	public String posName;
 	
-	@Column(name="parent_pos_no")
-	public Long parentPosNo;
+	@Column(name="pos_order")
+	public Long posOrder;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -47,7 +47,7 @@ public class Position {
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
 	
-	@OneToMany(mappedBy="position")
+	@OneToMany(mappedBy="pos")
 	private List<Member> members;
 	
 }

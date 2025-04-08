@@ -6,13 +6,11 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.mjc.groupware.department.entity.Department;
-import com.mjc.groupware.position.entity.Position;
+import com.mjc.groupware.dept.entity.Dept;
+import com.mjc.groupware.pos.entity.Pos;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -59,16 +57,9 @@ public class Member {
 	
 	@Column(name="member_phone")
 	private String memberPhone;
-	
-	public enum Status {
-        EMPLOYED,
-        RESIGNED,
-        ON_LEAVE
-    }
-	
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "status")
-    private Status status;
+    private String status;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -83,17 +74,17 @@ public class Member {
 	
 	@ManyToOne
 	@JoinColumn(name="dept_no")
-	private Department department;
+	private Dept dept;
 	
 	@ManyToOne
 	@JoinColumn(name="pos_no")
-	private Position position;
+	private Pos pos;
 	
 	@ManyToOne
 	@JoinColumn(name="role_no")
 	private Role role;
 	
 	@OneToMany(mappedBy="member")
-	private List<Department> departments;
+	private List<Dept> depts;
 	
 }
