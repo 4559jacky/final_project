@@ -31,12 +31,12 @@ public class ApprovalController {
 		return "/approval/admin/approvalManagement";
 	}
 	
-	@GetMapping("/admin/approval/create")
+	@GetMapping("/admin/approvalForm/create")
 	public String createApprovalAdminView() {
-		return "/approval/admin/createApproval";
+		return "/approval/admin/createApprovalForm";
 	}
 	
-	@PostMapping("/admin/approval/create")
+	@PostMapping("/admin/approvalForm/create")
 	@ResponseBody
 	public Map<String,String> createApprovalApi(ApprovalFormDto dto) {
 		Map<String,String> resultMap = new HashMap<String,String>();
@@ -64,5 +64,16 @@ public class ApprovalController {
 	public String approvalView() {
 		return "/approval/user/approval";
 	}
+	
+	@GetMapping("/approval/receive")
+	public String receiveApprovalView() {
+		return "/approval/user/receiveApproval";
+	}
+	
+	@GetMapping("/approval/create")
+	public String createApprovalView() {
+		return "/approval/user/createApproval";
+	}
+	
 	
 }

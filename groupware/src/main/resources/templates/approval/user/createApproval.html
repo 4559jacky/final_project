@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+
+<th:block layout:fragment="content">
+  <div class="container-fluid px-4">
+    <!-- Breadcrumb -->
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb align-items-center">
+          <li class="breadcrumb-item">
+            <a class="text-muted text-decoration-none" th:href="@{/home}">
+              <i class="ti ti-home fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item" aria-current="page">전자 결재 시스템</li>
+          <li class="breadcrumb-item active" aria-current="page">받은 문서함</li>
+        </ol>
+      </nav><br>
+      <h2 class="mb-0 fw-bolder fs-8">전자 결재 시스템</h2>
+    </div><br>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/approval}">보낸 문서함</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/approval/receive}">받은 문서함</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" th:href="@{/approval/create}">결재 작성</a>
+      </li>
+    </ul>
+    <div class="container-fluid my-5 px-4 position-relative">
+	  <div class="row">
+	    <!-- 왼쪽 결재 양식 선택 영역 -->
+	    <div class="col-md-3">
+	      <div class="card shadow-sm rounded-4 p-3">
+	        <h5 class="fw-bold mb-3 text-center">결재 양식 선택</h5>
+	        <div class="d-grid gap-2">
+	          <button class="btn btn-outline-primary">일반 기안서</button>
+	          <button class="btn btn-outline-primary">업무 보고서</button>
+	          <button class="btn btn-outline-primary">지출 내역서</button>
+	          <button class="btn btn-outline-primary">연차 신청서</button>
+	          <button class="btn btn-primary">휴가 신청서</button>
+	        </div>
+	      </div>
+	    </div>
+	
+	    <!-- 오른쪽 비워진 영역 -->
+	    <div class="col-md-9 bg-light rounded-4" style="min-height: 600px; position: relative;">
+	      <!-- 여기에 양식이 동적으로 들어올 수 있도록 비워둠 -->
+	
+	      <!-- 하단 버튼 -->
+	      <div class="d-flex justify-content-end gap-2 position-absolute bottom-0 end-0 m-4">
+	        <button class="btn btn-outline-primary px-4">임시 저장</button>
+	        <button class="btn btn-primary px-4">승인 요청</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+
+
+</th:block>
+</html>
