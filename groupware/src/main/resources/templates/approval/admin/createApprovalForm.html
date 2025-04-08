@@ -21,26 +21,33 @@
       </nav><br>
       <h2 class="mb-0 fw-bolder fs-8">결재 양식 생성</h2>
     </div><br>
-	<!-- Summernote CSS -->
-	<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-	
-	<!-- 에디터 배경색 강제 흰색 설정 -->
-	<style>
-	  .note-editor .note-editable {
-	    background-color: white !important;
-	    color: black !important;
-	  }
-	</style>
-	<form name="create_approval_form" action="/admin/approval/create" method="post">
-	<div>
-		<label>제목 : <input type="text" name="approval_form_name"></label>
-		<input type="submit" value="양식 생성">
-	</div>
-	<br>
-	<div class="post-form">
-		<textarea name="approval_form" id="summernote"></textarea>
-	</div>
-	</form>
+	<!-- 📌 Summernote CSS는 그대로 유지 -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
+<!-- 📌 Bootstrap 스타일 적용된 Form -->
+<form name="create_approval_form" action="/admin/approvalForm/create" method="post">
+  <div class="container mt-4">
+    <div class="card shadow-sm p-4">
+      <!-- 제목 + 버튼 -->
+      <div class="row align-items-center mb-3">
+        <div class="col-md-9 col-sm-12 mb-2 mb-md-0">
+          <label for="approval_form_name" class="form-label fw-semibold">제목</label>
+          <input type="text" class="form-control" id="approval_form_name" name="approval_form_name" placeholder="양식 제목을 입력하세요">
+          <input type="hidden" name="approval_form_status" value="Y">
+        </div>
+        <div class="col-md-3 col-sm-12 text-md-end text-start">
+          <label class="d-none d-md-block invisible">제출</label> <!-- 높이 맞춤용 -->
+          <input type="submit" class="btn btn-primary w-100" value="양식 생성">
+        </div>
+      </div>
+
+      <!-- 에디터 영역 -->
+      <div class="post-form">
+        <textarea name="approval_form" id="summernote"></textarea>
+      </div>
+    </div>
+  </div>
+</form>
 </th:block>
 
 <!-- 스크립트는 여기에 넣기 -->
@@ -118,9 +125,13 @@
 
     	    const payload = new FormData(form);
 
-    	    fetch("/admin/approval/create", {
-    	      method: 'post',
-    	      body: payload
+    	    fetch("/admin/approvalForm/create", {
+    	      	method: 'post',
+    	      	headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+    	      	body: payload
     	    })
     	    .then(response => response.json())
     	    .then(data => {

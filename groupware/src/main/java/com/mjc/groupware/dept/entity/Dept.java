@@ -1,4 +1,4 @@
-package com.mjc.groupware.department.entity;
+package com.mjc.groupware.dept.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,12 +25,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="department")
+@Table(name="dept")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class Department {
+public class Dept {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -70,7 +70,7 @@ public class Department {
 	@JoinColumn(name="member_no")
 	private Member member;
 	
-	@OneToMany(mappedBy="department")
+	@OneToMany(mappedBy="dept")
 	private List<Member> members;
 	
 }

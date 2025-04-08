@@ -23,8 +23,4 @@ public class HomeController {
 		return "sample";
 	}
 	
-	@GetMapping("/calendar")
-	public String calendarView() {
-		return "plan/calendar";
-	}
 }
