@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class DeptController {
 	
-	@GetMapping("/dept/create")
+	@GetMapping("/admin/dept/create")
 	public String createDeptView() {
 		return "dept/create";
 	}

@@ -22,7 +22,7 @@ public class PosController {
 	
 	private final PosService service;
 	
-	@GetMapping("/pos/create")
+	@GetMapping("/admin/pos/create")
 	public String createPositionView(Model model) {
 		List<Pos> posList = service.selectPosAll();
 		
@@ -33,7 +33,7 @@ public class PosController {
 		return "pos/create";
 	}
 	
-	@PostMapping("/pos/create")
+	@PostMapping("/admin/pos/create")
 	@ResponseBody
 	public Map<String, String> CreatePositionApi(PosDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
