@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center">
+                <li class="breadcrumb-item">
+                    <a class="text-muted text-decoration-none" th:href="@{/home}">
+                        <i class="ti ti-home fs-5"></i>
+                    </a>
+                </li>
+                <li class="breadcrumb-item" aria-current="page">공유 문서함</li>
+                <li class="breadcrumb-item active" aria-current="page">게시글 상세</li>
+            </ol>
+        </nav>
+        <br>
+        <h2 class="mb-0 fw-bolder fs-8">공유 문서함 게시글 상세</h2>
+    </div>
+    <br>
+    <div class="container mt-4">
+        <div class="card shadow-sm p-4">
+            <!-- 게시글 정보 -->
+            <div class="mb-3">
+                <h3 th:text="${shared.sharedTitle}" class="fw-semibold"></h3>
+                <div class="text-muted">
+                    <span>작성자: </span>
+                    <span th:text="${shared.member.memberName}"></span>
+                    <span> | 작성일: </span>
+                    <span th:text="${#temporals.format(shared.regDate, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    <span> | 조회수: </span>
+                    <span th:text="${shared.views}"></span>
+                </div>
+            </div>
+            <!-- 게시글 내용 -->
+            <div class="border-top pt-3">
+                <div th:utext="${shared.sharedContent}" class="post-content"></div>
+            </div>
+            <!-- 버튼 -->
+            <div class="mt-4 text-end">
+                <a th:href="@{/admin/shared}" class="btn btn-secondary">목록으로</a>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!-- 스크립트 -->
+<th:block layout:fragment="scripts">
+    <script>
+        $(document).ready(function () {
+        	e.preventDefault();
+            // Summernote로 작성된 내용은 HTML로 렌더링되므로 추가적인 초기화 불필요
+        });
+    </script>
+</th:block>
+</html>

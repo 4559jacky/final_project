@@ -38,7 +38,6 @@ public class SharedDto {
 				.sharedNo(shared_no)
 				.sharedTitle(shared_title)
 				.sharedContent(shared_content)
-				.member(Member.builder().memberNo(member_no).build())
 				.views(views)
 				.build();
 	}
