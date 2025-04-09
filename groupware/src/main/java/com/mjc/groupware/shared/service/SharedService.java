@@ -4,9 +4,13 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.shared.dto.AttachDto;
 import com.mjc.groupware.shared.dto.SharedDto;
+import com.mjc.groupware.shared.entity.Attach;
 import com.mjc.groupware.shared.entity.Shared;
+import com.mjc.groupware.shared.repository.AttachRepository;
 import com.mjc.groupware.shared.repository.SharedRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,15 +20,27 @@ import lombok.RequiredArgsConstructor;
 public class SharedService {
 
 	private final SharedRepository repository;
+	private final AttachRepository attachRepository;
+	private final AttachService attachService;
 	
-	public int createSharedApi(SharedDto dto) {
+	
+	
+	@Transactional(rollbackFor = Exception.class)
+	public int createSharedApi(SharedDto dto, List<AttachDto> attachList) {
 		int result = 0;
 		try {
 			Shared entity = dto.toEntity();
 			Shared saved = repository.save(entity);
-			if(saved != null) {
-				result = 1;
+			
+			Long sharedNo = saved.getSharedNo();
+			if(attachList.size() != 0) {
+				for(AttachDto attachDto : attachList) {
+					attachDto.setShared_no(sharedNo);
+					Attach attach = attachDto.toEntity();
+					attachRepository.save(attach);
+				}
 			}
+			result = 1;
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

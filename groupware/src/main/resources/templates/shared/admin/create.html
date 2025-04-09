@@ -29,9 +29,10 @@ layout:decorate="~{/include/layout}">
 	    color: black !important;
 	  }
 	</style>
-	<form name="create_shared" action="/admin/shared/create" method="post">
+	<form name="create_shared_form" action="/admin/shared/create" method="post">
 	<div>
-		<label>제목 : <input type="text" name="shared_title"></label>
+		<label>제목 : <input type="text" name="shared_title"></label><br><br>
+		<input type="file" name="files" multiple><br><br>
 		<input type="submit" value="작성 완료">
 	</div>
 	<br>
@@ -90,7 +91,7 @@ layout:decorate="~{/include/layout}">
       });
     });
     
-    const form = document.create_shared;
+    const form = document.create_shared_form;
     form.addEventListener('submit', (e) => {
     	  e.preventDefault();
 

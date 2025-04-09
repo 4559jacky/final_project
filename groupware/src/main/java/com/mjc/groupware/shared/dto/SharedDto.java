@@ -1,6 +1,9 @@
 package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.entity.Shared;
@@ -27,6 +30,8 @@ public class SharedDto {
 	private Long member_no;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
+	
+	private List<MultipartFile> files;
 	
 	public Shared toEntity() {
 		return Shared.builder()
