@@ -83,23 +83,18 @@
     </table>
   </div>
 </div>
-<div class="center">
-	<div class="pagination">
-		<a th:if="${pageDto.prev}" th:href="@{/board(nowPage=${pageDto.pageBarStart-1},search_type=${searchDto.search_type},search_text=${searchDto.search_text})}">
-			&laquo;
-		</a>
-		<th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart,pageDto.pageBarEnd)}">
-    		<a class="page-link" th:classappend="${pageDto.nowPage == num} ? 'active'" 
-    		th:href="@{/board(nowPage=${num},search_type=${searchDto.search_type},search_text=${searchDto.search_text})}"
-    		th:text="${num}">
-    		</a>
-    	</th:block>
-		<a th:if="${pageDto.next}" 
-		th:href="@{/board(nowPage=${pageDto.pageBarEnd+1},search_type=${searchDto.search_type},search_text=${searchDto.search_text})}">
-			&raquo;
-		</a>
-	</div>
-</div>
+ <!-- Pagination -->
+    <nav class="d-flex justify-content-center mt-4">
+      <ul class="pagination">
+        <li class="page-item disabled"><a class="page-link">‹</a></li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">...</a></li>
+        <li class="page-item"><a class="page-link" href="#">10</a></li>
+        <li class="page-item"><a class="page-link" href="#">›</a></li>
+      </ul>
+    </nav>
 </th:block>
 <script>
 			document.getElementById('order_type').addEventListener('change',function(e){

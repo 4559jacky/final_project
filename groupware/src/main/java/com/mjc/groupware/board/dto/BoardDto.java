@@ -42,6 +42,7 @@ public class BoardDto {
     			.mod_date(board.getModDate())    			
     			.build();
     }
+
 	
 
 }

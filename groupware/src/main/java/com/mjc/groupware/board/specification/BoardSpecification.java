@@ -20,18 +20,3 @@ public class BoardSpecification {
 				criteriaBuilder.like(root.get("board_content"),"%"+keyword+"%");
 		}
 	}
-
-//    public static Specification<Board> titleContains(String keyword) {
-//        return (root, query, cb) ->
-//                cb.like(root.get("board_title"), "%" + keyword + "%");
-//    }
-//
-//    public static Specification<Board> contentContains(String keyword) {
-//        return (root, query, cb) ->
-//                cb.like(root.get("board_content"), "%" + keyword + "%");
-//    }
-//
-//    public static Specification<Board> memberNoEquals(Long member_no) {
-//        return (root, query, cb) ->
-//                cb.equal(root.get("member_no"), member_no);
-//    }

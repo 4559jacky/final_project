@@ -11,6 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PageDto {
+	// 페이징 관련 코드
 
 	private int numPerPage = 3;// 한 페이지에 데이터 개수
 	private int nowPage;	// 현재 페이지

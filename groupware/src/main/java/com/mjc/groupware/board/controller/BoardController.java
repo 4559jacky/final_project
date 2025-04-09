@@ -1,8 +1,7 @@
 package com.mjc.groupware.board.controller;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.board.dto.BoardDto;
 import com.mjc.groupware.board.dto.PageDto;
@@ -34,7 +32,6 @@ public class BoardController {
 	
 	// 3. 생성자 주입 + final
 	private final BoardService service;
-	//private final AttachService attachService;
 	
 	@GetMapping("/board/create")
 	public String createBoardView() {
@@ -44,9 +41,8 @@ public class BoardController {
 	@PostMapping("/board/create")
 	@ResponseBody
 	public Map<String,String> createBoardApi(BoardDto dto) {
-		Map<String,String> resultMap 
-		= new HashMap<String,String>();
-		resultMap.put("res_code", "500");
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "게시글 등록중 오류가 발생하였습니다.");
 		
 //		List<AttachDto> attachDtoList = new ArrayList<AttachDto>();
@@ -54,15 +50,12 @@ public class BoardController {
 //		for(MultipartFile mf : dto.getFiles()) {
 //			AttachDto attachDto = attachService.uploadFile(mf);
 //			if(attachDto != null) attachDtoList.add(attachDto);
-////			logger.info(mf.getOriginalFilename());
 //		}
-//		if(dto.getFiles().size() == attachDtoList.size()) {
-//			int result = service.createBoard(dto,attachDtoList);
+//		int result = service.createBoard(dto,attachDtoList);
 //			if(result > 0) {
 //				resultMap.put("res_code", "200");
 //				resultMap.put("res_msg", "게시글이 등록되었습니다.");
 //			}
-//		}
 		return resultMap;
 	}
 	

@@ -1,6 +1,7 @@
 package com.mjc.groupware.board.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -10,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,11 +51,11 @@ public class Board {
 
     // 날짜 정보 관리
 	@CreationTimestamp
-	@Column(updatable=false,name="reg_date")
+	@Column(updatable=false,name="reg_date") // 등록일
 	private LocalDateTime regDate;
 	
 	@UpdateTimestamp
-	@Column(insertable=false,name="mod_date")
+	@Column(insertable=false,name="mod_date") // 수정일
 	private LocalDateTime modDate;
 
     // 조회수 추가

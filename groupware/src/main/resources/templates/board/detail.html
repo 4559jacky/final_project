@@ -44,10 +44,26 @@ layout:decorate="~{/include/layout}">
 					</ul>		
 				</div>
 				<div class="buttons">
-					<a href="">수정</a>
-					<a href="">삭제</a>			
+					<a th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
+					<a th:onclick="|javascript:boardDelete('${board.boardNo}')|">삭제</a>		
 				</div>
 			</div>
 		</section>
     </th:block>
+    <script>
+    	const boardDelete = function(board_no){
+			if(confirm("게시글을 삭제하시겠습니까?")){
+				fetch('/board/'+board_no,{
+					method:'delete'
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200'){
+						loaction.href="/board";
+					}
+				})
+			}
+		}
+    </script>
 </html>

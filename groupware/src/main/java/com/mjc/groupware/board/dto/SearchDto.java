@@ -15,6 +15,7 @@ import lombok.ToString;
 @ToString
 @Builder
 public class SearchDto {
+	// 검색 관련 코드
 	 private int search_type;
 	 private String search_text;
 	 private int order_type;
