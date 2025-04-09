@@ -19,11 +19,14 @@ public class MeetingRoomDto {
 	
 	private int meeting_room_no;
 	private String meeting_room_name;
+	private String meeting_room_status;
+	private String new_meeting_room_name;
 	
 	public MeetingRoom toEntity() {
 		return MeetingRoom.builder()
 						.meetingRoomNo(meeting_room_no)
 						.meetingRoomName(meeting_room_name)
+						.meetingRoomStatus(meeting_room_status)
 						.build();
 	}
 	
@@ -31,6 +34,7 @@ public class MeetingRoomDto {
 		return MeetingRoomDto.builder()
 						.meeting_room_no(meetingRoom.getMeetingRoomNo())
 						.meeting_room_name(meetingRoom.getMeetingRoomName())
+						.meeting_room_status(meetingRoom.getMeetingRoomStatus())
 						.build();
 	}
 }

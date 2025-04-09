@@ -1,5 +1,6 @@
 package com.mjc.groupware.meetingRoomReservation.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +21,12 @@ public class MeetingRoom {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="meeting_room_no")
 	private int meetingRoomNo;
+	
+	@Column(name="meeting_room_name")
 	private String meetingRoomName;
+	
+	@Column(name="meeting_room_status")
+	private String meetingRoomStatus;
 }

@@ -5,6 +5,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb align-items-center">
@@ -22,33 +23,62 @@ layout:decorate="~{/include/layout}">
 	  <div class="row">
 		  <!-- 왼쪽 결재 양식 선택 영역 -->
 		  <div class="col-md-3">
-		    <div class="card shadow-sm rounded-4 p-4">
-		      <h5 class="fw-bold mb-4 text-center">결재 양식 선택</h5>
-		      <div class="d-grid gap-3">
-		        <button class="btn btn-outline-primary">일반 기안서</button>
-		        <button class="btn btn-outline-primary">업무 보고서</button>
-		        <button class="btn btn-outline-primary">지출 내역서</button>
-		        <button class="btn btn-outline-primary">연차 신청서</button>
-		        <button class="btn btn-primary">휴가 신청서</button>
-		        <button class="btn btn-outline-primary" onclick="createForm();">결재 양식 추가</button>
-		      </div>
-		    </div>
-		  </div>
+	  <div class="card shadow-sm rounded-4 p-4">
+	    <h5 class="fw-bold mb-4 text-center">결재 양식</h5>
+	
+	    <!-- 결재 양식이 있을 때 -->
+	    <th:block th:if="${!#lists.isEmpty(formList)}">
+	
+	      <!-- 사용중인 결재 양식 -->
+	      <div class="d-grid gap-2 mb-3">
+	        <h6 class="text-center text-primary">📄 사용 중</h6>
+	        <th:block th:each="form : ${formList}" th:if="${form.approvalFormStatus} == 'Y'">
+	          <button class="btn btn-outline-primary" th:value="${form.approvalFormNo}" th:text="${form.approvalFormName}" th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
+	        </th:block>
+	      </div>
+	
+	      <!-- 위아래 버튼 -->
+	      <div class="text-center my-2">
+	        <button class="btn btn-sm btn-outline-secondary me-1" onclick="changeStatus();">🔄</button>
+	      </div>
+	
+	      <!-- 보관 중인 결재 양식 -->
+	      <div class="d-grid gap-2 mt-3">
+	        <h6 class="text-center text-secondary">🗂 보관 중</h6>
+	        <th:block th:each="form : ${formList}" th:if="${form.approvalFormStatus} == 'N'">
+	          <button class="btn btn-outline-secondary" th:value="${form.approvalFormNo}" th:text="${form.approvalFormName}" th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
+	        </th:block>
+	      </div>
+	    </th:block>
+	
+	    <!-- 결재 양식이 없을 때 -->
+	    <th:block th:if="${#lists.isEmpty(formList)}">
+	      <div class="d-grid gap-3">
+	        <button class="btn btn-outline-primary" onclick="createForm();">+</button>
+	      </div>
+	    </th:block>
+	  </div>
+	
+	  <!-- 새 양식 추가 버튼 -->
+	  <div class="mt-3 text-center">
+	    <button class="btn btn-outline-primary" onclick="createForm();">+ 새 양식 추가</button>
+	  </div>
+	</div>
+
 		
 		  <!-- 오른쪽 결재 양식 내용 영역 -->
 			<div class="col-md-9">
 			  <div class="card shadow-sm rounded-4 p-4 bg-white" style="min-height: 600px; position: relative;">
-			    <h5 class="fw-bold mb-4">양식 내용</h5>
-			
 			    <!-- 여기에 동적 양식 들어감 -->
 			    <div id="approval-content">
-			      <!-- JS로 들어오는 HTML이 여기 렌더링됨 -->
+					<th:block>
+						
+					</th:block>
 			    </div>
 			
 			    <!-- 하단 버튼 -->
 			    <div class="d-flex justify-content-end gap-2 position-absolute bottom-0 end-0 m-4">
-			      <button class="btn btn-outline-primary px-4">임시 저장</button>
-			      <button class="btn btn-primary px-4">승인 요청</button>
+			      <button class="btn btn-primary px-4" onclick="updateForm();">수정</button>
 			    </div>
 			  </div>
 			</div>
@@ -56,10 +86,87 @@ layout:decorate="~{/include/layout}">
 
 	</div>
 	<script>
-	  function createForm() {
-	    // fetch() 대신 페이지 이동
-	    window.location.href = '/admin/approvalForm/create';
-	  }
+		function createForm() {
+		  // fetch() 대신 페이지 이동
+		  window.location.href = '/admin/approvalForm/create';
+		}
+		
+		let selectedApprovalFormNo = null; // 전역 변수
+		
+		const viewForm = function(approvalFormNo) {
+			  selectedApprovalFormNo = approvalFormNo;
+
+			  fetch('/admin/approvalForm/view/' + approvalFormNo, {
+			    method: 'POST',
+			    headers: {
+			      'Content-Type': 'application/json',
+			      'header': document.querySelector('meta[name="_csrf_header"]').content,
+			      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			    }
+			  })
+			  .then(res => res.json())
+			  .then(data => {
+			    const html = `
+			      <h4>${data.approval_form_name}</h4>
+			      <div>${data.approval_form}</div>
+			    `;
+			    document.getElementById('approval-content').innerHTML = html;
+
+			    // 기존 선택된 버튼에서 클래스 제거
+			    document.querySelectorAll('.btn-outline-primary, .btn-outline-secondary').forEach(btn => {
+			      btn.classList.remove('selected-button');
+			    });
+
+			    // 클릭한 버튼 찾아서 클래스 추가
+			    const clickedBtn = [...document.querySelectorAll('.btn')].find(
+			      btn => btn.getAttribute('onclick') === `javascript:viewForm('${approvalFormNo}')`
+			    );
+
+			    if (clickedBtn) {
+			      clickedBtn.classList.add('selected-button');
+			    }
+			  })
+			  .catch(err => console.error('Fetch Error:', err));
+			};
+			
+			const changeStatus = function() {
+				  console.log('test');
+				  
+				  let form = document.getElementsByClassName('selected-button')[0];
+
+				  if (form) {
+				    let formNo = form.value;
+				    console.log(formNo);
+				    
+				    fetch('/admin/approvalForm/statusUpdate/'+formNo,{
+				    	method:'POST',
+				    	headers: {
+						      'Content-Type': 'application/json',
+						      'header': document.querySelector('meta[name="_csrf_header"]').content,
+						      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						}
+				    })
+				    .then(response => response.json())
+			  		.then(data => {
+				    	alert(data.res_msg);
+				    	if(data.res_code = '200') {
+				    		location.reload();
+				    	}
+			  		});
+				    // 여기서 formNo로 작업 계속 진행
+				  } else {
+				    console.log('선택된 양식이 없습니다.');
+				    alert('먼저 양식을 선택해주세요!');
+				  }
+				}
+		
+		const updateForm = function() {
+		  if (selectedApprovalFormNo !== null) {
+		    window.location.href = '/admin/approvalForm/update/' + selectedApprovalFormNo;
+		  } else {
+		    alert('먼저 수정할 양식을 선택해주세요!');
+		  }
+		};
 	</script>
 </th:block>
 </html>
