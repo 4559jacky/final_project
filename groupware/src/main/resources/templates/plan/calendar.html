@@ -59,10 +59,16 @@ layout:decorate="~{/include/layout}">
                   <div class="row">
                     <div class="col-md-12">
                       <div>
-                        <label class="form-label">일정 내용</label>
+                        <label class="form-label">일정명</label>
                         <input id="event-title" type="text" class="form-control" />
                       </div>
                     </div>
+                   <div class="col-md-12 mt-3">
+					  <div>
+					    <label class="form-label">일정 내용</label>
+					    <textarea id="event-description" class="form-control" rows="3" placeholder="일정 내용을 입력하세요."></textarea>
+					  </div>
+					</div>
                     <div class="col-md-12 mt-6">
                       <div>
                         <label class="form-label">일정 타입</label>
@@ -124,41 +130,101 @@ layout:decorate="~{/include/layout}">
               </div>
             </div>
           </div>
+          <!-- DETAIL MODAL -->
+			<div class="modal fade" id="eventModaldetail" tabindex="-1">
+			  <div class="modal-dialog modal-dialog-centered">
+			    <div class="modal-content p-4">
+			      <div class="modal-header">
+			        <h5 class="modal-title">상세정보</h5>
+			        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			      </div>
+			      <div class="modal-body">
+			
+			        <!-- 작성자 -->
+			        <div class="row g-3 mb-3">
+			          <div class="col">
+			            <label class="form-label">작성자</label>
+			            <input type="text" class="form-control" id="event-writer" readonly />
+			          </div>
+			          <div class="col">
+			            <label class="form-label">부서</label>
+			            <input type="text" class="form-control" id="event-department" readonly />
+			          </div>
+			        </div>
+			
+			        <!-- 일정명 -->
+			        <div class="mb-3">
+			          <label class="form-label">일정명</label>
+			          <input type="text" class="form-control" id="event-title" />
+			        </div>
+			
+			        <!-- 내용 -->
+			        <div class="mb-3">
+			          <label class="form-label">내용</label>
+			          <textarea class="form-control" id="event-description" rows="4"></textarea>
+			        </div>
+			
+			        <!-- 일정 타입 -->
+			        <div class="mb-3">
+			          <label class="form-label d-block">일정 타입</label>
+			          <div class="form-check form-check-inline">
+			            <input class="form-check-input" type="radio" name="event-level" value="회사" id="type-company">
+			            <label class="form-check-label" for="type-company">회사</label>
+			          </div>
+			          <div class="form-check form-check-inline">
+			            <input class="form-check-input" type="radio" name="event-level" value="부서" id="type-team">
+			            <label class="form-check-label" for="type-team">부서</label>
+			          </div>
+			          <div class="form-check form-check-inline">
+			            <input class="form-check-input" type="radio" name="event-level" value="개인" id="type-personal">
+			            <label class="form-check-label" for="type-personal">개인</label>
+			          </div>
+			          <div class="form-check form-check-inline">
+			            <input class="form-check-input" type="radio" name="event-level" value="휴가" id="type-leave">
+			            <label class="form-check-label" for="type-leave">휴가</label>
+			          </div>
+			        </div>
+			
+			        <!-- 날짜 -->
+			        <div class="row g-3 mb-3">
+			          <div class="col">
+			            <label class="form-label">작성일</label>
+			            <input type="date" class="form-control" id="event-created-date" readonly />
+			          </div>
+			          <div class="col">
+			            <label class="form-label">수정일</label>
+			            <input type="date" class="form-control" id="event-modified-date" readonly />
+			          </div>
+			        </div>
+			
+			        <div class="row g-3 mb-3">
+			          <div class="col">
+			            <label class="form-label">시작일</label>
+			            <input type="date" class="form-control" id="event-start-date" />
+			          </div>
+			          <div class="col">
+			            <label class="form-label">종료일</label>
+			            <input type="date" class="form-control" id="event-end-date" />
+			          </div>
+			        </div>
+			
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-outline-danger" id="btn-delete-event">삭제</button>
+			        <button type="button" class="btn btn-primary btn-update-event">수정</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
+
+
 	<script>
 	  function handleColorTheme(e) {
 	    document.documentElement.setAttribute("data-color-theme", e);
 	  };
-	  
-	  document.addEventListener('DOMContentLoaded', function() {
-			var calendarEl = document.getElementById('calendar');
-			var calendar = new FullCalendar.Calendar(calendarEl, {
-				initialView: 'dayGridMonth',
-				locale: 'ko',
-				events: [] // 이벤트 데이터
-			});
-			calendar.render();
-		});
-			
-		document.querySelector('.btn-add-event').addEventListener('click', function () {
-			const title = document.getElementById('event-title').value;
-			const start = document.getElementById('event-start-date').value;
-			const end = document.getElementById('event-end-date').value;
-		
-			if (title && start) {
-				calendar.addEvent({
-				title: title,
-				start: start,
-				end: end || start
-				});
-				    // 모달 닫기
-				    bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
-				  }
-				});
-	  
 	</script>
-
 	
-
   <!-- Import Js Files -->
   <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.min.js"></script>

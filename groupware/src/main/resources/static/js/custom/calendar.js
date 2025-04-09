@@ -1,6 +1,5 @@
 /*========Calender Js=========*/
 
-
 document.addEventListener("DOMContentLoaded", function () {
   /*=================*/
   //  Calender Date variable
@@ -45,76 +44,11 @@ document.addEventListener("DOMContentLoaded", function () {
     center: "title",
     right: "dayGridMonth,timeGridWeek,timeGridDay",
   };
-  var calendarEventsList = [
-    {
-      id: 1,
-      title: "Event Conf.",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-01`,
-      extendedProps: { calendar: "Danger" },
-    },
-    {
-      id: 2,
-      title: "Seminar #4",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
-      end: `${newDate.getFullYear()}-${getDynamicMonth()}-10`,
-      extendedProps: { calendar: "Success" },
-    },
-    {
-      groupId: "999",
-      id: 3,
-      title: "Meeting #5",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-09T16:00:00`,
-      extendedProps: { calendar: "Primary" },
-    },
-    {
-      groupId: "999",
-      id: 4,
-      title: "Submission #1",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-16T16:00:00`,
-      extendedProps: { calendar: "Warning" },
-    },
-    {
-      id: 5,
-      title: "Seminar #6",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-11`,
-      end: `${newDate.getFullYear()}-${getDynamicMonth()}-13`,
-      extendedProps: { calendar: "Danger" },
-    },
-    {
-      id: 6,
-      title: "Meeting 3",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-12T10:30:00`,
-      end: `${newDate.getFullYear()}-${getDynamicMonth()}-12T12:30:00`,
-      extendedProps: { calendar: "Success" },
-    },
-    {
-      id: 7,
-      title: "Meetup #",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-12T12:00:00`,
-      extendedProps: { calendar: "Primary" },
-    },
-    {
-      id: 8,
-      title: "Submission",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-12T14:30:00`,
-      extendedProps: { calendar: "Warning" },
-    },
-    {
-      id: 9,
-      title: "Attend event",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-13T07:00:00`,
-      extendedProps: { calendar: "Success" },
-    },
-    {
-      id: 10,
-      title: "Project submission #2",
-      start: `${newDate.getFullYear()}-${getDynamicMonth()}-28`,
-      extendedProps: { calendar: "Primary" },
-    },
-  ];
+  var calendarEventsList = "";
   /*=====================*/
   // Calendar Select fn.
   /*=====================*/
+  // 캘린더 일정추가
   var calendarSelect = function (info) {
     getModalAddBtnEl.style.display = "block";
     getModalUpdateBtnEl.style.display = "none";
@@ -122,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
     getModalStartDateEl.value = info.startStr;
     getModalEndDateEl.value = info.endStr;
   };
+
   /*=====================*/
   // Calendar AddEvent fn.
   /*=====================*/
@@ -140,9 +75,21 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Calender Event Function
   /*=====================*/
-  var calendarEventClick = function (info) {
+  	var calendarEventClick = function (info) {
+		console.log("이벤트 클릭됨:", info.event);
     var eventObj = info.event;
 
+	document.getElementById("event-writer").value = eventObj.extendedProps.writer || "";
+	 document.getElementById("event-department").value = eventObj.extendedProps.department || "";
+	 document.getElementById("event-title").value = eventObj.title || "";
+	 document.getElementById("event-start-date").value = eventObj.startStr.slice(0, 10);
+	 document.getElementById("event-end-date").value = eventObj.endStr ? eventObj.endStr.slice(0, 10) : "";
+	 document.getElementById("event-description").value = eventObj.extendedProps.description || "";
+
+	 
+	 const detailModal = new bootstrap.Modal(document.getElementById("eventModaldetail"));
+	 detailModal.show();
+	 
     if (eventObj.url) {
       window.open(eventObj.url);
 
@@ -164,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       getModalAddBtnEl.style.display = "none";
       getModalUpdateBtnEl.style.display = "block";
-      myModal.show();
+
     }
   };
 
@@ -173,18 +120,21 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
+	locale:'ko',
+	dayMaxEvents:true,
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,
     events: calendarEventsList,
+	eventClick:calendarEventClick,
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
     },
     customButtons: {
       addEventButton: {
-        text: "Add Event",
+        text: "일정 추가",
         click: calendarAddEvent,
       },
     },
@@ -194,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return ["event-fc-color fc-bg-" + getColorValue];
     },
 
-    eventClick: calendarEventClick,
     windowResize: function (arg) {
       if (checkWidowWidth()) {
         calendar.changeView("listWeek");
@@ -204,13 +153,35 @@ document.addEventListener("DOMContentLoaded", function () {
         calendar.setOption("height", 1052);
       }
     },
+	
   });
 
   /*=====================*/
   // Update Calender Event
   /*=====================*/
   getModalUpdateBtnEl.addEventListener("click", function () {
-    var getPublicID = this.dataset.fcEventPublicId;
+	var getPublicID = this.dataset.fcEventPublicId;
+	  var getEvent = calendar.getEventById(getPublicID);
+
+	  var newTitle = document.getElementById("event-title").value;
+	  var newDescription = document.getElementById("event-description").value;
+	  var newStartDate = document.getElementById("event-start-date").value;
+	  var newEndDate = document.getElementById("event-end-date").value;
+	  var newCalendarType = document.querySelector('input[name="event-level"]:checked')?.value;
+
+	  // 수정일 자동 반영
+	  var today = new Date().toISOString().split("T")[0];
+	  document.getElementById("event-modified-date").value = today;
+
+	  // 캘린더 업데이트
+	  getEvent.setProp("title", newTitle);
+	  getEvent.setExtendedProp("description", newDescription);
+	  getEvent.setExtendedProp("calendar", newCalendarType);
+	  getEvent.setDates(newStartDate, newEndDate);
+
+	  bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
+	
+	/*var getPublicID = this.dataset.fcEventPublicId;
     var getTitleUpdatedValue = getModalTitleEl.value;
     var setModalStartDateValue = getModalStartDateEl.value;
     var setModalEndDateValue = getModalEndDateEl.value;
@@ -227,12 +198,72 @@ document.addEventListener("DOMContentLoaded", function () {
     getEvent.setProp("title", getTitleUpdatedValue);
     getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
     getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
-    myModal.hide();
+    myModal.hide();*/
   });
   /*=====================*/
   // Add Calender Event
   /*=====================*/
   getModalAddBtnEl.addEventListener("click", function () {
+    var getTitleValue = getModalTitleEl.value;
+    var setModalStartDateValue = getModalStartDateEl.value;
+    var setModalEndDateValue = getModalEndDateEl.value;
+    var getModalCheckedRadioBtnEl = document.querySelector('input[name="event-level"]:checked');
+    var getModalCheckedRadioBtnValue = getModalCheckedRadioBtnEl ? getModalCheckedRadioBtnEl.value : "";
+
+    var description = document.getElementById("event-description").value;
+    var writer = document.getElementById("event-writer").value;
+    var department = document.getElementById("event-department").value;
+
+
+    var requestData = {
+      planName: getTitleValue,
+      planContent: description,
+      startDate: setModalStartDateValue,
+      endDate: setModalEndDateValue,
+      color: getModalCheckedRadioBtnValue,
+      regMemberNo: 1, // 로그인 정보에서 가져오기
+      repeatYn: "N",
+      deleteYn: "N",
+      alldayYn: "Y",
+      planType: "P"
+    };
+
+    fetch("/plan/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestData)
+    })
+      .then(response => {
+        if (!response.ok) throw new Error("일정 저장 실패!");
+        return response.json();
+      })
+      .then(data => {
+        console.log("서버 저장 완료:", data);
+
+        calendar.addEvent({
+          id: data.planNo, // 서버에서 반환된 ID
+          title: getTitleValue,
+          start: setModalStartDateValue,
+          end: setModalEndDateValue,
+          allDay: true,
+          extendedProps: {
+            calendar: getModalCheckedRadioBtnValue,
+            description: description,
+            writer: writer,
+            department: department
+          },
+        });
+
+        myModal.hide();
+      })
+      .catch(error => {
+        alert("서버와의 연결 중 문제가 발생했습니다: " + error.message);
+      });
+  });
+
+  /*getModalAddBtnEl.addEventListener("click", function () {
     var getModalCheckedRadioBtnEl = document.querySelector(
       'input[name="event-level"]:checked'
     );
@@ -243,16 +274,25 @@ document.addEventListener("DOMContentLoaded", function () {
     var getModalCheckedRadioBtnValue =
       getModalCheckedRadioBtnEl !== null ? getModalCheckedRadioBtnEl.value : "";
 
+	var description = document.getElementById("event-description").value;
+	var writer = document.getElementById("event-writer").value;
+	var department = document.getElementById("event-department").value;  
+	  
     calendar.addEvent({
       id: 12,
       title: getTitleValue,
       start: setModalStartDateValue,
       end: setModalEndDateValue,
       allDay: true,
-      extendedProps: { calendar: getModalCheckedRadioBtnValue },
+	  extendedProps: {
+	      calendar: getModalCheckedRadioBtnValue,
+	      description: description,
+		  writer: writer,
+		  department: department
+	    },
     });
     myModal.hide();
-  });
+  });*/
   /*=====================*/
   // Calendar Init
   /*=====================*/
@@ -265,6 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
       getModalTitleEl.value = "";
       getModalStartDateEl.value = "";
       getModalEndDateEl.value = "";
+	  document.getElementById("event-description").value = "";
       var getModalIfCheckedRadioBtnEl = document.querySelector(
         'input[name="event-level"]:checked'
       );
