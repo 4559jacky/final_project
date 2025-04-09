@@ -1,8 +1,6 @@
 package com.mjc.groupware.shared.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -12,11 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.mjc.groupware.shared.dto.AttachDto;
 import com.mjc.groupware.shared.dto.SharedDto;
-import com.mjc.groupware.shared.service.AttachService;
 import com.mjc.groupware.shared.service.SharedService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +24,6 @@ public class SharedController {
 	private Logger logger = LoggerFactory.getLogger(SharedController.class);
 
 	private final SharedService service;
-	private final AttachService attachService;
 	
 	@GetMapping("/admin/shared")
 	public String listView(Model model) {
@@ -48,21 +42,15 @@ public class SharedController {
 	public Map<String,String> createSharedApi(SharedDto dto){
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "게시글 등록 실패");
+		resultMap.put("res_msg", "결재 양식 생성 실패");
 
-		List<AttachDto> attachDtoList = new ArrayList<AttachDto>();
+		logger.info("진입 test");
 		
-		for(MultipartFile mf : dto.getFiles()) {
-			AttachDto attachDto = attachService.uploadFile(mf);
-			if(attachDto != null) attachDtoList.add(attachDto);
-		}
+		int result = service.createSharedApi(dto);
 		
-		if(dto.getFiles().size() == attachDtoList.size()) {
-			int result = service.createSharedApi(dto,attachDtoList);
-			if(result > 0) {
-				resultMap.put("res_code", "200");
-				resultMap.put("res_msg", "게시글 등록되었습니다.");
-			}
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재 양식 생성 성공");
 		}
 		
 		return resultMap;

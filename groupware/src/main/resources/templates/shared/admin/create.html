@@ -30,12 +30,9 @@ layout:decorate="~{/include/layout}">
 	  }
 	</style>
 	<form name="create_shared_form" action="/admin/shared/create" method="post">
-	<div>
 		<label>제목 : <input type="text" name="shared_title"></label><br><br>
 		<input type="file" name="files" multiple><br><br>
 		<input type="submit" value="작성 완료">
-	</div>
-	<br>
 	<div class="post-form">
 		<textarea name="shared_content" id="summernote"></textarea>
 	</div>
@@ -93,48 +90,38 @@ layout:decorate="~{/include/layout}">
     
     const form = document.create_shared_form;
     form.addEventListener('submit', (e) => {
-    	  e.preventDefault();
-
-    	  let vali_check = false;
-    	  let vali_text = "";
-
-    	  const title = form.shared_title.value;
-    	  const content = $('#summernote').summernote('code');
-
-    	  if (!title) {
-    	    vali_text += "제목을 입력하세요.";
-    	  } else if (!content || content === '<p><br></p>') {
-    	    vali_text += "내용을 입력하세요.";
-    	  } else {
-    	    vali_check = true;
-    	  }
-
-    	  if (!vali_check) {
-    	    alert(vali_text);
-    	  } else {
-    	    // 👉 summernote 값 수동 주입!
-    	    $('#summernote').val(content);
-
-    	    const payload = new FormData(form);
-
-    	    fetch("/admin/shared/create", {
-    	      method: 'post',
-    	      body: payload
-    	    })
-    	    .then(response => response.json())
-    	    .then(data => {
-    	      console.log(data);
-    	      alert(data.res_msg);
-    	      if (data.res_code === '200') {
-    	        location.href = '/admin/shared';
-    	      }
-    	    })
-    	    .catch(error => {
-    	      console.log(error);
-    	    });
-    	  }
-    	});
-    
+        e.preventDefault();
+        let vali_check = false;
+        let vali_text = "";
+        const title = form.shared_title.value;
+        const content = $('#summernote').summernote('code');
+        if (!title) {
+            vali_text += "제목을 입력하세요.";
+        } else if (!content || content === '<p><br></p>') {
+            vali_text += "내용을 입력하세요.";
+        } else {
+            vali_check = true;
+        }
+        if (!vali_check) {
+            alert(vali_text);
+        } else {
+            const payload = new FormData(form);
+            payload.append('shared_content', content); // Summernote 내용 추가
+            fetch("/admin/shared/create", {
+                method: 'post',
+                body: payload
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert(data.res_msg);
+                if (data.res_code === '200') {
+                    location.href = '/admin/shared';
+                }
+            })
+            .catch(error => console.error(error));
+        }
+    });
   </script>
 	
 	
