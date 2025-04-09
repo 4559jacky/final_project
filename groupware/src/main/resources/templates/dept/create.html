@@ -38,22 +38,22 @@ layout:decorate="~{/include/layout}">
                           			<p class="card-subtitle mb-4">To view the status of departments, please check the org chart.</p>
   									
   									<div class="d-flex justify-content-start mb-3">
-  										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
-  										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
+   										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
+   										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
 									</div>
-  									
-  									<div id="jstree">
-    									<ul>
-      										<li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}">
-        										<span th:text="${dept.name}"></span>
-        										<ul>
-          											<li th:each="member : ${dept.members}" th:id="'member_' + ${member.id}">
-           												<span th:text="${member.name}"></span>
-          											</li>
-        										</ul>
-      										</li>
-    									</ul>
-  									</div>
+
+									<div id="dept-tree">
+   										<ul>
+									      <li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}" th:data-parent="'#'">
+									         <span th:text="${dept.name}"></span>
+									         <ul>
+									            <li th:each="member : ${dept.members}" th:id="'member_' + ${member.id}" th:data-parent="'dept_' + ${dept.id}">
+									               <span th:text="${member.name}"></span>
+									            </li>
+									         </ul>
+									      </li>
+									   </ul>
+									</div>
 
 									<!-- jsTree 데이터 확인용 버튼 -->
   									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
