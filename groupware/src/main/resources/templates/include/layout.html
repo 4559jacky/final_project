@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
@@ -209,6 +210,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	}
 	</style>
 	
+	<!-- dark-cookie CSS -->
+	
 	<!-- jQuery -->
   	<script th:src="@{/js/jquery-3.7.1.js}"></script>
   	
@@ -346,9 +349,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 	<!-- jsTree -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-	<script th:src="@{/js/cjs/jstree.js}">
-
-  	</script>
+	<script th:src="@{/js/cjs/jstree.js}"></script>
+	
+	<!-- dark-cookie JS -->
+	<script th:src="@{/js/cjs/dark-cookie.js}"></script>
 	
 </body>
 </html>

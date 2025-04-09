@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class DeptTreeServiceImpl implements DeptTreeService {
 	
 	private final DeptRepository deptRepository;
-
+	
 	@Override
 	public List<DeptTreeDto> getDeptTree() {
 		List<Dept> deptList = deptRepository.findAll();
