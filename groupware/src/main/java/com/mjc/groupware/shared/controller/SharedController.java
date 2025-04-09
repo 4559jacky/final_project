@@ -1,5 +1,6 @@
 package com.mjc.groupware.shared.controller;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.shared.dto.SharedDto;
 import com.mjc.groupware.shared.service.SharedService;
 

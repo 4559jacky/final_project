@@ -2,6 +2,7 @@ package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
 
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.entity.Shared;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +23,8 @@ public class SharedDto {
 	private String shared_title;
 	private String shared_content;
 	private char shared_status;
+	private int views;
+	private Long member_no;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	
@@ -30,6 +33,8 @@ public class SharedDto {
 				.sharedNo(shared_no)
 				.sharedTitle(shared_title)
 				.sharedContent(shared_content)
+				.member(Member.builder().memberNo(member_no).build())
+				.views(views)
 				.build();
 	}
 	
@@ -38,6 +43,7 @@ public class SharedDto {
 				.shared_no(shared.getSharedNo())
 				.shared_title(shared.getSharedTitle())
 				.shared_content(shared.getSharedContent())
+				.views(shared.getViews())
 				.build();
 	}
 }

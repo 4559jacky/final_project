@@ -30,7 +30,8 @@ public class SharedService {
 		}
 		return result;
 	}
-
+	
+	// 게시판 조회
 	public List<Shared> getSharedList() {
 		return repository.findAll(Sort.by(Sort.Direction.DESC, "sharedNo"));
 	}
