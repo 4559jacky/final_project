@@ -221,46 +221,9 @@ document.addEventListener("DOMContentLoaded", function () {
       startDate: setModalStartDateValue,
       endDate: setModalEndDateValue,
       color: getModalCheckedRadioBtnValue,
-      regMemberNo: 1, // 로그인 정보에서 가져오기
-      repeatYn: "N",
-      deleteYn: "N",
-      alldayYn: "Y",
-      planType: "P"
+      regMemberNo: 1 // 로그인 정보에서 가져오기
+/*      planType: "P"*/
     };
-
-    fetch("/plan/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(requestData)
-    })
-      .then(response => {
-        if (!response.ok) throw new Error("일정 저장 실패!");
-        return response.json();
-      })
-      .then(data => {
-        console.log("서버 저장 완료:", data);
-
-        calendar.addEvent({
-          id: data.planNo, // 서버에서 반환된 ID
-          title: getTitleValue,
-          start: setModalStartDateValue,
-          end: setModalEndDateValue,
-          allDay: true,
-          extendedProps: {
-            calendar: getModalCheckedRadioBtnValue,
-            description: description,
-            writer: writer,
-            department: department
-          },
-        });
-
-        myModal.hide();
-      })
-      .catch(error => {
-        alert("서버와의 연결 중 문제가 발생했습니다: " + error.message);
-      });
   });
 
   /*getModalAddBtnEl.addEventListener("click", function () {
@@ -294,8 +257,9 @@ document.addEventListener("DOMContentLoaded", function () {
     myModal.hide();
   });*/
   /*=====================*/
-  // Calendar Init
+  // Calendar Initd
   /*=====================*/
+  window.calendar = calendar;
   calendar.render();
   var myModal = new bootstrap.Modal(document.getElementById("eventModal"));
   var modalToggle = document.querySelector(".fc-addEventButton-button ");

@@ -46,6 +46,7 @@ layout:decorate="~{/include/layout}">
             </div>
           </div>
           <!-- BEGIN MODAL -->
+          <form name="plan_form" action="/plan/create" method="post">
           <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-lg">
               <div class="modal-content">
@@ -60,13 +61,13 @@ layout:decorate="~{/include/layout}">
                     <div class="col-md-12">
                       <div>
                         <label class="form-label">일정명</label>
-                        <input id="event-title" type="text" class="form-control" />
+                        <input id="event-title" type="text" class="form-control" name="plan_title"/>
                       </div>
                     </div>
                    <div class="col-md-12 mt-3">
 					  <div>
 					    <label class="form-label">일정 내용</label>
-					    <textarea id="event-description" class="form-control" rows="3" placeholder="일정 내용을 입력하세요."></textarea>
+					    <textarea id="event-description" class="form-control" rows="3" name="plan_content" placeholder="일정 내용을 입력하세요."></textarea>
 					  </div>
 					</div>
                     <div class="col-md-12 mt-6">
@@ -76,25 +77,25 @@ layout:decorate="~{/include/layout}">
                       <div class="d-flex">
                         <div class="n-chk">
                           <div class="form-check form-check-primary form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Danger" id="modalDanger" />
+                            <input class="form-check-input" type="radio" name="plan_type" value="부서" id="modalDanger" />
                             <label class="form-check-label" for="modalDanger">부서</label>
                           </div>
                         </div>
                         <div class="n-chk">
                           <div class="form-check form-check-warning form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Success" id="modalSuccess" />
+                            <input class="form-check-input" type="radio" name="plan_type" value="개인" id="modalSuccess" />
                             <label class="form-check-label" for="modalSuccess">개인</label>
                           </div>
                         </div>
                         <div class="n-chk">
                           <div class="form-check form-check-success form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Primary" id="modalPrimary" />
+                            <input class="form-check-input" type="radio" name="plan_type" value="회사" id="modalPrimary" />
                             <label class="form-check-label" for="modalPrimary">회사</label>
                           </div>
                         </div>
                         <div class="n-chk">
                           <div class="form-check form-check-danger form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Warning" id="modalWarning" />
+                            <input class="form-check-input" type="radio" name="plan_type" value="휴가" id="modalWarning" />
                             <label class="form-check-label" for="modalWarning">휴가</label>
                           </div>
                         </div>
@@ -104,14 +105,14 @@ layout:decorate="~{/include/layout}">
                     <div class="col-md-12 mt-6">
                       <div>
                         <label class="form-label">시작일</label>
-                        <input id="event-start-date" type="date" class="form-control" />
+                        <input id="event-start-date" type="date" class="form-control" name="start_date"/>
                       </div>
                     </div>
 
                     <div class="col-md-12 mt-6">
                       <div>
                         <label class="form-label">종료일</label>
-                        <input id="event-end-date" type="date" class="form-control" />
+                        <input id="event-end-date" type="date" class="form-control" name="end_date"/>
                       </div>
                     </div>
                   </div>
@@ -123,13 +124,67 @@ layout:decorate="~{/include/layout}">
                   <button type="button" class="btn btn-success btn-update-event" data-fc-event-public-id="">
                     수정
                   </button>
-                  <button type="button" class="btn btn-primary btn-add-event">
+                  <button type="submit" class="btn btn-primary btn-add-event">
                     일정등록
                   </button>
                 </div>
               </div>
             </div>
           </div>
+          </form>
+          <script>
+          	const form = document.plan_form;
+          	form.addEventListener('submit', (e) => {
+          	  e.preventDefault();
+
+          	  let vali_check = false;
+          	  let vali_text = "";
+
+          	  const planTitle = form.plan_title.value;
+          	  const planContent = form.plan_content.value;
+          	  const planType = form.plan_type.value;
+          	  const startDate = form.start_date.value;
+          	  const endDate = form.end_date.value;
+
+          	  if (!planTitle) {
+          	    vali_text += "제목을 입력하세요.";
+          	  } else if (!planContent) {
+          	    vali_text += "내용을 입력하세요.";
+          	  } else {
+          	    vali_check = true;
+          	  }
+
+          	  if (!vali_check) {
+          	    alert(vali_text);
+          	  } else {
+
+          	    const payload = new FormData(form);
+
+          	    fetch("/plan/create", {
+          	      	method: 'post',
+          	      	headers : {
+      					'header': document.querySelector('meta[name="_csrf_header"]').content,
+      	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+      				},
+          	      	body: payload
+          	    })
+          	    .then(response => response.json())
+          	    .then(data => {
+          	      console.log(data);
+          	      alert(data.res_msg);
+          	      if (data.res_code === '200') {
+          	        location.reload();
+          	      }
+          	    })
+          	    .catch(error => {
+          	      console.log(error);
+          	    });
+          	  }
+          	});
+          	
+          
+          	
+          </script>
           <!-- DETAIL MODAL -->
 			<div class="modal fade" id="eventModaldetail" tabindex="-1">
 			  <div class="modal-dialog modal-dialog-centered">
@@ -168,19 +223,19 @@ layout:decorate="~{/include/layout}">
 			        <div class="mb-3">
 			          <label class="form-label d-block">일정 타입</label>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="event-level" value="회사" id="type-company">
+			            <input class="form-check-input" type="radio" name="plan_type" value="회사" id="type-company">
 			            <label class="form-check-label" for="type-company">회사</label>
 			          </div>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="event-level" value="부서" id="type-team">
+			            <input class="form-check-input" type="radio" name="plan_type" value="부서" id="type-team">
 			            <label class="form-check-label" for="type-team">부서</label>
 			          </div>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="event-level" value="개인" id="type-personal">
+			            <input class="form-check-input" type="radio" name="plan_type" value="개인" id="type-personal">
 			            <label class="form-check-label" for="type-personal">개인</label>
 			          </div>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="event-level" value="휴가" id="type-leave">
+			            <input class="form-check-input" type="radio" name="plan_type" value="휴가" id="type-leave">
 			            <label class="form-check-label" for="type-leave">휴가</label>
 			          </div>
 			        </div>

@@ -1,13 +1,17 @@
 package com.mjc.groupware.plan.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mjc.groupware.plan.entity.Plan;
 
-import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,29 +22,25 @@ import lombok.Setter;
 public class PlanDto {
 
 	private Long plan_no;
-	private String plan_name;
+	private String plan_title;
     private String plan_content;
-    private String start_date;
-    private String end_date;
-    private String color;
-    private int reg_member_no;
-    private String repeat_yn;
-    private String delete_yn;
-    private String allday_yn;
+    private LocalDateTime reg_date;
+    private LocalDateTime mod_date;
+    private LocalDate start_date;
+    private LocalDate end_date;
+    private Long reg_member_no;
     private String plan_type;
 	
 	public Plan toEntity() {
 		return Plan.builder()
 				.planNo(plan_no)
-				.planName(plan_name)
+				.planTitle(plan_title)
 				.planContent(plan_content)
+				.regDate(reg_date)
+				.modDate(mod_date)
 				.startDate(start_date)
 				.endDate(end_date)
-				.color(color)
 				.regMemberNo(reg_member_no)
-				.repeatYn(repeat_yn)
-				.deleteYn(delete_yn)
-				.alldayYn(allday_yn)
 				.planType(plan_type)
 				.build();
 	}
@@ -48,15 +48,13 @@ public class PlanDto {
 	public PlanDto toDto(Plan plan) {
 		return PlanDto.builder()
 				.plan_no(plan.getPlanNo())
-				.plan_name(plan.getPlanName())
+				.plan_title(plan.getPlanTitle())
 				.plan_content(plan.getPlanContent())
+				.reg_date(plan.getRegDate())
+				.mod_date(plan.getModDate())
 				.start_date(plan.getStartDate())
 				.end_date(plan.getEndDate())
-				.color(plan.getColor())
 				.reg_member_no(plan.getRegMemberNo())
-				.repeat_yn(plan.getRepeatYn())
-				.delete_yn(plan.getDeleteYn())
-				.allday_yn(plan.getAlldayYn())
 				.plan_type(plan.getPlanType())
 				.build();
 	}
