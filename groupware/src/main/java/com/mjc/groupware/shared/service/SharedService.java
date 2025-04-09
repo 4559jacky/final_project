@@ -20,6 +20,9 @@ public class SharedService {
 	public int createSharedApi(SharedDto dto) {
 		int result = 0;
 		try {
+			if (dto.getMember_no() == null) {
+	            dto.setMember_no(1L); // Spring Security 없으면 임시로 1
+	        }
 			Shared entity = dto.toEntity();
 			Shared saved = repository.save(entity);
 			if(saved != null) {

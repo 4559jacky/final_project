@@ -40,7 +40,7 @@ public class SharedController {
 	@PostMapping("/admin/shared/create")
 	@ResponseBody
 	public Map<String,String> createSharedApi(SharedDto dto){
-		Map<String,String> resultMap = new HashMap<String,String>();
+		Map<String,String> resultMap = new HashMap<>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "결재 양식 생성 실패");
 
