@@ -1,5 +1,11 @@
 package com.mjc.groupware.plan.entity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,32 +32,28 @@ public class Plan {
     @Column(name = "plan_no")
     private Long planNo;
 
-	@Column(name = "plan_name")
-	private String planName;
+	@Column(name = "plan_title")
+	private String planTitle;
 	
 	@Column(name = "plan_content")
     private String planContent;
 	
+	@CreationTimestamp
+	@Column(updatable=false,name="reg_date")
+    private LocalDateTime regDate;
+	
+	@UpdateTimestamp
+	@Column(insertable=false,name="mod_date")
+    private LocalDateTime modDate;
+	
 	@Column(name = "start_date")
-    private String startDate;
+    private LocalDate startDate;
 	
 	@Column(name = "end_date")
-    private String endDate;
-	
-	@Column(name = "color")
-    private String color;
+    private LocalDate endDate;
 	
 	@Column(name = "reg_member_no")
-    private int regMemberNo;
-	
-	@Column(name = "repeat_yn")
-    private String repeatYn;
-	
-	@Column(name = "delete_yn")
-    private String deleteYn;
-	
-	@Column(name = "allday_yn")
-    private String alldayYn;
+    private Long regMemberNo;
 	
 	@Column(name = "plan_type")
     private String planType;
