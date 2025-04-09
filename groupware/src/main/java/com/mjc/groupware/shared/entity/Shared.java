@@ -42,7 +42,7 @@ public class Shared {
 	private int views;
 	
 	@ManyToOne
-	@JoinColumn(name="member_no")
+	@JoinColumn(name="member_no", nullable = false)
 	private Member member;
 	
 	@CreationTimestamp
