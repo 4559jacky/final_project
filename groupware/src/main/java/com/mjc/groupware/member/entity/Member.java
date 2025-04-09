@@ -37,7 +37,7 @@ public class Member {
 	@Column(name="member_no")
 	public Long memberNo;
 	
-	@Column(name="member_id")
+	@Column(name="member_id", nullable = false, unique = true)
 	public String memberId;
 	
 	@Column(name="member_pw")

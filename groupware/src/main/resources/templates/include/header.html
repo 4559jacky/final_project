@@ -16,6 +16,19 @@
   		}
 	</style>
 	
+	<style>
+		.btn-theme-dark,
+		.btn-theme-light {
+  			display: inline-block !important;
+  			cursor: pointer;
+		}
+
+		.sun-icon,
+		.moon-icon {
+  			font-size: 18px;
+		}
+	</style>
+	
 	  <!--  Header Start -->
       <header class="topbar">
         <div class="with-vertical">
@@ -228,14 +241,14 @@
                   <!-- ------------------------------- -->
                   <!-- darkmode btn -->
                   <!-- ------------------------------- -->
-                  <li class="nav-item nav-icon-hover-bg rounded-circle">
-                    <a class="nav-link moon dark-layout" href="javascript:void(0)">
-                      <i class="ti ti-moon moon"></i>
-                    </a>
-                    <a class="nav-link sun light-layout" href="javascript:void(0)">
-                      <i class="ti ti-sun sun"></i>
-                    </a>
-                  </li>
+				<li class="nav-item nav-icon-hover-bg rounded-circle">
+  					<a class="nav-link btn-theme-light" href="javascript:void(0)">
+    					<i class="ti ti-sun sun-icon"></i> <!-- 항상 존재 -->
+  					</a>
+  					<a class="nav-link btn-theme-dark" href="javascript:void(0)">
+    					<i class="ti ti-moon moon-icon"></i> <!-- 항상 존재 -->
+  					</a>
+				</li>
                   <!-- ------------------------------- -->
                   <!-- start language Dropdown -->
                   <!-- ------------------------------- -->

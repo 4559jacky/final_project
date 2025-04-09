@@ -2,6 +2,7 @@ package com.mjc.groupware.pos.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mjc.groupware.pos.entity.Pos;
 
 import groovy.transform.ToString;
@@ -19,7 +20,9 @@ import lombok.Setter;
 @Builder
 public class PosDto {
 	
+	@JsonProperty("posNo")
 	private Long pos_no;
+	@JsonProperty("posName")
 	private String pos_name;
 	private Long pos_order;
 	private LocalDateTime reg_date;

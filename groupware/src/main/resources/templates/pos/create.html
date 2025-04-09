@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal" 
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -9,14 +9,13 @@ layout:decorate="~{/include/layout}">
 	<style>
 		
   		#pos-list li {
-			cursor: move;
 			user-select: none;
 			padding: 12px 16px;
 			background-color: white;
 			border: 1px solid #dee2e6;
 			margin-bottom: 4px;
 			border-radius: 4px;
-			display: block;
+			cursor: default;
 		}
 
 		#pos-list li.dragging {
@@ -31,23 +30,51 @@ layout:decorate="~{/include/layout}">
 			border-radius: 6px;
 		}
 		
+		.drag-handle {
+				cursor: grab;
+				color: #6c757d;
+				padding-left: 8px;
+			}
+		
+		.dragging .drag-handle {
+			cursor: grabbing;
+		}
+		
+		.edit-btn,
+		.save-btn,
+		.cancel-btn,
+		.delete-btn {
+  			border-color: #ccc !important;
+  			color: #666 !important;
+  			background-color: transparent !important;
+  			transition: all 0.3s ease;
+		}
+
+		.edit-btn:hover,
+		.save-btn:hover,
+		.cancel-btn:hover,
+		.delete-btn:hover {
+  			border-color: #999 !important;
+  			color: #222 !important;
+		}
+		
 	</style>
 
 	<div class="page-titles mb-7 mb-md-5">
 		<div class="row">
-  			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+			<div class="col-lg-8 col-md-6 col-12 align-self-center">
 				<nav aria-label="breadcrumb">
- 					<ol class="breadcrumb align-items-center">
-						<li class="breadcrumb-item">
-                      		<a class="text-muted text-decoration-none" th:href="@{/home}">
-                        		<i class="ti ti-home fs-5"></i>
-                      		</a>
-                    	</li>
-                    	<li class="breadcrumb-item" aria-current="page">직급 등록</li>
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">인사 관리 / 직급 관리</li>
                   	</ol>
-                </nav>
-                <h2 class="mb-0 fw-bolder fs-8" style="padding-top:5px;">직급 등록</h2>
-			</div>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">직급 관리</h2>
+			</div><br>
 		</div>
 	</div>
 	<div class="card">
@@ -59,16 +86,28 @@ layout:decorate="~{/include/layout}">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
                           			<h4 class="card-title" style="font-weight: bold;">직급</h4>
-                          			<p class="card-subtitle mb-4">To register a new account, please confirm account info.</p>
+                          			<p class="card-subtitle mb-4">To change the position order, please use drag and drop.</p>
                             		
                             		<th:block th:if="${posList != null}">
                             			<ul id="pos-list" class="list-group">
                             				<li th:each="pos : ${posList}"
-                            					class="list-group-item"
-                            					draggable="true"
-                            					th:attr="data-id=${pos.posNo}"
-                            					th:text="${pos.posName}">
+                            					class="list-group-item d-flex align-items-center justify-content-start gap-2"
+                            					th:attr="data-id=${pos.posNo}">
+												
+                            					<span class="drag-handle me-2" draggable="true" style="cursor: grab;">
+													&#9776;
+												</span>
+												
+      											<span class="pos-name flex-grow-1" th:text="${pos.posName}"></span>
+
+      											<input type="text" class="edit-input form-control flex-grow-1 d-none" th:value="${pos.posName}" />
+      											
+      											<button class="edit-btn btn btn-sm btn-outline-primary">✏️</button>
+      											<button class="save-btn btn btn-sm btn-outline-success d-none">✅</button>
+      											<button class="cancel-btn btn btn-sm btn-outline-danger d-none">❌</button>
+      											<button class="delete-btn btn btn-sm btn-outline-primary">🗑️</button>
                             				</li>
+											
                             			</ul>
                             		</th:block>
                             		<th:block th:if="${posList == null}">
@@ -92,7 +131,7 @@ layout:decorate="~{/include/layout}">
                             			</div>
                             			<div class="d-flex align-items-center justify-content-end gap-6">
                         					<button type="submit" class="btn btn-primary">등록</button>
-                        					<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/'">취소</button>
+                        					<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/home'">취소</button>
                       					</div>
                       				</form>
                         		</div>
@@ -113,7 +152,7 @@ layout:decorate="~{/include/layout}">
 			let vali_chk = false;
 			let vali_msg = "";
 			
-			if(!form.pos_name.value) {
+			if(!form.pos_name.value.trim()) {
 				vali_msg += "직급명을 입력하세요";
 				form.pos_name.focus();
 			} else {
@@ -138,7 +177,7 @@ layout:decorate="~{/include/layout}">
 				.then(data => {
 					alert(data.res_msg);
 					if(data.res_code == '200') {
-						location.href = "/pos/create";
+						location.href = "/admin/pos/create";
 					}
 				})
 				.catch(error => {
@@ -152,12 +191,14 @@ layout:decorate="~{/include/layout}">
 		// 드래그 앤 드랍 로직
 		document.addEventListener('DOMContentLoaded', () => {
 			const list = document.getElementById('pos-list');
+			if (!list) return;
+			
 			let draggingEle = null;
 			
 			// 드래그 시작
 			list.addEventListener('dragstart', (e) => {
-				if (e.target.tagName === 'LI') {
-					draggingEle = e.target;
+				if (e.target.classList.contains('drag-handle')) {
+					draggingEle = e.target.closest('li');
 					draggingEle.classList.add('dragging');
 				}
 			});
@@ -167,6 +208,37 @@ layout:decorate="~{/include/layout}">
 				if (draggingEle) {
 					draggingEle.classList.remove('dragging');
 					draggingEle = null;
+					
+					// 순서 배열 만들기 - 리스트가 없을 때 걸러주는 것까지 추가
+					const orderedIds = [...list.children]
+					.filter(li => li.dataset.id)
+					.map((li, index) => ({
+						posNo: Number(li.dataset.id),
+						order: index + 1
+					}));
+					
+					if (orderedIds.length === 0) return;
+					
+					// 순서 저장 요청
+					fetch('/admin/pos/update/order', {
+						method: 'post',
+						headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+						body: JSON.stringify(orderedIds)
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if(data.res_code == '200') {
+							location.href = "/admin/pos/create";
+						}
+					})
+					.catch(error => {
+						console.log(error);
+					});
 				}
 			});
 			
@@ -201,6 +273,141 @@ layout:decorate="~{/include/layout}">
 					}
 				}, { offset: Number.NEGATIVE_INFINITY }).element;
 			}
+		});
+	</script>
+	
+	<script>
+		// 직급명 수정 로직
+		document.addEventListener('DOMContentLoaded', function () {
+		  	const posList = document.getElementById('pos-list');
+			
+		  	posList.querySelectorAll('li').forEach(li => {
+		   	 	const posNameSpan = li.querySelector('.pos-name');
+		    	const input = li.querySelector('.edit-input');
+		    	const editBtn = li.querySelector('.edit-btn');
+		    	const saveBtn = li.querySelector('.save-btn');
+		    	const cancelBtn = li.querySelector('.cancel-btn');
+		    	const deleteBtn = li.querySelector('.delete-btn');
+				
+		    	let originalValue = input.value;
+				
+		    	// 수정 버튼 클릭
+		    	editBtn.addEventListener('click', () => {
+		      		posNameSpan.classList.add('d-none');
+		      		input.classList.remove('d-none');
+		      		input.focus();
+					
+		      		editBtn.classList.add('d-none');
+		      		saveBtn.classList.remove('d-none');
+		      		cancelBtn.classList.remove('d-none');
+		      		
+		      		deleteBtn.classList.add('d-none');
+					
+		      		originalValue = input.value;
+		    	});
+				
+		    	// 저장 버튼 클릭
+		    	saveBtn.addEventListener('click', () => {
+		      		const newName = input.value.trim();
+		      		const posNo = li.dataset.id;
+					
+		      		if (!newName) {
+		      			alert("직급명은 비워둘 수 없습니다.");
+		        		input.focus();
+		        		return;
+		      		}
+
+		      		// 서버에 업데이트 요청
+		      		fetch(`/admin/pos/update/name`, {
+		        		method: 'post',
+		        		headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		        		},
+		        		body: JSON.stringify({
+							posNo: Number(posNo),
+							posName: newName
+						})
+		      		})
+		        	.then(response => response.json())
+		        	.then(data => {
+		          		posNameSpan.textContent = newName;
+
+		          		input.classList.add('d-none');
+		         		posNameSpan.classList.remove('d-none');
+
+		          		saveBtn.classList.add('d-none');
+		          		cancelBtn.classList.add('d-none');
+		          		editBtn.classList.remove('d-none');
+		          		
+		          		deleteBtn.classList.remove('d-none');
+		          		
+						alert(data.res_msg);
+						if(data.res_code == '200') {
+							location.href = "/admin/pos/create";
+						} else {
+							location.href = "/admin/pos/create";
+						}
+		        	})
+		        	.catch(error => {
+		        		console.log(error);
+		        	});
+		    	});
+
+		    	// 취소 버튼 클릭
+		    	cancelBtn.addEventListener('click', () => {
+		      		input.value = originalValue;
+
+		      		input.classList.add('d-none');
+		      		posNameSpan.classList.remove('d-none');
+
+		      		saveBtn.classList.add('d-none');
+		      		cancelBtn.classList.add('d-none');
+		      		editBtn.classList.remove('d-none');
+		      		
+		      		deleteBtn.classList.remove('d-none');
+		    	});
+		  	});
+		});
+	</script>
+	
+	<script>
+		// 직급 삭제 로직
+		document.addEventListener('DOMContentLoaded', function () {
+			const posList = document.getElementById('pos-list');
+			
+			posList.querySelectorAll('li').forEach(li => {
+				const deleteBtn = li.querySelector('.delete-btn');
+				const posNo = li.dataset.id;
+				
+				deleteBtn.addEventListener('click', () => {
+					if (!confirm("정말 이 직급을 삭제하시겠습니까?")) return;
+					
+					fetch("/admin/pos/delete", {
+						method: "post",
+						headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+		        		body: JSON.stringify({
+							posNo: Number(posNo)
+						})
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if (data.res_code === '200') {
+							li.remove();
+							location.href = "/admin/pos/create";
+						}
+					})
+					.catch(error => {
+		        		console.log(error);
+		        	});
+				});
+			});
 		});
 	</script>
 </th:block>

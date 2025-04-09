@@ -29,4 +29,8 @@ public class ApprovalForm {
 	
 	@Column(name="approval_form")
 	private String approvalForm;
+	
+	@Column(name="approval_form_status")
+	private String approvalFormStatus;
+	
 }
