@@ -59,34 +59,32 @@ layout:decorate="~{/include/layout}">
                               				<input type="text" class="form-control" id="member_name" name="member_name">
                             			</div>
                             			<div class="mb-3">
-                                  			<label for="department" class="form-label">부서</label>
-                                  			<select class="form-select" id="department" name="department" aria-label="department-select">
-                                    			<option selected>-</option>
-                                    			<option value="1">영업지원</option>
-                                    			<option value="2">인사</option>
-                                    			<option value="3">영업</option>
-                                    			<option value="4">디자인</option>
-                                  			</select>
-                                		</div>
+  											<label for="dept_no" class="form-label">부서</label>
+  											<select class="form-select" id="dept_no" name="dept_no" aria-label="department-select">
+    											<option th:value="0" th:selected>-</option>
+    											<th:block th:if="${!#lists.isEmpty(deptList)}" th:each="dept : ${deptList}">
+      												<option th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
+    											</th:block>
+  											</select>
+										</div>
                             			<div class="mb-3">
-                                  			<label for="position" class="form-label">직급</label>
-                                  			<select class="form-select" id="position" name="position" aria-label="position-select">
-                                    			<option selected>-</option>
-                                    			<option value="1">대표이사</option>
-                                    			<option value="2">이사</option>
-                                    			<option value="3">부장</option>
-                                    			<option value="4">과장</option>
-                                    			<option value="5">주임</option>
-                                    			<option value="6">사원</option>
-                                  			</select>
-                                		</div>
+                            				<label for="pos_no" class="form-label">직급</label>
+                            				<select class="form-select" id="pos_no" name="pos_no" aria-label="position-select">
+                            					<th:block th:if="${#lists.isEmpty(posList)}">
+                            						<option th:value="0" th:selected>-</option>
+                            					</th:block>
+                            					<th:block th:if="${!#lists.isEmpty(posList)}" th:each="pos : ${posList}">
+                            						<option th:value="${pos.posNo}" th:text="${pos.posName}" th:selected="${pos.posNo == selectedPosNo}"></option>
+                            					</th:block>
+                            				</select>
+                            			</div>
                         			</div>
                       			</div>
                    			</div>
                    			<div class="col-12">
                       			<div class="d-flex align-items-center justify-content-center gap-6">
                         			<button type="submit" class="btn btn-primary">등록</button>
-                        			<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/'">취소</button>
+                        			<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/home'">취소</button>
                       			</div>
                     		</div>
                   		</div>            	

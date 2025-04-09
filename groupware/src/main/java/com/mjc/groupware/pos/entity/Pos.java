@@ -33,7 +33,7 @@ public class Pos {
 	@Column(name="pos_no")
 	public Long posNo;
 	
-	@Column(name="pos_name")
+	@Column(name="pos_name", nullable = false, unique = true)
 	public String posName;
 	
 	@Column(name="pos_order")
