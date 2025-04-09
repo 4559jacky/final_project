@@ -4,15 +4,34 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.mjc.groupware.board.entity.Board;
 
+/**
+ * 검색 조건을 동적으로 생성하는 Specification 클래스입니다.
+ */
 public class BoardSpecification {
-	 public static Specification<Board> search(String keyword) {
-	        return (root, query, cb) -> {
-	            if (keyword == null || keyword.trim().isEmpty()) return null;
-	            return cb.or(
-	                cb.like(root.get("board_title"), "%" + keyword + "%"),
-	                cb.like(root.get("board_content"), "%" + keyword + "%")
-	            );
-	        };
-	    }
+	// 제목에 특정 문자열이 포함된 검색 조건
+		public static Specification<Board> boardTitleContains(String keyword){
+			return (root, query, criteriaBuilder) -> 
+				criteriaBuilder.like(root.get("board_title"),"%"+keyword+"%");
+		}
+		
+		// 내용에 특정 문자열이 포함된 검색 조건
+		public static Specification<Board> boardContentContains(String keyword){
+			return (root, query, criteriaBuilder) ->
+				criteriaBuilder.like(root.get("board_content"),"%"+keyword+"%");
+		}
 	}
 
+//    public static Specification<Board> titleContains(String keyword) {
+//        return (root, query, cb) ->
+//                cb.like(root.get("board_title"), "%" + keyword + "%");
+//    }
+//
+//    public static Specification<Board> contentContains(String keyword) {
+//        return (root, query, cb) ->
+//                cb.like(root.get("board_content"), "%" + keyword + "%");
+//    }
+//
+//    public static Specification<Board> memberNoEquals(Long member_no) {
+//        return (root, query, cb) ->
+//                cb.equal(root.get("member_no"), member_no);
+//    }

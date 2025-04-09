@@ -23,9 +23,20 @@
               </nav><br>
               <h2 class="mb-0 fw-bolder fs-8">자유 게시판 목록</h2>
         </div><br>
+        
+        
+<!-- 게시판 목록 정렬 -->
+<form action="/board/list" name="search_board_form" method="get" class="d-inline-block me-3">
+	<select id="order_type" name="order_type" class="form-select form-select-sm" onchange="this.form.submit()">
+		<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
+		<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
+		<option value="3" th:selected="${searchDto.order_type == 3}">조회수순</option>
+	</select>
+</form>
 
+<!-- 검색창(제목,내용) -->
       <div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="/" method="get">
+			<form action="/board/list" method="get">
 				<div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
 					style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
 					<button type="submit" class="btn border-0 bg-transparent p-0">
@@ -40,7 +51,7 @@
 		</div>
 		
  		<div class="d-flex justify-content-end mb-4">
-  			<a class="btn btn-primary" th:href="@{/board/create}">글쓰기</a>
+  			<a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
 		</div>
 
 	    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
@@ -64,13 +75,42 @@
   			<td th:text="${board.board_no}"></td>        
   			<td th:text="${board.board_title}"></td>     
   			<td th:text="${board.member_no}"></td>       
-  			<td th:text="${#temporals.format(board.reg_date, 'yyyy-MM-dd HH:mm')}"></td> 
-  			<td th:text="${#temporals.format(board.mod_date, 'yyyy-MM-dd HH:mm')}"></td> 
+  			<td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}"></td> 
+  			<td th:text="${#temporals.format(board.modDate, 'yyyy-MM-dd HH:mm')}"></td> 
   			<td th:text="${board.views}"></td>
 		</tr>
       </tbody>
     </table>
   </div>
 </div>
+<div class="center">
+	<div class="pagination">
+		<a th:if="${pageDto.prev}" th:href="@{/board(nowPage=${pageDto.pageBarStart-1},search_type=${searchDto.search_type},search_text=${searchDto.search_text})}">
+			&laquo;
+		</a>
+		<th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart,pageDto.pageBarEnd)}">
+    		<a class="page-link" th:classappend="${pageDto.nowPage == num} ? 'active'" 
+    		th:href="@{/board(nowPage=${num},search_type=${searchDto.search_type},search_text=${searchDto.search_text})}"
+    		th:text="${num}">
+    		</a>
+    	</th:block>
+		<a th:if="${pageDto.next}" 
+		th:href="@{/board(nowPage=${pageDto.pageBarEnd+1},search_type=${searchDto.search_type},search_text=${searchDto.search_text})}">
+			&raquo;
+		</a>
+	</div>
+</div>
 </th:block>
+<script>
+			document.getElementById('order_type').addEventListener('change',function(e){
+				const orderType = e.target.value;
+				location.href="/board?order_type="+orderType;
+			});
+			$(function(){
+				$('.board_list tbody tr').on('click',function(){
+					const boardNo = $(this).data('board_no');
+					location.href="/board/"+boardNo;
+				})
+			})
+		</script>
 </html>

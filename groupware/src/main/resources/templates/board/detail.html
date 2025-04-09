@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<section>	
+			<div id="section_wrap">
+				<div class="word">
+					<h3>게시글 상세 정보</h3>
+				</div>
+				<div class="board_detail">
+					<ul>
+						<li>
+							<img src="">
+							<br>
+							<span></span>
+						</li>
+						<li>
+							<table>
+								<tr>
+									<td>제목</td>
+									<td th:text="${board.board_title}">제목</td>
+								</tr>
+								<tr>
+									<td>내용</td>
+									<td th:text="${board.board_content}">내용</td>
+								</tr>
+								<tr>
+									<td>작성자</td>
+									<td th:text="${board.member.member_name}">작성자</td>
+								</tr>
+								<tr>
+									<td>등록일</td>
+									<td th:text="${#temporals.format(board.regDate, 'yy-MM-dd')}">등록일</td>
+								</tr>
+								<tr>
+									<td>수정일</td>
+									<td th:text="${#temporals.format(board.modDate, 'yy-MM-dd')}">수정일</td>
+								</tr>
+							</table>
+						</li>
+					</ul>		
+				</div>
+				<div class="buttons">
+					<a href="">수정</a>
+					<a href="">삭제</a>			
+				</div>
+			</div>
+		</section>
+    </th:block>
+</html>
