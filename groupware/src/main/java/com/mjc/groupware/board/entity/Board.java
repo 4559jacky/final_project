@@ -1,7 +1,6 @@
 package com.mjc.groupware.board.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -11,9 +10,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,37 +29,35 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Board {
 
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="board_no")
-    private Long board_no; // 게시글 번호
+    @Column(name = "board_no")
+    private Long board_no;
 
-    @Column(name="board_title")
-    private String board_title; // 제목
+    @Column(name = "board_title")
+    private String board_title;
 
-    @Column(name="board_content")
-    private String board_content; // 내용
+    @Column(name = "board_content")
+    private String board_content;
 
-    @Column(name="member_no")
-    private Long member_no; // 작성자 번호
+    @Column(name = "member_no")
+    private Long member_no;
 
-    @Column(name="views")
-    private int views = 0; // 조회수
+    @Column(name = "views")
+    private int views = 0;
 
-    // 날짜 정보 관리
-	@CreationTimestamp
-	@Column(updatable=false,name="reg_date") // 등록일
-	private LocalDateTime regDate;
-	
-	@UpdateTimestamp
-	@Column(insertable=false,name="mod_date") // 수정일
-	private LocalDateTime modDate;
+    @CreationTimestamp
+    @Column(updatable = false, name = "reg_date")
+    private LocalDateTime reg_date;
 
-    // 조회수 추가
+    @UpdateTimestamp
+    @Column(insertable = false, name = "mod_date")
+    private LocalDateTime mod_date;
+
     public void incrementViews() {
         this.views++;
     }
-
 }

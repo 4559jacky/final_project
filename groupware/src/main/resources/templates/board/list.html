@@ -1,43 +1,41 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr"
-      data-bs-theme="light"
-      data-color-theme="Blue_Theme"
-      data-layout="horizontal"
-      xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/include/layout}">
+
 <th:block layout:fragment="content">
 
-		<!--상단 홈 아이콘 / ...  -->
-		<div class="col-lg-8 col-md-6 col-12 align-self-center">
-              <nav aria-label="breadcrumb">
-                 <ol class="breadcrumb align-items-center">
-                   <li class="breadcrumb-item">
-                     <a class="text-muted text-decoration-none" th:href="@{/home}">
-                       <i class="ti ti-home fs-5"></i>
-                     </a>
-                   </li>
-                  <li class="breadcrumb-item" aria-current="page">자유게시판</li>
-                 </ol>
-              </nav><br>
-              <h2 class="mb-0 fw-bolder fs-8">자유 게시판 목록</h2>
-        </div><br>
-        
-        
-<!-- 게시판 목록 정렬 -->
-<form action="/board/list" name="search_board_form" method="get" class="d-inline-block me-3">
-	<select id="order_type" name="order_type" class="form-select form-select-sm" onchange="this.form.submit()">
-		<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
-		<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
-		<option value="3" th:selected="${searchDto.order_type == 3}">조회수순</option>
-	</select>
-</form>
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center">
+                <li class="breadcrumb-item">
+                    <a class="text-muted text-decoration-none" th:href="@{/home}">
+                        <i class="ti ti-home fs-5"></i>
+                    </a>
+                </li>
+                <li class="breadcrumb-item" aria-current="page">자유게시판</li>
+            </ol>
+        </nav><br>
+        <h2 class="mb-0 fw-bolder fs-8">자유 게시판 목록</h2>
+    </div><br>
 
-<!-- 검색창(제목,내용) -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="/board/list" method="get">
-				<div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
+    <!-- 게시판 목록 정렬 -->
+    <form th:action="@{/board/list}" method="get" class="d-inline-block me-3">
+       <input type="hidden" name="search_text" th:value="${search_dto?.search_text}">
+       <input type="hidden" name="order_type" th:value="${search_dto?.order_type}">
+        <select id="order_type" name="order_type" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="1" th:selected="${search_dto.order_type == 1}">최신순</option>
+            <option value="2" th:selected="${search_dto.order_type == 2}">오래된순</option>
+            <option value="3" th:selected="${search_dto.order_type == 3}">조회수순</option>
+        </select>
+    </form>
+
+    <!-- 검색창 -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<form th:action="@{/board/list}" method="get">
+				<div
+					class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
 					style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
 					<button type="submit" class="btn border-0 bg-transparent p-0">
 						<i class="ti ti-search fs-5 text-primary"></i>
@@ -48,64 +46,127 @@
 						style="box-shadow: none; background-color: transparent;">
 				</div>
 			</form>
-		</div>
-		
- 		<div class="d-flex justify-content-end mb-4">
-  			<a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
+			<button class="btn btn-primary rounded-pill">결재 작성</button>
 		</div>
 
-	    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+    <div class="d-flex justify-content-end mb-4">
+        <a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
+    </div>
+    
+<!--     Table
+    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
 		  <div class="table-responsive">
 		    <table class="table align-middle text-center">
-      <thead class="table-light">
-        <tr>
-		    <th>번호</th>
-		    <th>제목</th>
-		    <th>작성자</th>
-		    <th>등록일</th>
-		    <th>수정일</th>
-		    <th>조회수</th>
-	    </tr>
-      </thead>
-      <tbody>
-     <tr th:if="${#lists.isEmpty(boardList)}">
-		<td colspan="6">게시글이 없습니다.</td>
-	</tr>
-		<tr th:each="board : ${boardList}">
-  			<td th:text="${board.board_no}"></td>        
-  			<td th:text="${board.board_title}"></td>     
-  			<td th:text="${board.member_no}"></td>       
-  			<td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}"></td> 
-  			<td th:text="${#temporals.format(board.modDate, 'yyyy-MM-dd HH:mm')}"></td> 
-  			<td th:text="${board.views}"></td>
-		</tr>
-      </tbody>
-    </table>
-  </div>
-</div>
- <!-- Pagination -->
+		      테이블 헤더
+		      <thead class="table-light">
+		        <tr>
+		          <th>번호</th>
+		          <th>제목</th>
+		          <th>작성자</th>
+		          <th>상태</th>
+		          <th>작성일</th>
+		          <th>양식 종류</th>
+		        </tr>
+		      </thead>
+		      테이블 바디
+		      <tbody>
+		        예시 데이터
+		        <tr>
+		          <td>1</td>
+		          <td>육아 휴직 신청합니다.</td>
+		          <td>김민지</td>
+		          <td><span class="badge bg-warning-subtle text-dark">대기중</span></td>
+		          <td>2025/04/02</td>
+		          <td>휴가 신청서</td>
+		        </tr>
+		        ...
+		      </tbody>
+		    </table>
+		  </div>
+		</div> -->
+
+     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>등록일</th>
+                        <th>수정일</th>
+                        <th>조회수</th>
+                    </tr>
+                </thead>
+                <tbody>
+  					<tr th:if="${#lists.isEmpty(boardList)}">
+    					<td colspan="6">게시글이 없습니다.</td>
+					</tr>
+					<tr th:if="${!#lists.isEmpty(boardList)}"
+						th:each="board : ${boardList}" th:data-board_no="${board.board_no}" class="board_row">
+    					<td th:text="${board.board_no}"></td>
+    					<td th:text="${board.board_title}"></td>
+    					<td th:text="${board.member_no}"></td>
+    					<td th:text="${board.reg_date != null ? #temporals.format(board.reg_date, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+    					<td th:text="${board.mod_date != null ? #temporals.format(board.mod_date, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+    					<td th:text="${board.views}"></td>
+					</tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 페이징 -->
     <nav class="d-flex justify-content-center mt-4">
-      <ul class="pagination">
-        <li class="page-item disabled"><a class="page-link">‹</a></li>
-        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">...</a></li>
-        <li class="page-item"><a class="page-link" href="#">10</a></li>
-        <li class="page-item"><a class="page-link" href="#">›</a></li>
-      </ul>
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${page_dto.now_page == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/board/list(order_type=${search_dto.order_type}, search_text=${search_dto.search_text}, now_page=${page_dto.now_page - 1})}">‹</a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(1, page_dto.total_page)}"
+                th:classappend="${page_dto.now_page == i} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/board/list(order_type=${search_dto.order_type}, search_text=${search_dto.search_text}, now_page=${i})}"
+                   th:text="${i}">1</a>
+            </li>
+
+            <li class="page-item" th:classappend="${page_dto.now_page == page_dto.total_page} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/board/list(order_type=${search_dto.order_type}, search_text=${search_dto.search_text}, now_page=${page_dto.now_page + 1})}">›</a>
+            </li>
+        </ul>
     </nav>
-</th:block>
 <script>
-			document.getElementById('order_type').addEventListener('change',function(e){
-				const orderType = e.target.value;
-				location.href="/board?order_type="+orderType;
-			});
-			$(function(){
-				$('.board_list tbody tr').on('click',function(){
-					const boardNo = $(this).data('board_no');
-					location.href="/board/"+boardNo;
-				})
-			})
-		</script>
+    $(function(){
+        $('.board_row').on('click', function(){
+            const boardNo = $(this).data('board_no');
+            location.href = "/board/" + boardNo;  // 수정: 상세 페이지 URL 수정
+        });
+    });
+</script>
+
+<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+</th:block>
+
 </html>

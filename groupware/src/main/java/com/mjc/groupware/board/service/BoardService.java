@@ -1,6 +1,5 @@
 package com.mjc.groupware.board.service;
 
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,60 +23,76 @@ public class BoardService {
 
 	private final BoardRepository repository;
 
-	
+	// 게시글 등록
+	public void createBoard(BoardDto board_dto) {
+	    Board board = Board.builder()
+	            .board_title(board_dto.getBoard_title())
+	            .board_content(board_dto.getBoard_content())
+	            .member_no(board_dto.getMember_no())
+	            .views(0)
+	            .build();
+	    repository.save(board);
+	}
+
 	// 게시글 삭제
-	public int deleteBoard(Long id) {
+	public int deleteBoard(Long board_no) {
 		int result = 0;
 		try {
-			Board target = repository.findById(id).orElse(null);
-			if(target != null) {
-				repository.deleteById(id);
+			Board target = repository.findById(board_no).orElse(null);
+			if (target != null) {
+				repository.deleteById(board_no);
+				result = 1;
 			}
-			result = 1; 
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
 	// 게시글 단일 조회
-	public Board selectBoardOne(Long id) {
-		return repository.findById(id).orElse(null);
-	}
-	
-	
-	// 게시글 목록 조회
-	public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto){
-		
-		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("regDate").descending());
-		if(searchDto.getOrder_type() == 2) {
-			pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("regDate").ascending());
-		}
-		
-		Specification<Board> spec = (root,query,criteriaBuilder) -> null; 
-		if(searchDto.getSearch_type() == 1) {
-			spec = spec.and(BoardSpecification.boardTitleContains(searchDto.getSearch_text()));
-		} else if(searchDto.getSearch_type() == 2) {
-			spec = spec.and(BoardSpecification.boardContentContains(searchDto.getSearch_text()));
-		} else if(searchDto.getSearch_type() == 3) {
-			spec = spec.and(BoardSpecification.boardTitleContains(searchDto.getSearch_text()))
-					.or(BoardSpecification.boardContentContains(searchDto.getSearch_text()));
-		}
-		Page<Board> list = repository.findAll(spec,pageable);
-		return list;
-		
-	}
-	
-	// 게시글 수정
-	public Board updateBoard(BoardDto param) {
-		Board result = null;
-		Board target = repository.findById(param.getBoard_no()).orElse(null);
-		if(target != null) {
-			//
-		}
-		return result;
+	public Board selectBoardOne(Long board_no) {
+	    Board board = repository.findById(board_no).orElse(null);
+	    if (board != null) {
+	        board.incrementViews();
+	        repository.save(board);
+	    }
+	    return board;
 	}
 
+	// 게시글 목록 조회
+	public Page<Board> selectBoardAll(SearchDto search_dto, PageDto page_dto) {
+	    Sort sort = Sort.by(Sort.Direction.DESC, "reg_date");
+	    if (search_dto.getOrder_type() == 2) {
+	        sort = Sort.by(Sort.Direction.ASC, "reg_date");
+	    } else if (search_dto.getOrder_type() == 3) {
+	        sort = Sort.by(Sort.Direction.DESC, "views");
+	    }
+
+	    Pageable pageable = PageRequest.of(page_dto.getNowPage() - 1, page_dto.getNumPerPage(), sort);
+	    Specification<Board> spec = Specification.where(null);
+
+	    if (search_dto.getSearch_type() == 1) {
+	        spec = spec.and(BoardSpecification.boardTitleContains(search_dto.getSearch_text()));
+	    } else if (search_dto.getSearch_type() == 2) {
+	        spec = spec.and(BoardSpecification.boardContentContains(search_dto.getSearch_text()));
+	    } else if (search_dto.getSearch_type() == 3) {
+	        spec = spec.and(BoardSpecification.boardTitleContains(search_dto.getSearch_text()))
+	                   .or(BoardSpecification.boardContentContains(search_dto.getSearch_text()));
+	    }
+
+	    return repository.findAll(spec, pageable);
+	}
+
+	// 게시글 수정
+	public Board updateBoard(BoardDto board_dto) {
+	    Board entity = repository.findById(board_dto.getBoard_no()).orElse(null);
+	    if (entity != null) {
+	        entity.setBoard_title(board_dto.getBoard_title());
+	        entity.setBoard_content(board_dto.getBoard_content());
+	        return repository.save(entity);
+	    }
+	    return null;
+	}
 }
 	
 
