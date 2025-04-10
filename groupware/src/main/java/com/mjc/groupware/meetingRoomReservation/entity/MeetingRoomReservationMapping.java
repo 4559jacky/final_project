@@ -36,4 +36,5 @@ public class MeetingRoomReservationMapping {
 	@JoinColumn(name="member_no")
 	private Member memberNo;
 	
+	
 }
