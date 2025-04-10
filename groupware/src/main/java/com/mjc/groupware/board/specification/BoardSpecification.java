@@ -11,12 +11,12 @@ public class BoardSpecification {
 	// 제목에 특정 문자열이 포함된 검색 조건
     public static Specification<Board> boardTitleContains(String keyword) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(root.get("board_title"), "%" + keyword + "%");
+                criteriaBuilder.like(root.get("boardTitle"), "%" + keyword + "%");
     }
-
+    // 내용에 특정 문자열이 포함된 검색 조건
     public static Specification<Board> boardContentContains(String keyword) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(root.get("board_content"), "%" + keyword + "%");
+                criteriaBuilder.like(root.get("boardContent"), "%" + keyword + "%");
     }
 }
 

@@ -1,63 +1,50 @@
 package com.mjc.groupware.board.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.mjc.groupware.board.dto.BoardDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-/**
- * 게시글 정보를 나타내는 엔티티 클래스입니다.
- * 'board' 테이블과 매핑됩니다.
- */
 @Entity
 @Table(name = "board")
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Board {
 
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "board_no")
-    private Long board_no;
+	 @Id // 기본 키
+	 @GeneratedValue(strategy = GenerationType.IDENTITY)
+	 @Column(name = "board_no")
+	 private Long boardNo; // 게시글 번호
 
-    @Column(name = "board_title")
-    private String board_title;
+	 @Column(name = "member_no")
+	 private Long memberNo; // 작성자 회원 번호
 
-    @Column(name = "board_content")
-    private String board_content;
+	 @Column(name = "board_title", nullable = false) // null 허용 여부
+	 private String boardTitle; // 게시글 제목
 
-    @Column(name = "member_no")
-    private Long member_no;
+	 @Column(name = "board_content", columnDefinition = "LONGTEXT", nullable = false)
+	 private String boardContent; // 게시글 내용
 
-    @Column(name = "views")
-    private int views = 0;
+	 @Column(name = "views", nullable = false, columnDefinition = "INT UNSIGNED DEFAULT 0")
+	 private int views; // 조회수
 
-    @CreationTimestamp
-    @Column(updatable = false, name = "reg_date")
-    private LocalDateTime reg_date;
+	 @Column(name = "reg_date") 
+	 private LocalDateTime regDate; // 등록일
 
-    @UpdateTimestamp
-    @Column(insertable = false, name = "mod_date")
-    private LocalDateTime mod_date;
+	 @Column(name = "mod_date")
+	 private LocalDateTime modDate; // 수정일
 
-    public void incrementViews() {
-        this.views++;
-    }
-}
+	 @Column(name = "board_status", columnDefinition = "CHAR(1) DEFAULT 'N'")
+	 private String boardStatus = "N"; // 게시글 상태 (기본값 'N')
+
+	 // DTO로부터 게시글 정보를 업데이트하는 메소드
+	 public void updateFromDto(BoardDto dto) {
+	      this.boardTitle = dto.getBoard_title();
+	      this.boardContent = dto.getBoard_content();
+	      this.modDate = LocalDateTime.now(); // 수정일을 현재 시간으로 설정
+	    }
+	}

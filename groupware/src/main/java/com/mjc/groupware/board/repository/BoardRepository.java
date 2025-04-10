@@ -1,19 +1,26 @@
 package com.mjc.groupware.board.repository;
 
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
-
 import com.mjc.groupware.board.entity.Board;
 
+import java.util.List;
 
-/**
- * Board 엔터티에 대한 데이터베이스 접근을 처리하는 리포지토리 인터페이스입니다.
- */
-public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecificationExecutor<Board> {
-    Page<Board> findAll(Specification<Board> spec, Pageable pageable);
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface BoardRepository extends JpaRepository<Board, Long> {
+
+ // 게시글 제목에 특정 키워드가 포함된 게시글 리스트 조회
+ List<Board> findByBoardTitleContaining(String keyword);
+
+ // 게시글 내용에 특정 키워드가 포함된 게시글 리스트 조회
+ List<Board> findByBoardContentContaining(String keyword);
+
+ // '삭제(D)' 상태가 아닌(즉, 활성화된) 게시글의 수를 카운트
+ @Query("SELECT COUNT(b) FROM Board b WHERE b.boardStatus <> 'D'")
+ int countActiveBoards();
+ 
+ // 소프트 삭제
+// @Query("SELECT b FROM Board b WHERE b.deletedYn = 'N'")
+// List<Board> findAllNotDeleted();
 }
