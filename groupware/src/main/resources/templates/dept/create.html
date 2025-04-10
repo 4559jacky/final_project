@@ -36,30 +36,38 @@ layout:decorate="~{/include/layout}">
         	<div class="tab-content" id="pills-tabContent">
             	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
 					<div class="row">
-                    	<div class="col-lg-5 d-flex align-items-stretch">
+                    	<div class="col-lg-3 d-flex align-items-stretch">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
                           			<h4 class="card-title" style="font-weight: bold;">부서</h4>
-                          			<p class="card-subtitle mb-4">To view the status of departments, please check the org chart.</p>
+                          			<p class="card-subtitle mb-4" style="visibility: hidden;">Check the org chart for department status.</p>
   									
   									<div class="d-flex justify-content-start mb-3">
    										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
    										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
 									</div>
-
+									
 									<div id="dept-tree">
    										<ul>
 									      <li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}" th:data-parent="'#'">
 									         <span th:text="${dept.name}"></span>
-									         <ul>
-									            <li th:each="member : ${dept.members}" th:id="'member_' + ${member.id}" th:data-parent="'dept_' + ${dept.id}">
-									               <span th:text="${member.name}"></span>
-									            </li>
-									         </ul>
 									      </li>
 									   </ul>
 									</div>
-
+									
+									<script>
+										$('#dept-tree').on('click', '.jstree-anchor', function (e) {
+											const nodeEl = $(this).closest('li'); 	// 해당 anchor의 상위 li로 접근해서
+											const fullId = nodeEl.attr('id'); 		// 해당 li의 id값을 추출
+																						
+											const deptId = fullId?.replace('dept_', ''); // 클릭한 부서의 id를 추출
+											
+											if(deptId != null) {
+												document.getElementById("")
+											}
+										});
+									</script>
+									
 									<!-- jsTree 데이터 확인용 버튼 -->
   									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
   									
@@ -67,12 +75,60 @@ layout:decorate="~{/include/layout}">
                       		</div>
                    		</div>
                    		
-                   		<div class="col-lg-7 d-flex align-items-stretch">
+                   		<div class="col-lg-5 d-flex align-items-stretch" id="update_dept_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="update_dept_form">
+                          				<h4 class="card-title" style="font-weight: bold;">부서 수정</h4>
+                          				<p class="card-subtitle mb-4" style="visibility: hidden;">To register a new position, please provide the position details.</p>
+                          				
+                            			<div class="mb-3">
+                              				<label for="dept_name" class="form-label">부서명*</label>
+                              				<input type="text" class="form-control" id="dept_name" name="dept_name">
+                            			</div>
+                            			
+                            			<div class="mb-3">
+                                  			<label for="member_no" class="form-label">부서장</label>
+                                  			<select class="form-select" id="member_no" name="member_no" aria-label="dept-chief-member">
+                                    			<option selected th:value="0">-</option>
+                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="${member.memberNo} + ' ' + ${member.memberName}"></option>
+                                  			</select>
+                                		</div>
+                                		
+                                		<div class="mb-3">
+                                  			<label for="parent_dept_no" class="form-label">상위 부서</label>
+                                  			<select class="form-select" id="parent_dept_no" name="parent_dept_no" aria-label="parent-department">
+                                    			<option selected th:value="0">-</option>
+                                    			<option th:each="dept : ${deptList}" th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
+                                  			</select>
+                                		</div>
+                                		
+                                		<div class="mb-3">
+                              				<label for="dept_phone" class="form-label">부서 전화번호</label>
+                              				<input type="text" class="form-control" id="dept_phone" name="dept_phone">
+                            			</div>
+                            			
+                            			<div class="mb-3">
+                              				<label for="dept_location" class="form-label">부서 위치</label>
+                              				<input type="text" class="form-control" id="dept_location" name="dept_location">
+                            			</div>
+                            			
+                            			<div class="d-flex align-items-center justify-content-end gap-6">
+                        					<button type="submit" class="btn btn-primary">수정</button>
+                        					<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/home'">취소</button>
+                      					</div>		
+                      					
+                      				</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-4 d-flex align-items-stretch">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
                         			<form name="create_dept_form">
                           				<h4 class="card-title" style="font-weight: bold;">부서 등록</h4>
-                          				<p class="card-subtitle mb-4">To register a new position, please provide the position details.</p>
+                          				<p class="card-subtitle mb-4" style="visibility: hidden;">To register a new position, please provide the position details.</p>
                           				
                             			<div class="mb-3">
                               				<label for="dept_name" class="form-label">부서명*</label>
