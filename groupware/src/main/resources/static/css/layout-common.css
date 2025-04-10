@@ -1,5 +1,13 @@
 @charset "UTF-8";
 
+[data-bs-theme="light"] #nav-wrapper {
+  background-color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] #nav-wrapper {
+  background-color: #282C34; /* 또는 원하는 진한 남색 계열 */
+}
+
 @media ( min-width : 992px) {
 	html[data-layout=horizontal] .app-header {
 		transition: 0s

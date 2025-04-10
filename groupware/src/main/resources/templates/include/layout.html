@@ -29,14 +29,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   	
 </head>
 <body>
-  	<div class="page-wrapper" style="position: relative; width: 100%; z-index: 10; padding-bottom: 45px;">
+  	<div class="page-wrapper" style="position: fixed; top: 0; width: 100%; z-index: 10; height: 45px;">
 		<th:block th:replace="~{include/header :: headerLayout}"></th:block>
 	</div>
-	<div id="nav-wrapper" style="padding-top: 45px;">
+	
+	<div id="nav-wrapper" style="position: fixed; top: 45px; padding-top: 45px; z-index: 9; width: 100%;">
 		<th:block th:replace="~{include/nav :: navLayout}"></th:block>
 	</div>
-	<div class="body-wrapper" style="padding-top:0px;">
-        <div class="container-fluid" style="padding-top:0px !important;">
+
+	<div class="body-wrapper" style="padding-top: 45px;">
+        <div class="container-fluid">
 			<th:block layout:fragment="content"></th:block>
 			<th:block layout:fragment="scripts"></th:block>
 		</div>
