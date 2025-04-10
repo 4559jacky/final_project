@@ -1,7 +1,5 @@
 package com.mjc.groupware.meetingRoomReservation.dto;
 
-import java.time.LocalDate;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,12 +13,10 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class MeetingRoomReservationDto {
-	
+public class MeetingTimeMappingDto {
+
+	private int mapping_no;
+	private int meeting_time_no;
 	private int reservation_no;
-	private int meeting_room_no;
-	private String meeting_title;
-	private LocalDate meeting_date;
-	
 	
 }

@@ -1,14 +1,12 @@
 package com.mjc.groupware.meetingRoomReservation.entity;
 
-import com.mjc.groupware.member.entity.Member;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,21 +17,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Entity
-@Table(name="reservation_mapping")
+@Table(name="meeting_time")
 @Builder
-public class MeetingRoomReservationMapping {
-
+public class MeetingTime {
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="mapping_no")
-	private int mappingNo;
+	@Column(name="meeting_time_no")
+	private int meetingTimeNo;
 	
-	@ManyToOne
-	@JoinColumn(name="reservation_no")
-	private MeetingRoomReservation reservationNo;
-	
-	@ManyToOne
-	@JoinColumn(name="member_no")
-	private Member memberNo;
+	@Column(name="meeting_start_time")
+	private LocalTime meetingStartTime;
 	
 }

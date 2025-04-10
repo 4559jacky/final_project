@@ -34,6 +34,8 @@ public class MemberDto {
 	private Long dept_no;
 	private Long role_no = (long) 3;
 	private String status = "EMPLOYED";
+	private String dept_name; // 04/09 JJI 사원 부서명 불러오기위해 추가
+	private String pos_name; // 04/09 JJI 사원 직급명 불러오기위해 추가
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	private LocalDateTime end_date;
@@ -60,6 +62,8 @@ public class MemberDto {
 				.member_id(member.getMemberId())
 				.member_pw(member.getMemberPw())
 				.member_name(member.getMemberName())
+				.dept_name(member.getDept() != null ? member.getDept().getDeptName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
+				.pos_name(member.getPos() != null ? member.getPos().getPosName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
 				.build();
 	}
 	
