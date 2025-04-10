@@ -38,5 +38,6 @@ public class MeetingRoomReservation {
 	@Column(name="meeting_date")
 	private LocalDate meetingDate;
 	
-	
+	@Column(name="meeting_start_time")
+	private LocalDate meetingStartTime;
 }
