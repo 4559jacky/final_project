@@ -5,6 +5,8 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+
+	<link th:href="@{/css/cjs/dept_create.css}" rel="stylesheet">
 	
 	<div class="page-titles mb-7 mb-md-5">
 		<div class="row">
@@ -24,5 +26,151 @@ layout:decorate="~{/include/layout}">
 		</div>
 	</div>
 	
+	<div class="card">
+        <div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+					<div class="row">
+                    	<div class="col-lg-5 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">부서</h4>
+                          			<p class="card-subtitle mb-4">To view the status of departments, please check the org chart.</p>
+  									
+  									<div class="d-flex justify-content-start mb-3">
+  										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
+  										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
+									</div>
+  									
+  									<div id="jstree">
+    									<ul>
+      										<li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}">
+        										<span th:text="${dept.name}"></span>
+        										<ul>
+          											<li th:each="member : ${dept.members}" th:id="'member_' + ${member.id}">
+           												<span th:text="${member.name}"></span>
+          											</li>
+        										</ul>
+      										</li>
+    									</ul>
+  									</div>
+
+									<!-- jsTree 데이터 확인용 버튼 -->
+  									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
+  									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-7 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="create_dept_form">
+                          				<h4 class="card-title" style="font-weight: bold;">부서 등록</h4>
+                          				<p class="card-subtitle mb-4">To register a new position, please provide the position details.</p>
+                          				
+                            			<div class="mb-3">
+                              				<label for="dept_name" class="form-label">부서명*</label>
+                              				<input type="text" class="form-control" id="dept_name" name="dept_name">
+                            			</div>
+                            			
+                            			<div class="mb-3">
+                                  			<label for="member_no" class="form-label">부서장</label>
+                                  			<select class="form-select" id="member_no" name="member_no" aria-label="dept-chief-member">
+                                    			<option selected th:value="0">-</option>
+                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="${member.memberNo} + ' ' + ${member.memberName}"></option>
+                                  			</select>
+                                		</div>
+                                		
+                                		<div class="mb-3">
+                                  			<label for="parent_dept_no" class="form-label">상위 부서</label>
+                                  			<select class="form-select" id="parent_dept_no" name="parent_dept_no" aria-label="parent-department">
+                                    			<option selected th:value="0">-</option>
+                                    			<option th:each="dept : ${deptList}" th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
+                                  			</select>
+                                		</div>
+                                		
+                                		<div class="mb-3">
+                              				<label for="dept_phone" class="form-label">부서 전화번호</label>
+                              				<input type="text" class="form-control" id="dept_phone" name="dept_phone">
+                            			</div>
+                            			
+                            			<div class="mb-3">
+                              				<label for="dept_location" class="form-label">부서 위치</label>
+                              				<input type="text" class="form-control" id="dept_location" name="dept_location">
+                            			</div>
+                            			
+                            			<div class="d-flex align-items-center justify-content-end gap-6">
+                        					<button type="submit" class="btn btn-primary">등록</button>
+                        					<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/home'">취소</button>
+                      					</div>
+                      				</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                  	</div>            	
+                </div>
+			</div>
+		</div>
+	</div>
+	
+
+	
+	<script>
+		// 부서 추가 로직
+		const form = document.create_dept_form;
+		
+		form.addEventListener('submit',(event) => {
+			event.preventDefault();
+			
+			// 1. 유효성 검사
+			let vali_chk = false;
+			let vali_msg = "";
+			
+			if(!form.dept_name.value) {
+				vali_msg += "부서명을 입력하세요";
+				form.dept_name.focus();
+			} else {
+				vali_chk = true;
+			}
+			
+			if(vali_chk == false) {
+				alert(vali_msg);
+			} else {
+				// 2. 부서 등록
+				const payload = new FormData(form);
+				
+				if(form.member_no.value !== "0") {
+					payload.append("member_no", form.member_no.value);
+				}
+				
+				if(form.parent_dept_no.value !== "0") {
+				    payload.append("parent_dept_no", form.parent_dept_no.value);
+				}
+				
+				fetch('/admin/dept/create', {
+					method : "post",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body : payload
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/dept/create";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+	</script>
+
+
+
 </th:block>
 </html>

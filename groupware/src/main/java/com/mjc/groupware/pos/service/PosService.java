@@ -37,6 +37,12 @@ public class PosService {
 	}
 	
 	public List<Pos> selectPosAll() {
+		List<Pos> resultList = repository.findAll();
+		
+		return resultList;
+	}
+	
+	public List<Pos> selectPosAllByPosOrderAsc() {
 		List<Pos> resultList = repository.findAllOrderByPosOrderAsc();
 		
 		return resultList;
