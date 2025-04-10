@@ -26,7 +26,7 @@ public class DeptDto {
 	private Long parent_dept_no;
 	private String dept_phone;
 	private String dept_location;
-	private String dept_status = "ACTIVE";
+	private int dept_status = 1;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	

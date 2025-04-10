@@ -33,7 +33,7 @@ public class MemberDto {
 	private Long pos_no;
 	private Long dept_no;
 	private Long role_no = (long) 3;
-	private String status = "EMPLOYED";
+	private int status = 100;
 	private String dept_name; // 04/09 JJI 사원 부서명 불러오기위해 추가
 	private String pos_name; // 04/09 JJI 사원 직급명 불러오기위해 추가
 	private LocalDateTime reg_date;

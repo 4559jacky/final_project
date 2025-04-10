@@ -49,7 +49,7 @@ public class Dept {
 	private String deptLocation;
 	
     @Column(name = "dept_status")
-    private String deptStatus;
+    private int deptStatus;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")

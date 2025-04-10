@@ -59,7 +59,7 @@ public class Member {
 	private String memberPhone;
 
     @Column(name = "status")
-    private String status;
+    private int status;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
