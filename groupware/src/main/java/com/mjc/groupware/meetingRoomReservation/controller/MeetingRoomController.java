@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mjc.groupware.meetingRoomReservation.Service.MeetingRoomService;
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomDto;
 import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoom;
-
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -25,10 +24,17 @@ public class MeetingRoomController {
 	private final MeetingRoomService service;
 	
 	
-	// 사용자 회의실 예약 페이지 전환
+	// 사용자 - 회의실 예약 페이지 전환
 	@GetMapping("/meetingRoom")
 	public String meetingRoomView() {
 		return "/meetingRoom/meetingRoomReservation";
+	}
+	
+	// 사용자 - 회의실, 시간 조회
+	@PostMapping("/selectMeetingRoom")
+	@ResponseBody
+	public List<MeetingRoom> selectMeetingRoomAll() {
+	    return service.selectMeetingRoomAll();
 	}
 	
 	//////////////////////////////////////////////////////////////////
@@ -39,7 +45,7 @@ public class MeetingRoomController {
 	@GetMapping("/admin/meetingRoom")
 	public String adminMeetingRoomView(Model model) {
 		
-		List<MeetingRoom> resultList = service.selectMeetingRoomAll();
+		List<MeetingRoom> resultList = service.adminSelectMeetingRoomAll();
 		
 		model.addAttribute("meetingRoomList",resultList);
 

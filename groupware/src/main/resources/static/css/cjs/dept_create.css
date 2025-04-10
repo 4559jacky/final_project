@@ -1,5 +1,16 @@
 @charset "UTF-8";
 
+#dept-jstree {
+	margin: 20px;
+	width: 300px;
+	border: 1px solid #ddd;
+}
+
+.jstree-default .jstree-node {
+	cursor: pointer;
+}
+
+
 #expand_all,
 #collapse_all {
 	padding: 2px 6px;
