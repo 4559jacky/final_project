@@ -59,4 +59,29 @@ public class DeptService {
 		return result;
 	}
 	
+	public Dept updateDept(DeptDto dto) {
+		Dept param = repository.findById(dto.getDept_no()).orElse(null);
+		
+		if(param == null) {
+			throw new IllegalArgumentException("존재하지 않는 부서입니다.");
+		}
+		
+		if(repository.findByDeptName(dto.getDept_name()) != null && repository.findByDeptName(dto.getDept_name()).getDeptNo() != param.getDeptNo()) {
+		    throw new IllegalArgumentException("이미 존재하는 부서명입니다.");
+		}
+		
+		Dept result = repository.save(Dept.builder()
+				.deptNo(param.getDeptNo())
+				.deptName(dto.getDept_name())
+				.member(Member.builder().memberNo(dto.getMember_no()).build())
+				.parentDept(Dept.builder().deptNo(dto.getParent_dept_no()).build())
+				.deptPhone(dto.getDept_phone())
+				.deptLocation(dto.getDept_location())
+				.deptStatus(dto.getDept_status())
+				.build());
+		
+		return result;
+				
+	}
+	
 }

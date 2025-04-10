@@ -9,6 +9,7 @@ import com.mjc.groupware.dept.entity.Dept;
 public interface DeptRepository extends JpaRepository<Dept, Long> {
 	
 	boolean existsByDeptName(String deptName);
+	Dept findByDeptName(String deptName);
 	List<Dept> findByParentDept(Dept parentDept);
 	
 }

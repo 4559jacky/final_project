@@ -55,8 +55,6 @@ layout:decorate="~{/include/layout}">
 									   </ul>
 									</div>
 									
-									
-									
 									<!-- jsTree 데이터 확인용 버튼 -->
   									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
   									
@@ -70,6 +68,11 @@ layout:decorate="~{/include/layout}">
                         			<form name="update_dept_form">
                           				<h4 class="card-title" style="font-weight: bold;">부서 상세</h4>
                           				<br>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_no" class="form-label">부서번호</label>
+                              				<input type="text" class="form-control" id="dept_no" name="dept_no">
+                            			</div>
                           				
                             			<div class="mb-3">
                               				<label for="dept_name" class="form-label">부서명*</label>
@@ -249,6 +252,7 @@ layout:decorate="~{/include/layout}">
 						deptId : deptId
 					},
 					success: function(data) {
+						$('form[name="update_dept_form"] input[name="dept_no"]').val(Number(data.dept_no));
 						$('form[name="update_dept_form"] input[name="dept_name"]').val(data.dept_name);
 						$('form[name="update_dept_form"] select[name="member_no"]').val(Number(data.member_no));
 						$('form[name="update_dept_form"] select[name="parent_dept_no"]').val(Number(data.parent_dept_no));
@@ -275,6 +279,61 @@ layout:decorate="~{/include/layout}">
 				}
 			}
 		});
+	</script>
+	
+	<script>
+		// 부서 수정 로직
+		const updateForm = document.update_dept_form;
+		
+		updateForm.addEventListener('submit',(event) => {
+			event.preventDefault();
+			
+			// 1. 유효성 검사
+			let vali_chk = false;
+			let vali_msg = "";
+			
+			if(!updateForm.dept_name.value) {
+				vali_msg += "부서명을 입력하세요";
+				updateForm.dept_name.focus();
+			} else {
+				vali_chk = true;
+			}
+			
+			if(vali_chk == false) {
+				alert(vali_msg);
+			} else {
+				// 2. 부서 수정
+				const payload = new FormData(updateForm);
+				
+				if(updateForm.member_no.value !== "0") {
+					payload.append("member_no", updateForm.member_no.value);
+				}
+				
+				if(updateForm.parent_dept_no.value !== "0") {
+				    payload.append("parent_dept_no", updateForm.parent_dept_no.value);
+				}
+				
+				fetch('/admin/dept/update', {
+					method : "post",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body : payload
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/dept/create";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+		
 	</script>
 
 	<!-- Bootstrap Common JS Files Start -->
