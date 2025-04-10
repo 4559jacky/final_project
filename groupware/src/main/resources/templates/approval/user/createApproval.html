@@ -7,7 +7,13 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<!-- jQuery -->
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<!-- jsTree -->
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
+
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
 		<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -134,148 +140,187 @@
 	</div>
 
 	<!-- 결재라인 모달창 -->
-	<!-- 결재 라인 선택 모달 -->
 	<div class="modal fade" id="approvalLineModal" tabindex="-1"
 		aria-hidden="true">
-		<div class="modal-dialog modal-xl modal-dialog-centered">
-			<div class="modal-content p-4">
-				<div class="modal-header">
-					<h5 class="modal-title fw-bold">결재 라인 선택</h5>
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 라인 선택</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="닫기"></button>
 				</div>
+
 				<div class="modal-body">
-					<!-- 부서/사원 선택 영역 -->
-					<div class="row mb-4">
-						<!-- 부서 정보 -->
-						<div class="col-3 border-end">
-							<h6 class="fw-bold mb-3">부서 정보</h6>
-							<div class="d-grid gap-2">
-								<button class="btn btn-outline-primary active">행정 부서</button>
-								<button class="btn btn-outline-primary">개발 부서</button>
-								<button class="btn btn-outline-primary">마케팅 부서</button>
-								<button class="btn btn-outline-primary">기획 부서</button>
-								<button class="btn btn-outline-primary">디자인 부서</button>
-								<button class="btn btn-outline-primary">영업 부서</button>
-								<button class="btn btn-outline-primary">관리 부서</button>
-								<button class="btn btn-outline-primary">지원 부서</button>
+					<!-- 상단: 조직도 + 사원 목록 -->
+					<div class="row mb-4" style="height: 280px;">
+						<!-- 조직도 -->
+						<div class="col-6 pe-3 border-end d-flex flex-column">
+							<h6 class="fw-semibold mb-2">조직도</h6>
+							<div id="appr_jstree"
+								class="flex-grow-1 overflow-auto border rounded bg-light p-2">
+								<!-- JSTree 내용 -->
 							</div>
 						</div>
 
-						<!-- 부서 상세 -->
-						<div class="col-3 border-end">
-							<h6 class="fw-bold mb-3">부서 상세</h6>
-							<div class="d-grid gap-2">
-								<button class="btn btn-outline-secondary">행정1팀</button>
-								<button class="btn btn-outline-secondary active">행정2팀</button>
-								<button class="btn btn-outline-secondary">행정3팀</button>
-							</div>
-						</div>
-
-						<!-- 사원 정보 -->
-						<div class="col-6">
-							<h6 class="fw-bold mb-3">사원 정보</h6>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value=""
-									id="user1"> <label class="form-check-label" for="user1">최연수
-									부장 (행정)</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value=""
-									id="user2"> <label class="form-check-label" for="user2">강상균
-									사원 (행정)</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value=""
-									id="user3"> <label class="form-check-label" for="user3">조윤아
-									과장 (행정)</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value=""
-									id="user4"> <label class="form-check-label" for="user4">김유라
-									대리 (행정)</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value=""
-									id="user5"> <label class="form-check-label" for="user5">이하준
-									사원 (행정)</label>
-							</div>
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" value=""
-									id="user6" checked> <label class="form-check-label"
-									for="user6">이예준 사원 (행정)</label>
+						<!-- 사원 목록 -->
+						<div class="col-6 ps-3 d-flex flex-column">
+							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
+							<div id="memberListBox"
+								class="flex-grow-1 overflow-auto border rounded bg-light p-2">
+								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
 					</div>
-
-					<!-- 선택된 라인 등록 -->
-					<div class="row text-center">
-						<!-- 결재자 -->
-						<div class="col">
-							<div class="d-flex align-items-center mb-2">
-								<span class="fw-semibold" style="margin-left: 4px;">결재자</span>
-								<button type="button" class="btn btn-primary btn-sm ms-auto">등록</button>
+					<BR> <bR>
+					<!-- 하단: 결재자/참조자/합의자 -->
+					<div class="row gx-3 text-center" style="height: 200px;">
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">결재자</span>
+								<button class="btn btn-outline-primary btn-sm"
+									onclick="approver_btn();">등록</button>
 							</div>
-
-							<div class="border rounded p-2">
-								<div class="d-flex align-items-center">
-									<button type="button"
-										class="btn btn-sm btn-outline-secondary me-2">-</button>
-									<p>
-										<span class="fw-semibold">전홍식 부장 (행정)</span>
-									</p>
-								</div>
-								<div class="d-flex align-items-center">
-									<button type="button"
-										class="btn btn-sm btn-outline-secondary me-2">-</button>
-									<p>
-										<span class="fw-semibold">박수빈 부장 (행정)</span>
-									</p>
-								</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="approverList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
-						<!-- 합의자 -->
-						<div class="col">
-							<div class="d-flex align-items-center mb-2">
-								<span class="fw-semibold" style="margin-left: 4px;">참조자</span>
-								<button type="button" class="btn btn-primary btn-sm ms-auto">등록</button>
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">참조자</span>
+								<button class="btn btn-outline-primary btn-sm"
+									onclick="referencer_btn();">등록</button>
 							</div>
-
-							<div class="border rounded p-2">
-								<div class="d-flex align-items-center">
-									<button type="button"
-										class="btn btn-sm btn-outline-secondary me-2">-</button>
-									<span class="fw-semibold">정재익 차장 (행정)</span>
-								</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="referenceList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
-						<!-- 참조자 -->
-						<div class="col">
-							<div class="d-flex align-items-center mb-2">
-								<span class="fw-semibold" style="margin-left: 4px;">합의자</span>
-								<button type="button" class="btn btn-primary btn-sm ms-auto">등록</button>
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">합의자</span>
+								<button class="btn btn-outline-primary btn-sm">등록</button>
 							</div>
-
-							<div class="border rounded p-2">
-								<div class="d-flex align-items-center">
-									<button type="button"
-										class="btn btn-sm btn-outline-secondary me-2">-</button>
-									<span class="fw-semibold">전상득 주임 (행정)</span>
-								</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="agreementList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
 					</div>
 				</div>
-
-				<!-- 하단 완료 버튼 -->
+				<BR>
 				<div class="modal-footer justify-content-end">
-					<button type="button" class="btn btn-primary">선택 완료</button>
+					<button type="button" class="btn btn-primary px-4">선택 완료</button>
 				</div>
 			</div>
 		</div>
 	</div>
 
+
 	<script>
+	
+	const approver_btn = function() {
+	    let checkedMember = [];
+	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
+	        checkedMember.push(checkbox.value);
+	    });
+
+	    console.log(checkedMember);
+
+	    checkedMember.forEach(function(member) {
+	        // 이미 추가된 결재자인지 확인
+	        let isAlreadyAdded = Array.from(document.querySelectorAll('.selectd_approver')).some(el => el.value === member);
+
+	        if (!isAlreadyAdded) { // 중복이 아닐 때만 추가
+	            fetch('/member/' + member, {
+	                method: 'GET'
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+	                const list = document.getElementById("approverList");
+
+	                const li = document.createElement("li");
+	                li.className = 'list-group-item';
+	                li.innerHTML = `<button class="selected_approver" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                
+	                list.appendChild(li);
+	            })
+	            .catch(err => {
+	                console.error("사원 목록 불러오기 실패:", err);
+	            });
+	        } else {
+	            console.log(`이미 추가된 사원: ${member}`);
+	        }
+	    });
+	};
+	
+	 // 결재자 목록에서 - 버튼 클릭 시 항목 제거
+    document.getElementById('approverList').addEventListener('click', function(event) {
+        // 클릭된 요소가 .selected_approver 버튼인지 확인
+        if (event.target && event.target.classList.contains('selected_approver')) {
+            let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
+            console.log(approverId);
+
+            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
+            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
+            if (listItem) {
+                listItem.remove();  // <li> 요소 삭제
+            }
+        }
+    });
+	 
+    const referencer_btn = function() {
+	    let checkedMember = [];
+	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
+	        checkedMember.push(checkbox.value);
+	    });
+
+	    console.log(checkedMember);
+
+	    checkedMember.forEach(function(member) {
+	        // 이미 추가된 결재자인지 확인
+	        let isAlreadyAdded = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
+	        
+
+	        if (!isAlreadyAdded) { // 중복이 아닐 때만 추가
+	            fetch('/member/' + member, {
+	                method: 'GET'
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+	                const list = document.getElementById("referenceList");
+
+	                const li = document.createElement("li");
+	                li.className = 'list-group-item';
+	                li.innerHTML = `<button class="selected_referencer" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                
+	                list.appendChild(li);
+	            })
+	            .catch(err => {
+	                console.error("사원 목록 불러오기 실패:", err);
+	            });
+	        } else {
+	            console.log(`이미 추가된 사원: ${member}`);
+	        }
+	    });
+	};
+	
+	 // 결재자 목록에서 - 버튼 클릭 시 항목 제거
+    document.getElementById('referenceList').addEventListener('click', function(event) {
+        // 클릭된 요소가 .selected_approver 버튼인지 확인
+        if (event.target && event.target.classList.contains('selected_referencer')) {
+            let referencerId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
+            console.log(referencerId);
+
+            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
+            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
+            if (listItem) {
+                listItem.remove();  // <li> 요소 삭제
+            }
+        }
+    }); 
+	
 	  
 	  $(document).ready(function(){
 		  $('#div2').hide();
@@ -380,9 +425,30 @@
 		const sendApproval = function(){
 			
 		}
-	  
-	  
+	  	
 	</script>
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
 
 </th:block>
 </html>

@@ -33,6 +33,12 @@ public class MemberService {
 		return result;
 	}
 	
+	public Member selectMemberOneByMemberNo(MemberDto dto) {
+		Member result = repository.findById(dto.getMember_no()).orElse(null);
+		
+		return result;
+	}
+	
 	public List<Member> selectMemberAll() {
 		List<Member> resultList = repository.findAll();
 		
@@ -53,5 +59,13 @@ public class MemberService {
 		
 		return result;
 	}
+	
+	
+	// 결재라인 부서의 속한 사원들select
+	public List<Member> selectMemberAllByDeptId(Long id) { 
+		List<Member> memberList = repository.findAllByDept_DeptNo(id); 
+		return memberList;
+	}
+	 
 	
 }
