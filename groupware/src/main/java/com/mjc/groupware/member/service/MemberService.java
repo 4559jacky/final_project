@@ -54,4 +54,12 @@ public class MemberService {
 		return result;
 	}
 	
+	
+	// 결재라인 부서의 속한 사원들select
+	public List<Member> selectMemberAllByDeptId(Long id) { 
+		List<Member> memberList = repository.findAllByDept_DeptNo(id); 
+		return memberList;
+	}
+	 
+	
 }
