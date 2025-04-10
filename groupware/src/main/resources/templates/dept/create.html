@@ -80,7 +80,7 @@ layout:decorate="~{/include/layout}">
                                   			<label for="member_no" class="form-label">부서장</label>
                                   			<select class="form-select" id="member_no" name="member_no" aria-label="dept-chief-member">
                                     			<option selected th:value="0">-</option>
-                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="${member.memberNo} + ' ' + ${member.memberName}"></option>
+                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="'# ' + ${member.memberNo} + ' ' + ${member.memberName}"></option>
                                   			</select>
                                 		</div>
                                 		
@@ -139,7 +139,7 @@ layout:decorate="~{/include/layout}">
                                   			<label for="member_no" class="form-label">부서장</label>
                                   			<select class="form-select" id="member_no" name="member_no" aria-label="dept-chief-member">
                                     			<option selected th:value="0">-</option>
-                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="${member.memberNo} + ' ' + ${member.memberName}"></option>
+                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="'# ' + ${member.memberNo} + ' ' + ${member.memberName}"></option>
                                   			</select>
                                 		</div>
                                 		
@@ -250,6 +250,8 @@ layout:decorate="~{/include/layout}">
 					},
 					success: function(data) {
 						$('form[name="update_dept_form"] input[name="dept_name"]').val(data.dept_name);
+						$('form[name="update_dept_form"] select[name="member_no"]').val(Number(data.member_no));
+						$('form[name="update_dept_form"] select[name="parent_dept_no"]').val(Number(data.parent_dept_no));
 						$('form[name="update_dept_form"] input[name="dept_phone"]').val(data.dept_phone);
 						$('form[name="update_dept_form"] input[name="dept_location"]').val(data.dept_location);
 					},

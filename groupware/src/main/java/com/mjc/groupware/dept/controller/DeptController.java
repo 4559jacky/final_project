@@ -95,9 +95,23 @@ public class DeptController {
 			    
 			    Dept result = service.selectDeptByDeptNo(deptNo);
 			    
+			    System.out.println(result.getParentDept());
+			    
 			    resultMap.put("dept_name", result.getDeptName());
 			    resultMap.put("dept_location", result.getDeptLocation());
 			    resultMap.put("dept_phone", result.getDeptPhone());
+			    
+			    if(result.getMember() == null) {
+			    	resultMap.put("member_no", "0");
+			    } else {
+			    	resultMap.put("member_no", result.getMember().getMemberNo().toString());
+			    }
+			    
+			    if(result.getParentDept() == null) {
+			    	resultMap.put("parent_dept_no", "0");
+			    } else {
+			    	resultMap.put("parent_dept_no", result.getParentDept().getDeptNo().toString());
+			    }
 			    
 			    if(result != null) {
 					resultMap.put("res_code", "200");
