@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomDto;
 import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoom;
+import com.mjc.groupware.meetingRoomReservation.entity.MeetingTime;
 import com.mjc.groupware.meetingRoomReservation.repository.MeetingRoomRepository;
+import com.mjc.groupware.meetingRoomReservation.repository.MeetingTimeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,9 +17,23 @@ import lombok.RequiredArgsConstructor;
 public class MeetingRoomService {
 
 	private final MeetingRoomRepository repository;
+	private final MeetingTimeRepository timerepository;
+	
+	// 사용자 - 회의실 조회
+	public List<MeetingRoom> selectMeetingRoomAll(){
+		return repository.findAll();
+	}
+	
+	// 사용자 - 예약 시간 조회 selectMeetingRoomTimeAll
+	public List<MeetingTime> selectMeetingRoomTimeAll(){
+		return timerepository.findAll();
+	}
+	
+	/////////////////////////////////////////////////
+	
 	
 	// 관리자 - 회의실 목록 전체 조회
-	public List<MeetingRoom> selectMeetingRoomAll(){
+	public List<MeetingRoom> adminSelectMeetingRoomAll(){
 		return repository.findAll();
 	}
 	
@@ -93,7 +109,5 @@ public class MeetingRoomService {
 		return result;
 	}
 	
-	
-	////////////////////////////////////////////////
 	
 }
