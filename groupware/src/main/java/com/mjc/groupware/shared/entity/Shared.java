@@ -52,4 +52,11 @@ public class Shared {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
+
+	public void update(String title, String content, LocalDateTime modDate) {
+		// TODO Auto-generated method stub
+		this.sharedTitle = title;
+		this.sharedContent = content;
+		this.modDate = modDate;
+	}
 }

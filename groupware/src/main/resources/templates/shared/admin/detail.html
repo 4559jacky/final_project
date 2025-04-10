@@ -5,6 +5,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
     <div class="col-lg-8 col-md-6 col-12 align-self-center">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center">
@@ -42,6 +43,8 @@
             <!-- 버튼 -->
             <div class="mt-4 text-end">
                 <a th:href="@{/admin/shared}" class="btn btn-secondary">목록으로</a>
+                <a th:href="@{/admin/shared/update(sharedNo=${shared.sharedNo})}" class="btn btn-secondary">수정</a>
+           		<a th:href="@{/admin/shared/delete(sharedNo=${shared.sharedNo})}" class="btn btn-secondary" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
             </div>
         </div>
     </div>
@@ -55,5 +58,21 @@
             // Summernote로 작성된 내용은 HTML로 렌더링되므로 추가적인 초기화 불필요
         });
     </script>
+    <!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
 </th:block>
 </html>

@@ -54,22 +54,29 @@ layout:decorate="~{/include/layout}">
 		      </thead>
 		      <!-- 테이블 바디 -->
 		        <tbody>
-  					<tr th:each="item, iterStat : ${sharedList}">
+		        	<!--iterStat -> 반복 상태 객체 -->
+  					<tr th:each="shared, iterStat : ${sharedList}">
     					<td th:text="${iterStat.count}">1</td>
-   						<td>
-   							<a th:href="@{/admin/shared/detail(sharedNo=${item.sharedNo})}" th:text="${item.sharedTitle}" ></a>
+   						<td>	
+   							<a th:href="@{/admin/shared/detail(sharedNo=${shared.sharedNo})}" th:text="${shared.sharedTitle}" ></a>
    						</td>
-    					<td th:text="${item.member.memberName}">작성자</td> <!-- 작성자 정보 없음 -->
-    					<td th:text="${#temporals.format(item.regDate, 'yyyy-MM-dd')}">등록일</td>
-    					<td th:text="${#temporals.format(item.modDate, 'yyyy-MM-dd')}">수정일</td>
-    					<td th:text="${item.views}">조회수</td>
+    					<td th:text="${shared.member.memberName}">작성자</td> <!-- 작성자 정보 없음 -->
+    					<td th:text="${#temporals.format(shared.regDate, 'yyyy-MM-dd')}">등록일</td>
+    					<td th:text="${#temporals.format(shared.modDate, 'yyyy-MM-dd')}">수정일</td>
+    					<td th:text="${shared.views}">조회수</td>
   					</tr>
 			 	</tbody>
 		    </table>
 		  </div>
 		</div>
+		<script th:inline="javascript">
+			let msg = /*[[${message}]]*/ null;
+			if (msg !== null){
+				alert(msg);
+			}
+		</script>
 	<!-- --------------------- -->
-	</div>
+	</div>					
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	

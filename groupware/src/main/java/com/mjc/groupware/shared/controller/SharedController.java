@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.dto.SharedDto;
@@ -42,6 +43,17 @@ public class SharedController {
         return "/shared/admin/create";
     }
 
+    // 게시글 수정 화면
+    @GetMapping("/update")
+    public String updateSharedAdminView(@RequestParam("sharedNo") Long sharedNo, Model model) {
+    	Shared shared = service.getSharedUpdate(sharedNo);
+    	if(shared == null) {
+    		return "redirect:/shared/admin";
+    	}
+    	model.addAttribute("shared",shared);
+    	return "/shared/admin/update";
+    }
+    
     // 게시글 등록 처리 (fetch용)
     @PostMapping("/create")
     @ResponseBody
@@ -85,4 +97,41 @@ public class SharedController {
         model.addAttribute("shared", shared);
         return "/shared/admin/detail";
     }
+// 게시글 수정 화면
+    @PostMapping("/update")
+    @ResponseBody
+    public Map<String, String> updateSharedApi(@ModelAttribute SharedDto dto) {
+    	Map<String, String> result = new HashMap<>();
+    	result.put("res_code", "500");
+    	result.put("res_msg", "수정 실패");
+    	
+    	String content = dto.getShared_content()
+    			.replaceAll(",<p>","" )
+    			.replaceAll("</p>", "")
+    			.replaceAll("<p>", "")
+    			.trim();
+    	dto.setShared_content(content);
+    	
+    	try {
+    		int updateResult = service.updateShared(dto);
+    		if(updateResult > 0) {
+    			result.put("res_code", "200");
+    			result.put("res_msg", "수정 성공");
+    		}
+    	}catch(Exception e) {
+    		result.put("res_msg", "오류");
+    	}
+    	return result;
+    }
+    
+  //게시글 삭제
+  //RedirectAttributes => addFlashAttribute 1회성, redirect이후 한번만 유지되고, 자동 삭제.
+    @GetMapping("/delete")
+    public String deleteShared(@RequestParam("sharedNo") Long sharedNo, RedirectAttributes msg) {
+    	service.deleteShared(sharedNo);
+    	msg.addFlashAttribute("message","삭제가 완료되었습니다!");
+    	return "redirect:/admin/shared";
+    
+
+	}
 }

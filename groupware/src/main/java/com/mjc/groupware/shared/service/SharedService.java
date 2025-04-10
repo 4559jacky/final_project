@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -59,4 +60,24 @@ public class SharedService {
         }
         return shared;
     }
+    
+    // 게시글 수정 1
+    public Shared getSharedUpdate(Long sharedNo) {
+    	Shared shared = repository.findById(sharedNo).orElse(null);
+    	return shared;
+    }
+    
+    
+    // 게시글 수정 2
+	public int updateShared(SharedDto dto) {
+		Shared shared = repository.findById(dto.getShared_no()).orElse(null);
+		shared.update(dto.getShared_title(), dto.getShared_content(), LocalDateTime.now());
+		repository.save(shared);
+		return 1;
+	}
+	
+	// 게시글 삭제
+	public void deleteShared(Long sharedNo) {
+		repository.deleteById(sharedNo);
+	}
 }
