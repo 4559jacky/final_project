@@ -45,6 +45,7 @@
                 <a th:href="@{/admin/shared}" class="btn btn-secondary">목록으로</a>
                 <a th:href="@{/admin/shared/update(sharedNo=${shared.sharedNo})}" class="btn btn-secondary">수정</a>
            		<a th:href="@{/admin/shared/delete(sharedNo=${shared.sharedNo})}" class="btn btn-secondary" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+            	
             </div>
         </div>
     </div>
@@ -58,6 +59,7 @@
             // Summernote로 작성된 내용은 HTML로 렌더링되므로 추가적인 초기화 불필요
         });
     </script>
+    
     <!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	
