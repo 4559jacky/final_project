@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.service.ApprovalService;
+import com.mjc.groupware.dept.entity.Dept;
+import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
@@ -36,6 +38,7 @@ public class ApprovalController {
 	
 	private final ApprovalService service;
 	private final MemberService memberService;
+	private final DeptService deptService;
 
 	// 관리자 : 관리자만 접근 가능한 url
 	
@@ -165,15 +168,20 @@ public class ApprovalController {
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-
+	    
 	    ApprovalFormDto dto = service.selectApprovalFormById(id);
-
+	    
 	    Map<String, Object> result = new HashMap<>();
 	    result.put("approvalForm", dto);
 	    result.put("member", member);
+	    
 
 	    return result;
 	}
+	
+	// Dept dept = deptService.selectDeptAll();
+	
+	
 	
 	
 }

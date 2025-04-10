@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="approval_form")
-@Builder
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Builder
 public class ApprovalForm {
 	
 	@Id
