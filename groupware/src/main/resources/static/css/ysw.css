@@ -1,1 +1,26 @@
 @charset "UTF-8";
+
+.fc-header-toolbar {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	margin-bottom: 1rem;
+	flex-wrap: wrap; /* 반응형 처리 */
+}
+
+.fc-toolbar-chunk:first-child {
+	position: absolute;
+	left: 0;
+}
+
+.fc-toolbar-title {
+	font-weight: bold;
+	font-size: 1.5rem;
+	text-align: center;
+}
+
+.fc-toolbar-chunk:nth-child(2) {
+	flex-grow: 1;
+	text-align: center;
+}
