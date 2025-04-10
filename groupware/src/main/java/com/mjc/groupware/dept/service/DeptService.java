@@ -70,11 +70,28 @@ public class DeptService {
 		    throw new IllegalArgumentException("이미 존재하는 부서명입니다.");
 		}
 		
+		// 이 부분이 없으면 영속성 예외가 발생함
+		// member_no가 0일 경우 member에 null을 넣어주기 위함임
+		// repository에서 select해서 해당 객체를 넣어주는 느낌으로 이해하고 있으며 해당 객체를 영속 객체라 칭하는 것 같음 - 구글링
+		Member chiefMember = null;
+	    if (dto.getMember_no() != null) {
+	    	chiefMember = memberRepository.findById(dto.getMember_no())
+	                                .orElseThrow(() -> new IllegalArgumentException("해당 부서장이 존재하지 않습니다."));
+	    }
+	    
+	    // 위와 마찬가지로 영속성 예외를 회피하는 조건문
+	    // 결론적으로, JPA의 Entity와 DB의 TABLE 간의 무결성을 지키기 위해 예외를 띄워주는 것으로 이해함
+	    Dept parentDept = null;
+	    if (dto.getParent_dept_no() != null) {
+	        parentDept = repository.findById(dto.getParent_dept_no())
+	                               .orElseThrow(() -> new IllegalArgumentException("해당 상위부서가 존재하지 않습니다."));
+	    }
+		
 		Dept result = repository.save(Dept.builder()
 				.deptNo(param.getDeptNo())
 				.deptName(dto.getDept_name())
-				.member(Member.builder().memberNo(dto.getMember_no()).build())
-				.parentDept(Dept.builder().deptNo(dto.getParent_dept_no()).build())
+				.member(chiefMember)
+				.parentDept(parentDept)
 				.deptPhone(dto.getDept_phone())
 				.deptLocation(dto.getDept_location())
 				.deptStatus(dto.getDept_status())

@@ -95,6 +95,7 @@ public class DeptController {
 			    Dept result = service.selectDeptByDeptNo(deptNo);
 			    
 			    resultMap.put("dept_no", result.getDeptNo().toString());
+			    resultMap.put("dept_status", result.getDeptStatus() + "");
 			    resultMap.put("dept_name", result.getDeptName());
 			    resultMap.put("dept_location", result.getDeptLocation());
 			    resultMap.put("dept_phone", result.getDeptPhone());
@@ -134,16 +135,24 @@ public class DeptController {
 		Map<String, String> resultMap = new HashMap<>();
 		
 		resultMap.put("res_code", "500");
-        resultMap.put("res_msg", "부서 수정 중 알 수 없는 오류가 발생했습니다.");
+        resultMap.put("res_msg", "부서 정보 수정 중 알 수 없는 오류가 발생했습니다.");
         
         logger.info("DeptDto: {}", dto);
 		
 		try {
+			if(0 == dto.getMember_no()) {
+				dto.setMember_no(null);
+			}
+			
+			if(0 == dto.getParent_dept_no()) {
+				dto.setParent_dept_no(null);
+			}
+			
 			Dept result = service.updateDept(dto);
 			
 			if(result != null) {
 				resultMap.put("res_code", "200");
-				resultMap.put("res_msg", "부서가 성공적으로 수정되었습니다.");
+				resultMap.put("res_msg", "부서 정보가 성공적으로 수정되었습니다.");
 		    }
 		} catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
@@ -151,7 +160,7 @@ public class DeptController {
 		} catch(Exception e) {
 			logger.error("부서 수정 중 오류 발생", e);
 			resultMap.put("res_code", "500");
-	        resultMap.put("res_msg", "부서 수정 중 알 수 없는 오류가 발생했습니다.");
+	        resultMap.put("res_msg", "부서 정보 수정 중 알 수 없는 오류가 발생했습니다.");
 		}
 		
 		return resultMap;
