@@ -1,5 +1,6 @@
 package com.mjc.groupware.member.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -101,5 +103,20 @@ public class MemberController {
 		
 		return resultMap;
 	}
+	
+
+	 // 결재라인 부서의 속한 사원들 select
+	 @GetMapping("/member/dept/{id}")
+	 @ResponseBody public List<MemberDto> selectMemberAllByDeptId(@PathVariable("id") Long id) {
+		 List<Member> memberList = service.selectMemberAllByDeptId(id);
+		 List<MemberDto> memberDtoList = new ArrayList<MemberDto>();
+		 for(Member m : memberList) {
+			 MemberDto dto = new MemberDto().toDto(m);
+			 memberDtoList.add(dto);
+		 }
+		 
+		 return memberDtoList; 
+	 }
+	 
 	
 }
