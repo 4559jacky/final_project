@@ -35,7 +35,7 @@ public class Dept {
 	@Column(name="dept_no")
 	private Long deptNo;
 	
-	@Column(name="dept_name", nullable = false, unique = true)
+	@Column(name="dept_name", nullable = false)
 	private String deptName;
 	
 	@ManyToOne

@@ -200,6 +200,29 @@ layout:decorate="~{/include/layout}">
 		</div>
 	</div>
 	
+	<!-- 부서 이관 모달 부트스트랩5 기반 -->
+	<div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered modal-lg">
+	    <div class="modal-content shadow-lg rounded-3">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="transferModalLabel">이관할 부서를 선택하세요</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+	      </div>
+	      <div class="modal-body">
+	        <!-- jsTree 영역 -->
+	        <div id="transferTree" class="border rounded p-2" style="max-height: 400px; overflow-y: auto;"></div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" onclick="submitDeptForm()">이관</button>
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- hidden input (필요 시 form 안에 넣기) :: form 쓰지 말고 그냥 바로 onclick 넣는 방식이 편한듯 -->
+	<input type="hidden" id="transfer_dept_no" name="transfer_dept_no">
+	
 	<script>
 		// 부서 추가 로직
 		const form = document.create_dept_form;
@@ -307,7 +330,7 @@ layout:decorate="~{/include/layout}">
 	<script>
 		// 부서 수정 로직
 		const updateForm = document.update_dept_form;
-		const status = updateForm.dept_status.value; 
+		let selectedDeptNo = null;
 		
 		updateForm.addEventListener('submit',(event) => {
 			event.preventDefault();
@@ -326,11 +349,18 @@ layout:decorate="~{/include/layout}">
 			if(vali_chk == false) {
 				alert(vali_msg);
 			} else {
-				if (status === "3") {
-					if (!confirm("해당 부서는 삭제 처리되며, 조직도에서 영구적으로 사라집니다. 계속 진행하시겠습니까?")) {
+				const status = updateForm.dept_status.value;
+				
+				if (status == 3) {
+					if(!confirm("해당 부서는 삭제 처리되며, 조직도에서 영구적으로 사라집니다.\n" +
+				             "소속된 직원들이 있다면 이관할 부서를 선택하세요.\n" +
+		             "선택하지 않으면 해당 직원들은 모두 미배정 상태가 됩니다.\n\n계속 진행하시겠습니까?")) {
 						alert("삭제 처리를 취소하셨습니다.");
 						return;
 					}
+					
+					openTransferModal();
+					return;
 				}
 				
 				if(!confirm("정말로 수정하시겠습니까?")) {
@@ -338,29 +368,71 @@ layout:decorate="~{/include/layout}">
 					return;
 				}
 				
-				// 2. 부서 수정
-				const payload = new FormData(updateForm);
-				
-				fetch('/admin/dept/update', {
-					method : "post",
-					headers : {
-						'header': document.querySelector('meta[name="_csrf_header"]').content,
-						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-					},
-					body : payload
-				})
-				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
-					if(data.res_code == '200') {
-						location.href = "/admin/dept/create";
-					}
-				})
-				.catch(error => {
-					console.log(error);
-				})
+				submitDeptForm();
 			}
 		});
+		
+		function submitDeptForm() {
+			// 2. 부서 수정
+			const payload = new FormData(updateForm);
+			
+			if (selectedDeptNo !== null) {
+				payload.append("transferDeptNo", selectedDeptNo);
+			}
+			
+			fetch('/admin/dept/update', {
+				method : "post",
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body : payload
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if(data.res_code == '200') {
+					location.href = "/admin/dept/create";
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			})
+		};
+		
+		// 이관 모달에서 jsTree를 열어주는 함수
+		function openTransferModal() {
+			getAvailableDeptsForTransfer().then(data => {	
+				$('#transferTree').jstree("destroy").empty();
+
+				$('#transferTree').jstree({
+					'core': {
+						'data': data
+					}
+				});
+		
+				selectedDeptNo = null;
+				
+				$('#transferTree').on("select_node.jstree", function (e, data) {
+					const selectedNode = data.node;
+					selectedDeptNo = selectedNode.id;
+				});
+				
+				const modal = new bootstrap.Modal(document.getElementById('transferModal'));
+				modal.show();
+			});
+		}
+		
+		function getAvailableDeptsForTransfer() {
+			return fetch('/admin/dept/tree', {
+					method: 'get'
+				})
+				.then(data => data.json())
+				.catch(error => {
+					console.error(error);
+					return [];
+				});
+		}
 		
 	</script>
 

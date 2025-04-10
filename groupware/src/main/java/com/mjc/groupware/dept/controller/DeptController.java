@@ -131,7 +131,7 @@ public class DeptController {
 	
 	@PostMapping("/admin/dept/update")
 	@ResponseBody
-	public Map<String, String> updateDept(DeptDto dto) {
+	public Map<String, String> updateDept(DeptDto dto, @RequestParam(value="transferDeptNo", required=false) Long transferDeptNo) {
 		Map<String, String> resultMap = new HashMap<>();
 		
 		resultMap.put("res_code", "500");
@@ -151,6 +151,10 @@ public class DeptController {
 			Dept result = service.updateDept(dto);
 			
 			if(result != null) {
+				if (dto.getDept_status() == 3) {
+			        memberService.transferMembersOfDept(dto.getDept_no(), transferDeptNo);
+			    }
+				
 				resultMap.put("res_code", "200");
 				resultMap.put("res_msg", "부서 정보가 성공적으로 수정되었습니다.");
 		    }

@@ -87,4 +87,8 @@ public class Member {
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
 	
+	public void changeDept(Dept newDept) {
+	    this.dept = newDept;
+	}
+	
 }
