@@ -140,68 +140,78 @@
 	</div>
 
 	<!-- 모달: 기존보다 크게 (modal-xl 대신 custom width 사용) -->
-<div class="modal fade" id="approvalLineModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog" style="max-width: 1000px;"> <!-- 너비만 크게 조정 -->
-    <div class="modal-content p-4 rounded-4 shadow-lg">
-      <div class="modal-header border-bottom">
-        <h5 class="modal-title fw-bold fs-4">결재 라인 선택</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-      </div>
+	<div class="modal fade" id="approvalLineModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 라인 선택</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
 
-      <div class="modal-body">
-        <!-- 상단: 조직도 + 사원 목록 -->
-        <div class="row mb-4" style="height: 280px;">
-          <!-- 조직도 -->
-          <div class="col-6 pe-3 border-end">
-            <h6 class="fw-semibold mb-2">조직도</h6>
-            <div id="appr_jstree" class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
-              <!-- JSTree 영역 -->
-            </div>
-          </div>
+				<div class="modal-body">
+					<!-- 상단: 조직도 + 사원 목록 -->
+					<div class="row mb-4" style="height: 280px;">
+						<!-- 조직도 -->
+						<div class="col-6 pe-3 border-end">
+							<h6 class="fw-semibold mb-2">조직도</h6>
+							<div id="appr_jstree"
+								class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
+								<!-- JSTree 영역 -->
+							</div>
+						</div>
 
-          <!-- 사원 목록 -->
-          <div class="col-6 ps-3">
-            <h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
-            <div id="memberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
-              <ul id="memberList" class="list-group fs-6"></ul>
-            </div>
-          </div>
-        </div>
-		<BR><bR>
-        <!-- 하단: 결재자/참조자/합의자 -->
-        <div class="row gx-3 text-center" style="height: 200px;">
-          <div class="col">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="fw-semibold">결재자</span>
-              <button class="btn btn-outline-primary btn-sm" onclick="approver_btn();">등록</button>
-            </div>
-            <div class="border rounded bg-white p-2 h-100 overflow-auto" id="approverList"></div>
-          </div>
+						<!-- 사원 목록 -->
+						<div class="col-6 ps-3">
+							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
+							<div id="memberListBox"
+								class="h-100 overflow-auto border rounded bg-light p-2">
+								<ul id="memberList" class="list-group fs-6"></ul>
+							</div>
+						</div>
+					</div>
+					<BR>
+					<bR>
+					<!-- 하단: 결재자/참조자/합의자 -->
+					<div class="row gx-3 text-center" style="height: 200px;">
+						<div class="col">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">결재자</span>
+								<button class="btn btn-outline-primary btn-sm"
+									onclick="approver_btn();">등록</button>
+							</div>
+							<div class="border rounded bg-white p-2 h-100 overflow-auto"
+								id="approverList"></div>
+						</div>
 
-          <div class="col">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="fw-semibold">참조자</span>
-              <button class="btn btn-outline-primary btn-sm">등록</button>
-            </div>
-            <div class="border rounded bg-white p-2 h-100 overflow-auto" id="referenceList"></div>
-          </div>
+						<div class="col">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">참조자</span>
+								<button class="btn btn-outline-primary btn-sm">등록</button>
+							</div>
+							<div class="border rounded bg-white p-2 h-100 overflow-auto"
+								id="referenceList"></div>
+						</div>
 
-          <div class="col">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="fw-semibold">합의자</span>
-              <button class="btn btn-outline-primary btn-sm">등록</button>
-            </div>
-            <div class="border rounded bg-white p-2 h-100 overflow-auto" id="agreementList"></div>
-          </div>
-        </div>
-      </div>
-		<BR>
-      <div class="modal-footer justify-content-end">
-        <button type="button" class="btn btn-primary px-4">선택 완료</button>
-      </div>
-    </div>
-  </div>
-</div>
+						<div class="col">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">합의자</span>
+								<button class="btn btn-outline-primary btn-sm">등록</button>
+							</div>
+							<div class="border rounded bg-white p-2 h-100 overflow-auto"
+								id="agreementList"></div>
+						</div>
+					</div>
+				</div>
+				<BR>
+				<div class="modal-footer justify-content-end">
+					<button type="button" class="btn btn-primary px-4">선택 완료</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
 
@@ -324,7 +334,28 @@
 		}
 	  	
 	</script>
+	<!-- Bootstrap Common JS Files Start -->
 
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
 
 </th:block>
 </html>
