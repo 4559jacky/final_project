@@ -24,18 +24,18 @@ public class DeptService {
 	}
 	
 	public Dept createDept(DeptDto dto) {
-		if (repository.existsByDeptName(dto.getDept_name())) {
+		if(repository.existsByDeptName(dto.getDept_name())) {
 		    throw new IllegalArgumentException("이미 존재하는 부서명입니다.");
 		}
 		
 		Member member = null;
-		if (dto.getMember_no() != null) {
+		if(dto.getMember_no() != null) {
 			member = memberRepository.findById(dto.getMember_no())
 					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사원입니다."));
 		}
 
 		Dept parentDept = null;
-		if (dto.getParent_dept_no() != null) {
+		if(dto.getParent_dept_no() != null) {
 			parentDept = repository.findById(dto.getParent_dept_no())
 					.orElseThrow(() -> new IllegalArgumentException("상위 부서가 존재하지 않습니다."));
 			
@@ -47,6 +47,16 @@ public class DeptService {
 		Dept dept = dto.toEntity(member, parentDept);
 		
 		return repository.save(dept);
+	}
+	
+	public Dept selectDeptByDeptNo(Long deptNo) {
+		Dept result = repository.findById(deptNo).orElse(null);
+		
+		if(result == null) {
+			throw new IllegalArgumentException("존재하지 않는 부서입니다.");
+		}
+		
+		return result;
 	}
 	
 }
