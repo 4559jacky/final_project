@@ -107,7 +107,8 @@ public class MemberController {
 
 	 // 결재라인 부서의 속한 사원들 select
 	 @GetMapping("/member/dept/{id}")
-	 @ResponseBody public List<MemberDto> selectMemberAllByDeptId(@PathVariable("id") Long id) {
+	 @ResponseBody
+	 public List<MemberDto> selectMemberAllByDeptId(@PathVariable("id") Long id) {
 		 List<Member> memberList = service.selectMemberAllByDeptId(id);
 		 List<MemberDto> memberDtoList = new ArrayList<MemberDto>();
 		 for(Member m : memberList) {
@@ -118,5 +119,14 @@ public class MemberController {
 		 return memberDtoList; 
 	 }
 	 
+	 @GetMapping("/member/{id}")
+	 @ResponseBody
+	 public MemberDto selectMemberOneById(@PathVariable("id") Long id) {
+		 MemberDto dto = new MemberDto();
+		 dto.setMember_no(id);
+		 Member member = service.selectMemberOneByMemberNo(dto);
+		 MemberDto memberDto = new MemberDto().toDto(member);
+		 return memberDto;
+	 }
 	
 }
