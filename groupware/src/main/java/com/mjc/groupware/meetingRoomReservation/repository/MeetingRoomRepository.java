@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoom;
-import com.mjc.groupware.meetingRoomReservation.entity.MeetingTime;
 
 public interface MeetingRoomRepository extends JpaRepository<MeetingRoom,Integer>{
 
