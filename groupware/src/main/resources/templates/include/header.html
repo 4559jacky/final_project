@@ -16,19 +16,6 @@
   		}
 	</style>
 	
-	<style>
-		.btn-theme-dark,
-		.btn-theme-light {
-  			display: inline-block !important;
-  			cursor: pointer;
-		}
-
-		.sun-icon,
-		.moon-icon {
-  			font-size: 18px;
-		}
-	</style>
-	
 	  <!--  Header Start -->
       <header class="topbar">
         <div class="with-vertical">
@@ -49,7 +36,7 @@
                 </a>
               </li>
             </ul>
-
+			
             <ul class="navbar-nav quick-links d-none d-lg-flex align-items-center">
               <!-- ------------------------------- -->
               <!-- start apps Dropdown -->
@@ -223,12 +210,20 @@
               </li>
             </ul>
 
-            <div class="d-block d-lg-none py-4">
-              <a th:href="@{/home}" class="text-nowrap logo-img">
-                <img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
-                <img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-light" />
-              </a>
-            </div>
+            <div class="d-block d-lg-none py-4 text-center">
+			    <th:block th:if="${theme == 'dark'}">
+			        <a th:href="@{/home}" class="text-nowrap logo-img">
+			            <img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
+			        </a>
+			    </th:block>
+			
+			    <th:block th:if="${theme != 'dark'}">
+			        <a th:href="@{/home}" class="text-nowrap logo-img">
+			            <img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" />
+			        </a>
+			    </th:block>
+			</div>
+			
             <a class="navbar-toggler nav-icon-hover-bg rounded-circle p-0 mx-0 border-0" href="javascript:void(0)" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <i class="ti ti-dots fs-7"></i>
             </a>
@@ -243,10 +238,10 @@
                   <!-- ------------------------------- -->
 				<li class="nav-item nav-icon-hover-bg rounded-circle">
   					<a class="nav-link btn-theme-light" href="javascript:void(0)">
-    					<i class="ti ti-sun sun-icon"></i> <!-- 항상 존재 -->
+    					<i class="ti ti-sun sun-icon"></i>
   					</a>
   					<a class="nav-link btn-theme-dark" href="javascript:void(0)">
-    					<i class="ti ti-moon moon-icon"></i> <!-- 항상 존재 -->
+    					<i class="ti ti-moon moon-icon"></i>
   					</a>
 				</li>
                   <!-- ------------------------------- -->
@@ -859,15 +854,17 @@
                   <!-- start light/dark Dropdown -->
                   <!-- ------------------------------- -->
                   
-                  <li class="nav-item nav-icon-hover-bg rounded-circle">
-                    <a class="nav-link moon dark-layout" href="javascript:void(0)">
+                  <th:block th:onclick="">
+                   <li class="nav-item nav-icon-hover-bg rounded-circle">
+                    <a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
                       <i class="ti ti-moon moon"></i>
                     </a>
-                    <a class="nav-link sun light-layout" href="javascript:void(0)">
+                    <a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
                       <i class="ti ti-sun sun"></i>
                     </a>
                   </li>
-                  
+                  </th:block>
+                 
                   <!-- ------------------------------- -->
                   <!-- start language Dropdown -->
                   <!-- ------------------------------- -->
@@ -1098,6 +1095,7 @@
         </div>
       </header>
       <!--  Header End -->
+      
       	
-	</th:block>
+</th:block>
 </html>

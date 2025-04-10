@@ -1,124 +1,288 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="vertical"
-xmlns:th="http://www.thymeleaf.org"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
-	<th:block layout:fragment="content">
-		<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  		<script src="../assets/libs/fullcalendar/index.global.min.js"></script>
-  		<script src="../assets/js/apps/calendar-init.js"></script>
-              <div class="col-lg-8 col-md-6 col-12 align-self-center">
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb align-items-center">
-                    <li class="breadcrumb-item">
-                      <a class="text-muted text-decoration-none" th:href="@{/home}">
-                        <i class="ti ti-home fs-5"></i>
-                      </a>
-                    </li>
-                    <li class="breadcrumb-item" aria-current="page">회의실 예약</li>
-                  </ol>
-                </nav><br>
-                <h2 class="mb-0 fw-bolder fs-8">회의실 예약</h2>
-              </div><br>
-          <div class="card">
-            <div class="card-body calender-sidebar app-calendar">
-              <div id="calendar"></div>
-            </div>
-          </div>
-          <!-- BEGIN MODAL -->
-          <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-scrollable modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="eventModalLabel">
-                    Add / Edit Event
-                  </h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div>
-                        <label class="form-label">Event Title</label>
-                        <input id="event-title" type="text" class="form-control" />
-                      </div>
-                    </div>
-                    <div class="col-md-12 mt-6">
-                      <div>
-                        <label class="form-label">Event Color</label>
-                      </div>
-                      <div class="d-flex">
-                        <div class="n-chk">
-                          <div class="form-check form-check-primary form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Danger" id="modalDanger" />
-                            <label class="form-check-label" for="modalDanger">Danger</label>
-                          </div>
-                        </div>
-                        <div class="n-chk">
-                          <div class="form-check form-check-warning form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Success" id="modalSuccess" />
-                            <label class="form-check-label" for="modalSuccess">Success</label>
-                          </div>
-                        </div>
-                        <div class="n-chk">
-                          <div class="form-check form-check-success form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Primary" id="modalPrimary" />
-                            <label class="form-check-label" for="modalPrimary">Primary</label>
-                          </div>
-                        </div>
-                        <div class="n-chk">
-                          <div class="form-check form-check-danger form-check-inline">
-                            <input class="form-check-input" type="radio" name="event-level" value="Warning" id="modalWarning" />
-                            <label class="form-check-label" for="modalWarning">Warning</label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+<html 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	
+	<link th:href="@{/css/ysw.css}" rel="stylesheet">
 
-                    <div class="col-md-12 mt-6">
-                      <div>
-                        <label class="form-label">Enter Start Date</label>
-                        <input id="event-start-date" type="date" class="form-control" />
-                      </div>
-                    </div>
+	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb align-items-center">
+				<li class="breadcrumb-item"><a
+					class="text-muted text-decoration-none" th:href="@{/home}"> <i
+						class="ti ti-home fs-5"></i>
+				</a></li>
+				<li class="breadcrumb-item" aria-current="page">회의실 예약</li>
+			</ol>
+		</nav>
+		<br>
+		<h2 class="mb-0 fw-bolder fs-8">회의실 예약</h2>
+	</div>
+	<br>
 
-                    <div class="col-md-12 mt-6">
-                      <div>
-                        <label class="form-label">Enter End Date</label>
-                        <input id="event-end-date" type="date" class="form-control" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn bg-danger-subtle text-danger" data-bs-dismiss="modal">
-                    Close
-                  </button>
-                  <button type="button" class="btn btn-success btn-update-event" data-fc-event-public-id="">
-                    Update changes
-                  </button>
-                  <button type="button" class="btn btn-primary btn-add-event">
-                    Add Event
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- END MODAL -->
-        </div>
-        <!----Footer--->
-        <!-- -------------------------------------------------------------- -->
-        <!-- footer -->
-        <!-- -------------------------------------------------------------- -->
-        <footer class="footer py-3 bg-white border-top text-center">
-          2024© All Rights Reserved by Wrappixel
-        </footer>
-        <!-- -------------------------------------------------------------- -->
-        <!-- End footer -->
-        <!-- -------------------------------------------------------------- -->
-        <!----Footer End--->
-      </div>
+	<div class="card">
+		<div class="card-body calender-sidebar app-calendar">
+			<div id="calendar"></div>
+		</div>
+	</div>
+
+	<!-- BEGIN MODAL -->
+	<div class="modal fade" id="eventModal" tabindex="-1"
+		aria-labelledby="eventModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-scrollable modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="eventModalLabel">Add / Edit Event
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div>
+								<label class="form-label">Event Title</label> <input
+									id="event-title" type="text" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-12 mt-6">
+							<div>
+								<label class="form-label">Event Color</label>
+							</div>
+							<div class="d-flex">
+								<div class="n-chk">
+									<div class="form-check form-check-primary form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Danger" id="modalDanger" /> <label
+											class="form-check-label" for="modalDanger">Danger</label>
+									</div>
+								</div>
+								<div class="n-chk">
+									<div class="form-check form-check-warning form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Success" id="modalSuccess" /> <label
+											class="form-check-label" for="modalSuccess">Success</label>
+									</div>
+								</div>
+								<div class="n-chk">
+									<div class="form-check form-check-success form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Primary" id="modalPrimary" /> <label
+											class="form-check-label" for="modalPrimary">Primary</label>
+									</div>
+								</div>
+								<div class="n-chk">
+									<div class="form-check form-check-danger form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Warning" id="modalWarning" /> <label
+											class="form-check-label" for="modalWarning">Warning</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-12 mt-6">
+							<div>
+								<label class="form-label">Enter Start Date</label> <input
+									id="event-start-date" type="date" class="form-control" />
+							</div>
+						</div>
+
+						<div class="col-md-12 mt-6">
+							<div>
+								<label class="form-label">Enter End Date</label> <input
+									id="event-end-date" type="date" class="form-control" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn bg-danger-subtle text-danger"
+						data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-success btn-update-event"
+						data-fc-event-public-id="">Update changes</button>
+					<button type="button" class="btn btn-primary btn-add-event">
+						Add Event</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 회의실 예약 모달창 -->
+	<div class="modal fade" id="dateInfoModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered"
+			style="max-width: 800px; width: auto; max-height: none;">
+			<div class="modal-content p-3" style="max-height: none;">
+				<div class="modal-header">
+					<h5 class="modal-title" style="font-weight: bold; color: black;">
+						회의실 예약 [<span id="selected-date-text"></span>]
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body" style="overflow-y: visible;">
+					<form name="create_meetingRoom_title_form">
+						<label for="createMeetingRoomTitle" class="form-label">등록할
+							회의명</label> <input type="text" class="form-control"
+							id="createMeetingRoomTitle" name="new_meeting_room_name"
+							style="color: black;" placeholder="등록하실 회의명을 입력해주세요."><br>
+
+						<p style="color: gray;">예약하실 회의실과 시간을 선택해주세요. (시간은 한시간 단위로 선택됩니다.)</p>
+
+						<!-- 버튼이 많아질 경우 줄바꿈되면서 자연스럽게 아래로 늘어납니다 -->
+						<div id="meeting-room-buttons" class="d-flex flex-wrap gap-2 my-3" style="justify-content: start;"></div>
+
+						<div id="meeting-room-time-buttons" class="d-flex flex-wrap gap-2 my-3" style="justify-content: start;"></div>
+
+						<div class="text-end">
+							<button type="submit" class="btn btn-primary">회의실 예약</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const form = document.create_meetingRoom_title_form;
+	
+		// 회의실 조회 
+		var calendarSelect = function (info) {
+			const selectedDateText = document.getElementById("selected-date-text");
+			selectedDateText.innerText = info.startStr;
+			
+			const selectedDate = new Date(info.startStr);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0); // 오늘 자정 기준
+	
+			// 이미 지난 날짜면 리턴해서 모달 안 뜨게
+			if (selectedDate < today) {
+				return;
+			}
+	
+	
+			const payload = new URLSearchParams();
+			payload.append("date", info.startStr);
+	
+			fetch("/selectMeetingRoom", {
+				method: "POST",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body: payload
+			})
+			.then(response => response.json())
+			.then(data => {
+				MeetingRoomButtons(data);
+			});
+	
+			const dateInfoModal = new bootstrap.Modal(document.getElementById("dateInfoModal"));
+			dateInfoModal.show();
+		};
+	
+		// 회의실 버튼 추가, 회의실 버튼 클릭 시 시간 버튼 추가 
+		function MeetingRoomButtons(meetingRoom) {
+			const container = document.getElementById("meeting-room-buttons");
+			const timeContainer = document.getElementById("meeting-room-time-buttons");
+			
+			container.innerHTML = ""; // 초기화
+			timeContainer.innerHTML = "";
+			
+			// 회의실 버튼 추가 
+			meetingRoom.forEach(room => {
+				
+				if(room.meetingRoomStatus != 'D'){
+					const btn = document.createElement("button");
+					btn.type = "button";
+					btn.textContent = room.meetingRoomName;
+					btn.setAttribute("data-room-id", room.meetingRoomNo);
+					
+					if(room.meetingRoomStatus == 'Y'){
+						btn.className = "btn bg-primary-subtle text-primary";
+					}else if(room.meetingRoomStatus == 'N'){
+						btn.className = "btn btn-rounded btn-light"; 
+						btn.disabled = true;
+					}
+					container.appendChild(btn);
+					
+					// 회의실 버튼 클릭 시 시간 버튼 추가 
+					btn.addEventListener("click", () => {
+						 // 모든 회의실 버튼 초기화
+					    container.querySelectorAll("button[data-room-id]").forEach(b => {
+					    	 
+					        b.className = "btn bg-primary-subtle text-primary";
+					        b.disabled = false;
+							
+					    });
+
+					    // 클릭된 버튼만 primary 스타일 + 비활성화 처리
+					    btn.className = "btn btn-primary";
+
+					    // 기존 시간 버튼 초기화
+					    timeContainer.innerHTML = "";
+
+					    let timeButtons = 
+					    	`<button type="button" class="btn bg-primary-subtle text-primary" data-time="09:00">09:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="10:00">10:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="11:00">11:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="13:00">13:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="14:00">14:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="15:00">15:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="15:00">16:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="15:00">17:00</button>`;
+
+					    timeContainer.innerHTML = timeButtons;
+					    
+					    timeContainer.querySelectorAll("button[data-time]").forEach(timeBtn => {
+					        timeBtn.addEventListener("click", () => {
+					        	timeBtn.className = "btn btn-primary"; 
+					        });
+					    });
+					});
+				}
+				
+				
+			});
+		}
 		
-	</th:block>
+	
+		// 회의실 등록 모달창 리셋
+		const modal = document.getElementById('dateInfoModal');
+		modal.addEventListener('hidden.bs.modal', () => {
+			form.reset();
+			// 필요 시 input 상태 초기화 가능 (예: invalid 클래스 제거 등)
+			// 예: document.getElementById("createMeetingRoomTitle").classList.remove("is-invalid");
+		});
+	</script>
+
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+
+
+	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script src="../assets/libs/fullcalendar/index.global.min.js"></script>
+	<script src="../js/custom/meetingRoomCalendar.js"></script>
+</th:block>
 </html>

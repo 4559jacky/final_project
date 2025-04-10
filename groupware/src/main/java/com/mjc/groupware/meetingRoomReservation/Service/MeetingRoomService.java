@@ -16,8 +16,16 @@ public class MeetingRoomService {
 
 	private final MeetingRoomRepository repository;
 	
-	// 관리자 - 회의실 목록 전체 조회
+	// 사용자 - 회의실 조회, 시간 조회
 	public List<MeetingRoom> selectMeetingRoomAll(){
+		return repository.findAll();
+	}
+	
+	/////////////////////////////////////////////////
+	
+	
+	// 관리자 - 회의실 목록 전체 조회
+	public List<MeetingRoom> adminSelectMeetingRoomAll(){
 		return repository.findAll();
 	}
 	
@@ -93,7 +101,5 @@ public class MeetingRoomService {
 		return result;
 	}
 	
-	
-	////////////////////////////////////////////////
 	
 }

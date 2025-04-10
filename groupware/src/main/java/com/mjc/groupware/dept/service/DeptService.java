@@ -38,6 +38,10 @@ public class DeptService {
 		if (dto.getParent_dept_no() != null) {
 			parentDept = repository.findById(dto.getParent_dept_no())
 					.orElseThrow(() -> new IllegalArgumentException("상위 부서가 존재하지 않습니다."));
+			
+			if (parentDept.getDeptNo().equals(dto.getDept_no())) {
+				throw new IllegalArgumentException("자기 자신을 상위 부서로 설정할 수 없습니다.");
+			}
 		}
 
 		Dept dept = dto.toEntity(member, parentDept);
