@@ -95,8 +95,6 @@ public class DeptController {
 			    
 			    Dept result = service.selectDeptByDeptNo(deptNo);
 			    
-			    System.out.println(result.getParentDept());
-			    
 			    resultMap.put("dept_name", result.getDeptName());
 			    resultMap.put("dept_location", result.getDeptLocation());
 			    resultMap.put("dept_phone", result.getDeptPhone());
