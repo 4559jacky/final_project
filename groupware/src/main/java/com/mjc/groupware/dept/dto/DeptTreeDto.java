@@ -1,5 +1,7 @@
 package com.mjc.groupware.dept.dto;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,5 +13,6 @@ public class DeptTreeDto {
     private String parent;
     private String text;
     private String type;
+    private Map<String, String> a_attr;
     
 }
