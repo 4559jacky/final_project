@@ -57,7 +57,7 @@ layout:decorate="~{/include/layout}">
 						
   						<!-- 기본 정보 등록 폼 -->
   						<div class="col-lg-6 d-flex align-items-stretch">
-					    	<form name="create_profile_name_form" class="w-100">
+					    	<form name="create_profile_info_form" class="w-100">
 					      		<div class="card w-100 border position-relative overflow-hidden">
 					        		<div class="card-body p-4">
 					          			<h4 class="card-title" style="font-weight: bold;">기본 정보 등록</h4>
@@ -65,8 +65,8 @@ layout:decorate="~{/include/layout}">
 										
 					          			<!-- 회사명 -->
 					          			<div class="mb-3">
-					            			<label for="member_name" class="form-label">회사명*</label>
-					            			<input type="text" class="form-control" id="member_name" name="member_name">
+					            			<label for="company_name" class="form-label">회사명*</label>
+					            			<input type="text" class="form-control" id="company_name" name="company_name">
 					          			</div>
 					        		</div>
 									
@@ -82,6 +82,50 @@ layout:decorate="~{/include/layout}">
 			</div>
 		</div>
 	</div>
+	
+	<script>
+		
+		// 기본 정보 등록하는 로직
+		const infoForm = document.create_profile_info_form;
+		infoForm.addEventListener('submit',(event) => {
+			event.preventDefault();
+			
+			let vali_chk = false;
+			let vali_msg = "";
+			
+			if(!infoForm.company_name.value) {
+				vali_msg += "회사명을 입력하세요.";
+				infoForm.company_name.focus();
+			} else {
+				vali_chk = true;
+			}
+			
+			if(vali_chk != true) {
+				alert(vali_msg);
+			} else {
+				const payload = new FormData(infoForm);
+				
+				fetch("/admin/company/update", {
+					method : "post",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body : payload
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/company/update";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+	</script>
 	
 	<!-- ---------------------------------------------------------------------------- -->
 	
