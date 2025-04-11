@@ -179,7 +179,7 @@ layout:decorate="~{/include/layout}">
                                   			<label for="parent_dept_no" class="form-label">상위 부서</label>
                                   			<select class="form-select" id="parent_dept_no" name="parent_dept_no" aria-label="parent-department">
                                     			<option selected th:value="0">-</option>
-                                    			<option th:each="dept : ${deptList}" th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
+                                    			<option th:each="dept : ${deptList}" th:if="${dept.deptNo}" th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
                                   			</select>
                                 		</div>
                                 		
@@ -304,13 +304,27 @@ layout:decorate="~{/include/layout}">
 						deptId : deptId
 					},
 					success: function(data) {
+						const currentDeptNo = data.dept_no;
+						
 						$('form[name="update_dept_form"] input[name="dept_no"]').val(Number(data.dept_no));
 						$('form[name="update_dept_form"] input[name="dept_status"][value="' + data.dept_status + '"]').prop('checked', true);
 						$('form[name="update_dept_form"] input[name="dept_name"]').val(data.dept_name);
 						$('form[name="update_dept_form"] select[name="member_no"]').val(Number(data.member_no));
+							
 						$('form[name="update_dept_form"] select[name="parent_dept_no"]').val(Number(data.parent_dept_no));
+						
+						const parentSelect = $('form[name="update_dept_form"] select[name="parent_dept_no"]');
+						parentSelect.find('option').each(function() {
+							if ($(this).val() === String(currentDeptNo)) {
+								$(this).css('display', 'none');
+							} else {
+								$(this).css('display', 'block');
+							}
+						});
+
 						$('form[name="update_dept_form"] input[name="dept_phone"]').val(data.dept_phone);
 						$('form[name="update_dept_form"] input[name="dept_location"]').val(data.dept_location);
+						
 					},
 					error: function(error) {
 						console.log(error);
