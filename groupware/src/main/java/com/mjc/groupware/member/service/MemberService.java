@@ -38,6 +38,12 @@ public class MemberService {
 		return result;
 	}
 	
+	public Member selectMemberOneByMemberNo(MemberDto dto) {
+		Member result = repository.findById(dto.getMember_no()).orElse(null);
+		
+		return result;
+	}
+	
 	public List<Member> selectMemberAll() {
 		List<Member> resultList = repository.findAll();
 		
