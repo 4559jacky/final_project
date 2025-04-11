@@ -52,8 +52,14 @@ public class Member {
 	@Column(name="member_gender")
 	private String memberGender;
 	
-	@Column(name="member_addr")
-	private String memberAddr;
+	@Column(name="member_addr1")
+	private String memberAddr1;
+	
+	@Column(name="member_addr2")
+	private String memberAddr2;
+	
+	@Column(name="member_addr3")
+	private String memberAddr3;
 	
 	@Column(name="member_phone")
 	private String memberPhone;

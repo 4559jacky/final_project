@@ -14,7 +14,9 @@ import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,8 +51,18 @@ public class MemberService {
 		try {
 			dto.setMember_pw(passwordEncoder.encode(dto.getMember_pw()));
 			
-			result = repository.save(dto.toEntity());
+			result = repository.save(Member.builder()
+					.memberId(dto.getMember_id())
+					.memberPw(dto.getMember_pw())
+					.memberName(dto.getMember_name())
+					.pos(dto.getPos_no() != 0 ?	Pos.builder().posNo(dto.getPos_no()).build() : null)
+					.dept(dto.getDept_no() != 0 ? Dept.builder().deptNo(dto.getDept_no()).build() : null)
+					.role(Role.builder().roleNo((long)3).build())
+					.status(100)
+					.build());
+					
 		} catch(DataIntegrityViolationException e) {
+			System.out.println("예외 발생");
 			throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
 		}
 		
