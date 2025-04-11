@@ -29,6 +29,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   	
 </head>
 <body>
+	
+	<!-- Preloader Start -->
+  	<div class="preloader">
+    	<img th:src="@{/assets/images/logos/preloader.svg}" alt="loader" class="lds-ripple img-fluid" />
+  	</div>
+  	<!-- Preloader End -->
+	
   	<div class="page-wrapper" style="position: fixed; top: 0; width: 100%; z-index: 10; height: 45px;">
 		<th:block th:replace="~{include/header :: headerLayout}"></th:block>
 	</div>
@@ -36,7 +43,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<div id="nav-wrapper" style="position: fixed; top: 45px; padding-top: 45px; z-index: 9; width: 100%;">
 		<th:block th:replace="~{include/nav :: navLayout}"></th:block>
 	</div>
-
+	
 	<div class="body-wrapper" style="padding-top: 45px;">
         <div class="container-fluid">
 			<th:block layout:fragment="content"></th:block>

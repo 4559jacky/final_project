@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	
+	<!-- Custom CSS Files -->
+	
+	
+	
+	<!-- ---------------------------------------------------------------------------- -->
+	<!-- HTML 작성 공간 -->
+	<div class="page-titles mb-7 mb-md-5">
+		<div class="row">
+			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">최고관리자 / 회사 프로필 관리</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">회사 프로필</h2>
+			</div><br>
+		</div>
+	</div>
+	
+	<div class="card">
+    	<div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+					<div class="row">
+						<!-- 프로필 이미지 등록 폼 -->
+					  	<div class="col-lg-6 d-flex align-items-stretch">
+					    	<form name="create_profile_image_form" class="w-100">
+					      		<div class="card w-100 border position-relative overflow-hidden">
+					        		<div class="card-body p-4">
+					          			<h4 class="card-title">이미지 변경</h4>
+					          			<p class="card-subtitle mb-4">Please upload a profile image.</p>
+					          			<div class="text-center">
+					            			<img th:src="@{/assets/images/big/img3.jpg}" alt="flexy-img" class="img-fluid rounded-circle" width="120" height="120">
+					            			<div class="d-flex align-items-center justify-content-center my-4 gap-6">
+					              				<button class="btn btn-primary">Upload</button>
+					              				<button class="btn bg-danger-subtle text-danger">Reset</button>
+					            			</div>
+					            			<p class="mb-0">Allowed JPG, JPEG or PNG. Max size of 800K</p>
+					          			</div>
+					        		</div>
+					      		</div>
+					    	</form>
+					  	</div>
+						
+  						<!-- 기본 정보 등록 폼 -->
+  						<div class="col-lg-6 d-flex align-items-stretch">
+					    	<form name="create_profile_name_form" class="w-100">
+					      		<div class="card w-100 border position-relative overflow-hidden">
+					        		<div class="card-body p-4">
+					          			<h4 class="card-title" style="font-weight: bold;">기본 정보 등록</h4>
+					          			<p class="card-subtitle mb-4">Please enter a basic profile info.</p>
+										
+					          			<!-- 회사명 -->
+					          			<div class="mb-3">
+					            			<label for="member_name" class="form-label">회사명*</label>
+					            			<input type="text" class="form-control" id="member_name" name="member_name">
+					          			</div>
+					        		</div>
+									
+					        		<div class="d-flex align-items-center justify-content-center gap-6 mb-4">
+					          			<button type="submit" class="btn btn-primary">등록</button>
+					          			<button type="reset" class="btn bg-danger-subtle text-danger" th:onclick="location.href='/home'">취소</button>
+					        		</div>
+					      		</div>
+					    	</form>
+					  	</div>
+					</div>       	
+                </div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- ---------------------------------------------------------------------------- -->
+	
+	<!-- Custom JS Files -->
+	
+	
+	
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- Custom JS Files -->
+  	
+  	
+  	
+</th:block>
+</html>
