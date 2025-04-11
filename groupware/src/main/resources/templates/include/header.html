@@ -2,19 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<th:block th:fragment="headerLayout">
 	
-	<style>
-  		.logout-button:hover {
-   			background-color: #f0f8ff;
-    		color: #003366;
-    		transition: background-color 0.3s ease, color 0.3s ease;
-    		cursor: pointer;
-  		}
-
-  		.logout-button:hover h6,
-  		.logout-button:hover span {
-    		color: #003366;
-  		}
-	</style>
+	<link th:href="@{/css/header.css}" rel="stylesheet">
 	
 	  <!--  Header Start -->
       <header class="topbar">
@@ -210,19 +198,46 @@
               </li>
             </ul>
 
+			<!-- ------------------------------- -->
+            <!-- profile-image-start : 모바일 구조 -->
+            <!-- ------------------------------- -->
+
+   	 		<!-- <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 40px;"> -->
+
             <div class="d-block d-lg-none py-4 text-center">
-			    <th:block th:if="${theme == 'dark'}">
-			        <a th:href="@{/home}" class="text-nowrap logo-img">
-			            <img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
-			        </a>
+            
+            	<th:block th:if="${latestProfile != null and latestProfile.new_name != null}">
+			   		<th:block th:if="${theme != 'dark'}">
+			        	<a th:href="@{/home}" class="text-nowrap">
+			            	<img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
+			        	</a>
+			    	</th:block>
+
+			    	<th:block th:if="${theme == 'dark'}">
+			        	<a th:href="@{/home}" class="text-nowrap logo-img">
+			            	<img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
+			        	</a>
+			    	</th:block>
 			    </th:block>
-			
-			    <th:block th:if="${theme != 'dark'}">
-			        <a th:href="@{/home}" class="text-nowrap logo-img">
-			            <img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" />
-			        </a>
+			    <th:block th:if="${latestProfile == null or latestProfile.new_name == null}">
+			   		<th:block th:if="${theme != 'dark'}">
+			        	<a th:href="@{/home}" class="text-nowrap logo-img">
+			            	<img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
+			        	</a>
+			    	</th:block>
+
+			    	<th:block th:if="${theme == 'dark'}">
+			        	<a th:href="@{/home}" class="text-nowrap">
+			            	<img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" />
+			        	</a>
+			    	</th:block>
 			    </th:block>
+			    
 			</div>
+			
+			<!-- ------------------------------- -->
+            <!-- profile-image-end : 모바일 구조 -->
+            <!-- ------------------------------- -->
 			
             <a class="navbar-toggler nav-icon-hover-bg rounded-circle p-0 mx-0 border-0" href="javascript:void(0)" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <i class="ti ti-dots fs-7"></i>
@@ -653,8 +668,8 @@
               </li>
               <li class="nav-item d-none d-xl-block">
                 <a th:href="@{/home}" class="text-nowrap nav-link">
-                  <img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="flexy-img" />
-                  <img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="flexy-img" />
+                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
+                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
                 </a>
               </li>
               <li class="nav-item nav-icon-hover-bg rounded-circle d-none d-xl-flex">
@@ -836,7 +851,7 @@
             </ul>
             <div class="d-block d-xl-none">
               <a th:href="@{/home}" class="text-nowrap nav-link">
-                <img th:src="@{/assets/images/logos/dark-logo.svg}" width="180" alt="flexy-img" />
+                <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
               </a>
             </div>
             <a class="navbar-toggler nav-icon-hover-bg rounded-circle p-0 mx-0 border-0" href="javascript:void(0)" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -850,62 +865,20 @@
                   <i class="ti ti-align-justified fs-7"></i>
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
+                
                   <!-- ------------------------------- -->
-                  <!-- start light/dark Dropdown -->
+                  <!-- theme : light/dark -->
                   <!-- ------------------------------- -->
-                  
                   <th:block th:onclick="">
-                   <li class="nav-item nav-icon-hover-bg rounded-circle">
-                    <a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
-                      <i class="ti ti-moon moon"></i>
-                    </a>
-                    <a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
-                      <i class="ti ti-sun sun"></i>
-                    </a>
-                  </li>
+                  	<li class="nav-item nav-icon-hover-bg rounded-circle">
+                    	<a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
+                      		<i class="ti ti-moon moon"></i>
+                    	</a>
+                    	<a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
+                      		<i class="ti ti-sun sun"></i>
+                    	</a>
+                  	</li>
                   </th:block>
-                 
-                  <!-- ------------------------------- -->
-                  <!-- start language Dropdown -->
-                  <!-- ------------------------------- -->
-                  <!--
-                  <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
-                    <a class="nav-link" href="javascript:void(0)" id="drop2" aria-expanded="false">
-                      <img src="./assets/images/svgs/icon-flag-en.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
-                      <div class="message-body">
-                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item">
-                          <div class="position-relative">
-                            <img src="./assets/images/svgs/icon-flag-en.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
-                          </div>
-                          <p class="mb-0 fs-3">English (UK)</p>
-                        </a>
-                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item">
-                          <div class="position-relative">
-                            <img src="./assets/images/svgs/icon-flag-cn.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
-                          </div>
-                          <p class="mb-0 fs-3">中国人 (Chinese)</p>
-                        </a>
-                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item">
-                          <div class="position-relative">
-                            <img src="./assets/images/svgs/icon-flag-fr.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
-                          </div>
-                          <p class="mb-0 fs-3">français (French)</p>
-                        </a>
-                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 py-3 px-4 dropdown-item">
-                          <div class="position-relative">
-                            <img src="./assets/images/svgs/icon-flag-sa.svg" alt="flexy-img" width="20px" height="20px" class="rounded-circle object-fit-cover round-20" />
-                          </div>
-                          <p class="mb-0 fs-3">عربي (Arabic)</p>
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  -->
-                  <!-- ------------------------------- -->
-                  <!-- end language Dropdown -->
-                  <!-- ------------------------------- -->
 
                   <!-- ------------------------------- -->
                   <!-- start shopping cart Dropdown -->
@@ -1052,6 +1025,7 @@
                               <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
                             </div>
                           </a>
+                          
                            <form th:action="@{/logout}" method="post">
   						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
 								<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
@@ -1063,25 +1037,8 @@
 								</div>
 							</button>
 						  </form>
+						  
                         </div>
-                        <!--
-                        <div class="d-grid py-4 px-7 pt-8">
-                          <div class="upgrade-plan bg-primary-subtle position-relative overflow-hidden rounded-2 p-4 mb-9">
-                            <div class="row">
-                              <div class="col-6">
-                                <h5 class="fs-4 mb-3 fw-semibold">Unlimited Access</h5>
-                                <button class="btn btn-primary">Upgrade</button>
-                              </div>
-                              <div class="col-6">
-                                <div class="m-n4 unlimited-img">
-                                  <img src="./assets/images/backgrounds/unlimited-bg.png" alt="flexy-img" class="w-100" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <a href="./main/authentication-login.html" class="btn btn-outline-primary">Log Out</a>
-                        </div>
-                        -->
                       </div>
                     </div>
                   </li>
