@@ -20,23 +20,29 @@ layout:decorate="~{/include/layout}">
       </nav><br>
       <h2 class="mb-0 fw-bolder fs-8">공유문서함 게시판</h2>
     </div><br>
-      <!-- Search + Button -->
-  	<div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="admin/shared/search" method="get">
-				<div
-					class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-					style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
-					<button type="submit" class="btn border-0 bg-transparent p-0">
-						<i class="ti ti-search fs-5 text-primary"></i>
-					</button>
-					<input type="text" name="keyword"
-						class="form-control border-0 bg-transparent ms-2"
-						placeholder="검색어를 입력하세요."
-						style="box-shadow: none; background-color: transparent;">
-				</div>
-			</form>
-      <button type="button" class="btn btn-primary rounded-pill" onclick="location.href='/admin/shared/create'">게시글 작성</button>
-    	</div>
+ 		<div class="d-flex justify-content-between align-items-center mb-3">
+    		<form th:action="@{/admin/shared}" method="get" class="d-flex align-items-center gap-2">
+            	 <!-- 정렬 -->
+        	<select name="sort" class="form-select rounded-pill" onchange="this.form.submit()" style="width: 150px; height: 40px; background-color: white; border: 1px solid #ced4da;">
+        		<option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
+        		<option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+    		</select>
+      	<!-- Search + Button -->
+        		<div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
+             		style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
+            	<button type="submit" class="btn border-0 bg-transparent p-0">
+                	<i class="ti ti-search fs-5 text-primary"></i>
+            	</button>
+            <input type="text" name="keyword"
+                   th:value="${keyword}"
+                   class="form-control border-0 bg-transparent ms-2"
+                   placeholder="검색어를 입력하세요."
+                   style="box-shadow: none; background-color: transparent;">
+        </div>
+    		</form>
+    			<button type="button" class="btn btn-primary rounded-pill"
+            		onclick="location.href='/admin/shared/create'">게시글 작성</button>
+		</div>
 	<!-- Table -->
     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
 		  <div class="table-responsive">
@@ -75,6 +81,19 @@ layout:decorate="~{/include/layout}">
 				alert(msg);
 			}
 		</script>
+		
+		<!-- Pagination -->
+		<nav class="d-flex justify-content-center mt-4">
+			<ul class="pagination">
+				<li class="page-item disabled"><a class="page-link">‹</a></li>
+				<li class="page-item active"><a class="page-link" href="#">1</a></li>
+				<li class="page-item"><a class="page-link" href="#">2</a></li>
+				<li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item"><a class="page-link" href="#">...</a></li>
+				<li class="page-item"><a class="page-link" href="#">10</a></li>
+				<li class="page-item"><a class="page-link" href="#">›</a></li>
+			</ul>
+		</nav>
 	<!-- --------------------- -->
 	</div>					
 	<!-- Import vendorJs Files -->

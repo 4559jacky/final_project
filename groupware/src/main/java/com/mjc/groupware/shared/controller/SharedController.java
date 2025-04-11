@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -18,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.dto.SharedDto;
 import com.mjc.groupware.shared.entity.Shared;
+import com.mjc.groupware.shared.repository.SharedRepository;
 import com.mjc.groupware.shared.service.SharedService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,27 +25,32 @@ import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin/shared")
 @Slf4j
 public class SharedController {
 
     private final SharedService service;
+    private final SharedRepository repository;
 
-    // 게시글 목록 화면
-    @GetMapping("")
-    public String listView(Model model) {
-        model.addAttribute("sharedList", service.getSharedList());
+    // 게시글 목록 화면 + 게시글 검색 기능 추가 + 게시글 정렬
+    @GetMapping("/admin/shared")
+    public String listView(@RequestParam(value = "keyword", required = false) String keyword, 
+    					   @RequestParam(value = "sort", defaultValue = "desc") String sort,	
+    					   Model model) {
+    	List<Shared> sharedList = service.searchShared(keyword, sort);
+        model.addAttribute("sharedList", sharedList);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
         return "/shared/admin/list";
     }
 
     // 게시글 작성 화면
-    @GetMapping("/create")
+    @GetMapping("/admin/shared/create")
     public String createSharedAdminView() {
         return "/shared/admin/create";
     }
 
     // 게시글 수정 화면
-    @GetMapping("/update")
+    @GetMapping("/admin/shared/update")
     public String updateSharedAdminView(@RequestParam("sharedNo") Long sharedNo, Model model) {
     	Shared shared = service.getSharedUpdate(sharedNo);
     	if(shared == null) {
@@ -56,7 +61,7 @@ public class SharedController {
     }
     
     // 게시글 등록 처리 (fetch용)
-    @PostMapping("/create")
+    @PostMapping("/admin/shared/create")
     @ResponseBody
     public Map<String, String> createApprovalApi(
             @ModelAttribute SharedDto dto,
@@ -88,7 +93,7 @@ public class SharedController {
     }
     
  // 게시글 상세 화면
-    @GetMapping("/detail")
+    @GetMapping("/admin/shared/detail")
     public String detailView(@RequestParam("sharedNo") Long sharedNo, Model model) {
         Shared shared = service.getSharedDetail(sharedNo);
         if (shared == null) {
@@ -99,7 +104,7 @@ public class SharedController {
         return "/shared/admin/detail";
     }
 // 게시글 수정 화면
-    @PostMapping("/update")
+    @PostMapping("/admin/shared/update")
     @ResponseBody
     public Map<String, String> updateSharedApi(@ModelAttribute SharedDto dto) {
     	Map<String, String> result = new HashMap<>();
@@ -127,7 +132,7 @@ public class SharedController {
     
   //게시글 삭제
   //RedirectAttributes => addFlashAttribute 1회성, redirect이후 한번만 유지되고, 자동 삭제.
-    @GetMapping("/delete")
+    @GetMapping("/admin/shared/delete")
     public String deleteShared(@RequestParam("sharedNo") Long sharedNo, RedirectAttributes msg) {
     	service.deleteShared(sharedNo);
     	msg.addFlashAttribute("message","삭제가 완료되었습니다!");
@@ -135,5 +140,6 @@ public class SharedController {
     
 
 	}
-  
+ 
+   
 }
