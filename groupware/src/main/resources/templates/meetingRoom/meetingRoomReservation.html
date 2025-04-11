@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	<link th:href="@{/css/ysw.css}" rel="stylesheet">
+
+	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb align-items-center">
+				<li class="breadcrumb-item"><a
+					class="text-muted text-decoration-none" th:href="@{/home}"> <i
+						class="ti ti-home fs-5"></i>
+				</a></li>
+				<li class="breadcrumb-item" aria-current="page">회의실 예약</li>
+			</ol>
+		</nav>
+		<br>
+		<h2 class="mb-0 fw-bolder fs-8">회의실 예약</h2>
+	</div>
+	<br>
+
+	<div class="card">
+		<div class="card-body calender-sidebar app-calendar">
+			<div id="calendar"></div>
+		</div>
+	</div>
+
+	<!-- BEGIN MODAL -->
+	<div class="modal fade" id="eventModal" tabindex="-1"
+		aria-labelledby="eventModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-scrollable modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="eventModalLabel">Add / Edit Event
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div>
+								<label class="form-label">Event Title</label> <input
+									id="event-title" type="text" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-12 mt-6">
+							<div>
+								<label class="form-label">Event Color</label>
+							</div>
+							<div class="d-flex">
+								<div class="n-chk">
+									<div class="form-check form-check-primary form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Danger" id="modalDanger" /> <label
+											class="form-check-label" for="modalDanger">Danger</label>
+									</div>
+								</div>
+								<div class="n-chk">
+									<div class="form-check form-check-warning form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Success" id="modalSuccess" /> <label
+											class="form-check-label" for="modalSuccess">Success</label>
+									</div>
+								</div>
+								<div class="n-chk">
+									<div class="form-check form-check-success form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Primary" id="modalPrimary" /> <label
+											class="form-check-label" for="modalPrimary">Primary</label>
+									</div>
+								</div>
+								<div class="n-chk">
+									<div class="form-check form-check-danger form-check-inline">
+										<input class="form-check-input" type="radio"
+											name="event-level" value="Warning" id="modalWarning" /> <label
+											class="form-check-label" for="modalWarning">Warning</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-12 mt-6">
+							<div>
+								<label class="form-label">Enter Start Date</label> <input
+									id="event-start-date" type="date" class="form-control" />
+							</div>
+						</div>
+
+						<div class="col-md-12 mt-6">
+							<div>
+								<label class="form-label">Enter End Date</label> <input
+									id="event-end-date" type="date" class="form-control" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn bg-danger-subtle text-danger"
+						data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-success btn-update-event"
+						data-fc-event-public-id="">Update changes</button>
+					<button type="button" class="btn btn-primary btn-add-event">
+						Add Event</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 회의실 예약 모달창 -->
+	<div class="modal fade" id="dateInfoModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered"
+			style="max-width: 800px; width: auto; max-height: none;">
+			<div class="modal-content p-3" style="max-height: none;">
+				<div class="modal-header">
+					<h5 class="modal-title" style="font-weight: bold; color: black;">
+						회의실 예약 [<span id="selected-date-text"></span>]
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body" style="overflow-y: visible;">
+					<form name="meetingRoom_title_form">
+						<label for="createMeetingRoomTitle" class="form-label">등록할 회의명</label> 
+						<input type="text" class="form-control" id="meetingRoomTitle" name="new_meeting_room_name"
+							style="color: black;" placeholder="등록하실 회의명을 입력해주세요."><br>
+
+						<p style="color: gray;">예약하실 회의실과 시간을 선택해주세요. (시간은 한시간 단위로선택됩니다.)</p>
+						<input type="hidden" id="roomNo" name="roomNo">
+						<input type="hidden" id="selectDate" name="selectDate">
+
+						<!-- 버튼이 많아질 경우 줄바꿈되면서 자연스럽게 아래로 늘어납니다 -->
+						<div id="meeting-room-buttons" class="d-flex flex-wrap gap-2 my-3"
+							style="justify-content: start;"></div>
+
+						<div id="meeting-time-buttons"
+							class="d-flex flex-wrap gap-2 my-3"
+							style="justify-content: start;"></div>
+
+						<div class="text-end">
+							<button type="submit" class="btn btn-primary">다음</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 회의실 예약 모달 창 - 인원선택 -->
+	<div class="modal fade" id="selectMemberModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered"
+			style="max-width: 800px; width: auto; max-height: none;">
+			<div class="modal-content p-3" style="max-height: none;">
+				<div class="modal-header">
+					<h5 class="modal-title" style="font-weight: bold; color: black;"> 회의실 예약 </h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<!-- 상단: 조직도 + 사원 목록 -->
+					<div class="row mb-4" style="height: 280px;">
+					<p style="color: gray;">회의에 참석할 인원을 선택해주세요.</p>
+						<!-- 조직도 -->
+						<div class="col-6 pe-3 border-end">
+							<h6 class="fw-semibold mb-2">조직도</h6>
+							<div id="reserve_jstree"
+								class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
+								<!-- JSTree 영역 -->
+							</div>
+						</div>
+
+						<!-- 사원 목록 -->
+						<div class="col-6 ps-3">
+							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
+							<div id="memberListBox"
+								class="h-100 overflow-auto border rounded bg-light p-2">
+								<ul id="memberList" class="list-group fs-6"></ul>
+							</div>
+						</div>
+					</div><BR><bR>
+					<!-- 하단: 결재자/참조자/합의자 -->
+					<div class="row gx-3 text-center" style="height: 200px;">
+						<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
+							<ul id="selectMemberList" class="list-group fs-6"></ul>	
+						</div>
+					</div>
+					<div class="modal-footer justify-content-end">
+						<button type="button" class="btn btn-primary px-4">회의실 예약</button>
+					</div><bR>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		const form = document.meetingRoom_title_form;
+		const input = document.getElementById("meetingRoomTitle");
+	
+		// 날짜 클릭시 회의실 선택 모달창 띄움
+		var calendarSelect = function (info) {
+			const selectedDateText = document.getElementById("selected-date-text");
+			const selectedDateInput = document.getElementById("selectDate");
+			// 모달창에 날짜 표시 
+			selectedDateText.innerText = info.startStr;
+			// input에 날짜 저장 
+			selectedDateInput.value = info.startStr;
+			
+			
+			// 이미 지난 날짜면 리턴해서 모달 안 뜨게
+			const selectedDate = new Date(info.startStr);
+			const today = new Date();
+			today.setHours(0, 0, 0, 0); // 오늘 자정 기준
+	
+			if (selectedDate < today) {
+				return;
+			}
+	
+			// 회의실 조회 
+			const payload = new URLSearchParams();
+			payload.append("date", info.startStr);
+	
+			fetch("/selectMeetingRoom", {
+				method: "POST",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body: payload
+			})
+			.then(response => response.json())
+			.then(data => {
+				MeetingRoomButtons(data);
+			});
+	
+			// 회의실 선택 모달 보여줌
+			const dateInfoModal = new bootstrap.Modal(document.getElementById("dateInfoModal"));
+			dateInfoModal.show();
+		};
+		
+		
+	
+		// 회의실 버튼 추가, 회의실 버튼 클릭 시 시간 버튼 추가 
+		function MeetingRoomButtons(meetingRoom) {
+			// btn 추가할 곳
+			const container = document.getElementById("meeting-room-buttons");
+			const timeContainer = document.getElementById("meeting-time-buttons");
+			
+			container.innerHTML = ""; // 초기화
+			timeContainer.innerHTML = "";
+			
+			// 회의실 버튼 추가 
+			meetingRoom.forEach(room => {
+				
+				if(room.meetingRoomStatus != 'D'){ // 삭제되지 않은 회의실
+					const btn = document.createElement("button");
+					btn.type = "button";
+					btn.textContent = room.meetingRoomName;
+					btn.setAttribute("data-room-id", room.meetingRoomNo);
+					btn.setAttribute("data-room-status", room.meetingRoomStatus);
+			
+					if(room.meetingRoomStatus == 'Y'){ // 사용 가능한 회의실
+						btn.className = "btn bg-primary-subtle text-primary";
+					}else if(room.meetingRoomStatus == 'N'){ // 사용 불가능한 회의실
+						btn.className = "btn btn-rounded btn-light"; 
+						btn.disabled = true;
+					}
+					
+					// 버튼 추가 
+					container.appendChild(btn);
+					
+					// 회의실 버버튼 클릭 시 input에 회의실 roomNo 담아줌
+					btn.addEventListener("click", function () {
+						const selectRoomNo = this.dataset.roomId;
+
+						document.getElementById("roomNo").value = selectRoomNo;
+					});
+					
+					// 회의실 버튼 클릭 시 시간 버튼 추가 
+					btn.addEventListener("click", () => {
+						 // 모든 회의실 버튼 초기화
+					    container.querySelectorAll("button[data-room-id]").forEach(b => {
+							if (b.getAttribute("data-room-status") === 'Y') {
+								b.className = "btn bg-primary-subtle text-primary";
+								b.classList.add("selected");
+							}
+						});
+
+					    // 클릭된 버튼만 primary 스타일 + 비활성화 처리
+					    btn.className = "btn btn-primary";
+
+					    // 기존 시간 버튼 초기화
+					    timeContainer.innerHTML = "";
+
+					    // 시간 버튼 표시
+					    let timeButtons = 
+					    	`<button type="button" class="btn bg-primary-subtle text-primary" data-time="09:00">09:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="10:00">10:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="11:00">11:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="12:00">12:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="13:00">13:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="14:00">14:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="15:00">15:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="16:00">16:00</button>
+					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="17:00">17:00</button>`;
+
+					    timeContainer.innerHTML = timeButtons;
+					    
+					    // 시간 버튼 토글 
+					    timeContainer.querySelectorAll("button[data-time]").forEach(timeBtn => {
+					    	timeBtn.addEventListener("click", () => {
+					    	    timeBtn.classList.toggle("btn-primary");
+					    	    timeBtn.classList.toggle("bg-primary-subtle");
+					    	    timeBtn.classList.toggle("text-primary");
+					    	    timeBtn.classList.toggle("selected");
+					    	});
+					    });
+					});
+				}		
+			});
+			
+		}
+		
+		
+		// 모든 html이 있을 때 실행
+		document.addEventListener("DOMContentLoaded", () => {
+			const form = document.meetingRoom_title_form;
+			const input = document.getElementById("meetingRoomTitle");
+
+			// form 이벤트는 여기 한 번만 등록
+			form.addEventListener("submit", (e) => {
+				e.preventDefault();
+
+				// 선택된 버튼 찾음 
+				const selectRoomBtn = document.querySelector("#meeting-room-buttons button.selected");
+				const selectTimeBtn = document.querySelectorAll("#meeting-time-buttons button.selected");
+
+				//유효성 검사 
+				if (!form.meetingRoomTitle.value) {
+					input.classList.add("is-invalid");
+					setTimeout(() => input.classList.remove("is-invalid"), 2000);
+					return;
+				}
+				if (!selectRoomBtn || selectTimeBtn.length === 0) {
+					alert("회의실과 시간을 선택해주세요.");
+					return;
+				}
+
+				
+				const meetingtitle = form.meetingRoomTitle.value;
+				const meetingRoomNo = form.roomNo.value;
+				const meetingTimes = [...selectTimeBtn].map(btn => btn.getAttribute("data-time"));
+				const meetingDate = form.selectDate.value;
+
+				
+
+				console.log(meetingtitle, meetingRoomNo, meetingTimes, meetingDate);
+
+				
+				// 기존 모달 숨기기
+				const dateInfoModal = bootstrap.Modal.getInstance(document.getElementById("dateInfoModal"));
+				if (dateInfoModal) dateInfoModal.hide(); // 인스턴스가 null일 수 있으니 체크!
+
+				// 새 모달 보여주기
+				const confirmModal = new bootstrap.Modal(document.getElementById("selectMemberModal"));
+				confirmModal.show();
+			});
+		});
+		
+		 
+		
+		
+		// 회의실 예약 - 조직도 조회
+		$('#reserve_jstree').on("changed.jstree", function (e, data) {
+		    if (data && data.selected && data.selected.length > 0) {
+		        const selectedNodeId = data.selected[0]; // 예: '2'
+		        console.log("선택된 노드 ID:", selectedNodeId);
+	
+		        // 부서 ID로 사원 목록 요청
+		        fetch('/member/dept/'+selectedNodeId)
+		            .then(response => response.json())
+		            .then(data => {
+		                const list = document.getElementById("memberList");
+		                list.innerHTML = ""; // 기존 목록 초기화
+	
+		                if (data.length === 0) {
+		                    list.innerHTML = "<li class='list-group-item'>사원이 없습니다.</li>";
+		                    return;
+		                }
+	
+		                data.forEach(member => {
+		                    const li = document.createElement("li");
+		                    li.className = "list-group-item";
+							li.innerHTML = `<input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} (${member.pos_name})`;
+		                    // li.textContent = `<input type="checkbox" th:value='${member.member_no}'>${member.member_name} (${member.pos_name})`;
+		                    list.appendChild(li);
+		                });
+		            })
+		            .catch(err => {
+		                console.error("사원 목록 불러오기 실패:", err);
+		            });
+		    }
+		});
+		
+		
+		
+	
+		// 회의실 등록 모달창 리셋
+		const modal = document.getElementById('dateInfoModal');
+		modal.addEventListener('hidden.bs.modal', () => {
+			form.reset();
+		});
+		
+		// 회의실 인원 선택 모달창 리셋
+		document.getElementById("selectMemberModal").addEventListener("hidden.bs.modal", () => {
+		    // 체크박스 다 해제
+		    document.querySelectorAll('#selectMemberModal input[type="checkbox"]').forEach(checkbox => {
+		        checkbox.checked = false;
+		    });
+		
+		    // 선택된 멤버 리스트 초기화 (만약 표시 중이라면)
+		    const selectedMemberList = document.getElementById("selected-member-list");
+		    if (selectedMemberList) {
+		        selectedMemberList.innerHTML = "";
+		    }
+		
+		    // 기타 hidden input 초기화
+		    if (form && form.participants) {
+		        form.participants.value = "";
+		    }
+		});
+	</script>
+
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
+
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script src="../assets/libs/fullcalendar/index.global.min.js"></script>
+	<script src="../js/custom/meetingRoomCalendar.js"></script>
+</th:block>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light"
+	data-color-theme="Blue_Theme" data-layout="horizontal"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
+
+<th:block layout:fragment="content">
+	<!-- jQuery -->
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<!-- jsTree -->
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
+
+	<div class="container-fluid px-4">
+		<!-- Breadcrumb -->
+		<div class="col-lg-8 col-md-6 col-12 align-self-center">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb align-items-center">
+					<li class="breadcrumb-item"><a
+						class="text-muted text-decoration-none" th:href="@{/home}"> <i
+							class="ti ti-home fs-5"></i>
+					</a></li>
+					<li class="breadcrumb-item" aria-current="page">전자 결재 시스템</li>
+					<li class="breadcrumb-item active" aria-current="page">받은 문서함</li>
+				</ol>
+			</nav>
+			<br>
+			<h2 class="mb-0 fw-bolder fs-8">전자 결재 시스템</h2>
+		</div>
+		<br>
+
+		<!-- Tabs -->
+		<ul class="nav nav-tabs mb-4">
+			<li class="nav-item"><a class="nav-link" th:href="@{/approval}">보낸
+					문서함</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:href="@{/approval/receive}">받은 문서함</a></li>
+			<li class="nav-item"><a class="nav-link active"
+				th:href="@{/approval/create}">결재 작성</a></li>
+		</ul>
+		<div class="container-fluid my-5 px-4">
+			<div class="row">
+				<!-- 왼쪽 결재 양식 선택 영역 -->
+				<div class="col-md-3">
+					<div class="card shadow-sm rounded-4 p-4">
+						<h5 class="fw-bold mb-4 text-center">결재 양식</h5>
+						<div class="d-grid gap-3">
+							<th:block th:if=${!#lists.isEmpty(formList)}
+								th:each="form : ${formList}">
+								<th:block th:if="${form.approvalFormStatus == 'Y'}">
+									<!-- class="btn btn-primary" -->
+									<button class="btn btn-outline-primary"
+										th:text="${form.approvalFormName}"
+										th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식
+										이름</button>
+								</th:block>
+							</th:block>
+						</div>
+					</div>
+				</div>
+
+				<!-- 오른쪽 결재 양식 내용 영역 -->
+				<div class="col-md-9" id="div1">
+					<div class="card shadow-sm rounded-4 p-4 bg-white"
+						style="min-height: 600px; position: relative;">
+						<!-- 여기에 동적 양식 들어감 -->
+						<div id="approval-content">
+							<th:block>
+
+							</th:block>
+						</div>
+
+						<!-- 하단 버튼 -->
+						<div
+							class="d-flex justify-content-end gap-2 position-absolute bottom-0 end-0 m-4">
+							<button class="btn btn-primary px-4" onclick="createApproval();">결재
+								작성</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-9" id="div2">
+					<form name="create_approval_form">
+						<div class="card shadow-sm rounded-4 p-4 bg-white"
+							style="min-height: 600px; position: relative;">
+							<th:block>
+								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
+									제목</h4>
+								<table class="table table-bordered align-middle">
+									<tbody>
+										<tr>
+											<th class="text-center bg-light" style="width: 15%;">기안자</th>
+											<td name="drafter" style="width: 20%;"></td>
+											<th class="text-center bg-light" style="width: 15%;">부서</th>
+											<td name="department" style="width: 20%;"></td>
+											<th class="text-center bg-light" style="width: 15%;">직급</th>
+											<td name="position"></td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">작성일</th>
+											<td colspan="5"><input type="date" name="appr_reg_date"></td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">제목</th>
+											<td colspan="5"><input type="text" name="appr_title"></td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">결재자</th>
+											<td colspan="4"><input type="text" name="appr_sender"></td>
+											<td><button type="button" data-bs-toggle="modal"
+													data-bs-target="#approvalLineModal">결재 라인 선택</button></td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">참조자</th>
+											<td colspan="2"><input type="text" name="referencer_no"></td>
+											<th class="text-center bg-light">합의자</th>
+											<td colspan="2"><input type="text" name="agreementer_no"></td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">첨부 파일</th>
+											<td colspan="4"></td>
+											<td><button>첨부파일 선택</button></td>
+										</tr>
+									</tbody>
+								</table>
+							</th:block>
+							<!-- 여기에 동적 양식 들어감 -->
+							<div id="approval-content2"></div>
+						</div>
+						<!-- 승인요청 버튼: div2 하단 오른쪽 정렬 -->
+						<div class="d-flex justify-content-end mt-3">
+							<button class="btn btn-primary px-4" onclick="sendApproval();">승인요청</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 결재라인 모달창 -->
+	<div class="modal fade" id="approvalLineModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 라인 선택</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+
+				<div class="modal-body">
+					<!-- 상단: 조직도 + 사원 목록 -->
+					<div class="row mb-4" style="height: 280px;">
+						<!-- 조직도 -->
+						<div class="col-6 pe-3 border-end d-flex flex-column">
+							<h6 class="fw-semibold mb-2">조직도</h6>
+							<div id="appr_jstree"
+								class="flex-grow-1 overflow-auto border rounded bg-light p-2">
+								<!-- JSTree 내용 -->
+							</div>
+						</div>
+
+						<!-- 사원 목록 -->
+						<div class="col-6 ps-3 d-flex flex-column">
+							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
+							<div id="memberListBox"
+								class="flex-grow-1 overflow-auto border rounded bg-light p-2">
+								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+					</div>
+					<BR> <bR>
+					<!-- 하단: 결재자/참조자/합의자 -->
+					<div class="row gx-3 text-center" style="height: 200px;">
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">결재자</span>
+								<button class="btn btn-outline-primary btn-sm"
+									onclick="approver_btn();">등록</button>
+							</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="approverList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">참조자</span>
+								<button class="btn btn-outline-primary btn-sm"
+									onclick="referencer_btn();">등록</button>
+							</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="referenceList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">합의자</span>
+								<button class="btn btn-outline-primary btn-sm">등록</button>
+							</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="agreementList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<BR>
+				<div class="modal-footer justify-content-end">
+					<button type="button" class="btn btn-primary px-4">선택 완료</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script>
+	
+	const approver_btn = function() {
+	    let checkedMember = [];
+	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
+	        checkedMember.push(checkbox.value);
+	    });
+
+	    console.log(checkedMember);
+
+	    checkedMember.forEach(function(member) {
+	        // 이미 추가된 결재자인지 확인
+	        let isAlreadyAdded = Array.from(document.querySelectorAll('.selectd_approver')).some(el => el.value === member);
+
+	        if (!isAlreadyAdded) { // 중복이 아닐 때만 추가
+	            fetch('/member/' + member, {
+	                method: 'GET'
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+	                const list = document.getElementById("approverList");
+
+	                const li = document.createElement("li");
+	                li.className = 'list-group-item';
+	                li.innerHTML = `<button class="selected_approver" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                
+	                list.appendChild(li);
+	            })
+	            .catch(err => {
+	                console.error("사원 목록 불러오기 실패:", err);
+	            });
+	        } else {
+	            console.log(`이미 추가된 사원: ${member}`);
+	        }
+	    });
+	};
+	
+	 // 결재자 목록에서 - 버튼 클릭 시 항목 제거
+    document.getElementById('approverList').addEventListener('click', function(event) {
+        // 클릭된 요소가 .selected_approver 버튼인지 확인
+        if (event.target && event.target.classList.contains('selected_approver')) {
+            let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
+            console.log(approverId);
+
+            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
+            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
+            if (listItem) {
+                listItem.remove();  // <li> 요소 삭제
+            }
+        }
+    });
+	 
+    const referencer_btn = function() {
+	    let checkedMember = [];
+	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
+	        checkedMember.push(checkbox.value);
+	    });
+
+	    console.log(checkedMember);
+
+	    checkedMember.forEach(function(member) {
+	        // 이미 추가된 결재자인지 확인
+	        let isAlreadyAdded = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
+	        
+
+	        if (!isAlreadyAdded) { // 중복이 아닐 때만 추가
+	            fetch('/member/' + member, {
+	                method: 'GET'
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+	                const list = document.getElementById("referenceList");
+
+	                const li = document.createElement("li");
+	                li.className = 'list-group-item';
+	                li.innerHTML = `<button class="selected_referencer" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                
+	                list.appendChild(li);
+	            })
+	            .catch(err => {
+	                console.error("사원 목록 불러오기 실패:", err);
+	            });
+	        } else {
+	            console.log(`이미 추가된 사원: ${member}`);
+	        }
+	    });
+	};
+	
+	 // 결재자 목록에서 - 버튼 클릭 시 항목 제거
+    document.getElementById('referenceList').addEventListener('click', function(event) {
+        // 클릭된 요소가 .selected_approver 버튼인지 확인
+        if (event.target && event.target.classList.contains('selected_referencer')) {
+            let referencerId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
+            console.log(referencerId);
+
+            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
+            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
+            if (listItem) {
+                listItem.remove();  // <li> 요소 삭제
+            }
+        }
+    }); 
+	
+	  
+	  $(document).ready(function(){
+		  $('#div2').hide();
+	  })
+	
+	  let selectedApprovalFormNo = null; // 전역 변수
+
+	  const viewForm = function(approvalFormNo) {
+		  $('#div2').hide();
+		  $('#div1').show();
+		  selectedApprovalFormNo = approvalFormNo;
+
+		  fetch('/approvalForm/view/' + approvalFormNo, {
+		    method: 'POST',
+		    headers: {
+		      'Content-Type': 'application/json',
+		      'header': document.querySelector('meta[name="_csrf_header"]').content,
+		      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		    }
+		  })
+		  .then(res => res.json())
+		  .then(data => {
+		    const html = `
+		      <h4>${data.approval_form_name}</h4>
+		      <div>${data.approval_form}</div>
+		    `;
+		    document.getElementById('approval-content').innerHTML = html;
+
+		    // 기존 선택된 버튼에서 클래스 제거
+		    document.querySelectorAll('.btn-outline-primary, .btn-outline-secondary').forEach(btn => {
+		      btn.classList.remove('selected-button');
+		    });
+
+		    // 클릭한 버튼 찾아서 클래스 추가
+		    const clickedBtn = [...document.querySelectorAll('.btn')].find(
+		      btn => btn.getAttribute('onclick') === `javascript:viewForm('${approvalFormNo}')`
+		    );
+
+		    if (clickedBtn) {
+		      clickedBtn.classList.add('selected-button');
+		    }
+		  })
+		  .catch(err => console.error('Fetch Error:', err));
+		};
+	  
+		/* const createApproval = function() {
+			  if (selectedApprovalFormNo !== null) {
+			    window.location.href = '/approval/create/' + selectedApprovalFormNo;
+			  } else {
+			    alert('먼저 작성할 양식을 선택해주세요.');
+			  }
+		}; */
+		
+		const createApproval = function () {
+			  $('#div1').hide();
+			  $('#div2').show();
+
+			  if (selectedApprovalFormNo !== null) {
+			    fetch('/approval/create/' + selectedApprovalFormNo, {
+			      method: 'POST',
+			      headers: {
+			        'Content-Type': 'application/json',
+			        [document.querySelector('meta[name="_csrf_header"]').content]:
+			          document.querySelector('meta[name="_csrf"]').content
+			      }
+			    })
+			      .then(response => response.json())
+			      .then(data => {
+			    	  
+			    	  const approvalForm = data.approvalForm;
+			    	  const member = data.member;
+			    	  
+			    	  console.log(approvalForm);
+			    	  
+			    	  const approval_div = document.getElementById('approval-content2');
+			    	  approval_div.innerHTML = '';
+
+			    	  // 제목 삽입
+			          const titleElement = document.getElementById('approval_form_name');
+			          if (titleElement) {
+			            titleElement.innerText = approvalForm.approval_form_name;
+			          }
+			          
+			       	  // 기안자 정보 삽입
+			          document.querySelector("td[name='drafter']").innerText = member.member_name;
+			          document.querySelector("td[name='department']").innerText = member.dept_name;
+			          document.querySelector("td[name='position']").innerText = member.pos_name;
+
+			    	  // contenteditable div
+			    	  const editor = document.createElement('div');
+			    	  editor.className = 'form-control';
+			    	  editor.contentEditable = true;
+			    	  editor.innerHTML = approvalForm.approval_form;
+			    	  editor.style.minHeight = '300px';
+			    	  approval_div.appendChild(editor);
+			      });
+			  } else {
+			    alert('먼저 작성할 양식을 선택해주세요.');
+			  }
+			};
+			
+		const sendApproval = function(){
+			
+		}
+	  	
+	</script>
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
+
+</th:block>
+</html>

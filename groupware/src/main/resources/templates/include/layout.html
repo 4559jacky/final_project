@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" th:attr="data-bs-theme=${theme}" data-color-theme="Blue_Theme" data-layout="horizontal" data-boxed-layout="boxed" data-card="shadow" data-sidebartype="mini-sidebar"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	
+	<!-- Spring Security -->
+	<meta id="_csrf" name="_csrf" th:attr="content=${_csrf.token}">
+	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
+	
+	<!-- Favicon icon-->
+	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.ico}" />
+	
+	<title>Groupware</title>
+	
+	<!-- Core Css -->
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}" />
+	
+	<!-- Owl Carousel  -->
+	<link rel="stylesheet" th:href="@{/assets/libs/owl.carousel/dist/assets/owl.carousel.min.css}" />
+	
+	<!-- Custom Css : Override - 992px 기준으로 모바일 화면 -->
+	<link rel="stylesheet" th:href="@{/css/layout-common.css}" />
+  	
+</head>
+<body>
+  	<div class="page-wrapper" style="position: fixed; top: 0; width: 100%; z-index: 10; height: 45px;">
+		<th:block th:replace="~{include/header :: headerLayout}"></th:block>
+	</div>
+	
+	<div id="nav-wrapper" style="position: fixed; top: 45px; padding-top: 45px; z-index: 9; width: 100%;">
+		<th:block th:replace="~{include/nav :: navLayout}"></th:block>
+	</div>
+
+	<div class="body-wrapper" style="padding-top: 45px;">
+        <div class="container-fluid">
+			<th:block layout:fragment="content"></th:block>
+			<th:block layout:fragment="scripts"></th:block>
+		</div>
+	</div>
+	
+    <!--  Shopping Cart -->
+    <div class="offcanvas offcanvas-end shopping-cart" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+      <div class="offcanvas-header justify-content-between py-4">
+        <h5 class="offcanvas-title fs-5 fw-semibold" id="offcanvasRightLabel">
+          Shopping Cart
+        </h5>
+        <span class="badge bg-primary rounded-2 px-3 py-1 lh-sm">5 new</span>
+      </div>
+      <div class="offcanvas-body h-100 px-4 pt-0" data-simplebar>
+        <ul class="mb-0">
+          <li class="pb-7">
+            <div class="d-flex align-items-center">
+              <img th:src="@{/assets/images/products/product-1.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
+              <div>
+                <h6 class="mb-1">Supreme toys cooker</h6>
+                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
+                  <div class="input-group input-group-sm w-50">
+                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add1">
+                      -
+                    </button>
+                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add1" value="1" />
+                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addo2">
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="pb-7">
+            <div class="d-flex align-items-center">
+              <img th:src="@{/assets/images/products/product-2.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
+              <div>
+                <h6 class="mb-1">Supreme toys cooker</h6>
+                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
+                  <div class="input-group input-group-sm w-50">
+                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add2">
+                     -
+                    </button>
+                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add2" value="1" />
+                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addon34">
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="pb-7">
+            <div class="d-flex align-items-center">
+              <img th:src="@{/assets/images/products/product-3.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
+              <div>
+                <h6 class="mb-1">Supreme toys cooker</h6>
+                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
+                  <div class="input-group input-group-sm w-50">
+                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add3">
+                      -
+                    </button>
+                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add3" value="1" />
+                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addon3">
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="align-bottom">
+          <div class="d-flex align-items-center pb-7">
+            <span class="text-dark fs-3">Sub Total</span>
+            <div class="ms-auto">
+              <span class="text-dark fw-semibold fs-3">$2530</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center pb-7">
+            <span class="text-dark fs-3">Total</span>
+            <div class="ms-auto">
+              <span class="text-dark fw-semibold fs-3">$6830</span>
+            </div>
+          </div>
+          <a href="./main/eco-checkout.html" class="btn btn-outline-primary w-100">Go to shopping cart</a>
+        </div>
+      </div>
+    </div>
+    <div class="dark-transparent sidebartoggler"></div>
+	
+	<!-- Common JS Files -->
+  
+    <!-- jsTree -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+	<script th:src="@{/js/jji/jstree.js}"></script>
+	<script th:src="@{/js/ysw/jstree.js}"></script>
+	
+	<script th:src="@{/js/dark-cookie.js}"></script>
+
+</body>
+</html>

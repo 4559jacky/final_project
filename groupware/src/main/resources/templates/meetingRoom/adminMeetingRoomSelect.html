@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html 
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+	<th:block layout:fragment="content">
+  		
+  		<!-- 상단 메뉴 표시  -->
+        <div class="col-lg-8 col-md-6 col-12 align-self-center">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center">
+              <li class="breadcrumb-item">
+                <a class="text-muted text-decoration-none" th:href="@{/home}">
+                  <i class="ti ti-home fs-5"></i>
+                </a>
+              </li>
+              <li class="breadcrumb-item" aria-current="page">회의실 관리</li>
+            </ol>
+          </nav><br>
+          <h2 class="mb-0 fw-bolder fs-8">회의실 관리</h2>
+        </div><br>
+        
+        <div class="d-flex align-items-center mb-3">
+		    <button class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#meetingRoomModal">+ 회의실 등록</button>
+		</div>
+        
+        <!-- 전체 회의실 조회 -->
+        <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+        	<h5 class="card-title" style="font-weight: bold; color: black;">전체 회의실 조회</h5><br>
+		    <div class="table-responsive">
+			    <table class="table align-middle text-center">
+			    	<thead class="table-light">
+				        <tr>
+					        <th>회의실명</th>
+					        <th>회의실 상태</th>
+					        <th>회의실 관리</th>
+				        </tr>
+			        </thead>
+			        <tbody>
+				        <tr th:if="${#lists.isEmpty(meetingRoomList)}">
+				            <td colspan="3" class="text-center">등록된 회의실이 없습니다.</td>
+				        </tr>
+				        <tr th:if="${!#lists.isEmpty(meetingRoomList)}"
+				        	th:each="meetingRoom: ${meetingRoomList}">
+				        	<th:block th:if="${meetingRoom.meetingRoomStatus != 'D'}">
+						        <th th:text="${meetingRoom.meetingRoomName}">회의실명</th>
+						        <th th:if="${meetingRoom.meetingRoomStatus == 'Y'}">
+						        	<button type="button" class="btn bg-success-subtle text-success px-3 py-1" th:onclick="|javascript:updateMeetingRoomStatus('${meetingRoom.meetingRoomNo}')|">사용 가능</button>
+						        </th>
+						         <th th:if="${meetingRoom.meetingRoomStatus == 'N'}">
+						        	<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1" th:onclick="|javascript:updateMeetingRoomStatus('${meetingRoom.meetingRoomNo}')|">사용 불가</button>
+						        </th>
+						        <th style="padding-top: 0.2rem; padding-bottom: 0.2rem;">
+								    <button class="btn btn-primary me-2 px-3 py-1" data-bs-toggle="modal" data-bs-target="#updateMeetingRoomModal"
+								    		th:attr="data-id=${meetingRoom.meetingRoomNo}, data-name=${meetingRoom.meetingRoomName}" onclick="openUpdateModal(this)">수정</button>
+								    <button class="btn btn-primary px-3 py-1" th:onclick="|javascript:deleteMeetingRoom('${meetingRoom.meetingRoomNo}')|">삭제</button>
+								</th>
+								
+				        	</th:block>
+				        </tr>
+			        </tbody>
+			    </table>
+		    </div>
+		</div>
+		<!-- 회의실 등록 모달창 -->
+		<div class="modal fade" id="meetingRoomModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content p-3">
+					<div class="modal-header">
+						<h5 class="card-title" style="font-weight: bold; color: black;">회의실 등록</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+					</div>
+					<div class="modal-body">
+						<form name="create_meetingRoom_form">
+							<div class="mb-3">
+								<label for="meeingRoomName" class="form-label">회의실 명</label>
+								<input type="text" class="form-control" id="meetingRoomName" name="meeting_room_name"
+										style="color: black;" placeholder="등록하실 회의실명을 입력해주세요.">
+							</div>
+							<input type="hidden" value="Y" name="meeting_room_status">
+							<div class="d-flex justify-content-end">
+								<button type="submit" class="btn btn-primary">회의실 등록</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 회의실 수정 모달창 -->
+		<div class="modal fade" id="updateMeetingRoomModal" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content p-3">
+					<div class="modal-header">
+						<h5 class="card-title" style="font-weight: bold; color: black;">회의실 수정</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<form name="update_meetingRoom_form">
+							<input type="hidden" id="updateMeetingRoomNo" name="meeting_room_no">
+							<label for="oriMeetingRoomName" class="form-label">기존 회의실명</label>
+							<input type="text" class="form-control" id="oriMeetingRoomName" readonly><br>
+							<label for="newMeetingRoomName" class="form-label">새로운 회의실명</label>
+							<input type="text" class="form-control" id="newMeetingRoomName" name="new_meeting_room_name" style="color: black;" placeholder="변경하실 회의실명을 입력해주세요."><br>
+							<div class="text-end">
+								<button type="submit" class="btn btn-primary">수정 완료</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<script>
+			const form = document.create_meetingRoom_form;
+			const input = document.getElementById("meetingRoomName");
+			const updateForm = document.update_meetingRoom_form;
+			const updateInput = document.getElementById("newMeetingRoomName"); 
+			
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				
+				// 유효성 검사
+				let vali_check = false;
+				
+				if(!form.meetingRoomName.value){
+					input.classList.add("is-invalid");						
+					setTimeout(() => {
+						input.classList.remove("is-invalid");			
+					},2000);
+				}else{
+					vali_check = true;
+				}
+				
+				// 회의실 등록
+				if(!vali_check){
+					return;
+				}else{
+					const payload = new FormData(form);
+					fetch("/admin/create",{
+						method:'post',
+						headers : {
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+						body:payload,
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if (data.res_code == "200") {
+							location.reload();
+						}
+					});
+				}
+			})
+			
+			// 회의실 삭제
+			const deleteMeetingRoom = function (meetingRoomNo) {
+				if (confirm("회의실을 삭제하시겠습니까?")) {
+					fetch('/admin/delete/'+meetingRoomNo, { 
+						method: 'delete',
+						headers : {
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if (data.res_code == 200) {
+							location.reload();
+						}
+					});
+				}
+			}
+			
+			// 회의실 상태 변경
+			const updateMeetingRoomStatus = function (meetingRoomNo) {
+				if (confirm("회의실의 상태를 변경하시겠습니까?")) {
+					fetch('/admin/updateStatus/'+meetingRoomNo, { 
+						method: 'post',
+						headers : {
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if (data.res_code == 200) {
+							location.reload();
+						}
+					});
+				}
+			}
+			
+			// 수정 모달창에 정보 셋팅
+			function openUpdateModal(btn) {
+				const id = btn.getAttribute("data-id");
+				const name = btn.getAttribute("data-name");
+		
+				document.getElementById("updateMeetingRoomNo").value = id;
+				document.getElementById("oriMeetingRoomName").value = name;
+			}
+			
+			updateForm.addEventListener('submit', (e) => {
+				e.preventDefault();
+				
+				// 유효성 검사
+				let vali_check = false;
+				
+				if(!updateForm.newMeetingRoomName.value){
+					updateInput.classList.add("is-invalid");						
+					setTimeout(() => {
+						updateInput.classList.remove("is-invalid");			
+					},2000);
+				}else{
+					vali_check = true;
+				}
+				
+				if(!vali_check){
+					return;
+				}else{
+					// 회의실명 수정
+					const payload = new FormData(updateForm);
+					fetch("/admin/update",{
+						method:'post',
+						headers : {
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+						body:payload,
+					})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+						if (data.res_code == "200") {
+							location.reload();
+						}
+					});
+				}
+				
+			})
+			
+			// 등록 모달창 리셋
+			const modal = document.getElementById('meetingRoomModal');
+			modal.addEventListener('hidden.bs.modal', () => {
+			   form.reset();
+			   input.classList.remove("is-invalid");
+			});
+			
+			// 수정 모달창 리셋
+			const updateModal = document.getElementById('updateMeetingRoomModal');
+			updateModal.addEventListener('hidden.bs.modal', () => {
+				updateForm.reset();
+			    updateInput.classList.remove("is-invalid");
+			});
+			  
+		</script>
+		
+		<!-- Bootstrap Common JS Files Start -->
+
+		<!-- Import vendorJs Files -->
+		<script th:src="@{/assets/js/vendor.min.js}"></script>
+		
+	  	<!-- Import Js Files -->
+	  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+	
+	  	<!-- solar icons -->
+	  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+	  	
+	  	<!-- Bootstrap Common JS Files End -->
+	</th:block>
+</html>
