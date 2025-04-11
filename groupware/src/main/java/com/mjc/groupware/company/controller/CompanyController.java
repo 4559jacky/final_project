@@ -17,15 +17,15 @@ public class CompanyController {
 	
 	private Logger logger = LoggerFactory.getLogger(CompanyController.class);
 	
-	@GetMapping("/admin/company/update")
-	public String updateCompanyView() {
+	@GetMapping("/admin/company/create")
+	public String createCompanyView() {
 		
-		return "/company/update";
+		return "/company/create";
 	}
 	
-	@PostMapping("/admin/company/update")
+	@PostMapping("/admin/company/create")
 	@ResponseBody
-	public Map<String, String> updateCompanyApi(CompanyDto dto) {
+	public Map<String, String> createCompanyApi(CompanyDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
 		logger.info("CompanyDto: {}", dto);
