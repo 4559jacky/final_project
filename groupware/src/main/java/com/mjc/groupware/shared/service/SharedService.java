@@ -80,4 +80,5 @@ public class SharedService {
 	public void deleteShared(Long sharedNo) {
 		repository.deleteById(sharedNo);
 	}
+
 }
