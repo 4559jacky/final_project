@@ -5,6 +5,8 @@ $(document).ready(function() {
 		url: '/admin/dept/tree',
 		method: 'GET',
 		success: function(data) {
+			// console.log('서버에서 받은 데이터', data);
+			
 			// 받은 데이터를 jsTree에 적용
 			$('#dept-tree').on('loaded.jstree', function () {
 				// 모든 노드를 펼침
