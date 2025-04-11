@@ -1,6 +1,8 @@
-package com.mjc.groupware.company;
+package com.mjc.groupware.company.dto;
 
 import java.time.LocalDateTime;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +27,5 @@ public class CompanyDto {
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	
+	private MultipartFile profile_image;
 }
