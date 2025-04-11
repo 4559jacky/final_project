@@ -86,17 +86,18 @@
 						<div class="card shadow-sm rounded-4 p-4 bg-white"
 							style="min-height: 600px; position: relative;">
 							<th:block>
+							<input type="hidden" name="appr_sender" th:value="${#authentication.principal.member.memberNo}">
 								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
 									제목</h4>
 								<table class="table table-bordered align-middle">
 									<tbody>
 										<tr>
 											<th class="text-center bg-light" style="width: 15%;">기안자</th>
-											<td name="drafter" style="width: 20%;"></td>
+											<td name="sender_name" style="width: 20%;"></td>
 											<th class="text-center bg-light" style="width: 15%;">부서</th>
-											<td name="department" style="width: 20%;"></td>
+											<td name="dept_name" style="width: 20%;"></td>
 											<th class="text-center bg-light" style="width: 15%;">직급</th>
-											<td name="position"></td>
+											<td name="pos_name"></td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">작성일</th>
@@ -130,7 +131,7 @@
 						</div>
 						<!-- 승인요청 버튼: div2 하단 오른쪽 정렬 -->
 						<div class="d-flex justify-content-end mt-3">
-							<button class="btn btn-primary px-4" onclick="sendApproval();">승인요청</button>
+							<button type="submit" class="btn btn-primary px-4">승인요청</button>
 						</div>
 					</form>
 				</div>
@@ -548,13 +549,14 @@
 			          }
 			          
 			       	  // 기안자 정보 삽입
-			          document.querySelector("td[name='drafter']").innerText = member.member_name;
-			          document.querySelector("td[name='department']").innerText = member.dept_name;
-			          document.querySelector("td[name='position']").innerText = member.pos_name;
+			          document.querySelector("td[name='sender_name']").innerText = member.member_name;
+			          document.querySelector("td[name='dept_name']").innerText = member.dept_name;
+			          document.querySelector("td[name='pos_name']").innerText = member.pos_name;
 
 			    	  // contenteditable div
 			    	  const editor = document.createElement('div');
 			    	  editor.className = 'form-control';
+			    	  editor.setAttribute('name','appr_text');
 			    	  editor.contentEditable = true;
 			    	  editor.innerHTML = approvalForm.approval_form;
 			    	  editor.style.minHeight = '300px';
@@ -565,9 +567,35 @@
 			  }
 			};
 			
-		const sendApproval = function(){
+		const approvalForm = document.create_approval_form;
+		approvalForm.addEventListener('click', function() {
+			let valid = true;
+			let valid_msg = '';
+			let apprTitle = approvalForm.appr_title.value;
+			let agreementerList = approvalForm.agreementer_no;
+			let apprRegDate = approvalForm.appr_reg_date.value;
+			let apprText = approvalForm.appr_text.value;
+			if(!apprTitle) {
+				valid = false;
+				valid_msg += '제목을 입력해주세요.';
+			} else if(agreementerList.length == 0) {
+				valid = false;
+				valid_msg += '결재자를 선택해주세요.';
+			} else if(!apprRegDate) {
+				valid = false;
+				valid_msg += '작성일을 입력해주세요.';
+			} else if(!apprText) {
+				valid = false;
+				vliad_msg += '내용을 입력해주세요.';
+			}
 			
-		}
+			if(valid == false) {
+				alert(valid_msg);
+			} else {
+				console.log('test');
+			}
+			
+		})
 	  	
 	</script>
 	<!-- Bootstrap Common JS Files Start -->
