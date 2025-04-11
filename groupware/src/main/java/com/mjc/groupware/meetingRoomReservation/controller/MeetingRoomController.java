@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.meetingRoomReservation.Service.MeetingRoomService;
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomDto;
+import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomReservationDto;
 import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoom;
+
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -36,6 +38,25 @@ public class MeetingRoomController {
 	public List<MeetingRoom> selectMeetingRoomAll() {
 	    return service.selectMeetingRoomAll();
 	}
+	
+	// 사용자 - 회의실 예약
+	@PostMapping("/reservation")
+	@ResponseBody
+	public Map<String,String> createMeetingRoomReservation(MeetingRoomReservationDto dto) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "회의실 등록 중 오류가 발생하였습니다.");
+		
+		int result = service.createMeetingRoomReservation(dto);
+		
+		if(result>0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "회의실 등록이 완료되었습니다.");
+		}
+		
+		return resultMap;
+	}
+	
 	
 	//////////////////////////////////////////////////////////////////
 	

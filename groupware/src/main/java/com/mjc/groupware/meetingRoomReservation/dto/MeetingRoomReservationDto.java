@@ -2,6 +2,7 @@ package com.mjc.groupware.meetingRoomReservation.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,8 @@ public class MeetingRoomReservationDto {
 	private int meeting_room_no;
 	private String meeting_title;
 	private LocalDate meeting_date;
-	private LocalTime meeting_start_time;
+	private List<LocalTime> meeting_start_time;
+	 
+	private List<Integer> member_no;
 	
 }

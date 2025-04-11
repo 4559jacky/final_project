@@ -49,7 +49,7 @@ $(document).ready(function() {
 	});
 	
 	
-	/*$('#reserve_jstree').on("changed.jstree", function (e, data) {
+	$('#reserve_jstree').on("changed.jstree", function (e, data) {
 	    if (data && data.selected && data.selected.length > 0) {
 	        const selectedNodeId = data.selected[0]; // 예: '2'
 	        console.log("선택된 노드 ID:", selectedNodeId);
@@ -69,8 +69,17 @@ $(document).ready(function() {
 	                data.forEach(member => {
 	                    const li = document.createElement("li");
 	                    li.className = "list-group-item";
-						li.innerHTML = `<input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} (${member.pos_name})`;
-	                    // li.textContent = `<input type="checkbox" th:value='${member.member_no}'>${member.member_name} (${member.pos_name})`;
+						li.innerHTML = `
+						    <input 
+						        type="button" 
+						        value="+" 
+						        data-name="${member.member_name}" 
+						        data-id="${member.member_no}" 
+								data-pos="${member.pos_name}" 
+						        class="selectBtn btn-sm btn btn-rounded btn-light">
+						    ${member.member_name} (${member.pos_name})
+						`;
+
 	                    list.appendChild(li);
 	                });
 	            })
@@ -78,6 +87,6 @@ $(document).ready(function() {
 	                console.error("사원 목록 불러오기 실패:", err);
 	            });
 	    }
-	});*/
+	});
 	
 });
