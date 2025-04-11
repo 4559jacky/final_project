@@ -42,7 +42,23 @@ layout:decorate="~{/include/layout}">
           <div class="card">
             <div class="card-body calender-sidebar app-calendar">
               <div id="calendar"></div>
-              
+				
+				<div class="row" th:if="${not #lists.isEmpty(resultList)}">
+				  <div class="col-md-4" th:each="plan : ${resultList}">
+				    <div class="card mb-3">
+				      <div class="card-header" th:text="${plan.planTitle}">일정 제목</div>
+				      <div class="card-body">
+				        <p><strong>종류:</strong> <span th:text="${plan.planType}">종류</span></p>
+				        <p><strong>기간:</strong> <span th:text="${plan.startDate}">시작일</span> ~ <span th:text="${plan.endDate}">종료일</span></p>
+				        <p th:text="${plan.planContent}">내용</p>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				<script>
+				 
+					
+				</script>			
             </div>
           </div>
           <!-- BEGIN MODAL -->
@@ -182,8 +198,21 @@ layout:decorate="~{/include/layout}">
           	  }
           	});
           	
-          
-          	
+          	// 목록출력
+
+
+			
+			// 일정 타입에 따라 색상 설정
+/* 			function getColorByType(type) {
+			  switch (type) {
+			    case '회사': return '#009efb';  // 파랑
+			    case '부서': return '#f39c12';  // 주황
+			    case '개인': return '#00c292';  // 초록
+			    case '휴가': return '#e74c3c';  // 빨강
+			    default: return '#777';        // 회색
+			  }
+			}; */
+
           </script>
           <!-- DETAIL MODAL -->
 			<div class="modal fade" id="eventModaldetail" tabindex="-1">
@@ -272,8 +301,6 @@ layout:decorate="~{/include/layout}">
 			  </div>
 			</div>
 
-
-
 	<script>
 	  function handleColorTheme(e) {
 	    document.documentElement.setAttribute("data-color-theme", e);
@@ -291,7 +318,6 @@ layout:decorate="~{/include/layout}">
   <!-- solar icons -->
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
   <script src="../assets/libs/fullcalendar/index.global.min.js"></script>
- <!--  <script src="../assets/js/apps/calendar-init.js"></script> -->
   <script src="../js/custom/calendar.js"></script>
 </th:block>
 </html>
