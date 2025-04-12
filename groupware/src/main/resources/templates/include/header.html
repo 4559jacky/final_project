@@ -218,16 +218,15 @@
 			<!-- ------------------------------- -->
             <!-- 작은화면 : 로고 -->
             <!-- ------------------------------- -->
-
-            <div class="d-block d-lg-none py-4 text-center">
-				
+			
+			<th:block th:if="${latestProfile != null}">			
+            <div class="d-block d-lg-none py-4 text-center">	
 				<a th:href="@{/home}" class="text-nowrap nav-link">
                   <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" >
                   <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light">
                 </a>
-                
-                
 			</div>
+			</th:block>
 			
 			<!-- ------------------------------- -->
             <!-- 작은화면 : 로고 끝 -->
@@ -619,13 +618,21 @@
               <!-- 풀화면 : 로고 이미지 시작 -->
               <!-- ------------------------------- -->
               
+              <th:block th:if="${latestProfile != null}">
               <li class="nav-item d-none d-xl-block">
-                <a th:href="@{/home}" class="text-nowrap nav-link">
-                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
-                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
-                  <span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
-                </a>
+	          	<a th:href="@{/home}" class="text-nowrap nav-link">
+	          		<img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
+	          		<img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
+	          		<span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
+	          	</a>
               </li>
+              </th:block>
+              <th:block th:if="${latestProfile == null}">
+	              <a th:href="@{/home}" class="text-nowrap nav-link">
+	              	<img th:src="@{/assets/images/logos/dark-logo.svg}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
+	              	<img th:src="@{/assets/images/logos/light-logo.svg}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
+	              </a>
+              </th:block>
               
               <!-- ------------------------------- -->
               <!-- 풀화면 : 로고 이미지 끝 -->
