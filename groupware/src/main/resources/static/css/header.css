@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+.logout-button:hover {
+	background-color: #f0f8ff;
+	color: #003366;
+	transition: background-color 0.3s ease, color 0.3s ease;
+	cursor: pointer;
+}
+
+.logout-button:hover h6, .logout-button:hover span {
+	color: #003366;
+}
+
+html[data-bs-theme="dark"] .logo-text {
+	color: #e0e0e0;
+}
+
+html[data-bs-theme="light"] .logo-text {
+	color: #333;
+}

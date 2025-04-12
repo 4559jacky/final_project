@@ -19,7 +19,7 @@ public class GroupwareApplication implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/uploads/**")
-			.addResourceLocations("file:///"+fileDir);
+				.addResourceLocations("file:///"+fileDir);
 	}
 
 }
