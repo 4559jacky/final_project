@@ -20,7 +20,6 @@ public class GroupwareApplication implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/uploads/**")
 				.addResourceLocations("file:///"+fileDir);
-		System.out.println("정적자원 위치 : "+fileDir);
 	}
 
 }

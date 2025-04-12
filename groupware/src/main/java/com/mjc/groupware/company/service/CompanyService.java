@@ -98,6 +98,8 @@ public class CompanyService {
 				.attach_path(latest.getAttachPath())
 				.reg_date(latest.getRegDate())
 				.mod_date(latest.getModDate())
+				.light_logo_path("/uploads/" + latest.getNewName())
+                .dark_logo_path("/uploads/" + latest.getNewName())
 				.build();
 	}
 }

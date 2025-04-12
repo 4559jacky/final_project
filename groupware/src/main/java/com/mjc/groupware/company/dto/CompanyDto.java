@@ -27,5 +27,8 @@ public class CompanyDto {
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	
+	private String light_logo_path;
+	private String dark_logo_path;
+	
 	private MultipartFile profile_image;
 }
