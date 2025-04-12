@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
@@ -48,7 +47,7 @@ public class CompanyService {
 			String newName = UUID.randomUUID().toString().replaceAll("-", "") + fileExt;
 			dto.setNew_name(newName);
 			
-			String downDir = fileDir+"groupware/"+newName;
+			String downDir = fileDir+newName;
 			dto.setAttach_path(downDir);
 			
 			File saveFile = new File(downDir);
@@ -83,4 +82,24 @@ public class CompanyService {
 		}
 	}
 	
+	public CompanyDto selectLatestCompanyProfile() {
+		// 가장 마지막에 등록된 회사 프로필 이미지를 뽑아내는 로직
+		Company latest = repository.findTop1ByOrderByRegDateDesc();
+		
+		if(latest == null) {
+			return null;
+		}
+		
+		return CompanyDto.builder()
+				.company_no(latest.getCompanyNo())
+				.company_name(latest.getCompanyName())
+				.ori_name(latest.getOriName())
+				.new_name(latest.getNewName())
+				.attach_path(latest.getAttachPath())
+				.reg_date(latest.getRegDate())
+				.mod_date(latest.getModDate())
+				.light_logo_path("/uploads/" + latest.getNewName())
+                .dark_logo_path("/uploads/" + latest.getNewName())
+				.build();
+	}
 }
