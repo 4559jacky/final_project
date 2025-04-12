@@ -84,4 +84,22 @@ public class MemberAttachService {
 		}
 	}
 	
+	public MemberAttachDto selectLatestMyProfile(Member member) {
+		// 가장 마지막에 등록된 사원 프로필 이미지를 뽑아내는 로직
+		MemberAttach latest = repository.findTop1ByMemberOrderByRegDateDesc(member);
+		
+		if(latest == null) {
+			return null;
+		}
+		
+		return MemberAttachDto.builder()
+				.attach_no(latest.getAttachNo())
+				.ori_name(latest.getOriName())
+				.new_name(latest.getNewName())
+				.attach_path(latest.getAttachPath())
+				.reg_date(latest.getRegDate())
+				.mod_date(latest.getModDate())
+				.build();
+	}
+	
 }
