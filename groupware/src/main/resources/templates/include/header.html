@@ -3,7 +3,7 @@
 	<th:block th:fragment="headerLayout">
 	
 	<link th:href="@{/css/header.css}" rel="stylesheet">
-	
+
 	  <!--  Header Start -->
       <header class="topbar">
         <div class="with-vertical">
@@ -222,10 +222,11 @@
             <div class="d-block d-lg-none py-4 text-center">
 				
 				<a th:href="@{/home}" class="text-nowrap nav-link">
-                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
-                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
+                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" >
+                  <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light">
                 </a>
-				
+                
+                
 			</div>
 			
 			<!-- ------------------------------- -->
@@ -622,6 +623,7 @@
                 <a th:href="@{/home}" class="text-nowrap nav-link">
                   <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
                   <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
+                  <span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
                 </a>
               </li>
               

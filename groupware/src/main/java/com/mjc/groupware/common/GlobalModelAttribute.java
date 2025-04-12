@@ -27,7 +27,9 @@ public class GlobalModelAttribute {
 		// 모든 페이지에 전역으로 마지막에 등록된 companyDto를 뿌리는 로직
 		// 페이지가 로드될 때마다 service를 찾아가서 repository를 거쳐서 엔티티를 조회한 후 디티오로 바꿔서 가져온 다음 프론트에 뿌림
 	    CompanyDto latestProfile = companyService.selectLatestCompanyProfile();
+	    String latestProfileName = latestProfile.getCompany_name();
 	    model.addAttribute("latestProfile", latestProfile);
+	    model.addAttribute("latestProfileName", latestProfileName);
 	}
 	
 }

@@ -10,3 +10,11 @@
 .logout-button:hover h6, .logout-button:hover span {
 	color: #003366;
 }
+
+html[data-bs-theme="dark"] .logo-text {
+	color: #e0e0e0;
+}
+
+html[data-bs-theme="light"] .logo-text {
+	color: #333;
+}
