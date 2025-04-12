@@ -15,13 +15,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
+import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.service.MemberAttachService;
 import com.mjc.groupware.member.service.MemberService;
-import com.mjc.groupware.pos.controller.PosController;
 import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.repository.PosRepository;
 import com.mjc.groupware.pos.service.PosService;
@@ -32,11 +34,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberController {
 	
-	private Logger logger = LoggerFactory.getLogger(PosController.class);
+	private Logger logger = LoggerFactory.getLogger(MemberController.class);
 	
 	private static int cnt = 0;
 	
 	private final MemberService service;
+	private final MemberAttachService memberAttachService;
 	private final PosService posService;
 	private final DeptService deptService;
 	private final PosRepository posRepository;
@@ -104,6 +107,48 @@ public class MemberController {
 		return resultMap;
 	}
 	
+	@GetMapping("/member/{id}/update")
+	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model) {
+		// 각각의 사원이 본인의 정보를 수정하는 페이지로 이동
+		model.addAttribute("memberNo", memberNo);
+		
+		return "member/myPage";
+	}
+	
+	@PostMapping("/member/{id}/update")
+	@ResponseBody
+	public Map<String, String> updateMyProfile(@PathVariable("id") Long memberNo, MemberAttachDto memberAttachDto) {
+		// 각각의 사원이 본인의 정보를 수정하는 로직 (여러 폼이 하나의 url을 통해 들어오고 여기서 조건식으로 갈라져 들어가도록 구성함)
+		Map<String, String> resultMap = new HashMap<>();
+		
+		logger.info("memberNo: {}", memberNo);
+		logger.info("MemberAttachDto: {}", memberAttachDto);
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "프로필 정보 수정 중 알 수 없는 오류가 발생하였습니다");
+		
+		if(memberAttachDto != null) {
+			// 프로필 사진을 수정하는 경우
+			try {
+				MultipartFile file = memberAttachDto.getProfile_image();
+				
+				MemberAttachDto param = memberAttachService.uploadFile(file);
+				param.setMember_no(memberNo);
+				
+				memberAttachService.updateMyProfile(param);
+				
+				resultMap.put("res_code", "200");
+				resultMap.put("res_msg", "프로필 사진이 수정되었습니다");
+			} catch(Exception e) {
+				logger.error("프로필 사진 수정 중 오류 발생", e);
+				resultMap.put("res_code", "500");
+		        resultMap.put("res_msg", "프로필 사진 수정 중 알 수 없는 오류가 발생했습니다.");
+			}
+		}
+		
+		return resultMap;
+		
+	}
 
 	 // 결재라인 부서의 속한 사원들 select
 	 @GetMapping("/member/dept/{id}")

@@ -61,6 +61,9 @@ public class Member {
 	@Column(name="member_addr3")
 	private String memberAddr3;
 	
+	@Column(name="member_email")
+	private String memberEmail;
+	
 	@Column(name="member_phone")
 	private String memberPhone;
 
@@ -92,6 +95,9 @@ public class Member {
 	
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
+	
+	@OneToMany(mappedBy="member")
+	private List<MemberAttach> memberAttachs;
 	
 	public void changeDept(Dept newDept) {
 	    this.dept = newDept;

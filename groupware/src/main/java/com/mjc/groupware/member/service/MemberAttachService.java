@@ -1,4 +1,4 @@
-package com.mjc.groupware.company.service;
+package com.mjc.groupware.member.service;
 
 import java.io.File;
 import java.util.UUID;
@@ -9,25 +9,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mjc.groupware.company.dto.CompanyDto;
-import com.mjc.groupware.company.entity.Company;
-import com.mjc.groupware.company.repository.CompanyRepository;
+import com.mjc.groupware.member.dto.MemberAttachDto;
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.MemberAttach;
+import com.mjc.groupware.member.repository.MemberAttachRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class CompanyService {
+public class MemberAttachService {
 	
 	@Value("${ffupload.location}")
 	private String fileDir;
 	
-	private Logger logger = LoggerFactory.getLogger(CompanyService.class);
+	private Logger logger = LoggerFactory.getLogger(MemberAttachService.class);
 	
-	private final CompanyRepository repository;
+	private final MemberAttachRepository repository;
 	
-	public CompanyDto uploadFile(MultipartFile file) {
-		CompanyDto dto = new CompanyDto();
+	public MemberAttachDto uploadFile(MultipartFile file) {
+		MemberAttachDto dto = new MemberAttachDto();
 		
 		try {
 			if(file == null || file.isEmpty()) {
@@ -57,49 +58,30 @@ public class CompanyService {
 			}
 			
 			file.transferTo(saveFile);
+			
 		} catch(Exception e) {
 			dto = null;
-			logger.error("프로필 등록 중 오류 발생", e);
+			logger.error("프로필 사진 수정 중 오류 발생", e);
 		}
 		
 		return dto;
 	}
 	
-	public void createCompany(CompanyDto dto) {
+	public void updateMyProfile(MemberAttachDto dto) {
 		try {
-			Company param = Company.builder()
-					.companyNo(dto.getCompany_no())
-					.companyName(dto.getCompany_name())
+			MemberAttach param = MemberAttach.builder()
+					.attachNo(dto.getAttach_no())
 					.oriName(dto.getOri_name())
 					.newName(dto.getNew_name())
 					.attachPath(dto.getAttach_path())
+					.member(Member.builder().memberNo(dto.getMember_no()).build())
 					.build();
 			
 			repository.save(param);
 			
 		} catch(Exception e) {
-			logger.error("프로필 등록 중 오류 발생", e);
+			logger.error("프로필 사진 수정 중 오류 발생", e);
 		}
 	}
 	
-	public CompanyDto selectLatestCompanyProfile() {
-		// 가장 마지막에 등록된 회사 프로필 이미지를 뽑아내는 로직
-		Company latest = repository.findTop1ByOrderByRegDateDesc();
-		
-		if(latest == null) {
-			return null;
-		}
-		
-		return CompanyDto.builder()
-				.company_no(latest.getCompanyNo())
-				.company_name(latest.getCompanyName())
-				.ori_name(latest.getOriName())
-				.new_name(latest.getNewName())
-				.attach_path(latest.getAttachPath())
-				.reg_date(latest.getRegDate())
-				.mod_date(latest.getModDate())
-				.light_logo_path("/uploads/" + latest.getNewName())
-                .dark_logo_path("/uploads/" + latest.getNewName())
-				.build();
-	}
 }
