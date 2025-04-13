@@ -28,6 +28,8 @@ import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.repository.PosRepository;
 import com.mjc.groupware.pos.service.PosService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -86,8 +88,6 @@ public class MemberController {
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
 		
-		logger.info("MemberDto : {}", dto);
-		
 		try {
 			Member member = service.createMember(dto);
 			
@@ -110,25 +110,23 @@ public class MemberController {
 	@GetMapping("/member/{id}/update")
 	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model) {
 		// 각각의 사원이 본인의 정보를 수정하는 페이지로 이동
-		model.addAttribute("memberNo", memberNo);
+		Member member = service.selectMemberOneByMemberNo(MemberDto.builder().member_no(memberNo).build());
+		
+		model.addAttribute("member", member);
 		
 		return "member/myPage";
 	}
 	
-	@PostMapping("/member/{id}/update")
+	@PostMapping("/member/{id}/update/image")
 	@ResponseBody
 	public Map<String, String> updateMyProfile(@PathVariable("id") Long memberNo, MemberAttachDto memberAttachDto) {
-		// 각각의 사원이 본인의 정보를 수정하는 로직 (여러 폼이 하나의 url을 통해 들어오고 여기서 조건식으로 갈라져 들어가도록 구성함)
+		// 각각의 사원이 본인의 프로필 이미지를 수정하는 로직
 		Map<String, String> resultMap = new HashMap<>();
 		
-		logger.info("memberNo: {}", memberNo);
-		logger.info("MemberAttachDto: {}", memberAttachDto);
-		
 		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "프로필 정보 수정 중 알 수 없는 오류가 발생하였습니다");
+		resultMap.put("res_msg", "프로필 정보 수정 중 알 수 없는 오류가 발생하였습니다.");
 		
 		if(memberAttachDto != null) {
-			// 프로필 사진을 수정하는 경우
 			try {
 				MultipartFile file = memberAttachDto.getProfile_image();
 				
@@ -138,12 +136,46 @@ public class MemberController {
 				memberAttachService.updateMyProfile(param);
 				
 				resultMap.put("res_code", "200");
-				resultMap.put("res_msg", "프로필 사진이 수정되었습니다");
+				resultMap.put("res_msg", "프로필 사진 수정이 성공적으로 완료되었습니다.");
 			} catch(Exception e) {
 				logger.error("프로필 사진 수정 중 오류 발생", e);
 				resultMap.put("res_code", "500");
 		        resultMap.put("res_msg", "프로필 사진 수정 중 알 수 없는 오류가 발생했습니다.");
 			}
+		}
+		
+		return resultMap;
+		
+	}
+	
+	@PostMapping("/member/{id}/update/pw")
+	@ResponseBody
+	public Map<String, String> updatemMemberPw(@PathVariable("id") Long memberNo, MemberDto dto, HttpServletResponse response) {
+		Map<String, String> resultMap = new HashMap<>();
+
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "비밀번호 수정 중 알 수 없는 오류가 발생하였습니다.");
+		
+		try {
+			dto.setMember_no(memberNo);
+			
+			service.updateMemberPw(dto);
+			
+			Cookie rememberMeCookie = new Cookie("remember-me", null);
+			rememberMeCookie.setMaxAge(0);
+			rememberMeCookie.setPath("/");
+			response.addCookie(rememberMeCookie);
+
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "비밀번호 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			logger.warn("비밀번호 수정 실패 - 잘못된 입력: {}", e.getMessage());
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			logger.error("비밀번호 수정 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "비밀번호 수정 중 알 수 없는 오류가 발생하였습니다.");
 		}
 		
 		return resultMap;

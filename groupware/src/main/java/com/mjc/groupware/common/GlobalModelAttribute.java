@@ -45,15 +45,17 @@ public class GlobalModelAttribute {
 	
 	@ModelAttribute
 	public void selectLatestMyProfile(Model model, @AuthenticationPrincipal MemberDetails memberDetails) {
-		// 지금 로그인하고 있는 사원이 마지막에 등록한 프로필 이미지 파일의 정보를 뿌리는 로직
-		Member member = memberDetails.getMember();
-		MemberAttachDto latestMyProfile = memberAttachService.selectLatestMyProfile(member);
-		
-		if(latestMyProfile == null) {
-			return;
+		if(memberDetails != null) {
+			// 지금 로그인하고 있는 사원이 마지막에 등록한 프로필 이미지 파일의 정보를 뿌리는 로직
+			Member member = memberDetails.getMember();
+			MemberAttachDto latestMyProfile = memberAttachService.selectLatestMyProfile(member);
+			
+			if(latestMyProfile == null) {
+				return;
+			}
+			
+			model.addAttribute("latestMyProfile", latestMyProfile);			
 		}
-		
-		model.addAttribute("latestMyProfile", latestMyProfile);
 	}
 	
 }
