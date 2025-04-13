@@ -18,16 +18,16 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Entity
 @Table(name="meeting_room_reservation")
 @Builder
+@Getter
 public class MeetingRoomReservation {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="reservation_no")
-	private int reservationNo;
+	private Long reservationNo;
 	
 	@ManyToOne
 	@JoinColumn(name="meeting_room_no")

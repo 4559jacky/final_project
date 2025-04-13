@@ -205,7 +205,8 @@
 	<script>
 		const form = document.meetingRoom_title_form;
 		const input = document.getElementById("meetingRoomTitle");
-	
+		
+		
 		// 날짜 클릭시 회의실 선택 모달창 띄움
 		var calendarSelect = function (info) {
 			const selectedDateText = document.getElementById("selected-date-text");
@@ -335,7 +336,6 @@
 		// 모든 html이 있을 때 실행
 		// 첫번쨰 모달창의 정보를 가지고 두번쨰 모달창 보여줌 
 		document.addEventListener("DOMContentLoaded", () => {
-			const form = document.meetingRoom_title_form;
 			const input = document.getElementById("meetingRoomTitle");
 
 			// form 이벤트는 여기 한 번만 등록
@@ -374,7 +374,7 @@
 				meetingTimes.forEach(time => {
 				    const input = document.createElement("input");
 				    input.type = "hidden";
-				    input.name = "meetingTimes";
+				    input.name = "meeting_start_time";
 				    input.value = time;
 				    document.forms["meetingRoom_reservation_form"].appendChild(input);
 				});

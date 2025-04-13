@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,
-    events: calendarEventsList,
+    events: '/selectReservation',
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
