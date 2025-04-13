@@ -18,7 +18,7 @@
               <li class="sidebar-item">
               <a class="sidebar-link" th:href="@{/home}" aria-expanded="false">
                 <span>
-                  <i class="ti ti-aperture"></i>
+                  <i class="ti ti-home-2"></i>
                 </span>
                 <span class="hide-menu">Home</span>
               </a>
@@ -45,11 +45,11 @@
                   </li>
                   <li class="sidebar-item">
                     <a th:href="@{/admin/approval}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
+                      <i class="ti ti-file-text"></i>
                       <span class="hide-menu">전자결재</span>
                     </a>
                     <a th:href="@{/approval}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
+                      <i class="ti ti-file-text"></i>
                       <span class="hide-menu">전자결재</span>
                     </a>
 
@@ -88,24 +88,6 @@
                     <a th:href="@{/}" class="sidebar-link">
                       <i class="ti ti-aperture"></i>
                       <span class="hide-menu">자유게시판</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/member/create}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">사원 등록</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/pos/create}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">직급 관리</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/dept/create}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">부서 관리</span>
                     </a>
                   </li>
                   <!--
@@ -515,259 +497,67 @@
                 <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                 <span class="hide-menu">Forms</span>
               </li>
-              <!-- =================== -->
-              <!-- Forms -->
-              <!-- =================== -->
-              <li class="sidebar-item">
-                <a class="sidebar-link two-column has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span class="rounded-3">
-                    <i class="ti ti-file-text"></i>
-                  </span>
-                  <span class="hide-menu">Forms</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <!-- form elements -->
-                  <li class="sidebar-item">
-                    <a href="./main/form-inputs.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Forms Input</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-input-groups.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Input Groups</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-input-grid.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Input Grid</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-checkbox-radio.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Checkbox & Radios</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-bootstrap-switch.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Bootstrap Switch</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-select2.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Select2</span>
-                    </a>
-                  </li>
-                  <!-- form inputs -->
-                  <li class="sidebar-item">
-                    <a href="./main/form-basic.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Basic Form</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-vertical.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Form Vertical</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-horizontal.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Form Horizontal</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-actions.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Form Actions</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-row-separator.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Row Separator</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-bordered.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Form Bordered</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/form-detail.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Form Detail</span>
-                    </a>
-                  </li>
-                  <!-- form wizard -->
-                  <li class="sidebar-item">
-                    <a href="./main/form-wizard.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Form Wizard</span>
-                    </a>
-                  </li>
-                  <!-- Quill Editor -->
-                  <li class="sidebar-item">
-                    <a href="./main/form-editor-quill.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Quill Editor</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- ============================= -->
-              <!-- Tables -->
-              <!-- ============================= -->
-              <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">Tables</span>
-              </li>
-              <!-- =================== -->
-              <!-- Bootstrap Table -->
-              <!-- =================== -->
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span class="rounded-3">
-                    <i class="ti ti-layout-sidebar"></i>
-                  </span>
-                  <span class="hide-menu">Tables</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a href="./main/table-basic.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Basic Table</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/table-dark-basic.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Dark Basic Table</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/table-sizing.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Sizing Table</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/table-layout-coloured.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Coloured Table</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/table-datatable-basic.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Basic Initialisation</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/table-datatable-api.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">API</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/table-datatable-advanced.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Advanced Initialisation</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- ============================= -->
-              <!-- Charts -->
-              <!-- ============================= -->
-              <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">Charts</span>
-              </li>
-              <!-- =================== -->
-              <!-- Apex Chart -->
-              <!-- =================== -->
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span class="rounded-3">
-                    <i class="ti ti-chart-pie"></i>
-                  </span>
-                  <span class="hide-menu">Charts</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a href="./main/chart-apex-line.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Line Chart</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/chart-apex-area.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Area Chart</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/chart-apex-bar.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Bar Chart</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/chart-apex-pie.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Pie Chart</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/chart-apex-radial.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Radial Chart</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/chart-apex-radar.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Radar Chart</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- ============================= -->
-              <!-- Icons -->
-              <!-- ============================= -->
+
               <li class="nav-small-cap">
                 <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                 <span class="hide-menu">Icons</span>
               </li>
               <!-- =================== -->
-              <!-- Tabler Icon -->
+              <!-- 접근 :: 인사담당자, 최고관리자 -->
               <!-- =================== -->
               <li class="sidebar-item">
                 <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
                   <span class="rounded-3">
-                    <i class="ti ti-archive"></i>
+                    <i class="ti ti-layout"></i>
                   </span>
-                  <span class="hide-menu">Icon</span>
+                  <span class="hide-menu">인사담당자 메뉴</span>
                 </a>
                 <ul aria-expanded="false" class="collapse first-level">
                   <li class="sidebar-item">
-                    <a href="./main/icon-tabler.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Tabler Icon</span>
+                    <a th:href="@{/admin/dept/create}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">조직 관리</span>
                     </a>
                   </li>
                   <li class="sidebar-item">
-                    <a href="./main/icon-solar.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Solar Icon</span>
+                    <a th:href="@{/admin/pos/create}" class="sidebar-link">
+                      <i class="ti ti-aperture"></i>
+                      <span class="hide-menu">직급 관리</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/admin/member/create}" class="sidebar-link">
+                      <i class="ti ti-id"></i>
+                      <span class="hide-menu">사원 계정 등록</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-users"></i>
+                      <span class="hide-menu">인사 관리</span>
+                    </a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a th:href="@{/}" class="sidebar-link">
+                      <i class="ti ti-address-book"></i>
+                      <span class="hide-menu">조직도 및 주소록</span>
+                    </a>
+                  </li>
+                  
+                </ul>
+              </li>
+              <li class="sidebar-item">
+                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+                  <span class="rounded-3">
+                    <i class="ti ti-settings"></i>
+                  </span>
+                  <span class="hide-menu">최고관리자 메뉴</span>
+                </a>
+                <ul aria-expanded="false" class="collapse first-level">
+                  <li class="sidebar-item">
+                    <a th:href="@{/admin/company/create}" class="sidebar-link">
+                      <i class="ti ti-tools"></i>
+                      <span class="hide-menu">회사 프로필 관리</span>
                     </a>
                   </li>
                 </ul>

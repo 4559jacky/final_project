@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomDto;
+import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomReservationDto;
 import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoom;
 import com.mjc.groupware.meetingRoomReservation.repository.MeetingRoomRepository;
 
@@ -16,9 +17,18 @@ public class MeetingRoomService {
 
 	private final MeetingRoomRepository repository;
 	
+	
+	
 	// 사용자 - 회의실 조회, 시간 조회
 	public List<MeetingRoom> selectMeetingRoomAll(){
 		return repository.findAll();
+	}
+	
+	// 사용자 - 회의실 예약 
+	public int createMeetingRoomReservation(MeetingRoomReservationDto dto) {
+		int result = 0;
+		
+		return result;
 	}
 	
 	/////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 var userSettings = {
   Layout: "horizontal", // vertical | horizontal
-  SidebarType: "full", // full | mini-sidebar
+  SidebarType: "mini-sidebar", // full | mini-sidebar
   BoxedLayout: true, // true | false
   Direction: "ltr", // ltr | rtl
   Theme: "light", // light | dark

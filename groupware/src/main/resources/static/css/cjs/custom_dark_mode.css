@@ -1,0 +1,7 @@
+@charset "UTF-8";
+
+html[data-bs-theme="dark"] .custom-dark-bg {
+	background-color: #282C34 !important;
+	color: #f8f9fa;
+	border: 1px solid #3a3f4b !important;
+}

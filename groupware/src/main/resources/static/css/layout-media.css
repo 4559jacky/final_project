@@ -1,0 +1,29 @@
+@charset "UTF-8";
+
+@media ( max-width : 768px) {
+	#sidebarnavh {
+		display: none;
+		flex-direction: row !important; /* 수평 방향으로 강제 설정 */
+	}
+	#sidebarnavh .sidebar-nav {
+		display: none;
+		flex-direction: row !important; /* 항목들이 가로로 나열되도록 설정 */
+	}
+	.body-wrapper {
+		padding-top: 90px !important;
+	}
+}
+
+@media ( max-width : 1300px) {
+	#sidebarnavh {
+		display: none;
+		flex-direction: row !important; /* 수평 방향으로 강제 설정 */
+	}
+	#sidebarnavh .sidebar-nav {
+		display: none;
+		flex-direction: row !important; /* 항목들이 가로로 나열되도록 설정 */
+	}
+	.body-wrapper {
+		padding-top: 90px !important;
+	}
+}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	
+	<!-- Custom CSS Files -->
+	
+	
+	
+	<!-- ---------------------------------------------------------------------------- -->
+	<!-- HTML 작성 공간 -->
+	<div class="page-titles mb-7 mb-md-5">
+		<div class="row">
+			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">최고관리자 / 회사 프로필 관리</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">회사 프로필</h2>
+			</div><br>
+		</div>
+	</div>
+	
+	<div class="card">
+	  <div class="card-body">
+	    <div class="tab-content" id="pills-tabContent">
+	      <div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+	        <form name="create_profile_form" id="create_profile_form" enctype="multipart/form-data" class="w-100">
+	          <div class="row">
+	
+	            <!-- 프로필 이미지 등록 부분 -->
+				<div class="col-lg-6 d-flex align-items-stretch">
+				  <div class="card w-100 border position-relative overflow-hidden">
+				    <div class="card-body p-4">
+				      <h4 class="card-title">이미지 변경</h4>
+				      <p class="card-subtitle mb-4">Click the image to change profile.</p>
+					  
+				      <div class="text-center">
+				        <!-- 업로드 이미지 (클릭 이벤트용) -->
+				        <img id="preview_image" th:src="@{/assets/images/big/img3.jpg}" alt="profile-img"
+				             class="img-fluid rounded"
+				             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer; transition: 0.2s;"
+				             onclick="document.getElementById('profile_image').click();">
+						
+				        <!-- 숨겨진 파일 인풋 -->
+				        <input type="file" name="profile_image" accept=".jpg,.jpeg,.png"
+				               id="profile_image" class="d-none" onchange="previewSelectedImage(this)">
+						
+				        <p class="mt-3 mb-0 text-muted small" onclick="document.getElementById('profile_image').click()" style="cursor: pointer;">
+						    JPG, JPEG, PNG 형식만 허용되며, 최대 2MB까지 업로드할 수 있습니다.
+						</p>
+						
+						<button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="resetImageBtn" style="visibility: hidden;" onclick="resetToDefaultImage()">
+						  기본 이미지로
+						</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+	
+	            <!-- 기본 정보 등록 -->
+	            <div class="col-lg-6 d-flex align-items-stretch">
+	              <div class="card w-100 border position-relative overflow-hidden">
+	                <div class="card-body p-4">
+	                  <h4 class="card-title" style="font-weight: bold;">기본 정보 등록</h4>
+	                  <p class="card-subtitle mb-4">Please enter a basic profile info.</p>
+	
+	                  <div class="mb-3">
+	                    <label for="company_name" class="form-label">회사명*</label>
+	                    <input type="text" class="form-control" id="company_name" name="company_name">
+	                  </div>
+	                </div>
+	
+	                <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
+	                  <button type="submit" class="btn btn-primary px-4">등록</button>
+	                  <button type="reset" class="btn bg-danger-subtle text-danger px-4" onclick="location.href='/home'">취소</button>
+	                </div>
+	              </div>
+	            </div>
+	
+	          </div>
+	        </form>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<script>
+		// 프로필 등록하는 로직
+		const infoForm = document.create_profile_form;
+		infoForm.addEventListener('submit',(event) => {
+			event.preventDefault();
+			
+			let vali_chk = false;
+			let vali_msg = "";
+			
+			if(!infoForm.company_name.value) {
+				vali_msg += "회사명을 입력하세요.";
+				infoForm.company_name.focus();
+			} else {
+				vali_chk = true;
+			}
+			
+			if(vali_chk != true) {
+				alert(vali_msg);
+			} else {
+				const payload = new FormData(infoForm);
+				
+				fetch("/admin/company/create", {
+					method : "post",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body : payload
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/company/create";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+	</script>
+	
+	<script>
+		// 파일 선택시 미리보기 + 파일 크기 제한
+		function previewSelectedImage(input) {
+			const file = input.files[0];
+			const preview = document.getElementById('preview_image');
+			const resetBtn = document.getElementById('resetImageBtn');
+			const maxSize = 2 * 1024 * 1024; // 2MB
+			
+			if (file && file.size > maxSize) {
+		        alert("파일 용량은 2MB 이하만 업로드 가능합니다.");
+		        input.value = "";
+		        return;
+		    }
+			
+			if (file) {
+		    	const reader = new FileReader();
+		    	reader.onload = function (e) {
+		     		preview.src = e.target.result;
+		    	};
+		    	reader.readAsDataURL(file);
+				
+		    	resetBtn.style.visibility = "visible";;
+		  	}
+		}
+		
+		// 선택한 파일을 내리고 기본 이미지로 되돌림
+		function resetToDefaultImage() {
+			const defaultImageUrl = '/assets/images/big/img3.jpg';
+			const preview = document.getElementById('preview_image');
+			const fileInput = document.getElementById('profile_image');
+			const resetBtn = document.getElementById('resetImageBtn');
+			
+			preview.src = defaultImageUrl;
+			fileInput.value = '';
+			resetBtn.style.visibility = "hidden";
+		}
+	</script>
+	
+	<!-- ---------------------------------------------------------------------------- -->
+	
+	<!-- Custom JS Files -->
+	
+	
+	
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- Custom JS Files -->
+  	
+  	
+  	
+</th:block>
+</html>

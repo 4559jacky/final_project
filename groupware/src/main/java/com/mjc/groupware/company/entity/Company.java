@@ -1,21 +1,15 @@
-package com.mjc.groupware.dept.entity;
+package com.mjc.groupware.company.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,33 +17,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="dept")
+@Table(name="company")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class Dept {
+public class Company {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="dept_no")
-	private Long deptNo;
+	@Column(name="company_no")
+	private Long companyNo;
 	
-	@Column(name="dept_name", nullable = false)
-	private String deptName;
+	@Column(name="company_name")
+	private String companyName;
 	
-	@ManyToOne
-	@JoinColumn(name="parent_dept_no")
-	private Dept parentDept;
+	@Column(name="ori_name")
+	private String oriName;
 	
-	@Column(name="dept_phone")
-	private String deptPhone;
+	@Column(name="new_name")
+	private String newName;
 	
-	@Column(name="dept_location")
-	private String deptLocation;
-	
-    @Column(name = "dept_status")
-    private int deptStatus;
+	@Column(name="attach_path")
+	private String attachPath;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -58,12 +48,5 @@ public class Dept {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
-	
-	@ManyToOne
-	@JoinColumn(name="member_no")
-	private Member member;
-	
-	@OneToMany(mappedBy="dept")
-	private List<Member> members;
 	
 }
