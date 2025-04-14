@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	
+	<!-- Custom CSS Files -->
+	
+	
+	
+	<!-- ---------------------------------------------------------------------------- -->
+	<!-- HTML 작성 공간 -->
+	<div class="container-fluid">
+  <div class="row">
+    
+    <!-- 1. 왼쪽 사이드바 -->
+    <div class="col-3 border-end pe-0" style="height: 100%; background-color: #f8f9fa;">
+      <div class="p-3">
+        <h5 class="fw-bold mb-3">업무문서함</h5>
+        <ul class="list-unstyled ps-2">
+          <li class="mb-2">
+            <span class="fw-semibold">📁 폴더 목록</span>
+            <ul class="list-unstyled ps-3">
+              <li>📂 <span class="text-danger fw-bold">개인업무 폴더</span></li>
+              <li>📂 개인문서</li>
+              <li>📂 공유문서</li>
+            </ul>
+          </li>
+          <li class="mb-2 fw-semibold">📁 공유함 폴더</li>
+          <li class="mb-2 fw-semibold">📄 공유함 파일</li>
+          <li class="mb-2 fw-semibold">⭐ 즐겨찾기</li>
+          <li class="mb-2 fw-semibold">🏖️ 휴지통</li>
+        </ul>
+
+        <div class="mt-4">
+          <span class="d-block mb-1">1.32GB / 13GB</span>
+          <div class="progress mb-2" style="height: 6px;">
+            <div class="progress-bar bg-danger" style="width: 10%;"></div>
+          </div>
+          <button class="btn btn-sm btn-danger w-100">업무 용량 구매</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 오른쪽 콘텐츠 영역 -->
+    <div class="col-9 p-4">
+      <h5 class="fw-bold mb-4">개인업무 폴더함</h5>
+
+      <div class="mb-3">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">개인업무 폴더함</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">부서업무 폴더함</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">공유업무 폴더함</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 필터/검색 -->
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-auto">
+          <select class="form-select form-select-sm">
+            <option>작성자</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <select class="form-select form-select-sm">
+            <option>등록일</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <input type="date" class="form-control form-control-sm" />
+        </div>
+        <div class="col-auto">
+          <input type="date" class="form-control form-control-sm" />
+        </div>
+        <div class="col-auto">
+          <input type="text" class="form-control form-control-sm" placeholder="파일명" />
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-sm btn-primary">🔍 검색</button>
+        </div>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="mb-2">
+        <button class="btn btn-sm btn-outline-secondary">📤 업로드</button>
+        <button class="btn btn-sm btn-outline-secondary">📁 새폴더</button>
+        <button class="btn btn-sm btn-outline-secondary">🔁 이동 to</button>
+        <button class="btn btn-sm btn-outline-secondary">⚙️ 파일공유설정</button>
+        <button class="btn btn-sm btn-outline-danger">🗑 삭제</button>
+      </div>
+
+      <!-- 테이블 -->
+      <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 5%;"><input type="checkbox" /></th>
+            <th>폴더/파일명</th>
+            <th style="width: 10%;">공유여부</th>
+            <th style="width: 15%;">공유설정</th>
+            <th style="width: 10%;">크기</th>
+            <th style="width: 15%;">등록일</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>📁 개인문서</td>
+            <td>공유안함</td>
+            <td>—</td>
+            <td>—</td>
+            <td>2018.03.30</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>📁 공유문서</td>
+            <td>공유</td>
+            <td>🔗</td>
+            <td>—</td>
+            <td>2018.03.30</td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>⭐ 국세자료.docx</td>
+            <td>공유안함</td>
+            <td>🔗</td>
+            <td>12 KB</td>
+            <td>2018.03.13</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 페이지네이션 -->
+      <nav>
+        <ul class="pagination pagination-sm justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link">‹</a>
+          </li>
+          <li class="page-item active">
+            <a class="page-link">1</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link">›</a>
+          </li>
+        </ul>
+      </nav>
+
+    </div>
+  </div>
+</div>
+	
+	
+	
+	
+	<!-- ---------------------------------------------------------------------------- -->
+	
+	<!-- Custom JS Files -->
+	
+	
+	
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- Custom JS Files -->
+  	
+  	
+  	
+</th:block>
+</html>
