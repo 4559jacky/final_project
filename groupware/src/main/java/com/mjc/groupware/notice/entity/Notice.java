@@ -1,4 +1,4 @@
-package com.mjc.groupware.shared.entity;
+package com.mjc.groupware.notice.entity;
 
 import java.time.LocalDateTime;
 
@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Shared {
+public class Notice {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="shared_no")

@@ -1,9 +1,9 @@
-package com.mjc.groupware.shared.dto;
+package com.mjc.groupware.notice.dto;
 
 import java.time.LocalDateTime;
 
-import com.mjc.groupware.shared.entity.Attach;
-import com.mjc.groupware.shared.entity.Shared;
+import com.mjc.groupware.notice.entity.Attach;
+import com.mjc.groupware.notice.entity.Notice;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,7 +33,7 @@ public class AttachDto {
 				.oriName(ori_name)
 				.newName(new_name)
 				.attachPath(attach_path)
-				.shared(Shared.builder().sharedNo(shared_no).build())
+				.shared(Notice.builder().sharedNo(shared_no).build())
 				.build();
 	}
 }

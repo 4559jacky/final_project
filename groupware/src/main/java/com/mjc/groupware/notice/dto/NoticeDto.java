@@ -1,4 +1,4 @@
-package com.mjc.groupware.shared.dto;
+package com.mjc.groupware.notice.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
-import com.mjc.groupware.shared.entity.Shared;
+import com.mjc.groupware.notice.entity.Notice;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +21,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class SharedDto {
+public class NoticeDto {
 	private Long shared_no;
 	private String shared_title;
 	private String shared_content;
@@ -33,8 +33,8 @@ public class SharedDto {
 	
 	private List<MultipartFile> files;
 	
-	public Shared toEntity() {
-		return Shared.builder()
+	public Notice toEntity() {
+		return Notice.builder()
 				.sharedNo(shared_no)
 				.sharedTitle(shared_title)
 				.sharedContent(shared_content)
@@ -42,8 +42,8 @@ public class SharedDto {
 				.build();
 	}
 	
-	public SharedDto toDto(Shared shared) {
-		return SharedDto.builder()
+	public NoticeDto toDto(Notice shared) {
+		return NoticeDto.builder()
 				.shared_no(shared.getSharedNo())
 				.shared_title(shared.getSharedTitle())
 				.shared_content(shared.getSharedContent())

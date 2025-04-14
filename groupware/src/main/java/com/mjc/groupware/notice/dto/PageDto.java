@@ -1,4 +1,4 @@
-package com.mjc.groupware.shared.dto;
+package com.mjc.groupware.notice.dto;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

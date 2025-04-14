@@ -1,4 +1,4 @@
-package com.mjc.groupware.shared.entity;
+package com.mjc.groupware.notice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,5 +37,5 @@ public class Attach {
 	
 	@ManyToOne
 	@JoinColumn(name="shared_no")
-	private Shared shared;
+	private Notice shared;
 }
