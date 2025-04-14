@@ -31,4 +31,7 @@ public class CompanyDto {
 	private String dark_logo_path;
 	
 	private MultipartFile profile_image;
+	
+	private String profile_image_path;
+	
 }
