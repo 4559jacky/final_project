@@ -218,12 +218,12 @@ layout:decorate="~{/include/layout}">
 	                              </div>
 	                              <div class="col-12">
 									<div class="mb-3">
-									    <label for="member_address" class="form-label">주소</label>
-									    <div class="row" id="member_address">
+									    <div class="row">
 									    	<!-- 광역 셀렉트 -->
 									      	<div class="col-lg-3">
+									      		<label for="member_addr1" class="form-label">주소(광역)</label>
 											    <select class="form-select" id="member_addr1" name="member_addr1" aria-label="Select Region">
-											        <option value="">-- 광역 --</option>
+											        <option value="">-</option>
 											        <option th:each="address : ${addr1List}"
 											                th:value="${address}"
 											                th:text="${address}"
@@ -234,17 +234,20 @@ layout:decorate="~{/include/layout}">
 									      	
 									      	<!-- 지역 셀렉트 -->
 									      	<div class="col-lg-3">
+									      		<label for="member_addr2" class="form-label">주소(지역)</label>
 									        	<select class="form-select" id="member_addr2" name="member_addr2" aria-label="Select Area">
-									         		<option selected>-- 지역 --</option>
-									         	 	<option value="1">Gangnam</option>
-									          		<option value="2">Haeundae</option>
-									          		<option value="3">Jung-gu</option>
-									         	 	<option value="4">Dongdaemun</option>
+									         		<option value="">-</option>
+											        <option th:each="addr2 : ${addr2List}" 
+											                th:value="${addr2}" 
+											                th:text="${addr2}"
+											                th:selected="${addr2 == selectedAddr2}">
+											        </option>
 									        	</select>
 									      	</div>
 									      	
 									      	<!-- 상세주소 입력 -->
 									      	<div class="col-lg-6">
+									      		<label for="member_addr3" class="form-label">주소(상세)</label>
 									        	<input type="text" class="form-control" id="member_addr3" name="member_addr3"/>
 									    	</div>
 										</div>
@@ -705,7 +708,7 @@ layout:decorate="~{/include/layout}">
 			
 			if(vali_check == false){
 				alert(vali_text);
-			} else{
+			} else {
 				if(confirm("비밀번호를 수정하시겠습니까?")) {
 					const payload = new FormData(updatePwForm);
 					
@@ -731,6 +734,49 @@ layout:decorate="~{/include/layout}">
 			}
 		});
     </script>
+    
+    <script>
+    // 광역을 선택하면 지역이 비동기적으로 변하게 하는 로직
+    document.addEventListener('DOMContentLoaded', function() {
+        const addr1Select = document.getElementById('member_addr1');
+        const addr2Select = document.getElementById('member_addr2');
+		
+        // addr1 변경시 동작하는 로직
+        addr1Select.addEventListener('change', function() {
+            const addr1 = addr1Select.value;
+
+            if (addr1) {
+            	fetch(`/address/addr2?addr1=${encodeURIComponent(addr1)}`, {
+					method : 'get'
+            	})
+				.then(response => response.json())
+				.then(data => {
+					const currentAddr2 = addr2Select.value;
+					
+					addr2Select.innerHTML = '<option value="">-</option>';
+					
+                    data.forEach(function(addr2) {
+                        const option = document.createElement('option');
+                        option.value = addr2;
+                        option.textContent = addr2;
+                        addr2Select.appendChild(option);
+                    });
+                    
+                    if (currentAddr2 && data.includes(currentAddr2)) {
+                        addr2Select.value = currentAddr2;
+                    } else {
+                        addr2Select.value = "";
+                    }
+				})
+				.catch(error => {
+					console.log(error);
+				})
+            } else {
+                addr2Select.innerHTML = '<option value="">-</option>';
+            }
+        });
+    });
+</script>
 	
 	<!-- ---------------------------------------------------------------------------- -->
 	

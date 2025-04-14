@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mjc.groupware.address.entity.Address;
 import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
@@ -125,7 +124,7 @@ public class MemberController {
 		
 		MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
 		Long currentMemberNo = memberDetails.getMember().getMemberNo();
-
+		
 		if (!memberNo.equals(currentMemberNo)) {
 	        throw new AccessDeniedException("접근 권한이 없습니다.");
 	    }
@@ -133,9 +132,11 @@ public class MemberController {
 		// 각각의 사원이 본인의 정보를 수정하는 페이지로 이동
 		Member member = service.selectMemberOneByMemberNo(MemberDto.builder().member_no(memberNo).build());
 		List<String> addr1List = addressService.selectAddr1Distinct();
+		List<String> addr2List = addressService.selectAddr2ByAddr1(member.getMemberAddr1());
 		
 		model.addAttribute("member", member);
 		model.addAttribute("addr1List", addr1List);
+		model.addAttribute("addr2List", addr2List);
 		model.addAttribute("selectedAddr1", member.getMemberAddr1());
 		model.addAttribute("selectedAddr2", member.getMemberAddr2());
 		
