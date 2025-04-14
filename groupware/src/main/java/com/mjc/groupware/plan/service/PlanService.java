@@ -1,5 +1,6 @@
 package com.mjc.groupware.plan.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -26,6 +27,11 @@ public class PlanService {
 	// 목록조회
 	public List<Plan> selectPlanAll() {
 		return planRepository.findAll();
+	}
+	
+	//
+	public List<Plan> findPlansBetween(LocalDate start, LocalDate end) {
+		return planRepository.findByStartDateBetween(start,end);
 	}
 
 
