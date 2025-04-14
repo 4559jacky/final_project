@@ -141,29 +141,41 @@ layout:decorate="~{/include/layout}">
 	                              <div class="col-lg-6">
 	                                <div class="mb-3 d-flex gap-3 align-items-end">
 									  <div class="flex-grow-1">
-									    <label for="member_name" class="form-label">이름*</label>
-									    <input type="text" class="form-control" id="member_name" name="member_name"/>
+									  	<th:block th:if="${member != null}">
+										    <label for="member_name" class="form-label">이름*</label>
+										    <input type="text" class="form-control" id="member_name" name="member_name" th:value="${member.memberName}"/>									  	
+									  	</th:block>
+									  	<th:block th:if="${member == null}">
+										    <label for="member_name" class="form-label">이름*</label>
+										    <input type="text" class="form-control" id="member_name" name="member_name"/>									  	
+									  	</th:block>
 									  </div>
 									  <div style="width: 120px;">
-									    <label for="member_gender" class="form-label">성별</label>
-									    <select class="form-select" id="member_gender" name="member_gender">
-									      <option value="">선택</option>
-									      <option value="M">남</option>
-									      <option value="F">여</option>
-									    </select>
+									  	<th:block th:if="${member != null}">
+										    <label for="member_gender" class="form-label">성별</label>
+										    <select class="form-select" id="member_gender" name="member_gender">
+										      <option value="">선택</option>
+										      <option value="M" th:selected="${member.memberGender == 'M'}">남</option>
+										      <option value="F" th:selected="${member.memberGender == 'F'}">여</option>
+										    </select>
+									    </th:block>
 									  </div>
 									</div>
 									
 									<!-- 이메일 -->
 	                                <div class="mb-3">
-	                                  <label for="member_email" class="form-label">이메일</label>
-	                                  <input type="email" class="form-control" id="member_email" name="member_email"/>
+	                                  <th:block th:if="${member != null}">
+		                                  <label for="member_email" class="form-label">이메일</label>
+		                                  <input type="email" class="form-control" id="member_email" name="member_email" th:value="${member.memberEmail}"/>
+	                                  </th:block>
 	                                </div>
 	                                
 	                                <!-- 연락처 -->
 	                                <div class="mb-3">
-	                                  <label for="member_phone" class="form-label">연락처</label>
-	                                  <input type="text" class="form-control" id="member_phone" name="member_phone"/>
+	                                  <th:block th:if="${member != null}">
+		                                  <label for="member_phone" class="form-label">연락처</label>
+		                                  <input type="text" class="form-control" id="member_phone" name="member_phone" th:value="${member.memberPhone}"/>
+	                                  </th:block>
 	                                </div>
 	                                
 	                              </div>
@@ -210,19 +222,20 @@ layout:decorate="~{/include/layout}">
 									    <div class="row" id="member_address">
 									    	<!-- 광역 셀렉트 -->
 									      	<div class="col-lg-3">
-									        	<select class="form-select" id="member_addr1" name="member_addr1" aria-label="Select Region">
-									          		<option selected>광역</option>
-									         		<option value="1">Seoul</option>
-									          		<option value="2">Busan</option>
-									          		<option value="3">Incheon</option>
-									          		<option value="4">Daegu</option>
-									        	</select>
-									      	</div>
+											    <select class="form-select" id="member_addr1" name="member_addr1" aria-label="Select Region">
+											        <option value="">-- 광역 --</option>
+											        <option th:each="address : ${addr1List}"
+											                th:value="${address}"
+											                th:text="${address}"
+											                th:selected="${address == selectedAddr1}">
+											        </option>
+											    </select>
+											</div>
 									      	
 									      	<!-- 지역 셀렉트 -->
 									      	<div class="col-lg-3">
 									        	<select class="form-select" id="member_addr2" name="member_addr2" aria-label="Select Area">
-									         		<option selected>지역</option>
+									         		<option selected>-- 지역 --</option>
 									         	 	<option value="1">Gangnam</option>
 									          		<option value="2">Haeundae</option>
 									          		<option value="3">Jung-gu</option>
@@ -239,8 +252,8 @@ layout:decorate="~{/include/layout}">
 								  </div>
 	                              <div class="col-12">
 	                                <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
-	                                  <button class="btn btn-primary">수정</button>
-	                                  <button class="btn bg-danger-subtle text-danger">취소</button>
+	                                  <button type="submit" class="btn btn-primary">수정</button>
+	                                  <button type="reset" class="btn bg-danger-subtle text-danger">취소</button>
 	                                </div>
 	                              </div>
 	                            </div>

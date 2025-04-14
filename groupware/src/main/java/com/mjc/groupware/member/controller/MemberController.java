@@ -8,6 +8,9 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mjc.groupware.address.entity.Address;
+import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberAttachService;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.pos.entity.Pos;
@@ -44,6 +50,7 @@ public class MemberController {
 	private final MemberAttachService memberAttachService;
 	private final PosService posService;
 	private final DeptService deptService;
+	private final AddressService addressService;
 	private final PosRepository posRepository;
 	
 	@GetMapping("/login")
@@ -109,10 +116,28 @@ public class MemberController {
 	
 	@GetMapping("/member/{id}/update")
 	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model) {
+		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new AccessDeniedException("로그인 정보가 없습니다.");
+		}
+		
+		MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+		Long currentMemberNo = memberDetails.getMember().getMemberNo();
+
+		if (!memberNo.equals(currentMemberNo)) {
+	        throw new AccessDeniedException("접근 권한이 없습니다.");
+	    }
+		
 		// 각각의 사원이 본인의 정보를 수정하는 페이지로 이동
 		Member member = service.selectMemberOneByMemberNo(MemberDto.builder().member_no(memberNo).build());
+		List<String> addr1List = addressService.selectAddr1Distinct();
 		
 		model.addAttribute("member", member);
+		model.addAttribute("addr1List", addr1List);
+		model.addAttribute("selectedAddr1", member.getMemberAddr1());
+		model.addAttribute("selectedAddr2", member.getMemberAddr2());
 		
 		return "member/myPage";
 	}
@@ -173,7 +198,7 @@ public class MemberController {
 			resultMap.put("res_code", "400");
 			resultMap.put("res_msg", e.getMessage());
 		} catch(Exception e) {
-			logger.error("비밀번호 수정 중 오류 발생", e);
+			logger.error("비밀번호 수	정 중 오류 발생", e);
 			resultMap.put("res_code", "500");
 	        resultMap.put("res_msg", "비밀번호 수정 중 알 수 없는 오류가 발생하였습니다.");
 		}
