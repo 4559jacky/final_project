@@ -35,7 +35,7 @@ public class ApprAgreementerDto {
 		
 		for(Long no : agreementer_no) {
 			ApprAgreementer agreementer = ApprAgreementer.builder()
-					.agreementerAgreeStatus(agreementer_agree_status)
+					.agreementerAgreeStatus("W")
 					.agreementerAgreeStatusTime(agreementer_agree_status_time)
 					.agreeReason(agree_reason)
 					.approval(Approval.builder().apprNo(appr_no).build())

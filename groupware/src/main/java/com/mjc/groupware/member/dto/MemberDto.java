@@ -43,6 +43,7 @@ public class MemberDto {
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	private LocalDateTime end_date;
+	private String signature;
 	
 	public Member toEntity() {
 		return Member.builder()
@@ -59,6 +60,7 @@ public class MemberDto {
 				.dept(Dept.builder().deptNo(this.getDept_no()).build())
 				.role(Role.builder().roleNo(this.getRole_no()).build())
 				.status(this.getStatus())
+				.signature(signature)
 				.build();
 	}
 	

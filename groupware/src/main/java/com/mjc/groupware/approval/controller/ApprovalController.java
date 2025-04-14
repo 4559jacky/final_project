@@ -12,13 +12,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.dept.service.DeptService;
@@ -136,12 +136,33 @@ public class ApprovalController {
 	// 사용자 : 인증받은 모든 사원이 접근 가능한 url
 	
 	@GetMapping("/approval")
-	public String approvalView() {
+	public String approvalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    List<Approval> approvalList = service.selectApprovaAlllById(member);
+	    model.addAttribute("approvalList", approvalList);
+		
 		return "/approval/user/approval";
 	}
 	
 	@GetMapping("/approval/receive")
-	public String receiveApprovalView() {
+	public String receiveApprovalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    
+		
 		return "/approval/user/receiveApproval";
 	}
 	
