@@ -40,7 +40,7 @@ public class ApprApproverDto {
 
 	        ApprApprover approver = ApprApprover.builder()
 	            .approverOrder(i + 1) // 1부터 시작하는 결재 순서
-	            .approverDecisionStatus(approver_decision_status)
+	            .approverDecisionStatus("W")
 	            .approverDecisionStatusTime(approver_decision_status_time)
 	            .decisionReason(approver_decision_status)
 	            .approval(Approval.builder().apprNo(appr_no).build())
