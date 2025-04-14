@@ -1,7 +1,8 @@
-package com.mjc.groupware.meetingRoomReservation.entity;
+package com.mjc.groupware.approval.entity;
 
 import com.mjc.groupware.member.entity.Member;
 
+import groovy.transform.ToString;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,26 +16,24 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
 @Entity
-@Table(name="meeting_room_reservation_mapping")
+@Table(name="appr_referencer")
+@Getter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class MeetingRoomReservationMapping {
-
+public class ApprReferencer {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="mapping_no")
-	private Long mappingNo;
+	@Column(name="appr_referencer_no")
+	private Long apprReferencerNo;
 	
 	@ManyToOne
-	@JoinColumn(name="reservation_no")
-	private MeetingRoomReservation reservationNo;
+	@JoinColumn(name="appr_no", nullable=false)
+	private Approval approval;
 	
 	@ManyToOne
-	@JoinColumn(name="member_no")
-	private Member memberNo;
-	
-	
+	@JoinColumn(name="referencer_no", nullable=false)
+	private Member member;
 }

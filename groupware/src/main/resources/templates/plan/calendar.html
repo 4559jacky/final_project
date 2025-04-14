@@ -38,12 +38,21 @@ layout:decorate="~{/include/layout}">
 				</div>
 			</form>
 			<!-- 여기에 색상 안내넣어야함 -->
+				<div id="calendar-container" style="position: relative;">
+				    <!-- 캘린더 우측 상단에 표시될 전설(legend) -->
+				    <div class="calendar-legend">
+				      <div class="legend-item"><div class="legend-color company"></div>회사</div>
+				      <div class="legend-item"><div class="legend-color department"></div>부서</div>
+				      <div class="legend-item"><div class="legend-color personal"></div>개인</div>
+				      <div class="legend-item"><div class="legend-color vacation"></div>휴가</div>
+				    </div>
+			    </div>
 		</div>
           <div class="card">
             <div class="card-body calender-sidebar app-calendar">
               <div id="calendar"></div>
 				
-				<div class="row" th:if="${not #lists.isEmpty(resultList)}">
+				<!-- <div class="row" th:if="${not #lists.isEmpty(resultList)}">
 				  <div class="col-md-4" th:each="plan : ${resultList}">
 				    <div class="card mb-3">
 				      <div class="card-header" th:text="${plan.planTitle}">일정 제목</div>
@@ -56,9 +65,8 @@ layout:decorate="~{/include/layout}">
 				  </div>
 				</div>
 				<script>
-				 
-					
-				</script>			
+				
+				</script> -->
             </div>
           </div>
           <!-- BEGIN MODAL -->
@@ -197,11 +205,7 @@ layout:decorate="~{/include/layout}">
           	    });
           	  }
           	});
-          	
-          	// 목록출력
 
-
-			
 			// 일정 타입에 따라 색상 설정
 /* 			function getColorByType(type) {
 			  switch (type) {
@@ -307,6 +311,7 @@ layout:decorate="~{/include/layout}">
 	  };
 	</script>
 	
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>	
   <!-- Import Js Files -->
   <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.min.js"></script>

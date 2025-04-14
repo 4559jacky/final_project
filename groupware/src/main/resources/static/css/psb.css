@@ -1,1 +1,29 @@
 @charset "UTF-8";
+/* .calendar-legend {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.company { background-color: #6C63FF; } 회사 - 보라
+.department { background-color: #FF5A7A; } 부서 - 핑크
+.personal { background-color: #3DB8A5; } 개인 - 초록
+.vacation { background-color: #FFB42E; } 휴가 - 노랑 */
