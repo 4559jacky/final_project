@@ -107,4 +107,15 @@ public class Member {
 	    this.dept = newDept;
 	}
 	
+	public void updateProfileInfo(String name, String gender, String birth, String phone, String email, String addr1, String addr2, String addr3) {
+			this.memberName = name;
+			this.memberGender = gender;
+			this.memberBirth = birth;
+			this.memberPhone = phone;
+			this.memberEmail = email;
+			this.memberAddr1 = addr1;
+			this.memberAddr2 = addr2;
+			this.memberAddr3 = addr3;
+	}
+	
 }

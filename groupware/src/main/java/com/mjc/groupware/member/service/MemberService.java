@@ -132,6 +132,30 @@ public class MemberService {
 		}
 	}
 	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateMemberInfo(MemberDto dto) {
+		// 앞서 많이 썼지만 @Transaction + 도메인메소드 응용해서 바뀐 부분만 수정하는 로직 - 이렇게 안 하면 데이터로 넣지 않는 부분에 null이 들어감
+		try {
+			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+			
+			target.updateProfileInfo(
+			        dto.getMember_name(),
+			        dto.getMember_gender(),
+			        dto.getMember_birth(),
+			        dto.getMember_phone(),
+			        dto.getMember_email(),
+			        dto.getMember_addr1(),
+			        dto.getMember_addr2(),
+			        dto.getMember_addr3()
+			    );
+			
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("개인정보 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
 	// 결재라인 부서의 속한 사원들select
 	public List<Member> selectMemberAllByDeptId(Long id) { 
 		List<Member> memberList = repository.findAllByDept_DeptNo(id); 

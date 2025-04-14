@@ -145,7 +145,7 @@ public class MemberController {
 	
 	@PostMapping("/member/{id}/update/image")
 	@ResponseBody
-	public Map<String, String> updateMyProfile(@PathVariable("id") Long memberNo, MemberAttachDto memberAttachDto) {
+	public Map<String, String> updateMemberProfileImage(@PathVariable("id") Long memberNo, MemberAttachDto memberAttachDto) {
 		// 각각의 사원이 본인의 프로필 이미지를 수정하는 로직
 		Map<String, String> resultMap = new HashMap<>();
 		
@@ -176,7 +176,7 @@ public class MemberController {
 	
 	@PostMapping("/member/{id}/update/pw")
 	@ResponseBody
-	public Map<String, String> updatemMemberPw(@PathVariable("id") Long memberNo, MemberDto dto, HttpServletResponse response) {
+	public Map<String, String> updateMemberPw(@PathVariable("id") Long memberNo, MemberDto dto, HttpServletResponse response) {
 		Map<String, String> resultMap = new HashMap<>();
 
 		resultMap.put("res_code", "500");
@@ -199,13 +199,41 @@ public class MemberController {
 			resultMap.put("res_code", "400");
 			resultMap.put("res_msg", e.getMessage());
 		} catch(Exception e) {
-			logger.error("비밀번호 수	정 중 오류 발생", e);
+			logger.error("비밀번호 수정 중 오류 발생", e);
 			resultMap.put("res_code", "500");
 	        resultMap.put("res_msg", "비밀번호 수정 중 알 수 없는 오류가 발생하였습니다.");
 		}
 		
 		return resultMap;
 		
+	}
+	
+	@PostMapping("/member/{id}/update")
+	@ResponseBody
+	public Map<String, String> updateMemberProfileInfo(@PathVariable("id") Long memberNo, MemberDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "개인정보 수정 중 알 수 없는 오류가 발생하였습니다.");
+
+		try {
+			dto.setMember_no(memberNo);
+			
+			service.updateMemberInfo(dto);
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "개인정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			logger.warn("개인정보 수정 실패 - 회원정보가 존재하지 않음: {}", e.getMessage());
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			logger.error("개인정보 수정 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "개인정보 수정 중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return resultMap;
 	}
 
 	 // 결재라인 부서의 속한 사원들 select
