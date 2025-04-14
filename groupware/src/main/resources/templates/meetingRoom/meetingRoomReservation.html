@@ -185,8 +185,9 @@
 					<form name="meetingRoom_reservation_form">
 						<input type="hidden" id="meetingTitle" name="meeting_title">
 						<input type="hidden" id="meetingDate" name="meeting_date">
-						<input type="hidden" id="meetingRoom" name="meeting_room_no">
+						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
 						<input type="hidden" id="reservationUser" th:value="${#authentication.principal.member.memberNo}">
+						
 						<div id="selectedUsersInputs"></div>
 						<div class="row gx-3 text-center" style="height: 200px;">
 							<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
@@ -249,8 +250,21 @@
 			dateInfoModal.show();
 		};
 		
-		
-	
+		/* // 예약 완료된 시간대 조회
+		fetch("/reservationTimes", {
+				method: "POST",
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body: payload
+			})
+			.then(response => response.json())
+			.then(data => {
+				MeetingRoomButtons(data);
+			});
+	 */
 		// 회의실 버튼 추가, 회의실 버튼 클릭 시 시간 버튼 추가 
 		function MeetingRoomButtons(meetingRoom) {
 			// btn 추가할 곳
@@ -280,7 +294,7 @@
 					// 버튼 추가 
 					container.appendChild(btn);
 					
-					// 회의실 버버튼 클릭 시 input에 회의실 roomNo 담아줌
+					// 회의실 버튼 클릭 시 input에 회의실 roomNo 담아줌
 					btn.addEventListener("click", function () {
 						const selectRoomNo = this.dataset.roomId;
 
@@ -302,7 +316,15 @@
 
 					    // 기존 시간 버튼 초기화
 					    timeContainer.innerHTML = "";
-
+					    
+					    // 날짜랑 회의실 정보 불러옴
+					    const selectedDate = document.getElementById("meetingDate").value;
+					    const meetingRoomNo = document.getElementById("meetingRoomNo").value;
+					    
+					    // 날짜에 예약된 시간들 조회 
+					    
+					    
+					    
 					    // 시간 버튼 표시
 					    let timeButtons = 
 					    	`<button type="button" class="btn bg-primary-subtle text-primary" data-time="09:00">09:00</button>
@@ -396,6 +418,8 @@
 		document.addEventListener("DOMContentLoaded",function(){
 			const selectBtn = document.querySelectorAll(".selectBtn");
 			const selectUserList = document.getElementById("selectMemberList");
+			const selectedUsersInputs = document.getElementById("selectedUsersInputs");
+
 			
 			document.addEventListener("click", function (e) {
 			    if (e.target.classList.contains("selectBtn")) {
@@ -439,6 +463,7 @@
 			
 		});
 		
+
 		// 회의실 예약 인원 삭제 
 		document.addEventListener("DOMContentLoaded",function(){
 			document.addEventListener("click", function (e) {

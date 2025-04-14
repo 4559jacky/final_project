@@ -56,7 +56,6 @@ layout:decorate="~{/include/layout}">
 								    		th:attr="data-id=${meetingRoom.meetingRoomNo}, data-name=${meetingRoom.meetingRoomName}" onclick="openUpdateModal(this)">수정</button>
 								    <button class="btn btn-primary px-3 py-1" th:onclick="|javascript:deleteMeetingRoom('${meetingRoom.meetingRoomNo}')|">삭제</button>
 								</th>
-								
 				        	</th:block>
 				        </tr>
 			        </tbody>

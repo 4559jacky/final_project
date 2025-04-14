@@ -1,7 +1,5 @@
 package com.mjc.groupware.meetingRoomReservation.controller;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,30 +36,17 @@ public class MeetingRoomController {
 	
 	// 사용자 - 전체 회의실 예약 일정 캘린더에 조회
 	@GetMapping("/selectReservation")
+	@ResponseBody
 	public List<Map<String, Object>> selectMeetingRoomReservationAll() {
 	    List<MeetingRoomReservationDto> reservations = service.selectMeetingRoomReservationAll();
 	    List<Map<String, Object>> events = new ArrayList<>();
 
 	    for (MeetingRoomReservationDto dto : reservations) {
-	        // 각 시작 시간에 대해 이벤트를 생성
-	        for (LocalTime startTime : dto.getMeeting_start_time()) {
-	            Map<String, Object> event = new HashMap<>();
-
-	            // LocalDate와 startTime 결합하여 LocalDateTime 생성
-	            LocalDateTime startDateTime = LocalDateTime.of(dto.getMeeting_date(), startTime);
-
-	            // event에 start 값 추가
-	            event.put("title", dto.getMeeting_title());
-	            event.put("start", startDateTime.toString());  // YYYY-MM-DDTHH:mm:ss 형식으로 전달
-
-	            // 이벤트 리스트에 추가
-	            events.add(event);
-	        }
+	        events.addAll(dto.toFullCalendarEvents());
 	    }
 
 	    return events;
 	}
-
 
 
 	// 사용자 - 회의실, 시간 조회
@@ -70,6 +55,8 @@ public class MeetingRoomController {
 	public List<MeetingRoom> selectMeetingRoomAll() {
 	    return service.selectMeetingRoomAll();
 	}
+	
+	
 	
 	// 사용자 - 회의실 예약
 	@PostMapping("/reservation")
@@ -93,6 +80,16 @@ public class MeetingRoomController {
 	
 	//////////////////////////////////////////////////////////////////
 	
+	// 관리자 - 회의실 전체 예약 내역 조회
+	@GetMapping("/admin/meetingReservation")
+	public String adminSelectMeetingReservationAll(Model model) {
+		
+		List<MeetingRoomReservation> resultList = service.adminSelectMeetingReservationAll();
+		
+		model.addAttribute("reservationList",resultList);
+		 
+		return "/meetingRoom/AdminMeetingReservation";
+	}
 	
 	
 	// 관리자 - 전체 회의실 목록 조회

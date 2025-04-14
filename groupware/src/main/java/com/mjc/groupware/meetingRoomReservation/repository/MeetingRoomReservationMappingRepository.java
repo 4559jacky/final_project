@@ -10,5 +10,5 @@ import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoomReservationMap
 public interface MeetingRoomReservationMappingRepository extends JpaRepository<MeetingRoomReservationMapping,Long>{
 	List<MeetingRoomReservationMapping> findAll();
 	
-	 List<MeetingRoomReservationMapping> findByReservationNo(MeetingRoomReservation reservationNo);
+	List<MeetingRoomReservationMapping> findByReservationNo(MeetingRoomReservation reservationNo);
 }
