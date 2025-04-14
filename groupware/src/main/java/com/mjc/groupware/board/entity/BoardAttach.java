@@ -6,34 +6,34 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "board_attach")
-@Getter
-@Setter
+@Table(name="board_attach")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Getter
 public class BoardAttach {
 
-    @Id // 기본 키
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attach_no")
-    private Long attachNo; // 첨부 번호
+    private Long attachNo;
 
     @Column(name = "ori_name")
-    private String oriName; // 기존 파일명
+    private String oriName;
 
     @Column(name = "new_name")
-    private String newName; // 변경 파일명
+    private String newName;
 
     @Column(name = "attach_path")
-    private String attachPath; // 파일 경로
+    private String attachPath;
 
-    @Column(name = "board_no")
-    private Long boardNo; // 게시판 번호
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_no", foreignKey = @ForeignKey(name = "board_attach_board_no_fk"))
+    private Board board;
 
     @Column(name = "reg_date")
-    private LocalDateTime regDate; // 등록일
+    private LocalDateTime regDate;
 
     @Column(name = "mod_date")
-    private LocalDateTime modDate; // 수정일
+    private LocalDateTime modDate;
 }

@@ -1,26 +1,19 @@
 package com.mjc.groupware.board.repository;
 
-import com.mjc.groupware.board.entity.Board;
-
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.mjc.groupware.board.entity.Board;
+import com.mjc.groupware.member.entity.Member;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
- // 게시글 제목에 특정 키워드가 포함된 게시글 리스트 조회
- List<Board> findByBoardTitleContaining(String keyword);
-
- // 게시글 내용에 특정 키워드가 포함된 게시글 리스트 조회
- List<Board> findByBoardContentContaining(String keyword);
-
- // '삭제(D)' 상태가 아닌(즉, 활성화된) 게시글의 수를 카운트
- @Query("SELECT COUNT(b) FROM Board b WHERE b.boardStatus <> 'D'")
- int countActiveBoards();
- 
- // 소프트 삭제
-// @Query("SELECT b FROM Board b WHERE b.deletedYn = 'N'")
-// List<Board> findAllNotDeleted();
+	List<Board> findAllByIsDeletedFalseOrderByRegDateDesc();
+	
+	Optional<Board> findByBoardNo(Long boardNo);  // board_no 필드 기준
+	
+	 // 회원 번호와 게시판 상태(TEMP)로 게시글을 조회하는 쿼리 메소드
+    List<Board> findByMemberMemberNoAndBoardStatus(Long memberNo, String boardStatus);
+	
 }

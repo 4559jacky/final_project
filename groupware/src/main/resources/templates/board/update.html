@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -6,195 +6,139 @@
 
 <th:block layout:fragment="content">
 
-<!--상단 홈 아이콘 / ...  -->
-	<div class="col-lg-8 col-md-6 col-12 align-self-center">
-          <nav aria-label="breadcrumb">
-              <ol class="breadcrumb align-items-center">
-                 <li class="breadcrumb-item">
-                   <a class="text-muted text-decoration-none" th:href="@{/home}">
-                     <i class="ti ti-home fs-5"></i>
-                    </a>
-                 </li>
-              <li class="breadcrumb-item" aria-current="page">자유게시판 게시글 수정</li>
-               </ol>
-           </nav><br>
-    <h2 class="mb-0 fw-bolder fs-8">자유게시판 게시글 수정</h2>
-    </div><br>
+  <div class="col-lg-8 col-md-6 col-12 align-self-center">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb align-items-center">
+        <li class="breadcrumb-item">
+          <a class="text-muted text-decoration-none" th:href="@{/home}">
+            <i class="ti ti-home fs-5"></i>
+          </a>
+        </li>
+        <li class="breadcrumb-item" aria-current="page">자유게시판 수정</li>
+      </ol>
+    </nav>
+    <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 수정</h2>
+  </div>
 
-  <!-- Summernote CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css">
+  <form method="post" enctype="multipart/form-data" id="board_form">
+    <input type="hidden" name="board_no" th:value="${board.board_no}">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-
-    <form th:action="@{/board/update}" method="post" enctype="multipart/form-data" id="board_form">
-
-      <!-- 제목 + 투표 버튼 -->
-      <div class="mb-3">
-        <div class="d-flex justify-content-between align-items-end">
-          <label class="form-label mb-0"><strong>제목</strong></label>
-          <button type="button" class="btn btn-outline-primary btn-sm" onclick="addVote()">투표 삭제</button>
-        </div>
-        <input type="text" class="form-control mt-1" id="board_title" name="board_title" placeholder="제목을 입력하세요">
-      </div>
-
-	<!-- 파일 첨부 제목 -->
-	<div class="mb-3">
-  		<label class="form-label mb-1"><strong>파일 첨부</strong></label>
-
-  	<!-- 드래그 앤 드롭 박스 -->
-  	<div class="dropzone mt-2" id="dropzone" style="border: 1px dashed #ccc; padding: 20px; text-align: center; border-radius: 10px;">
-    	<p class="mb-0">여기에 파일을 끌어다 놓거나<span id="file_trigger" style="color: #0d6efd; text-decoration: underline; cursor: pointer;">파일 추가</span>를 누르세요.</p>
-  	</div>
-
-  	<!-- 실제 파일 입력 필드 (숨김) -->
-  	<input type="file" id="file_input" name="files" multiple style="display: none;">
-	</div>
-
-      <!-- 내용 + Summernote -->
+    <!-- 제목 입력 -->
     <div class="mb-3">
-       <label class="form-label" for="board_content"><strong>내용</strong></label>
-       <textarea id="board_content" name="board_content" th:text="${board.board_content}"></textarea>
+      <label for="board_title" class="form-label"><strong>제목</strong></label>
+      <input type="text" class="form-control" id="board_title" name="board_title" maxlength="100" th:value="${board.board_title}" placeholder="제목을 입력하세요" required>
     </div>
 
-      <!-- 등록 / 임시저장 버튼 -->
-      <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="submit" class="btn btn-primary">수정 완료</button>
-      </div>
+    <!-- 파일 첨부 -->
+    <div class="mb-3">
+      <label class="form-label"><strong>파일 첨부</strong></label>
+      <input type="file" id="file_input" name="files" multiple>
+    </div>
 
-    </form>
+    <!-- 내용 입력 (Summernote) -->
+    <div class="mb-3">
+      <label for="board_content" class="form-label"><strong>내용</strong></label>
+      <textarea id="board_content" name="board_content" required></textarea>
+    </div>
 
-  <!-- jQuery + Summernote JS -->
+    <!-- 수정 완료 버튼 -->
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary">수정 완료</button>
+    </div>
+  </form>
+
+  <!-- JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
   <script>
-  const form = document.getElementById("board_form");
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    let vali_check = false;
-    let vali_text = '';
-
-    if (form.board_title.value.trim() === '') {
-      vali_text += '제목을 입력하세요.';
-      form.board_title.focus();
-    } else if ($('#board_content').summernote('isEmpty')) {
-      vali_text += '내용을 입력하세요.';
-      $('#board_content').summernote('focus');
-    } else {
-      vali_check = true;
-    }
-
-    if (!vali_check) {
-      alert(vali_text);
-    } else {
-      const payload = new FormData(form);
-
-      // Summernote의 HTML 내용을 textarea에 반영
-      payload.set("board_content", $('#board_content').summernote('code'));
-
-      // 수정할 게시글 번호 가져오기 (hidden 필드 필요!)
-      const boardNo = form.board_no?.value || payload.get("board_no");
-
-      fetch('/board/' + boardNo + "/update", {
-        method: 'POST',
-        body: payload
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.res_msg); // "수정이 완료되었습니다"
-        if (data.res_code == 200) {
-          location.href = "/board";
+    $(document).ready(function() {
+      // Summernote 초기화
+      $('#board_content').summernote({
+        height: 300,
+        lang: 'ko-KR',
+        placeholder: '내용을 입력하세요',
+        width: '100%',
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'clear']],
+          ['fontsize', ['fontsize']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['insert', ['link', 'video']],
+          ['view', ['fullscreen', 'codeview']]
+        ],
+        callbacks: {
+          onImageUpload: function(files) {
+            let data = new FormData();
+            data.append("file", files[0]);
+            $.ajax({
+              url: "/board/uploadImage",
+              type: "POST",
+              data: data,
+              processData: false,
+              contentType: false,
+              success: function(result) {
+                $('#board_content').summernote('insertImage', result.url);
+              },
+              error: function() {
+                alert("이미지 업로드 실패");
+              }
+            });
+          }
         }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("오류가 발생했습니다.");
       });
-    }
-  });
-  
-  // 서머노트 옵션 조절
-  $('#board_content').summernote({
-  height: 300,
-  lang: 'ko-KR',
-  placeholder: '300자 이내로 입력하세요',
-  width: '100%',
-  fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '24', '28', '36'],
-  toolbar: [
-    ['style', ['bold', 'italic', 'underline', 'clear']],
-    ['fontsize', ['fontsize']], // 폰트 사이즈 설정 활성화
-    ['para', ['ul', 'ol', 'paragraph']],
-    ['insert', ['picture', 'link', 'video']],
-    ['view', ['fullscreen', 'codeview']]
-  ],
-  callbacks: {
-    onImageUpload: function(files) {
-      let data = new FormData();
-      data.append("file", files[0]);
-      $.ajax({
-        url: "/board/uploadImage",
+
+      // 기존 게시글 내용을 Summernote에 설정
+      $('#board_content').summernote('code', /*[[${board.board_content}]]*/);
+    });
+
+    // 폼 제출 처리
+    document.getElementById("board_form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const title = document.getElementById("board_title").value.trim();
+      const content = $('#board_content').summernote('code');
+
+      if (!title) {
+        alert("제목을 입력하세요.");
+        return;
+      }
+      if ($('#board_content').summernote('isEmpty')) {
+        alert("내용을 입력하세요.");
+        return;
+      }
+
+      const formData = new FormData(this);
+      formData.set("board_content", content);
+
+      fetch(`/board/${boardNo}/update`, {
         method: "POST",
-        data: data,
-        processData: false,
-        contentType: false,
-        success: function(result) {
-          $('#board_content').summernote('insertImage', result.url);
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.res_code === '200') {
+          alert("수정이 완료되었습니다.");
+          location.href = "/board/list";
+        } else {
+          alert(data.res_msg);
         }
-      });
-    }
-  }
-});
-
-    // 드래그 엔 드롭
-    const dropzone = document.getElementById("dropzone");
-    const fileInput = document.getElementById("file_input");
-    const fileTrigger = document.getElementById("file_trigger");
-
-    // 클릭 시 파일 선택창 열기
-    fileTrigger.addEventListener("click", () => {
-      fileInput.click();
+      })
+      .catch(err => alert("에러 발생: " + err.message));
     });
-
-    // 드래그 영역 진입 시
-    dropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropzone.style.backgroundColor = "#f1f1f1";
-    });
-
-    // 드래그 영역 벗어날 때
-    dropzone.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      dropzone.style.backgroundColor = "white";
-    });
-
-    // 드래그하여 놓았을 때
-    dropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropzone.style.backgroundColor = "white";
-
-      const files = e.dataTransfer.files;
-      fileInput.files = files;
-    });
-
-    function addVote() {
-      alert("투표 추가 준비중!");
-    }
-
   </script>
-  
-   <!-- 공통 JS 스크립트 -->
-    <script th:src="@{/assets/js/vendor.min.js}"></script>
-    <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-    <script th:src="@{/assets/js/theme/app.init.js}"></script>
-    <script th:src="@{/assets/js/theme/theme.js}"></script>
-    <script th:src="@{/assets/js/theme/app.min.js}"></script>
-    <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-    <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-    <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-    <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
- 
+
+  <!-- 기타 JS -->
+  <script th:src="@{/assets/js/vendor.min.js}"></script>
+  <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  <script th:src="@{/assets/js/theme/app.init.js}"></script>
+  <script th:src="@{/assets/js/theme/theme.js}"></script>
+  <script th:src="@{/assets/js/theme/app.min.js}"></script>
+  <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
 </th:block>
 </html>

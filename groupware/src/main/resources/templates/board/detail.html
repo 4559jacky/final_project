@@ -1,72 +1,128 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
-<!--상단 홈 아이콘 / ...  -->
-	<div class="col-lg-8 col-md-6 col-12 align-self-center">
-          <nav aria-label="breadcrumb">
-              <ol class="breadcrumb align-items-center">
-                 <li class="breadcrumb-item">
-                   <a class="text-muted text-decoration-none" th:href="@{/home}">
-                     <i class="ti ti-home fs-5"></i>
+
+    <!-- 게시글 상세 페이지 -->
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center">
+                <li class="breadcrumb-item">
+                    <a class="text-muted text-decoration-none" th:href="@{/home}">
+                        <i class="ti ti-home fs-5"></i>
                     </a>
-                 </li>
-              <li class="breadcrumb-item" aria-current="page">게시글 상세/댓글</li>
-               </ol>
-           </nav><br>
-    <h2 class="mb-0 fw-bolder fs-8">게시글 상세 정보</h2>
-    </div><br>
+                </li>
+                <li class="breadcrumb-item" aria-current="page">게시글 상세/댓글</li>
+            </ol>
+        </nav>
+        <br>
+        <h2 class="mb-0 fw-bolder fs-8">게시글 상세 정보</h2>
+    </div>
+    <br>
 
-        <h2 class="text-center mb-4 fw-bolder fs-5" th:text="${board.board_title}">게시글 제목</h2>
-        <div class="text-center mb-3">
-            <i class="ti ti-eye"></i> <span th:text="${board.views}">0</span>
-            <span th:text="${#temporals.format(board.reg_date, 'yyyy-MM-dd')}">등록일</span>
+    <!-- 게시글 제목 -->
+    <h2 class="text-center mb-4 fw-bolder fs-4" th:text="${board.board_title != null ? board.board_title : '제목 없음'}">게시글 제목</h2>
+
+    <!-- 조회수 및 등록일 (오른쪽 정렬) -->
+    <div class="mb-3 text-end text-muted small">
+        <i class="ti ti-eye"></i> <span th:text="${board.views}">0</span> |
+        <span th:text="${#temporals.format(board.reg_date, 'yyyy-MM-dd')}">등록일</span>
+    </div>
+
+    <!-- 게시글 내용 (텍스트 박스 스타일) -->
+    <section>
+        <div class="board_detail mb-4">
+            <textarea class="form-control" rows="10" readonly
+                      style="resize: none; background-color: #f9f9f9; border: 1px solid #ddd;" 
+                      th:utext="${board.board_content}">게시글 내용</textarea>
         </div>
-
-        <section>
-            <div id="section_wrap">
-                <div class="board_detail">
-                    <div th:utext="${board.board_content}">게시글 내용</div>
-                </div><br><br>
         <hr>
+        <!-- 작성자 정보 및 수정/삭제 버튼 (본인만 표시) -->
+        <span th:if="${board.member_no != null}">작성자: <span th:text="${board.member_no}"></span></span>
 
-                <div class="buttons text-end">
-                    <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.board_no})}">수정</a>
-					<a class="btn btn-danger" th:onclick="|boardDelete('${board.board_no}')|">삭제</a>
+        <th:block sec:authorize="isAuthenticated()">
+            <div th:if="${#authentication.principal.member.member_no == board.member_no}" class="buttons text-end">
+                <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.board_no})}">수정</a>
+                <a class="btn btn-danger" th:onclick="|boardDelete(${board.board_no})|">삭제</a>
+            </div>
+        </th:block>
+    </section>
+
+    <!-- 댓글 섹션 -->
+    <div class="comments-section">
+        <h4>댓글</h4>
+        <div id="comments-container">
+            <!-- 댓글 목록이 여기에 동적으로 추가됩니다. -->
+            <div th:each="comment : ${board.comments}">
+                <div class="comment">
+                    <div class="comment-author">
+                        <span th:text="${comment.member_no}"></span>
+                    </div>
+                    <div class="comment-content">
+                        <p th:text="${comment.comment_text}"></p>
+                    </div>
                 </div>
-            </div>
-        </section>
-
-
-        <div class="comments-section">
-            <h4>댓글</h4>
-            <div id="comments-container">
-                <!-- 댓글 목록이 여기에 동적으로 추가됩니다. -->
-            </div>
-
-            <div class="comment-input">
-                <textarea id="commentText" rows="3" placeholder="댓글을 입력하세요..." class="form-control"></textarea>
-                <button class="btn btn-primary mt-2" onclick="submitComment()">댓글 작성</button>
+                <hr>
             </div>
         </div>
+
+        <div class="comment-input">
+            <textarea id="commentText" rows="3" placeholder="댓글을 입력하세요..." class="form-control"></textarea>
+            <button class="btn btn-primary mt-2" onclick="submitComment(${board.board_no})">댓글 작성</button>
+        </div>
+    </div>
 
     <script>
-    const boardDelete = function(el) {
-        const board_no = el.getAttribute("data-board-no");
+    // 게시글 삭제 함수
+    const boardDelete = function(boardNo) {
         if (confirm("게시글을 삭제하시겠습니까?")) {
-            fetch('/board/' + board_no, {
-                method: 'DELETE'
+            fetch(`/board/${boardNo}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value // CSRF 토큰 추가
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("삭제 요청 실패");
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.res_msg);
+                if (data.res_code === '200') {
+                    location.href = "/board/list"; // 목록 페이지로 이동
+                }
+            })
+            .catch(err => alert('삭제 실패'));
+        }
+    };
+
+    // 댓글 작성 함수
+    function submitComment(boardNo) {
+        const commentText = document.getElementById('commentText').value;
+        if (commentText.trim()) {
+            fetch(`/board/${boardNo}/comment`, {
+                method: 'POST',
+                body: new URLSearchParams({
+                    'commentText': commentText
+                }),
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+                }
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.res_msg);
-                if (data.res_code == '200') {
-                    location.href = "/board/list";
-                }
-            });
+                // 댓글 목록을 갱신
+                alert('댓글 작성 성공');
+                location.reload(); // 댓글 작성 후 페이지 새로고침
+            })
+            .catch(err => alert('댓글 작성 실패'));
+        } else {
+            alert('댓글을 입력해주세요!');
         }
     }
     </script>
@@ -81,5 +137,6 @@ layout:decorate="~{/include/layout}">
     <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <!-- Bootstrap Common JS Files End -->
+
 </th:block>
 </html>

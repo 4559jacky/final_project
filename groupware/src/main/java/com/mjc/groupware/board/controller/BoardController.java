@@ -1,168 +1,164 @@
 package com.mjc.groupware.board.controller;
 
-import com.mjc.groupware.board.dto.BoardAttachDto;
 import com.mjc.groupware.board.dto.BoardDto;
-import com.mjc.groupware.board.dto.PageDto;
-import com.mjc.groupware.board.dto.SearchDto;
-import com.mjc.groupware.board.service.BoardAttachService;
+import com.mjc.groupware.board.dto.TempBoardDto;
 import com.mjc.groupware.board.service.BoardService;
+import com.mjc.groupware.board.entity.Board;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
 public class BoardController {
 
+    private Logger logger = LoggerFactory.getLogger(BoardController.class);
+
     private final BoardService boardService;
-    private final BoardAttachService boardAttachService;
-    private final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
-    // 게시글 목록 페이지 요청 처리 (GET)
-    // 검색 조건이 없으면 기본값을 "title"로 설정하고,
-    // 게시글 목록과 페이지 정보를 가져와서 board/list.html로 전달
-    @GetMapping("/board/list")
-    public String selectBoardList(Model model, SearchDto searchDto) {
-        if (searchDto.getSearchType() == null) {
-            searchDto.setSearchType("title");
-        }
-
-        List<BoardDto> boardList = boardService.selectBoardList(searchDto);
-        PageDto pageDto = boardService.selectBoardPage(searchDto);
-
-        model.addAttribute("boardList", boardList);
-        model.addAttribute("page_dto", pageDto);
-        model.addAttribute("searchDto", searchDto);
-        return "board/list";
-    }
-
-    // 게시글 상세 보기 요청 처리 (GET)
-    // 게시글 ID를 기반으로 상세정보 및 첨부파일 리스트를 조회한 뒤
-    // board/detail.html로 전달
-    @GetMapping("/board/{id}")
-    public String selectBoardOne(@PathVariable("id") Long id, Model model) {
-        BoardDto board = boardService.selectBoardDetail(id);
-        List<BoardAttachDto> attachList = boardService.selectAttachList(id);
-
-        model.addAttribute("board", board);
-        model.addAttribute("attachList", attachList);
-        return "board/detail";
-    }
-
-    // 게시글 작성 페이지 뷰 요청 (GET)
-    // board/create.html로 이동
+    // 게시글 등록 페이지
     @GetMapping("/board/create")
     public String createBoardView() {
         return "board/create";
     }
-    
+
+    // 게시글 등록 처리 (API)
     @PostMapping("/board/create")
-    public String createBoard(@ModelAttribute BoardDto boardDto,
-                              @RequestParam(value = "files", required = false) MultipartFile[] files) {
-        boardService.createBoard(boardDto, files); // 파일까지 처리
-        return "redirect:/board/list"; // 작성 후 목록 페이지로 이동
+    @ResponseBody
+    public Map<String, String> createBoard(BoardDto dto) {
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "게시글 등록 중 알 수 없는 오류가 발생했습니다.");
+
+        try {
+            Long boardNo = boardService.createBoard(dto);
+
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "게시글이 성공적으로 등록되었습니다.");
+            resultMap.put("board_no", boardNo.toString());
+        } catch (Exception e) {
+            logger.error("게시글 등록 중 오류 발생", e);
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", "게시글 등록 중 알 수 없는 오류가 발생했습니다.");
+        }
+
+        return resultMap;
     }
 
-    // 게시글 등록 처리 (POST)
-    // form 데이터(BoardDto)와 파일 업로드(MultipartFile[])를 받아
-    // 게시글 생성 후 결과 메시지를 JSON으로 반환
-//    @PostMapping("/board/create")
-//    @ResponseBody
-//    public Map<String, String> createBoardApi(@ModelAttribute BoardDto dto,
-//                                              @RequestParam(value = "files", required = false) MultipartFile[] files) {
-//        Map<String, String> resultMap = new HashMap<>();
-//        try {
-//            boardService.createBoard(dto, files);
-//            resultMap.put("res_code", "200");
-//            resultMap.put("res_msg", "게시글이 등록되었습니다.");
-//        } catch (Exception e) {
-//            logger.error("게시글 등록 중 오류 발생", e);
-//            resultMap.put("res_code", "500");
-//            resultMap.put("res_msg", "게시글 등록 중 오류 발생");
-//        }
-//        return resultMap;
-//    }
-
-    // 게시글 수정 페이지 뷰 요청 (GET)
-    // 게시글 ID를 기반으로 수정 대상 데이터를 불러오고
-    // board/update.html로 전달
-    @GetMapping("/board/{id}/update")
-    public String updateBoardView(@PathVariable("id") Long id, Model model) {
-        BoardDto board = boardService.selectBoardDetail(id);
-        List<BoardAttachDto> attachList = boardService.selectAttachList(id);
-
-        model.addAttribute("board", board);
-        model.addAttribute("attachList", attachList);
+    // 게시글 수정 페이지
+    @GetMapping("/board/update/{boardNo}")
+    public String updateBoardView(@PathVariable("boardNo") Long boardNo, Model model) {
+        BoardDto boardDto = boardService.getBoard(boardNo);
+        model.addAttribute("board", boardDto);
         return "board/update";
     }
 
-    // 게시글 수정 처리 (POST)
-    // 게시글 번호와 form 데이터(BoardDto), 첨부파일을 받아
-    // 수정 처리 후 결과 메시지를 JSON으로 반환
-    @PostMapping("/board/{id}/update")
+    // 게시글 수정 처리 (API)
+    @PostMapping("/board/update/{boardNo}")
     @ResponseBody
-    public Map<String, String> updateBoardApi(@PathVariable("id") Long id,
-                                              @ModelAttribute BoardDto dto,
-                                              @RequestParam(value = "files", required = false) MultipartFile[] files) {
+    public Map<String, String> updateBoard(@PathVariable("boardNo") Long boardNo, BoardDto dto) {
         Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "게시글 수정 중 알 수 없는 오류가 발생했습니다.");
+
         try {
-            dto.setBoard_no(id); // DTO에 ID를 명시적으로 설정
-            boardService.updateBoard(dto, files);
+            boardService.updateBoard(boardNo, dto);
             resultMap.put("res_code", "200");
-            resultMap.put("res_msg", "게시글이 수정되었습니다.");
+            resultMap.put("res_msg", "게시글이 성공적으로 수정되었습니다.");
         } catch (Exception e) {
             logger.error("게시글 수정 중 오류 발생", e);
             resultMap.put("res_code", "500");
-            resultMap.put("res_msg", "게시글 수정 중 오류 발생");
+            resultMap.put("res_msg", "게시글 수정 중 알 수 없는 오류가 발생했습니다.");
         }
+
         return resultMap;
     }
 
-    // 게시글 삭제 처리 (DELETE)
-    // 게시글 ID를 받아 삭제 후 결과 메시지를 JSON으로 반환
-    @DeleteMapping("/board/{id}")
+    // 게시글 삭제 처리 (Soft Delete)
+    @PostMapping("/board/delete/{boardNo}")
     @ResponseBody
-    public Map<String, String> deleteBoardApi(@PathVariable("id") Long id) {
+    public Map<String, String> deleteBoard(@PathVariable("boardNo") Long boardNo) {
         Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "게시글 삭제 중 알 수 없는 오류가 발생했습니다.");
+
         try {
-            boardService.deleteBoard(id);
+            boardService.deleteBoard(boardNo);
             resultMap.put("res_code", "200");
-            resultMap.put("res_msg", "게시글이 삭제되었습니다.");
+            resultMap.put("res_msg", "게시글이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
             logger.error("게시글 삭제 중 오류 발생", e);
             resultMap.put("res_code", "500");
-            resultMap.put("res_msg", "게시글 삭제 중 오류 발생");
+            resultMap.put("res_msg", "게시글 삭제 중 알 수 없는 오류가 발생했습니다.");
         }
+
         return resultMap;
     }
-    // 삭제되지 않은 것처럼 남기고, 실제 목록에서 안보이게 하고 싶을때 쓰는 코드
-//    @DeleteMapping("/board/{id}")
-//    @ResponseBody
-//    public Map<String, String> deleteBoard(@PathVariable("id") Long boardNo) {
-//        Map<String, String> result = new HashMap<>();
-//        try {
-//            boardService.deleteBoardSoft(boardNo);
-//            result.put("res_code", "200");
-//            result.put("res_msg", "삭제되었습니다.");
-//        } catch (Exception e) {
-//            result.put("res_code", "500");
-//            result.put("res_msg", "삭제 중 오류 발생");
-//        }
-//        return result;
-//    }
 
-    // 특정 게시글에 대한 첨부파일 목록 조회 (AJAX 요청 처리용)
-    @GetMapping("/board/{board_no}/attach")
+    // 게시글 목록 조회 (API)
+    @GetMapping("/board/list")
     @ResponseBody
-    public List<BoardAttachDto> getAttachList(@PathVariable("board_no") Long boardNo) {
-        return boardAttachService.selectAttachList(boardNo);
+    public Map<String, Object> getAllBoards() {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "게시글 조회 중 알 수 없는 오류가 발생했습니다.");
+
+        try {
+            resultMap.put("boards", boardService.getAllBoards());
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "게시글 목록 조회가 성공적으로 완료되었습니다.");
+        } catch (Exception e) {
+            logger.error("게시글 목록 조회 중 오류 발생", e);
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", "게시글 목록 조회 중 알 수 없는 오류가 발생했습니다.");
+        }
+
+        return resultMap;
+    }
+
+    // 임시 저장 게시글 조회 (API)
+    @GetMapping("/board/temp")
+    @ResponseBody
+    public Map<String, Object> getTempBoardsByMember(@RequestParam("memberNo") Long memberNo) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "임시 저장된 게시글 조회 중 알 수 없는 오류가 발생했습니다.");
+
+        try {
+            resultMap.put("tempBoards", boardService.getTempBoardsByMember(memberNo));
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "임시 저장된 게시글 조회가 성공적으로 완료되었습니다.");
+        } catch (Exception e) {
+            logger.error("임시 저장된 게시글 조회 중 오류 발생", e);
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", "임시 저장된 게시글 조회 중 알 수 없는 오류가 발생했습니다.");
+        }
+
+        return resultMap;
+    }
+
+    // 임시 저장 게시글 삭제 처리 (API)
+    @PostMapping("/board/temp/delete/{boardNo}")
+    @ResponseBody
+    public Map<String, String> deleteTempBoard(@PathVariable("boardNo") Long boardNo) {
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "임시 게시글 삭제 중 오류가 발생했습니다.");
+
+        try {
+            boardService.deleteTempBoard(boardNo);
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "임시 게시글이 성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            logger.error("임시 게시글 삭제 중 오류 발생", e);
+        }
+
+        return resultMap;
     }
 }
