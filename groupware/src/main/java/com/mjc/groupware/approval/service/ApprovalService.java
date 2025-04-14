@@ -95,7 +95,7 @@ public class ApprovalService {
 		
 		try {
 			
-			if(approvalDto.getAgreementer_no() == null) { 
+			if(approvalDto.getAgreementer_no() != null) { 
 				approvalDto.setAppr_status("A");
 			} else {
 				approvalDto.setAppr_status("D");
@@ -128,7 +128,7 @@ public class ApprovalService {
 			
 			// 합의자
 			agreementerDto.setAppr_no(apprNo);
-			if(approvalDto.getAgreementer_no() == null) {
+			if(approvalDto.getAgreementer_no() != null) {
 				agreementerDto.setAgreementer_no(approvalDto.getAgreementer_no());
 				List<ApprAgreementer> agreementerList = agreementerDto.toEntityList();
 				for(ApprAgreementer entity : agreementerList) {
@@ -143,7 +143,7 @@ public class ApprovalService {
 			
 			// 참조자
 			referencerDto.setAppr_no(apprNo);
-			if(approvalDto.getReferencer_no() == null) {
+			if(approvalDto.getReferencer_no() != null) {
 				referencerDto.setReferencer_no(approvalDto.getReferencer_no());
 				List<ApprReferencer> referencerList = referencerDto.toEntityList();
 				for(ApprReferencer entity : referencerList) {
