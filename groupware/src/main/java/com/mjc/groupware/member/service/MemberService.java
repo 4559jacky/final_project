@@ -5,6 +5,9 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.member.specification.MemberSpecification;
 import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
@@ -68,7 +72,6 @@ public class MemberService {
 					.build());
 					
 		} catch(DataIntegrityViolationException e) {
-			System.out.println("예외 발생");
 			throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
 		}
 		
@@ -90,6 +93,43 @@ public class MemberService {
 	        member.changeDept(transferDept);
 	    } // 예전에 배웠던 방식인데, Entity에는 Setter를 두지 않으면서 무결성을 유지하고, 도메인 메서드를 하나 만들어서 좀 더 비지니스 로직을 명시적으로 표현할 수 있음
 		
+	}
+	
+	public void updateMemberPw(MemberDto dto) {
+		try {
+			Specification<Member> spec = (root, query, criteriaBuilder) -> null;
+			spec = spec.and(MemberSpecification.equalMemberNo(dto.getMember_no()));
+			
+			Member target = repository.findOne(spec).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다"));
+			
+			if(!passwordEncoder.matches(dto.getMember_pw(), target.getMemberPw())) {
+				throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+			}
+			
+			target.changePassword(passwordEncoder.encode(dto.getMember_new_pw()));
+			
+			repository.save(target);
+			
+			// 비밀번호 수정 후 -> 자동로그인이 있다면 자동로그인을 해제
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+			String sql = "DELETE FROM persistent_logins WHERE username = ?";
+			jdbcTemplate.update(sql, dto.getMember_id());
+			
+			// 비밀번호 수정 후 -> 로그아웃 시키지 않고, 인증정보를 바꾸고 싶을 때 - 비밀번호 외 비교적 간단한 정보 바꿀 때
+//			UserDetails updatedUserDetails = userDetailsService.loadUserByUsername(dto.getMember_id());
+//			Authentication newAuth = new UsernamePasswordAuthenticationToken(
+//					updatedUserDetails,
+//					updatedUserDetails.getPassword(),
+//					updatedUserDetails.getAuthorities());
+//			SecurityContextHolder.getContext().setAuthentication(newAuth);
+			
+			// 비밀번호 수정 후 -> 로그인 된 사원의 인증 상태를 해제 (즉, 인증이 풀리면서 /login 으로 강제로 끌려들어감)
+			SecurityContextHolder.getContext().setAuthentication(null);	
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("비밀번호 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
 	}
 	
 	// 결재라인 부서의 속한 사원들select

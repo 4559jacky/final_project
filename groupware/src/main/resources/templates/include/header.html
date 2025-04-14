@@ -359,74 +359,111 @@
                   <!-- ------------------------------- -->
                   <!-- 작은화면 : 프로필 이미지 드롭다운 -->
                   <!-- ------------------------------- -->
-                  <li class="nav-item dropdown">
-                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
-                      <div class="d-flex align-items-center">
-                        <div class="user-profile-img">
-                          <img th:src="@{/assets/images/profile/user-1.jpg}" class="rounded-circle" width="35" height="35" alt="flexy-img" />
-                        </div>
-                      </div>
-                    </a>
-                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop1">
-                      <div class="profile-dropdown position-relative" data-simplebar>
-                        <div class="py-3 px-7 pb-0">
-                          <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
-                        </div>
-                        <div class="d-flex align-items-center py-9 mx-7 border-bottom">
-                          <img th:src="@{/assets/images/profile/user-1.jpg}" class="rounded-circle" width="80" height="80" alt="flexy-img" />
-                          <div class="ms-3">
-                            <h5 class="mb-1 fs-4">Johnathan Doe</h5>
-                            <span class="mb-1 d-block">Administrator</span>
-                            <p class="mb-0 d-flex align-items-center gap-2">
-                              <i class="ti ti-mail fs-4"></i> info@flexy.com
-                            </p>
-                          </div>
-                        </div>
-                        <div class="message-body">
-                          <a href="./main/page-user-profile.html" class="py-8 px-7 mt-8 d-flex align-items-center">
-                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-                              <img th:src="@{/assets/images/svgs/icon-account.svg}" alt="flexy-img" width="24" height="24" />
-                            </span>
-                            <div class="w-100 ps-3">
-                              <h6 class="mb-0 fs-4 lh-base">My Profile</h6>
-                              <span class="fs-3 d-block text-body-secondary">Account Settings</span>
-                            </div>
-                          </a>
-                          <a href="./main/app-email.html" class="py-8 px-7 d-flex align-items-center">
-                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-                              <img th:src="@{/assets/images/svgs/icon-inbox.svg}" alt="flexy-img" width="24" height="24" />
-                            </span>
-                            <div class="w-100 ps-3">
-                              <h6 class="mb-0 fs-4 lh-base">My Inbox</h6>
-                              <span class="fs-3 d-block text-body-secondary">Messages & Emails</span>
-                            </div>
-                          </a>
-                          <a href="./main/app-notes.html" class="py-8 px-7 d-flex align-items-center">
-                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-                              <img th:src="@{/assets/images/svgs/icon-tasks.svg}" alt="flexy-img" width="24" height="24" />
-                            </span>
-                            <div class="w-100 ps-3">
-                              <h6 class="mb-0 fs-4 lh-base">My Task</h6>
-                              <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
-                            </div>
-                          </a>
-						  <form th:action="@{/logout}" method="post">
-  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
-								<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-									<img th:src="@{/assets/images/svgs/icon-dd-lifebuoy.svg}" alt="flexy-img" width="24" height="24" />
-								</span>
-								<div class="w-100 ps-3">
-									<h6 class="mb-0 fs-4 lh-base">로그아웃</h6>
-									<span class="fs-3 d-block text-body-secondary">Sign out</span>
-								</div>
-							</button>
-						  </form>
-						  
-                        </div>
-       
-                      </div>
-                    </div>
-                  </li>
+                  <th:block th:if="${#authentication.principal.member}">
+	                  <li class="nav-item dropdown">
+	                  	<th:block th:if="${latestMyProfile != null}">
+			            	<a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
+			                	<div class="d-flex align-items-center">
+			                    	<div class="user-profile-img">
+			                        	<img th:src="@{|/uploads/${latestMyProfile.new_name}|}" class="rounded-circle" width="35" height="35" alt="flexy-img" />
+			                        </div>
+			                    </div>
+			                 </a>
+		                 </th:block>
+		                 <th:block th:if="${latestMyProfile == null}">
+			             	<a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
+			                	<div class="d-flex align-items-center">
+			                    	<div class="user-profile-img">
+			                        	<img th:src="@{/img/default_profile.png}" class="rounded-circle" width="35" height="35" alt="flexy-img" />
+			                        </div>
+			                    </div>
+			                </a>
+		                </th:block>
+	                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop1">
+	                      <div class="profile-dropdown position-relative" data-simplebar>
+	                        <div class="py-3 px-7 pb-0">
+	                          <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
+	                        </div>
+	                        <div class="d-flex align-items-center py-9 mx-7 border-bottom">
+	                          <th:block th:if="${latestMyProfile != null}">
+	                          	<img th:src="@{|/uploads/${latestMyProfile.new_name}|}" class="rounded-circle" width="80" height="80" alt="flexy-img" />
+	                          </th:block>
+	                          <th:block th:if="${latestMyProfile == null}">
+	                          	<img th:src="@{/img/default_profile.png}" class="rounded-circle" width="80" height="80" alt="flexy-img" />
+	                          </th:block>
+	                          <div class="ms-3">
+	                            <h5 class="mb-1 fs-4" th:text="${#authentication.principal.member.memberName}">사용자 이름</h5>
+	                            <th:block th:if="${#authentication.principal.member.dept != null && #authentication.principal.member.pos != null}">
+	                            	<span class="mb-1 d-block" th:text="${#authentication.principal.member.dept.deptName+'('+ #authentication.principal.member.pos.posName}+')'">사용자 부서(직급)</span>
+	                            </th:block>
+	                            <th:block th:if="${#authentication.principal.member.dept == null && #authentication.principal.member.pos != null}">
+	                            	<span class="mb-1 d-block" th:text="${'부서 미배정('+ #authentication.principal.member.pos.posName}+')'">부서 미배정(직급)</span>
+	                            </th:block>
+	                            <th:block th:if="${#authentication.principal.member.dept != null && #authentication.principal.member.pos == null}">
+  									<span class="mb-1 d-block" th:text="${#authentication.principal.member.dept.deptName + '(직급 미배정)'}">사용자 부서(직급 미배정)</span>
+								</th:block>
+	                            <th:block th:if="${#authentication.principal.member.dept == null && #authentication.principal.member.pos == null}">
+	                            	<span class="mb-1 d-block">부서 미배정(직급 미배정)</span>
+	                            </th:block>
+	                            <th:block th:if="${#authentication.principal.member.memberEmail}">
+		                            <p class="mb-0 d-flex align-items-center gap-2" th:text="${#authentication.principal.member.memberEmail}">
+		                              <i class="ti ti-mail fs-4"></i>사용자 이메일
+		                            </p>
+	                            </th:block>
+	                            <th:block th:if="!${#authentication.principal.member.memberEmail}">
+		                            <p class="mb-0 d-flex align-items-center gap-2">
+		                              <i class="ti ti-mail fs-4"></i>이메일 미등록
+		                            </p>
+	                            </th:block>
+	                          </div>
+	                        </div>
+	                        <div class="message-body">
+	                          <a th:href="@{/member/{id}/update(id=${#authentication.principal.member.memberNo})}" class="py-8 px-7 mt-8 d-flex align-items-center">
+	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+	                              <img th:src="@{/assets/images/svgs/icon-account.svg}" alt="flexy-img" width="24" height="24" />
+	                            </span>
+	                            <div class="w-100 ps-3">
+	                              <h6 class="mb-0 fs-4 lh-base">마이 페이지</h6>
+	                              <span class="fs-3 d-block text-body-secondary">Account Settings</span>
+	                            </div>
+	                          </a>
+	                          <a href="./main/app-email.html" class="py-8 px-7 d-flex align-items-center">
+	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+	                              <img th:src="@{/assets/images/svgs/icon-inbox.svg}" alt="flexy-img" width="24" height="24" />
+	                            </span>
+	                            <div class="w-100 ps-3">
+	                              <h6 class="mb-0 fs-4 lh-base">My Inbox</h6>
+	                              <span class="fs-3 d-block text-body-secondary">Messages & Emails</span>
+	                            </div>
+	                          </a>
+	                          <a href="./main/app-notes.html" class="py-8 px-7 d-flex align-items-center">
+	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+	                              <img th:src="@{/assets/images/svgs/icon-tasks.svg}" alt="flexy-img" width="24" height="24" />
+	                            </span>
+	                            <div class="w-100 ps-3">
+	                              <h6 class="mb-0 fs-4 lh-base">My Task</h6>
+	                              <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
+	                            </div>
+	                          </a>
+	                          <!-- 작은화면 : 로그아웃 버튼 -->
+							  <form th:action="@{/logout}" method="post">
+	  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
+									<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+										<img th:src="@{/assets/images/svgs/icon-dd-lifebuoy.svg}" alt="flexy-img" width="24" height="24" />
+									</span>
+									<div class="w-100 ps-3">
+										<h6 class="mb-0 fs-4 lh-base">로그아웃</h6>
+										<span class="fs-3 d-block text-body-secondary">Sign out</span>
+									</div>
+								</button>
+							  </form>
+							  <!-- 작은화면 : 로그아웃 버튼 끝-->
+	                        </div>
+	       
+	                      </div>
+	                    </div>
+	                  </li>
+                  </th:block>
                   <!-- ------------------------------- -->
                   <!-- 작은화면 : 프로필 이미지 드롭다운 끝 -->
                   <!-- ------------------------------- -->
@@ -941,7 +978,7 @@
                             <span class="fs-3 d-block text-body-secondary">Congratulate him</span>
                           </div>
                         </a>
-                      </div>c="./assets/images/profile/user-6.jpg" alt="user
+                      </div>
                       <div class="py-6 px-7 mb-1">
                         <button class="btn btn-outline-primary w-100">See All Notifications</button>
                       </div>
@@ -954,75 +991,112 @@
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 프로필 사진 드롭다운 -->
                   <!-- ------------------------------- -->
-                  <li class="nav-item dropdown">
-                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
-                      <div class="d-flex align-items-center">
-                        <div class="user-profile-img">
-                          <img th:src="@{/assets/images/profile/user-1.jpg}" class="rounded-circle" width="35" height="35" alt="flexy-img" />
-                        </div>
-                      </div>
-                    </a>
-                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop1">
-                      <div class="profile-dropdown position-relative" data-simplebar>
-                        <div class="py-3 px-7 pb-0">
-                          <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
-                        </div>
-                        <div class="d-flex align-items-center py-9 mx-7 border-bottom">
-                          <img th:src="@{/assets/images/profile/user-1.jpg}" class="rounded-circle" width="80" height="80" alt="flexy-img" />
-                          <div class="ms-3">
-                            <h5 class="mb-1 fs-4">Johnathan Doe</h5>
-                            <span class="mb-1 d-block">Administrator</span>
-                            <p class="mb-0 d-flex align-items-center gap-2">
-                              <i class="ti ti-mail fs-4"></i> info@flexy.com
-                            </p>
-                          </div>
-                        </div>
-                        <div class="message-body">
-                          <a href="./main/page-user-profile.html" class="py-8 px-7 mt-8 d-flex align-items-center">
-                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-                              <img th:src="@{/assets/images/svgs/icon-account.svg}" alt="flexy-img" width="24" height="24" />
-                            </span>
-                            <div class="w-100 ps-3">
-                              <h6 class="mb-0 fs-4 lh-base">My Profile</h6>
-                              <span class="fs-3 d-block text-body-secondary">Account Settings</span>
-                            </div>
-                          </a>
-                          <a href="./main/app-email.html" class="py-8 px-7 d-flex align-items-center">
-                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-                              <img th:src="@{/assets/images/svgs/icon-inbox.svg}" alt="flexy-img" width="24" height="24" />
-                            </span>
-                            <div class="w-100 ps-3">
-                              <h6 class="mb-0 fs-4 lh-base">My Inbox</h6>
-                              <span class="fs-3 d-block text-body-secondary">Messages & Emails</span>
-                            </div>
-                          </a>
-                          <a href="./main/app-notes.html" class="py-8 px-7 d-flex align-items-center">
-                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-                              <img th:src="@{/assets/images/svgs/icon-tasks.svg}" alt="flexy-img" width="24" height="24" />
-                            </span>
-                            <div class="w-100 ps-3">
-                              <h6 class="mb-0 fs-4 lh-base">My Task</h6>
-                              <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
-                            </div>
-                          </a>
-                          
-                          <!-- 모든화면 : 로그아웃 버튼 -->
-                          <form th:action="@{/logout}" method="post">
-  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
-								<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-									<img th:src="@{/assets/images/svgs/icon-dd-lifebuoy.svg}" alt="flexy-img" width="24" height="24" />
-								</span>
-								<div class="w-100 ps-3">
-									<h6 class="mb-0 fs-4 lh-base">로그아웃</h6>
-									<span class="fs-3 d-block text-body-secondary">Sign out</span>
-								</div>
-							</button>
-						  </form>
-						  
-                        </div>
-                      </div>
-                    </div>
-                  </li>
+                  <th:block th:if="${#authentication.principal.member}">
+	                  <li class="nav-item dropdown">
+		                  <th:block th:if="${latestMyProfile != null}">
+			                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
+			                      <div class="d-flex align-items-center">
+			                        <div class="user-profile-img">
+			                          <img th:src="@{|/uploads/${latestMyProfile.new_name}|}" class="rounded-circle" width="35" height="35" alt="flexy-img" />
+			                        </div>
+			                      </div>
+			                    </a>
+		                    </th:block>
+		                  	<th:block th:if="${latestMyProfile == null}">
+			                    <a class="nav-link pe-0" href="javascript:void(0)" id="drop1" aria-expanded="false">
+			                      <div class="d-flex align-items-center">
+			                        <div class="user-profile-img">
+			                          <img th:src="@{/img/default_profile.png}" class="rounded-circle" width="35" height="35" alt="flexy-img" />
+			                        </div>
+			                      </div>
+			                    </a>
+		                    </th:block>
+	                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop1">
+	                      <div class="profile-dropdown position-relative" data-simplebar>
+	                        <div class="py-3 px-7 pb-0">
+	                          <h5 class="mb-0 fs-5 fw-semibold">User Profile</h5>
+	                        </div>
+	                        <div class="d-flex align-items-center py-9 mx-7 border-bottom">
+	                          <th:block th:if="${latestMyProfile != null}">
+	                          	<img th:src="@{|/uploads/${latestMyProfile.new_name}|}" class="rounded-circle" width="80" height="80" alt="flexy-img" />
+	                          </th:block>
+	                          <th:block th:if="${latestMyProfile == null}">
+	                          	<img th:src="@{/img/default_profile.png}" class="rounded-circle" width="80" height="80" alt="flexy-img" />
+	                          </th:block>
+	                          <div class="ms-3">
+	                            <h5 class="mb-1 fs-4" th:text="${#authentication.principal.member.memberName}">사용자 이름</h5>
+	                            <th:block th:if="${#authentication.principal.member.dept != null && #authentication.principal.member.pos != null}">
+	                            	<span class="mb-1 d-block" th:text="${#authentication.principal.member.dept.deptName+'('+ #authentication.principal.member.pos.posName}+')'">사용자 부서(직급)</span>
+	                            </th:block>
+	                            <th:block th:if="${#authentication.principal.member.dept == null && #authentication.principal.member.pos != null}">
+	                            	<span class="mb-1 d-block" th:text="${'부서 미배정('+ #authentication.principal.member.pos.posName}+')'">부서 미배정(직급)</span>
+	                            </th:block>
+	                            <th:block th:if="${#authentication.principal.member.dept != null && #authentication.principal.member.pos == null}">
+  									<span class="mb-1 d-block" th:text="${#authentication.principal.member.dept.deptName + '(직급 미배정)'}">사용자 부서(직급 미배정)</span>
+								</th:block>
+	                            <th:block th:if="${#authentication.principal.member.dept == null && #authentication.principal.member.pos == null}">
+	                            	<span class="mb-1 d-block">부서 미배정(직급 미배정)</span>
+	                            </th:block>
+	                            <th:block th:if="${#authentication.principal.member.memberEmail}">
+		                            <p class="mb-0 d-flex align-items-center gap-2" th:text="${#authentication.principal.member.memberEmail}">
+		                              <i class="ti ti-mail fs-4"></i>사용자 이메일
+		                            </p>
+	                            </th:block>
+	                            <th:block th:if="!${#authentication.principal.member.memberEmail}">
+		                            <p class="mb-0 d-flex align-items-center gap-2">
+		                              <i class="ti ti-mail fs-4"></i>이메일 미등록
+		                            </p>
+	                            </th:block>
+	                          </div>
+	                        </div>
+	                        <div class="message-body">
+	                          <a th:href="@{/member/{id}/update(id=${#authentication.principal.member.memberNo})}" class="py-8 px-7 mt-8 d-flex align-items-center">
+	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+	                              <img th:src="@{/assets/images/svgs/icon-account.svg}" alt="flexy-img" width="24" height="24" />
+	                            </span>
+	                            <div class="w-100 ps-3">
+	                              <h6 class="mb-0 fs-4 lh-base">마이 페이지</h6>
+	                              <span class="fs-3 d-block text-body-secondary">Account Settings</span>
+	                            </div>
+	                          </a>
+	                          <a href="./main/app-email.html" class="py-8 px-7 d-flex align-items-center">
+	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+	                              <img th:src="@{/assets/images/svgs/icon-inbox.svg}" alt="flexy-img" width="24" height="24" />
+	                            </span>
+	                            <div class="w-100 ps-3">
+	                              <h6 class="mb-0 fs-4 lh-base">My Inbox</h6>
+	                              <span class="fs-3 d-block text-body-secondary">Messages & Emails</span>
+	                            </div>
+	                          </a>
+	                          <a href="./main/app-notes.html" class="py-8 px-7 d-flex align-items-center">
+	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+	                              <img th:src="@{/assets/images/svgs/icon-tasks.svg}" alt="flexy-img" width="24" height="24" />
+	                            </span>
+	                            <div class="w-100 ps-3">
+	                              <h6 class="mb-0 fs-4 lh-base">My Task</h6>
+	                              <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
+	                            </div>
+	                          </a>
+	                          
+	                          <!-- 풀화면 : 로그아웃 버튼 -->
+	                          <form th:action="@{/logout}" method="post">
+	  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
+									<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+										<img th:src="@{/assets/images/svgs/icon-dd-lifebuoy.svg}" alt="flexy-img" width="24" height="24" />
+									</span>
+									<div class="w-100 ps-3">
+										<h6 class="mb-0 fs-4 lh-base">로그아웃</h6>
+										<span class="fs-3 d-block text-body-secondary">Sign out</span>
+									</div>
+								</button>
+							  </form>
+							  <!-- 풀화면 : 로그아웃 버튼 끝-->
+	                        </div>
+	                      </div>
+	                    </div>
+	                  </li>
+                  </th:block>
+              	  
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 프로필 드롭다운 사진 끝 -->
                   <!-- ------------------------------- -->
