@@ -17,7 +17,7 @@ import lombok.ToString;
 @Builder
 public class MeetingRoomDto {
 	
-	private int meeting_room_no;
+	private Long meeting_room_no;
 	private String meeting_room_name;
 	private String meeting_room_status;
 	private String new_meeting_room_name;

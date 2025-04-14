@@ -1,5 +1,4 @@
 /*========Calender Js=========*/
-
 document.addEventListener("DOMContentLoaded", function () {
   /*=================*/
   //  Calender Date variable
@@ -44,7 +43,29 @@ document.addEventListener("DOMContentLoaded", function () {
     center: "title",
     right: "dayGridMonth,timeGridWeek,timeGridDay",
   };
-  var calendarEventsList = "";
+  var buttonText = {
+		today : '현재날짜',
+		month : '월',
+		week : '주',
+		day : '일',
+  };
+  /*var calendarEventsList = "";*/
+  var calendarEventsList = [
+      {
+        id: 2,
+        title: "Seminar #4",
+        start: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
+        end: `${newDate.getFullYear()}-${getDynamicMonth()}-10`,
+        extendedProps: { calendar: "Success" },
+      },
+      {
+        groupId: "999",
+        id: 3,
+        title: "Meeting #5",
+        start: `${newDate.getFullYear()}-${getDynamicMonth()}-09T16:00:00`,
+        extendedProps: { calendar: "Primary" },
+      },
+    ];
   /*=====================*/
   // Calendar Select fn.
   /*=====================*/
@@ -56,7 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
     getModalStartDateEl.value = info.startStr;
     getModalEndDateEl.value = info.endStr;
   };
-
   /*=====================*/
   // Calendar AddEvent fn.
   /*=====================*/
@@ -71,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
     myModal.show();
     getModalStartDateEl.value = combineDate;
   };
-
   /*=====================*/
   // Calender Event Function
   /*=====================*/
@@ -86,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	 document.getElementById("event-end-date").value = eventObj.endStr ? eventObj.endStr.slice(0, 10) : "";
 	 document.getElementById("event-description").value = eventObj.extendedProps.description || "";
 
-	 
 	 const detailModal = new bootstrap.Modal(document.getElementById("eventModaldetail"));
 	 detailModal.show();
 	 
@@ -111,10 +129,8 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       getModalAddBtnEl.style.display = "none";
       getModalUpdateBtnEl.style.display = "block";
-
     }
   };
-
   /*=====================*/
   // Active Calender
   /*=====================*/
@@ -122,11 +138,30 @@ document.addEventListener("DOMContentLoaded", function () {
     selectable: true,
 	locale:'ko',
 	dayMaxEvents:true,
+	editable:true,
+	nowIndicator:true,
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
-    headerToolbar: calendarHeaderToolbar,
-    events: calendarEventsList,
+    headerToolbar: calendarHeaderToolbar,buttonText,
+    events: function(fetchInfo, successCallback,failureCallback){
+		$.ajax({
+			url:'/calendar',
+			method:'get',
+			dataType:'json',
+			data:{
+				start: fetchInfo.startStr,
+				end: fetchInfo.endStr
+			},
+			success:function(response){
+				successCallback(response);
+			},
+			error:function(){
+				failureCallback();
+			}
+		});
+	},
+/*    events: calendarEventsList,*/
 	eventClick:calendarEventClick,
     select: calendarSelect,
     unselect: function () {
@@ -143,7 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
         calendarsEvents[calendarEvent._def.extendedProps.calendar];
       return ["event-fc-color fc-bg-" + getColorValue];
     },
-
     windowResize: function (arg) {
       if (checkWidowWidth()) {
         calendar.changeView("listWeek");
@@ -153,9 +187,39 @@ document.addEventListener("DOMContentLoaded", function () {
         calendar.setOption("height", 1052);
       }
     },
-	
-  });
+/*	eventDidMount: function(info) {
+	   let icon = '';
+	   let badgeColor = '';
 
+	   switch (info.event.extendedProps.calendar) {
+	     case '회사':
+	       icon = '🏢';
+	       badgeColor = 'primary';
+	       break;
+	     case '부서':
+	       icon = '👥';
+	       badgeColor = 'success';
+	       break;
+	     case '개인':
+	       icon = '🙋‍♂️';
+	       badgeColor = 'warning';
+	       break;
+	     case '휴가':
+	       icon = '🌴';
+	       badgeColor = 'danger';
+	       break;
+	     default:
+	       icon = '📌';
+	       badgeColor = 'secondary';
+	   }
+
+	   // 제목 앞에 아이콘과 뱃지 붙이기
+	   info.el.innerHTML = `
+	     <span class="badge bg-${badgeColor} me-1">${icon}</span>
+	     ${info.event.title}
+	   `;
+	 }*/
+  });
   /*=====================*/
   // Update Calender Event
   /*=====================*/
@@ -214,48 +278,30 @@ document.addEventListener("DOMContentLoaded", function () {
     var writer = document.getElementById("event-writer").value;
     var department = document.getElementById("event-department").value;
 
-
     var requestData = {
       planName: getTitleValue,
       planContent: description,
       startDate: setModalStartDateValue,
       endDate: setModalEndDateValue,
       color: getModalCheckedRadioBtnValue,
-      regMemberNo: 1 // 로그인 정보에서 가져오기
-/*      planType: "P"*/
+      regMemberNo: 1
     };
+	calendar.addEvent({
+	      id: 12,
+	      title: getTitleValue,
+	      start: setModalStartDateValue,
+	      end: setModalEndDateValue,
+	      allDay: true,
+		  extendedProps: {
+		      calendar: getModalCheckedRadioBtnValue,
+		      description: description,
+			  writer: writer,
+			  department: department
+		    },
+	    });
   });
 
-  /*getModalAddBtnEl.addEventListener("click", function () {
-    var getModalCheckedRadioBtnEl = document.querySelector(
-      'input[name="event-level"]:checked'
-    );
-
-    var getTitleValue = getModalTitleEl.value;
-    var setModalStartDateValue = getModalStartDateEl.value;
-    var setModalEndDateValue = getModalEndDateEl.value;
-    var getModalCheckedRadioBtnValue =
-      getModalCheckedRadioBtnEl !== null ? getModalCheckedRadioBtnEl.value : "";
-
-	var description = document.getElementById("event-description").value;
-	var writer = document.getElementById("event-writer").value;
-	var department = document.getElementById("event-department").value;  
-	  
-    calendar.addEvent({
-      id: 12,
-      title: getTitleValue,
-      start: setModalStartDateValue,
-      end: setModalEndDateValue,
-      allDay: true,
-	  extendedProps: {
-	      calendar: getModalCheckedRadioBtnValue,
-	      description: description,
-		  writer: writer,
-		  department: department
-	    },
-    });
-    myModal.hide();
-  });*/
+    /*myModal.hide();*/
   /*=====================*/
   // Calendar Initd
   /*=====================*/

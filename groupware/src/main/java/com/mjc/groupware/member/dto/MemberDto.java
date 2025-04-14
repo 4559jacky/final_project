@@ -25,6 +25,7 @@ public class MemberDto {
 	private Long member_no;
 	private String member_id;
 	private String member_pw;
+	private String member_new_pw;
 	private String member_name;
 	private String member_birth;
 	private String member_gender;
