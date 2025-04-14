@@ -15,7 +15,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long>,JpaSpecifi
 
 	Page<Notice> findAll(Specification<Notice> spec, Pageable pageble);
 	
-	List<Notice> findBySharedTitleContaining(String keyword);
-	List<Notice> findBySharedContentContaining(String keyword);
-	List<Notice> findBySharedTitleContainingIgnoreCaseOrSharedContentContainingIgnoreCase(String title, String content, Sort sort);
+	List<Notice> findByNoticeTitleContaining(String keyword);
+	List<Notice> findByNoticeContentContaining(String keyword);
+	List<Notice> findByNoticeTitleContainingIgnoreCaseOrNoticeContentContainingIgnoreCase(String title, String content, Sort sort);
 }

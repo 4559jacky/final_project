@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name="shared_attach")
+@Table(name="notice_attach")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,6 +36,6 @@ public class Attach {
 	private String attachPath;
 	
 	@ManyToOne
-	@JoinColumn(name="shared_no")
-	private Notice shared;
+	@JoinColumn(name="notice_no")
+	private Notice notice;
 }

@@ -15,13 +15,13 @@ layout:decorate="~{/include/layout}">
               <i class="ti ti-home fs-5"></i>
             </a>
           </li>
-          <li class="breadcrumb-item" aria-current="page">공유문서함 게시판</li>
+          <li class="breadcrumb-item" aria-current="page">공지사항 게시판</li>
         </ol>
       </nav><br>
-      <h2 class="mb-0 fw-bolder fs-8">공유문서함 게시판</h2>
+      <h2 class="mb-0 fw-bolder fs-8">공지사항 게시판</h2>
     </div><br>
  		<div class="d-flex justify-content-between align-items-center mb-3">
-    		<form th:action="@{/admin/shared}" method="get" class="d-flex align-items-center gap-2">
+    		<form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2">
             	 <!-- 정렬 -->
         	<select name="sort" class="form-select rounded-pill" onchange="this.form.submit()" style="width: 150px; height: 40px; background-color: white; border: 1px solid #ced4da;">
         		<option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
@@ -41,7 +41,7 @@ layout:decorate="~{/include/layout}">
         </div>
     		</form>
     			<button type="button" class="btn btn-primary rounded-pill"
-            		onclick="location.href='/admin/shared/create'">게시글 작성</button>
+            		onclick="location.href='/notice/create'">게시글 작성</button>
 		</div>
 	<!-- Table -->
     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
@@ -61,15 +61,15 @@ layout:decorate="~{/include/layout}">
 		      <!-- 테이블 바디 -->
 		        <tbody>
 		        	<!--iterStat -> 반복 상태 객체 -->
-  					<tr th:each="shared, iterStat : ${sharedList}">
+  					<tr th:each="notice, iterStat : ${noticeList}">
     					<td th:text="${iterStat.count}">1</td>
    						<td>	
-   							<a th:href="@{/admin/shared/detail(sharedNo=${shared.sharedNo})}" th:text="${shared.sharedTitle}" ></a>
+   							<a th:href="@{/notice/detail(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}" ></a>
    						</td>
-    					<td th:text="${shared.member.memberName}">작성자</td> <!-- 작성자 정보 없음 -->
-    					<td th:text="${#temporals.format(shared.regDate, 'yyyy-MM-dd')}">등록일</td>
-    					<td th:text="${#temporals.format(shared.modDate, 'yyyy-MM-dd')}">수정일</td>
-    					<td th:text="${shared.views}">조회수</td>
+    					<td th:text="${notice.member.memberName}">작성자</td> <!-- 작성자 정보 없음 -->
+    					<td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">등록일</td>
+    					<td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd')}">수정일</td>
+    					<td th:text="${notice.views}">조회수</td>
   					</tr>
 			 	</tbody>
 		    </table>

@@ -14,38 +14,37 @@
                         <i class="ti ti-home fs-5"></i>
                     </a>
                 </li>
-                <li class="breadcrumb-item" aria-current="page">공유 문서함</li>
+                <li class="breadcrumb-item" aria-current="page">공지사함 게시판</li>
                 <li class="breadcrumb-item active" aria-current="page">게시글 상세</li>
             </ol>
         </nav>
         <br>
-        <h2 class="mb-0 fw-bolder fs-8">공유 문서함 게시글 상세</h2>
+        <h2 class="mb-0 fw-bolder fs-8">공지사항 게시글 상세</h2>
     </div>
     <br>
     <div class="container mt-4">
         <div class="card shadow-sm p-4">
             <!-- 게시글 정보 -->
             <div class="mb-3">
-                <h3 th:text="${shared.sharedTitle}" class="fw-semibold"></h3>
+                <h3 th:text="${notice.noticeTitle}" class="fw-semibold"></h3>
                 <div class="text-muted">
                     <span>작성자: </span>
-                    <span th:text="${shared.member.memberName}"></span>
+                    <span th:text="${notice.member.memberName}"></span>
                     <span> | 작성일: </span>
-                    <span th:text="${#temporals.format(shared.regDate, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    <span th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm:ss')}"></span>
                     <span> | 조회수: </span>
-                    <span th:text="${shared.views}"></span>
+                    <span th:text="${notice.views}"></span>
                 </div>
             </div>
             <!-- 게시글 내용 -->
             <div class="border-top pt-3">
-                <div th:utext="${shared.sharedContent}" class="post-content"></div>
+                <div th:utext="${notice.noticeContent}" class="post-content"></div>
             </div>
             <!-- 버튼 -->
             <div class="mt-4 text-end">
-                <a th:href="@{/admin/shared}" class="btn btn-secondary">목록으로</a>
-                <a th:href="@{/admin/shared/update(sharedNo=${shared.sharedNo})}" class="btn btn-secondary">수정</a>
-           		<a th:href="@{/admin/shared/delete(sharedNo=${shared.sharedNo})}" class="btn btn-secondary" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
-            	
+                <a th:href="@{/notice}" class="btn btn-secondary">목록으로</a>
+                <a th:href="@{/notice/update(noticeNo=${notice.noticeNo})}" class="btn btn-secondary">수정</a>
+           		<a th:href="@{/notice/delete(noticeNo=${notice.noticeNo})}" class="btn btn-secondary" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
             </div>
         </div>
     </div>

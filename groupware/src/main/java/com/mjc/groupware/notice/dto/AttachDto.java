@@ -20,7 +20,7 @@ import lombok.ToString;
 @ToString
 public class AttachDto {
 	private Long attach_no; 
-	private Long shared_no;
+	private Long notice_no;
 	private String ori_name;
 	private String new_name;
 	private String attach_path;
@@ -33,7 +33,7 @@ public class AttachDto {
 				.oriName(ori_name)
 				.newName(new_name)
 				.attachPath(attach_path)
-				.shared(Notice.builder().sharedNo(shared_no).build())
+				.notice(Notice.builder().noticeNo(notice_no).build())
 				.build();
 	}
 }

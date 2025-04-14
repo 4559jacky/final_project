@@ -22,10 +22,10 @@ import lombok.ToString;
 @ToString
 @Builder
 public class NoticeDto {
-	private Long shared_no;
-	private String shared_title;
-	private String shared_content;
-	private char shared_status;
+	private Long notice_no;
+	private String notice_title;
+	private String notice_content;
+	private char notice_status;
 	private int views;
 	private Long member_no;
 	private LocalDateTime reg_date;
@@ -35,19 +35,19 @@ public class NoticeDto {
 	
 	public Notice toEntity() {
 		return Notice.builder()
-				.sharedNo(shared_no)
-				.sharedTitle(shared_title)
-				.sharedContent(shared_content)
+				.noticeNo(notice_no)
+				.noticeTitle(notice_title)
+				.noticeContent(notice_content)
 				.views(views)
 				.build();
 	}
 	
-	public NoticeDto toDto(Notice shared) {
+	public NoticeDto toDto(Notice notice) {
 		return NoticeDto.builder()
-				.shared_no(shared.getSharedNo())
-				.shared_title(shared.getSharedTitle())
-				.shared_content(shared.getSharedContent())
-				.views(shared.getViews())
+				.notice_no(notice.getNoticeNo())
+				.notice_title(notice.getNoticeTitle())
+				.notice_content(notice.getNoticeContent())
+				.views(notice.getViews())
 				.build();
 	}
 }
