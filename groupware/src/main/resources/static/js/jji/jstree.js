@@ -48,36 +48,36 @@ $(document).ready(function() {
 		console.log('test');
 	});
 	
-});
-
-// 부서 클릭 시 동작
-$('#appr_jstree').on("changed.jstree", function (e, data) {
-    if (data && data.selected && data.selected.length > 0) {
-        const selectedNodeId = data.selected[0]; // 예: '2'
-        console.log("선택된 노드 ID:", selectedNodeId);
-
-        // 부서 ID로 사원 목록 요청
-        fetch('/member/dept/'+selectedNodeId)
-            .then(response => response.json())
-            .then(data => {
-                const list = document.getElementById("memberList");
-                list.innerHTML = ""; // 기존 목록 초기화
-
-                if (data.length === 0) {
-                    list.innerHTML = "<li class='list-group-item'>사원이 없습니다.</li>";
-                    return;
-                }
-
-                data.forEach(member => {
-                    const li = document.createElement("li");
-                    li.className = "list-group-item";
-					li.innerHTML = `<label><input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} (${member.pos_name})&nbsp</label>`;
-                    // li.textContent = `<input type="checkbox" th:value='${member.member_no}'>${member.member_name} (${member.pos_name})`;
-                    list.appendChild(li);
-                });
-            })
-            .catch(err => {
-                console.error("사원 목록 불러오기 실패:", err);
-            });
-    }
+	// 부서 클릭 시 동작
+	$('#appr_jstree').on("changed.jstree", function (e, data) {
+	    if (data && data.selected && data.selected.length > 0) {
+	        const selectedNodeId = data.selected[0]; // 예: '2'
+	        console.log("선택된 노드 ID:", selectedNodeId);
+	
+	        // 부서 ID로 사원 목록 요청
+	        fetch('/member/dept/'+selectedNodeId)
+	            .then(response => response.json())
+	            .then(data => {
+	                const list = document.getElementById("memberList");
+	                list.innerHTML = ""; // 기존 목록 초기화
+	
+	                if (data.length === 0) {
+	                    list.innerHTML = "<li class='list-group-item'>사원이 없습니다.</li>";
+	                    return;
+	                }
+	
+	                data.forEach(member => {
+	                    const li = document.createElement("li");
+	                    li.className = "list-group-item";
+						li.innerHTML = `<label><input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} (${member.pos_name})&nbsp</label>`;
+	                    // li.textContent = `<input type="checkbox" th:value='${member.member_no}'>${member.member_name} (${member.pos_name})`;
+	                    list.appendChild(li);
+	                });
+	            })
+	            .catch(err => {
+	                console.error("사원 목록 불러오기 실패:", err);
+	            });
+	    }
+	});
+	
 });
