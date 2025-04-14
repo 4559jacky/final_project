@@ -145,11 +145,12 @@ document.addEventListener("DOMContentLoaded", function () {
   var calendar = new FullCalendar.Calendar(calendarEl, {
 	locale: 'ko',
     selectable: true,
+	dayMaxEvents:true,
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,
-    events: calendarEventsList,
+    events: '/selectReservation',
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");

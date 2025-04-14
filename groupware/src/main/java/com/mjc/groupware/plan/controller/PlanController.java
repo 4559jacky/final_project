@@ -1,9 +1,11 @@
 package com.mjc.groupware.plan.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,10 +23,13 @@ public class PlanController {
 	private final PlanService planService;
 
 	@GetMapping("/calendar")
-	public String calendarView() {
+	public String calendarView(Model model) {
+		List<Plan> resultList = planService.selectPlanAll();
+		model.addAttribute("resultList",resultList);
 		return "plan/calendar";
 	}
 
+	//일정 등록
 	@PostMapping("/plan/create")
 	@ResponseBody
 	public Map<String,String> createPlanApi(PlanDto dto){

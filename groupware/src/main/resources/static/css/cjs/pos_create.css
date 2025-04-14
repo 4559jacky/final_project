@@ -1,0 +1,45 @@
+@charset "UTF-8";
+
+#pos-list li {
+	user-select: none;
+	padding: 12px 16px;
+	background-color: white;
+	border: 1px solid #dee2e6;
+	margin-bottom: 4px;
+	border-radius: 4px;
+	cursor: default;
+}
+
+#pos-list li.dragging {
+	opacity: 0.5;
+	background-color: #e9ecef;
+}
+
+li.empty-message {
+	color: #6c757d;
+	font-style: italic;
+	padding: 8px;
+	border-radius: 6px;
+}
+
+.drag-handle {
+	cursor: grab;
+	color: #6c757d;
+	padding-left: 8px;
+}
+
+.dragging .drag-handle {
+	cursor: grabbing;
+}
+
+.edit-btn, .save-btn, .cancel-btn, .delete-btn {
+	border-color: #ccc !important;
+	color: #666 !important;
+	background-color: transparent !important;
+	transition: all 0.3s ease;
+}
+
+.edit-btn:hover, .save-btn:hover, .cancel-btn:hover, .delete-btn:hover {
+	border-color: #999 !important;
+	color: #222 !important;
+}

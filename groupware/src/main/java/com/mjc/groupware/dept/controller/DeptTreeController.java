@@ -20,6 +20,13 @@ public class DeptTreeController {
 	@GetMapping("/admin/dept/tree")
 	@ResponseBody
 	public List<DeptTreeDto> getDeptTree() {
+		
+	    return service.getDeptTree();
+	}
+	
+	@GetMapping("/dept/tree")
+	@ResponseBody
+	public List<DeptTreeDto> getDeptTreeUser() {
 	    return service.getDeptTree();
 	}
 	

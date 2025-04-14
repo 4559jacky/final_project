@@ -1,65 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal" 
+<html 
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
 
-	<style>
-		
-  		#pos-list li {
-			user-select: none;
-			padding: 12px 16px;
-			background-color: white;
-			border: 1px solid #dee2e6;
-			margin-bottom: 4px;
-			border-radius: 4px;
-			cursor: default;
-		}
-
-		#pos-list li.dragging {
-			opacity: 0.5;
-			background-color: #e9ecef;
-		}
-  		
-  		li.empty-message {
-			color: #6c757d;
-			font-style: italic;
-			padding: 8px;
-			border-radius: 6px;
-		}
-		
-		.drag-handle {
-				cursor: grab;
-				color: #6c757d;
-				padding-left: 8px;
-			}
-		
-		.dragging .drag-handle {
-			cursor: grabbing;
-		}
-		
-		.edit-btn,
-		.save-btn,
-		.cancel-btn,
-		.delete-btn {
-  			border-color: #ccc !important;
-  			color: #666 !important;
-  			background-color: transparent !important;
-  			transition: all 0.3s ease;
-		}
-
-		.edit-btn:hover,
-		.save-btn:hover,
-		.cancel-btn:hover,
-		.delete-btn:hover {
-  			border-color: #999 !important;
-  			color: #222 !important;
-		}
-		
-	</style>
-
+	<link rel="stylesheet" th:href="@{/css/cjs/pos_create.css}" />
+	<link rel="stylesheet" th:href="@{/css/cjs/custom_dark_mode.css}" />
+	
 	<div class="page-titles mb-7 mb-md-5">
 		<div class="row">
 			<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -70,7 +19,7 @@ layout:decorate="~{/include/layout}">
                      			<i class="ti ti-home fs-5"></i>
                     		</a>
                    	 	</li>
-						<li class="breadcrumb-item" aria-current="page">인사 관리 / 직급 관리</li>
+						<li class="breadcrumb-item" aria-current="page">관리자 메뉴 / 직급 관리</li>
                   	</ol>
 				</nav><br>
 				<h2 class="mb-0 fw-bolder fs-8">직급 관리</h2>
@@ -91,7 +40,7 @@ layout:decorate="~{/include/layout}">
                             		<th:block th:if="${posList != null}">
                             			<ul id="pos-list" class="list-group">
                             				<li th:each="pos : ${posList}"
-                            					class="list-group-item d-flex align-items-center justify-content-start gap-2"
+                            					class="list-group-item d-flex align-items-center justify-content-start gap-2 custom-dark-bg"
                             					th:attr="data-id=${pos.posNo}">
 												
                             					<span class="drag-handle me-2" draggable="true" style="cursor: grab;">
@@ -142,6 +91,7 @@ layout:decorate="~{/include/layout}">
 			</div>
 		</div>
 	</div>
+	
 	<script>
 		// 직급 등록 로직
 		const form = document.create_pos_form;
@@ -410,5 +360,27 @@ layout:decorate="~{/include/layout}">
 			});
 		});
 	</script>
+	
+	<!-- Bootstrap Common JS Files Start -->
+	
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+	
 </th:block>
 </html>

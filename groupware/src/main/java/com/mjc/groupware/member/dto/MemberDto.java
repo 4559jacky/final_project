@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-	
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -25,15 +25,18 @@ public class MemberDto {
 	private Long member_no;
 	private String member_id;
 	private String member_pw;
+	private String member_new_pw;
 	private String member_name;
 	private String member_birth;
 	private String member_gender;
-	private String member_addr;
+	private String member_addr1;
+	private String member_addr2;
+	private String member_addr3;
 	private String member_phone;
 	private Long pos_no;
 	private Long dept_no;
 	private Long role_no = (long) 3;
-	private String status = "EMPLOYED";
+	private int status = 100;
 	private String dept_name; // 04/09 JJI 사원 부서명 불러오기위해 추가
 	private String pos_name; // 04/09 JJI 사원 직급명 불러오기위해 추가
 	private LocalDateTime reg_date;
@@ -48,7 +51,9 @@ public class MemberDto {
 				.memberName(this.getMember_name())
 				.memberBirth(this.getMember_birth())
 				.memberGender(this.getMember_gender())
-				.memberAddr(this.getMember_addr())
+				.memberAddr1(this.getMember_addr1())
+				.memberAddr2(this.getMember_addr2())
+				.memberAddr3(this.getMember_addr3())
 				.pos(Pos.builder().posNo(this.getPos_no()).build())
 				.dept(Dept.builder().deptNo(this.getDept_no()).build())
 				.role(Role.builder().roleNo(this.getRole_no()).build())

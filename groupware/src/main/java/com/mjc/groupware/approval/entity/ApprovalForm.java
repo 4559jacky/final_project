@@ -9,14 +9,14 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.NoArgsConstructor; 
 
 @Entity
 @Table(name="approval_form")
-@Builder
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Builder
 public class ApprovalForm {
 	
 	@Id

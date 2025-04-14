@@ -22,7 +22,7 @@ public class MeetingRoom {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="meeting_room_no")
-	private int meetingRoomNo;
+	private Long meetingRoomNo;
 	
 	@Column(name="meeting_room_name")
 	private String meetingRoomName;

@@ -1,5 +1,13 @@
 @charset "UTF-8";
 
+.jstree-default .jstree-node {
+	cursor: pointer;
+}
+
+.d-none {
+	display:none;
+}
+
 #expand_all,
 #collapse_all {
 	padding: 2px 6px;
