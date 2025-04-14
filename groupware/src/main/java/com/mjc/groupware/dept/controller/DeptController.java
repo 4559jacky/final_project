@@ -55,7 +55,7 @@ public class DeptController {
 			if (dto.getMember_no() != null && dto.getMember_no() == 0) {
 			    dto.setMember_no(null);
 			}
-
+			
 			if (dto.getParent_dept_no() != null && dto.getParent_dept_no() == 0) {
 			    dto.setParent_dept_no(null);
 			}

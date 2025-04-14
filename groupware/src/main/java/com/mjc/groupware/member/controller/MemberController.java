@@ -25,6 +25,7 @@ import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberAttachService;
@@ -111,6 +112,84 @@ public class MemberController {
 		} 
 		
 		return resultMap;
+	}
+	
+	@GetMapping("/admin/member")
+	public String selectMemberAll(Model model) {
+		List<Dept> deptList = deptService.selectDeptAll();
+		List<Member> memberList = service.selectMemberAll();
+		
+		model.addAttribute("deptList", deptList);
+		model.addAttribute("memberList", memberList);
+		
+		return "member/list";
+	}
+	
+	@PostMapping("/admin/member/select")
+	@ResponseBody
+	public MemberResponseDto selectMemberAllByDeptNoApi(@RequestParam("deptId") String deptId) {
+		MemberResponseDto responseDto = new MemberResponseDto();
+		
+		responseDto.setRes_code("500");
+	    responseDto.setRes_msg("사원 조회 중 알 수 없는 오류가 발생했습니다.");
+        
+        logger.info("deptId: {}", deptId);
+        
+        try {
+        	if(deptId != null && !deptId.trim().isEmpty()) {
+        		Long deptNo = Long.parseLong(deptId);
+        		
+        		List<Member> result = service.selectMemberAllByDeptId(deptNo);
+        		
+        		List<MemberDto> memberDtoList = new ArrayList<>();
+        		for (Member member : result) {
+        			MemberDto memberDto = MemberDto.builder()
+                            .member_no(member.getMemberNo())
+                            .member_id(member.getMemberId())
+                            .member_pw(member.getMemberPw())
+                            .member_name(member.getMemberName())
+                            .member_birth(member.getMemberBirth())
+                            .member_gender(member.getMemberGender())
+                            .member_addr1(member.getMemberAddr1())
+                            .member_addr2(member.getMemberAddr2())
+                            .member_addr3(member.getMemberAddr3())
+                            .member_email(member.getMemberEmail())
+                            .member_phone(member.getMemberPhone())
+                            .pos_no(member.getPos() != null ? member.getPos().getPosNo() : null)
+                            .dept_no(member.getDept() != null ? member.getDept().getDeptNo() : null)
+                            .role_no(member.getRole() != null ? member.getRole().getRoleNo() : null)
+                            .status(member.getStatus())
+                            .dept_name(member.getDept() != null ? member.getDept().getDeptName() : null)
+                            .pos_name(member.getPos() != null ? member.getPos().getPosName() : null)
+                            .reg_date(member.getRegDate())
+                            .mod_date(member.getModDate())
+                            .end_date(member.getEndDate())
+                            .build();
+        			
+        			memberDtoList.add(memberDto);
+                }
+        		
+        		responseDto.setDept_no(deptNo);
+                responseDto.setMember_list_by_dept(memberDtoList);
+
+                if (result != null) {
+                    responseDto.setRes_code("200");
+                    responseDto.setRes_msg("사원 목록이 성공적으로 조회되었습니다.");
+                }
+			}
+        	
+        } catch(IllegalArgumentException e) {
+        	responseDto.setRes_code("400");
+        	responseDto.setRes_msg(e.getMessage());
+		} catch(Exception e) {
+			logger.error("사원 조회 중 오류 발생", e);
+			responseDto.setRes_code("500");
+			responseDto.setRes_msg("사원 조회 중 알 수 없는 오류가 발생했습니다.");
+		}
+        
+        System.out.println(responseDto);
+        
+		return responseDto;
 	}
 	
 	@GetMapping("/member/{id}/update")
