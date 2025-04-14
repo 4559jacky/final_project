@@ -144,23 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,buttonText,
-    events: function(fetchInfo, successCallback,failureCallback){
-		$.ajax({
-			url:'/calendar',
-			method:'get',
-			dataType:'json',
-			data:{
-				start: fetchInfo.startStr,
-				end: fetchInfo.endStr
-			},
-			success:function(response){
-				successCallback(response);
-			},
-			error:function(){
-				failureCallback();
-			}
-		});
-	},
+    events: '/calendar/events',
 /*    events: calendarEventsList,*/
 	eventClick:calendarEventClick,
     select: calendarSelect,
