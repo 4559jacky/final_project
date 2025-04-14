@@ -1,5 +1,6 @@
 package com.mjc.groupware.approval.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import com.mjc.groupware.approval.repository.ApprApproverRepository;
 import com.mjc.groupware.approval.repository.ApprReferencerRepository;
 import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
+import com.mjc.groupware.member.dto.MemberDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -163,6 +165,15 @@ public class ApprovalService {
 		
 		return result;
 		
+	}
+
+	public List<Approval> selectApprovaAlllById(MemberDto member) {
+		
+		List<Approval> approvalList = new ArrayList<Approval>();
+		
+		approvalList = approvalRepository.findAllByMember_MemberNo(member.getMember_no());
+		
+		return approvalList;
 	}
 	
 }

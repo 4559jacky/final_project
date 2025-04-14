@@ -193,7 +193,7 @@ public class MemberController {
 			 memberDtoList.add(dto);
 		 }
 		 
-		 return memberDtoList; 
+		 return memberDtoList;
 	 }
 	 
 	 @GetMapping("/member/{id}")
@@ -204,6 +204,26 @@ public class MemberController {
 		 Member member = service.selectMemberOneByMemberNo(dto);
 		 MemberDto memberDto = new MemberDto().toDto(member);
 		 return memberDto;
+	 }
+	 
+	 @PostMapping("/member/create/signature")
+	 @ResponseBody
+	 public Map<String,String> createSignatureApi(@RequestParam("memberNo") Long memberNo,
+		        @RequestParam("signature") String signature) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "전자서명 저장에 성공하였습니다.");
+		
+		int result = 0;
+		
+		result = service.createSignatureApi(memberNo, signature);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "전자서명 저장에 실패하였습니다.");
+		}
+		
+		return resultMap;
 	 }
 	
 }

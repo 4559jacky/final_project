@@ -95,7 +95,7 @@
 					class="form-control border-0 bg-transparent ms-2"
 					placeholder="검색어를 입력하세요." style="box-shadow: none;">
 			</form>
-			<button class="btn btn-primary rounded-pill">결재 작성</button>
+			<button class="btn btn-primary rounded-pill" onclick="createApproval();">결재 작성</button>
 		</div>
 
 		<!-- Table -->
@@ -143,6 +143,16 @@
 			</ul>
 		</nav>
 	</div>
+	
+	
+	<script>
+		const createApproval = function() {
+			location.href = '/approval/create';
+		}
+	</script>
+	
+	
+	
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	
