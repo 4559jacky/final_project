@@ -82,29 +82,33 @@
 					</div>
 				</div>
 				<div class="col-md-9" id="div2">
-					<form name="create_approval_form">
+					<form name="create_approval_form" action="/approval/create" method="post">
 						<div class="card shadow-sm rounded-4 p-4 bg-white"
-							style="min-height: 600px; position: relative;">
+							style="min-height: 600px; position: relative;" id="form_div">
 							<th:block>
+							<input type="hidden" name="appr_sender" th:value="${#authentication.principal.member.memberNo}">
 								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
 									제목</h4>
 								<table class="table table-bordered align-middle">
 									<tbody>
 										<tr>
 											<th class="text-center bg-light" style="width: 15%;">기안자</th>
-											<td name="drafter" style="width: 20%;"></td>
+											<td name="sender_name" style="width: 20%;"></td>
 											<th class="text-center bg-light" style="width: 15%;">부서</th>
-											<td name="department" style="width: 20%;"></td>
+											<td name="dept_name" style="width: 20%;"></td>
 											<th class="text-center bg-light" style="width: 15%;">직급</th>
-											<td name="position"></td>
-										</tr>
-										<tr>
-											<th class="text-center bg-light">작성일</th>
-											<td colspan="5"><input type="date" name="appr_reg_date"></td>
+											<td name="pos_name"></td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">제목</th>
-											<td colspan="5"><input type="text" name="appr_title"></td>
+											<td colspan="5"><input type="text" name="appr_title" class="form-control w-100"></td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">작성일</th>
+											<td colspan="2"><input type="date" name="appr_reg_date"></td>
+											<th class="text-center bg-light">일시</th>
+											<td><input type="date" name="start_date"></td>
+											<td><input type="date" name="end_date"></td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">결재자</th>
@@ -126,11 +130,13 @@
 								</table>
 							</th:block>
 							<!-- 여기에 동적 양식 들어감 -->
-							<div id="approval-content2"></div>
+							<div id="approval-content2">
+								
+							</div>
 						</div>
 						<!-- 승인요청 버튼: div2 하단 오른쪽 정렬 -->
 						<div class="d-flex justify-content-end mt-3">
-							<button class="btn btn-primary px-4" onclick="sendApproval();">승인요청</button>
+							<button type="submit" class="btn btn-primary px-4">승인요청</button>
 						</div>
 					</form>
 				</div>
@@ -403,10 +409,17 @@
                 // 중복 방지
                 if (!approverDiv.querySelector(`span[data-approver-id="${approverId}"]`)) {
 				    let span = document.createElement('span');
-				    span.setAttribute('name', 'approver_no');
 				    span.setAttribute('data-approver-id', approverId);
 				    span.textContent = approverName;
+				    
 				    approverDiv.append(span);
+				    
+				    let input = document.createElement('input');
+				    input.setAttribute('type', 'hidden');
+				    input.setAttribute('name', 'approver_no');
+				    input.setAttribute('value', `${approverId}`);
+				    
+				    approverDiv.append(input);
 				}
             }
         });
@@ -427,10 +440,17 @@
                 // 중복 방지
                 if (!referencerDiv.querySelector(`span[data-referencer-id="${referencerId}"]`)) {
 				    let span = document.createElement('span');
-				    span.setAttribute('name', 'referencer_no');
 				    span.setAttribute('data-referencer-id', referencerId);
 				    span.textContent = referencerName;
 				    referencerDiv.append(span);
+				    
+				    let input = document.createElement('input');
+				    input.setAttribute('type', 'hidden');
+				    input.setAttribute('name', 'referencer_no');
+				    input.setAttribute('value', `${referencerId}`);
+				    
+				    referencerDiv.append(input);
+				    
 				}
             }
         });
@@ -451,10 +471,16 @@
                 // 중복 방지
                 if (!agreementerDiv.querySelector(`span[data-agreementer-id="${agreementerId}"]`)) {
 				    let span = document.createElement('span');
-				    span.setAttribute('name', 'agreementer_no');
 				    span.setAttribute('data-agreementer-id', agreementerId);
 				    span.textContent = agreementerName;
 				    agreementerDiv.append(span);
+				    
+				    let input = document.createElement('input');
+				    input.setAttribute('type', 'hidden');
+				    input.setAttribute('name', 'agreementer_no');
+				    input.setAttribute('value', `${agreementerId}`);
+				    
+				    agreementerDiv.append(input);
 				}
             }
         });
@@ -538,6 +564,14 @@
 			    	  
 			    	  console.log(approvalForm);
 			    	  
+			    	  const form_div = document.getElementById('form_div');
+			    	  let form_no = document.createElement('input');
+			    	  form_no.setAttribute('type', 'hidden');
+			    	  form_no.setAttribute('name', 'approval_type_no');
+			    	  form_no.setAttribute('value', `${selectedApprovalFormNo}`);
+			    	  
+			    	  form_div.appendChild(form_no);
+			    	  
 			    	  const approval_div = document.getElementById('approval-content2');
 			    	  approval_div.innerHTML = '';
 
@@ -548,26 +582,109 @@
 			          }
 			          
 			       	  // 기안자 정보 삽입
-			          document.querySelector("td[name='drafter']").innerText = member.member_name;
-			          document.querySelector("td[name='department']").innerText = member.dept_name;
-			          document.querySelector("td[name='position']").innerText = member.pos_name;
+			          document.querySelector("td[name='sender_name']").innerText = member.member_name;
+			          document.querySelector("td[name='dept_name']").innerText = member.dept_name;
+			          document.querySelector("td[name='pos_name']").innerText = member.pos_name;
 
 			    	  // contenteditable div
 			    	  const editor = document.createElement('div');
 			    	  editor.className = 'form-control';
+			    	  editor.setAttribute('name','appr_content');
 			    	  editor.contentEditable = true;
 			    	  editor.innerHTML = approvalForm.approval_form;
 			    	  editor.style.minHeight = '300px';
 			    	  approval_div.appendChild(editor);
+			    	  
+			    	  const input = document.createElement('input');
+			    	  input.setAttribute('type', 'hidden');
+			    	  input.setAttribute('name', 'appr_text');
+			    	  
+			    	  approval_div.append(input);
 			      });
 			  } else {
 			    alert('먼저 작성할 양식을 선택해주세요.');
 			  }
 			};
 			
-		const sendApproval = function(){
+		/* const approvalForm = document.create_approval_form;
+		approvalForm.addEventListener('click', function() {
+			let valid = true;
+			let valid_msg = '';
+			let apprTitle = approvalForm.appr_title.value;
+			let agreementerList = approvalForm.agreementer_no;
+			let apprRegDate = approvalForm.appr_reg_date.value;
+			let apprText = approvalForm.appr_text.value;
+			if(!apprTitle) {
+				valid = false;
+				valid_msg += '제목을 입력해주세요.';
+			} else if(agreementerList.length == 0) {
+				valid = false;
+				valid_msg += '결재자를 선택해주세요.';
+			} else if(!apprRegDate) {
+				valid = false;
+				valid_msg += '작성일을 입력해주세요.';
+			} else if(!apprText) {
+				valid = false;
+				vliad_msg += '내용을 입력해주세요.';
+			}
 			
-		}
+			if(valid == false) {
+				alert(valid_msg);
+			} else {
+				console.log('test');
+			}
+			
+		}) */
+		
+		const createApprovalForm = document.create_approval_form;
+		createApprovalForm.addEventListener('submit', (e) =>{
+			e.preventDefault();
+			let valid = false;
+			let valid_msg = '';
+			
+			if(!createApprovalForm.appr_title.value) {
+				valid_msg += '결재 제목을 입력해주세요.';
+			} else if(!createApprovalForm.appr_reg_date.value) {
+				valid_msg += '결재 작성일을 입력해주세요.';
+			} else if(!createApprovalForm.start_date.value) {
+				valid_msg += '시작일을 입력해주세요.';
+			} else if(!createApprovalForm.end_date.value) {
+				valid_msg += '종료일 입력해주세요.';
+			} else {
+				valid = true;
+			}
+			
+			if(valid == false) {
+				alert(valid_msg);
+			} else {
+				console.log(valid);
+				console.log('test');
+				console.log(document.querySelector("div[name='appr_content']").innerHTML);
+				document.querySelector("input[name='appr_text']").value = 
+					document.querySelector("div[name='appr_content']").innerHTML;
+				let payload = new FormData(createApprovalForm);
+				const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+				const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+				payload.append('_csrf', csrfToken);
+				fetch('/approval/create', {
+					method:'post',
+					body:payload,
+					headers: {
+						[csrfHeader]: csrfToken
+					},
+					credentials: 'include'
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code =='200') {
+						console.log('성공');
+						location.href = '/approval';
+					}
+				})
+			}
+		})
+		
 	  	
 	</script>
 	<!-- Bootstrap Common JS Files Start -->

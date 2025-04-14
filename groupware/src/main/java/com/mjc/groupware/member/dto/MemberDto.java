@@ -32,6 +32,7 @@ public class MemberDto {
 	private String member_addr1;
 	private String member_addr2;
 	private String member_addr3;
+	private String member_email;
 	private String member_phone;
 	private Long pos_no;
 	private Long dept_no;

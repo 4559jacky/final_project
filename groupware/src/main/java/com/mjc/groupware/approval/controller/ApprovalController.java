@@ -12,14 +12,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.service.ApprovalService;
-import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
@@ -181,7 +182,25 @@ public class ApprovalController {
 	
 	// Dept dept = deptService.selectDeptAll();
 	
-	
-	
+	@PostMapping("/approval/create")
+	@ResponseBody
+	public Map<String,String> createApprovalApi(ApprovalDto approvalDto) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 요청에 실패하였습니다.");
+		
+		System.out.println("결재자 : "+approvalDto.getApprover_no().get(0));
+		
+		int result = service.createApprovalApi(approvalDto);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 요청되었습니다.");
+		}
+		
+		return resultMap;
+		
+		
+	}
 	
 }
