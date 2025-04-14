@@ -144,7 +144,23 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,buttonText,
-    events: '/calendar/events',
+    events: function(fetchInfo, successCallback,failureCallback){
+		fetch(`/calendar/events?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`)
+		        .then(response => {
+		            if (!response.ok) {
+		                throw new Error("Network response was not ok");
+		            }
+		            return response.json();
+		        })
+		        .then(data => {
+					console.log("이벤트데이터:"+data);
+		            successCallback(data); // FullCalendar에 이벤트 전달
+		        })
+		        .catch(error => {
+		            console.error("Error fetching calendar events:", error);
+		            failureCallback(); // 오류 처리
+		        });
+	},
 /*    events: calendarEventsList,*/
 	eventClick:calendarEventClick,
     select: calendarSelect,

@@ -183,11 +183,13 @@ layout:decorate="~{/include/layout}">
           	  } else {
 
           	    const payload = new FormData(form);
+          	    console.log(payload);
 
           	    fetch("/plan/create", {
           	      	method: 'post',
           	      	headers : {
-      					'header': document.querySelector('meta[name="_csrf_header"]').content,
+						/* 'Content-Type':'application/json', */
+          	      		'header': document.querySelector('meta[name="_csrf_header"]').content,
       	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
       				},
           	      	body: payload
@@ -205,17 +207,6 @@ layout:decorate="~{/include/layout}">
           	    });
           	  }
           	});
-
-			// 일정 타입에 따라 색상 설정
-/* 			function getColorByType(type) {
-			  switch (type) {
-			    case '회사': return '#009efb';  // 파랑
-			    case '부서': return '#f39c12';  // 주황
-			    case '개인': return '#00c292';  // 초록
-			    case '휴가': return '#e74c3c';  // 빨강
-			    default: return '#777';        // 회색
-			  }
-			}; */
 
           </script>
           <!-- DETAIL MODAL -->
@@ -310,8 +301,7 @@ layout:decorate="~{/include/layout}">
 	    document.documentElement.setAttribute("data-color-theme", e);
 	  };
 	</script>
-	
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>	
+
   <!-- Import Js Files -->
   <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/libs/simplebar/dist/simplebar.min.js"></script>

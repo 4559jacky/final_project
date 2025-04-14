@@ -38,6 +38,9 @@ public class Plan {
 	@Column(name = "plan_content")
     private String planContent;
 	
+	@Column(name = "color")
+	private String color;
+	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
     private LocalDateTime regDate;
@@ -57,5 +60,6 @@ public class Plan {
 	
 	@Column(name = "plan_type")
     private String planType;
+
 
 }
