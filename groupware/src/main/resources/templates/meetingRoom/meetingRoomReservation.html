@@ -4,11 +4,6 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-	<script th:src="@{/js/jquery-3.7.1.js}"></script>
-	<link rel="stylesheet"
-		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-	<link th:href="@{/css/ysw.css}" rel="stylesheet">
-
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb align-items-center">
@@ -186,7 +181,8 @@
 						<input type="hidden" id="meetingTitle" name="meeting_title">
 						<input type="hidden" id="meetingDate" name="meeting_date">
 						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
-						<input type="hidden" id="reservationUser" th:value="${#authentication.principal.member.memberNo}">
+						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
+						<input type="hidden" id="reservationStatus" name="reservation_status" value="Y">
 						
 						<div id="selectedUsersInputs"></div>
 						<div class="row gx-3 text-center" style="height: 200px;">
@@ -250,21 +246,6 @@
 			dateInfoModal.show();
 		};
 		
-		/* // 예약 완료된 시간대 조회
-		fetch("/reservationTimes", {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'header': document.querySelector('meta[name="_csrf_header"]').content,
-					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-				},
-				body: payload
-			})
-			.then(response => response.json())
-			.then(data => {
-				MeetingRoomButtons(data);
-			});
-	 */
 		// 회의실 버튼 추가, 회의실 버튼 클릭 시 시간 버튼 추가 
 		function MeetingRoomButtons(meetingRoom) {
 			// btn 추가할 곳
@@ -387,7 +368,7 @@
 
 				// 정보를 form 안에 저장
 				document.querySelector("#meetingTitle").value = meetingtitle;
-				document.querySelector("#meetingRoom").value = meetingRoomNo;
+				document.querySelector("#meetingRoomNo").value = meetingRoomNo;
 				document.querySelector("#meetingDate").value = meetingDate;
 				
 				// 초기화 모달 새로 열릴때를 방지 
