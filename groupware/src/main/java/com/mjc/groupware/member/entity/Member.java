@@ -53,14 +53,23 @@ public class Member {
 	@Column(name="member_gender")
 	private String memberGender;
 	
-	@Column(name="member_addr")
-	private String memberAddr;
+	@Column(name="member_addr1")
+	private String memberAddr1;
+	
+	@Column(name="member_addr2")
+	private String memberAddr2;
+	
+	@Column(name="member_addr3")
+	private String memberAddr3;
+	
+	@Column(name="member_email")
+	private String memberEmail;
 	
 	@Column(name="member_phone")
 	private String memberPhone;
 
     @Column(name = "status")
-    private String status;
+    private int status;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -72,6 +81,9 @@ public class Member {
 	
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
+	
+	@Column(name="signature")
+	private String signature;
 	
 	@ManyToOne
 	@JoinColumn(name="dept_no")
@@ -88,5 +100,28 @@ public class Member {
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
 	
+
+	@OneToMany(mappedBy="member")
+	private List<MemberAttach> memberAttachs;
+	
+	public void changePassword(String newEncodedPw) {
+	    this.memberPw = newEncodedPw;
+	}
+	
+	public void changeDept(Dept newDept) {
+	    this.dept = newDept;
+	}
+	
+	public void updateProfileInfo(String name, String gender, String birth, String phone, String email, String addr1, String addr2, String addr3) {
+			this.memberName = name;
+			this.memberGender = gender;
+			this.memberBirth = birth;
+			this.memberPhone = phone;
+			this.memberEmail = email;
+			this.memberAddr1 = addr1;
+			this.memberAddr2 = addr2;
+			this.memberAddr3 = addr3;
+	}
+
 	
 }

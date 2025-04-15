@@ -15,46 +15,54 @@
                         <i class="ti ti-home fs-5"></i>
                     </a>
                 </li>
-                <li class="breadcrumb-item" aria-current="page">자유게시판</li>
+                <li class="breadcrumb-item" aria-current="page">자유게시판 목록</li>
             </ol>
-        </nav>
-        <br>
-        <h2 class="mb-0 fw-bolder fs-8">자유 게시판 목록</h2>
-    </div>
-
-    <br>
+        </nav><br>
+        <h2 class="mb-0 fw-bolder fs-8">자유게시판 목록 관리</h2>
+    </div><br>
 
     <!-- 정렬 + 검색 form -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <form th:action="@{/board/list}" method="get" class="d-flex gap-2">
+            <input type="hidden" name="nowPage" th:value="${pageDto.nowPage}" />
+            <input type="hidden" name="numPerPage" th:value="${pageDto.numPerPage}" />
+            
             <!-- 정렬 드롭다운 -->
             <select name="order_type" class="form-select" style="width: 130px;" onchange="this.form.submit()">
-                <option value="1" th:selected="${searchDto.orderType == 1}">최신순</option>
-                <option value="2" th:selected="${searchDto.orderType == 2}">오래된순</option>
-                <option value="3" th:selected="${searchDto.orderType == 3}">조회수순</option>
+                <option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
+                <option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
+                <option value="3" th:selected="${searchDto.order_type == 3}">조회순</option>
             </select>
-
+            
+            
             <!-- 검색창 -->
-            <div class="input-group" style="max-width: 300px;">
-                <input type="text" name="search_text" class="form-control"
-                       placeholder="검색어를 입력하세요"
-                       th:value="${searchDto.searchText}">
-                <button type="submit" class="btn btn-outline-primary">검색</button>
+            <div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
+                 style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
+                <button type="submit" class="btn border-0 bg-transparent p-0">
+                    <i class="ti ti-search fs-5 text-primary"></i>
+                </button>
+                <input type="text" name="search_text" th:value="${searchDto.search_text}"
+                       class="form-control border-0 bg-transparent ms-2"
+                       placeholder="검색어를 입력하세요."
+                       style="box-shadow: none; background-color: transparent;">
             </div>
         </form>
-
+        
         <!-- 글쓰기 버튼 -->
-        <a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
-    </div>
+        <div>
+            <a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
+        </div>
+    </div>            
 
     <!-- 결과 메시지 출력 -->
-    <div th:if="${resMsg}" class="alert alert-success" role="alert">
+    <div th:if="${resMsg != null and resMsg != ''}" class="alert alert-success" role="alert">
         <span th:text="${resMsg}"></span>
     </div>
 
     <!-- 게시글 목록 테이블 -->
+<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
     <div class="table-responsive">
-        <table class="table table-bordered text-center align-middle">
+        <table class="table align-middle text-center board_list">
             <thead class="table-light">
                 <tr>
                     <th>번호</th>
@@ -65,154 +73,53 @@
                 </tr>
             </thead>
             <tbody>
+            	<!-- boardList가 비어있을 경우 -->
                 <tr th:if="${#lists.isEmpty(boardList)}">
-                    <td colspan="6">게시글이 없습니다.</td>
+                    <td colspan="5">게시물이 없습니다</td>
                 </tr>
-                <tr th:each="board : ${boardList}">
+                
+                <tr th:each="board, stat : ${boardList}" th:data-board-no="${board.boardNo}">
                     <td>
-                        <a th:href="@{/board/detail/{boardNo}(boardNo=${board.board_no})}"
-                           th:text="${board.board_no}">번호</a>
+                        <a th:href="@{|/board/detail/${board.boardNo}|}"
+                           th:text="${(pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</a>
                     </td>
                     <td>
-                        <a th:href="@{/board/detail/{boardNo}(boardNo=${board.board_no})}"
-                           th:text="${board.board_title}">제목</a>
+                        <a th:href="@{|/board/detail/${board.boardNo}|}" th:text="${board.boardTitle}">제목</a>
                     </td>
-                    <td th:text="${#temporals.format(board.reg_date, 'yyyy-MM-dd')}">등록일</td>
-                    <td th:text="${#temporals.format(board.mod_date, 'yyyy-MM-dd')}">수정일</td>
-                    <td th:text="${board.views}">조회수</td>
+                    <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}"></td>
+                    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}"></td>
+                    <td th:text="${board.views}"></td>
                 </tr>
             </tbody>
         </table>
     </div>
+</div>
 
-    <!-- 페이징 -->
+    <!-- 페이지네이션 -->
     <nav class="d-flex justify-content-center mt-4">
         <ul class="pagination">
+            <!-- 이전 버튼 -->
             <li class="page-item" th:classappend="${pageDto.nowPage == 1} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/board/list(order_type=${searchDto.orderType}, search_text=${searchDto.searchText}, now_page=${pageDto.nowPage - 1})}">‹</a>
+                <a class="page-link" th:href="@{/board/list(nowPage=${pageDto.nowPage - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}">‹</a>
             </li>
-            <li class="page-item" th:each="i : ${#numbers.sequence(1, pageDto.totalPage)}"
-                th:classappend="${pageDto.nowPage == i} ? 'active'">
+
+            <!-- 페이지 번호 버튼 -->
+            <li class="page-item" th:each="i : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
+                th:classappend="${i == pageDto.nowPage} ? 'active'">
                 <a class="page-link"
-                   th:href="@{/board/list(order_type=${searchDto.orderType}, search_text=${searchDto.searchText}, now_page=${i})}"
+                   th:href="@{/board/list(nowPage=${i}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
                    th:text="${i}">1</a>
             </li>
+
+            <!-- 다음 버튼 -->
             <li class="page-item" th:classappend="${pageDto.nowPage == pageDto.totalPage} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/board/list(order_type=${searchDto.orderType}, search_text=${searchDto.searchText}, now_page=${pageDto.nowPage + 1})}">›</a>
+                <a class="page-link" th:href="@{/board/list(nowPage=${pageDto.nowPage + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}">›</a>
             </li>
         </ul>
     </nav>
-    <!-- 게시글 상세 페이지 -->
-    <div class="col-lg-8 col-md-6 col-12 align-self-center">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb align-items-center">
-                <li class="breadcrumb-item">
-                    <a class="text-muted text-decoration-none" th:href="@{/home}">
-                        <i class="ti ti-home fs-5"></i>
-                    </a>
-                </li>
-                <li class="breadcrumb-item" aria-current="page">게시글 상세/댓글</li>
-            </ol>
-        </nav>
-        <br>
-        <h2 class="mb-0 fw-bolder fs-8">게시글 상세 정보</h2>
-    </div>
-    <br>
 
-    <!-- 게시글 제목 -->
-    <h2 class="text-center mb-4 fw-bolder fs-4" th:text="${board.boardTitle != null ? board.boardTitle : '제목 없음'}">게시글 제목</h2>
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
 
-    <!-- 조회수 및 등록일 (오른쪽 정렬) -->
-    <div class="mb-3 text-end text-muted small">
-        <i class="ti ti-eye"></i> <span th:text="${board.views}">0</span> |
-        <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">등록일</span>
-    </div>
-
-    <!-- 게시글 내용 (텍스트 박스 스타일) -->
-    <section>
-        <div class="board_detail mb-4">
-            <textarea class="form-control" rows="10" readonly
-                      style="resize: none; background-color: #f9f9f9; border: 1px solid #ddd;" 
-                      th:utext="${board.boardContent}">게시글 내용</textarea>
-        </div>
-        <hr>
-        <!-- 작성자 정보 및 수정/삭제 버튼 (본인만 표시) -->
-        <span th:if="${board.memberNo != null}">작성자: <span th:text="${board.memberNo}"></span></span>
-
-        <th:block sec:authorize="isAuthenticated()">
-            <div th:if="${#authentication.principal.member.memberNo == board.memberNo}" class="buttons text-end">
-                <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
-                <a class="btn btn-danger" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
-            </div>
-        </th:block>
-    </section>
-
-    <!-- 댓글 섹션 -->
-    <div class="comments-section">
-        <h4>댓글</h4>
-        <div id="comments-container">
-            <!-- 댓글 목록이 여기에 동적으로 추가됩니다. -->
-        </div>
-
-        <div class="comment-input">
-            <textarea id="commentText" rows="3" placeholder="댓글을 입력하세요..." class="form-control"></textarea>
-            <button class="btn btn-primary mt-2" onclick="submitComment()">댓글 작성</button>
-        </div>
-    </div>
-
-    <script>
-    // 게시글 삭제 함수
-    const boardDelete = function(boardNo) {
-        if (confirm("게시글을 삭제하시겠습니까?")) {
-            fetch(`/board/${boardNo}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value // CSRF 토큰 추가
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("삭제 요청 실패");
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.res_msg);
-                if (data.res_code === '200') {
-                    location.href = "/board/list"; // 목록 페이지로 이동
-                }
-            })
-            .catch(err => alert('삭제 실패'));
-        }
-    };
-
-    // 댓글 작성 함수
-    function submitComment() {
-        const commentText = document.getElementById('commentText').value;
-        if (commentText.trim()) {
-            fetch(`/board/${boardNo}/comment`, {
-                method: 'POST',
-                body: new URLSearchParams({
-                    'commentText': commentText
-                }),
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 댓글 목록을 갱신
-                alert('댓글 작성 성공');
-            })
-            .catch(err => alert('댓글 작성 실패'));
-        } else {
-            alert('댓글을 입력해주세요!');
-        }
-    }
-    </script>
-    
     <!-- Bootstrap Common JS Files Start -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>
     <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
@@ -221,7 +128,13 @@
     <script th:src="@{/assets/js/theme/theme.js}"></script>
     <script th:src="@{/assets/js/theme/app.min.js}"></script>
     <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+    <!-- solar icons -->
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+    <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+    <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
     <!-- Bootstrap Common JS Files End -->
 </th:block>
 </html>

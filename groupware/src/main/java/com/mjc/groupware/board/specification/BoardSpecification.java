@@ -15,4 +15,9 @@ public class BoardSpecification {
     public static Specification<Board> boardContentContains(String keyword) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("boardContent"), "%" + keyword + "%");
     }
+    // 게시글 삭제 여부 ("N" -> "Y")
+    public static Specification<Board> notDeleted() {
+        return (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("boardStatus"), "N");
+    }
 }

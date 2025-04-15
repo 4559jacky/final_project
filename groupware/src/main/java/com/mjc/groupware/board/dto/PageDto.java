@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PageDto {
-    private int numPerPage = 3; // 페이지당 게시글 수
+    private int numPerPage = 10; // 페이지당 게시글 수
     private int nowPage; // 현재 페이지
     private int pageBarSize = 2; // 페이지 바 크기
     private int pageBarStart; // 페이지 바 시작
