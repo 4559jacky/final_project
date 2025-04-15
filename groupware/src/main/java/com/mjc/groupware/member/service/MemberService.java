@@ -21,21 +21,23 @@ import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.specification.MemberSpecification;
+import com.mjc.groupware.plan.controller.PlanController;
 import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
 
 
-
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+
 	
 	private final MemberRepository repository;
 	private final DeptRepository deptRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final DataSource dataSource;
 	private final UserDetailsService userDetailsService;
+
 	
 	public Member selectMemberOne(MemberDto dto) {
 		Member result = repository.findByMemberId(dto.getMember_id());
@@ -181,6 +183,49 @@ public class MemberService {
 	public List<Member> selectMemberAllByDeptId(Long id) { 
 		List<Member> memberList = repository.findAllByDept_DeptNo(id); 
 		return memberList;
+	}
+	
+	
+	// 전자서명 저장
+	public int createSignatureApi(Long member_no, String signature) {
+		
+		int result = 0;
+		
+		try {
+			Member entity = repository.findById(member_no).orElse(null);
+			MemberDto memberDto = new MemberDto().toDto(entity);
+			memberDto.setSignature(signature);
+			
+			Member member = Member.builder()
+								.memberNo(memberDto.getMember_no())
+								.memberId(memberDto.getMember_id())
+								.memberPw(memberDto.getMember_pw())
+								.memberName(memberDto.getMember_name())
+								.memberBirth(memberDto.getMember_birth())
+								.memberGender(memberDto.getMember_gender())
+								.memberAddr1(memberDto.getMember_addr1())
+								.memberAddr2(memberDto.getMember_addr2())
+								.memberAddr3(memberDto.getMember_addr3())
+								.pos(Pos.builder().posNo(memberDto.getPos_no()).build())
+								.dept(Dept.builder().deptNo(memberDto.getDept_no()).build())
+								.role(Role.builder().roleNo(memberDto.getRole_no()).build())
+								.status(memberDto.getStatus())
+								.signature(signature)
+								.build();
+			
+			Member saved = repository.save(member);
+			
+			System.out.println(memberDto);
+			
+			if(saved != null) {
+				result = 1;
+			}
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	

@@ -85,17 +85,20 @@
 
 		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="/approval/search" method="get"
-				class="d-flex align-items-center px-3 py-2"
-				style="background-color: #f8f9fa; border-radius: 50px; max-width: 400px; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);">
-				<button type="submit" class="btn p-0 border-0 bg-transparent">
-					<i class="ti ti-search fs-5 text-primary"></i>
-				</button>
-				<input type="text" name="keyword"
-					class="form-control border-0 bg-transparent ms-2"
-					placeholder="검색어를 입력하세요." style="box-shadow: none;">
+			<form action="/approval/search" method="get">
+				<div
+					class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
+					style="background-color: white; max-width: 350px; height: 40px; border: 1px solid #ced4da;">
+					<button type="submit" class="btn border-0 bg-transparent p-0">
+						<i class="ti ti-search fs-5 text-primary"></i>
+					</button>
+					<input type="text" name="keyword"
+						class="form-control border-0 bg-transparent ms-2"
+						placeholder="검색어를 입력하세요."
+						style="box-shadow: none; background-color: transparent;">
+				</div>
 			</form>
-			<button class="btn btn-primary rounded-pill">결재 작성</button>
+			<button class="btn btn-primary rounded-pill" onclick="createApproval();">결재 작성</button>
 		</div>
 
 		<!-- Table -->
@@ -143,6 +146,16 @@
 			</ul>
 		</nav>
 	</div>
+	
+	
+	<script>
+		const createApproval = function() {
+			location.href = '/approval/create';
+		}
+	</script>
+	
+	
+	
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	

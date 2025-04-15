@@ -143,9 +143,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Active Calender
   /*=====================*/
   var calendar = new FullCalendar.Calendar(calendarEl, {
-	locale: 'ko',
+    locale: 'ko',
     selectable: true,
-	dayMaxEvents:true,
+    dayMaxEvents: true,
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
@@ -155,6 +155,17 @@ document.addEventListener("DOMContentLoaded", function () {
     unselect: function () {
       console.log("unselected");
     },
+
+    // ✅ 회의실 이름 같이 표시하는 부분 추가
+    eventDidMount: function(info) {
+      const roomName = info.event.extendedProps.roomName; // 백엔드에서 넘긴 값
+      const titleEl = info.el.querySelector('.fc-event-title');
+
+      if (titleEl && roomName) {
+        titleEl.innerText += ` [${roomName}]`;  // ex: 회의 제목 (1회의실)
+      }
+    },
+
     eventClassNames: function ({ event: calendarEvent }) {
       const getColorValue =
         calendarsEvents[calendarEvent._def.extendedProps.calendar];
@@ -162,11 +173,13 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     eventClick: calendarEventClick,
-	windowResize: function (arg) {
-	  calendar.changeView("dayGridMonth"); // 고정
-	  calendar.setOption("height", checkWidowWidth() ? 900 : 1052); // 높이만 반응형
-	},
+
+    windowResize: function (arg) {
+      calendar.changeView("dayGridMonth");
+      calendar.setOption("height", checkWidowWidth() ? 900 : 1052);
+    },
   });
+
 
   /*=====================*/
   // Update Calender Event

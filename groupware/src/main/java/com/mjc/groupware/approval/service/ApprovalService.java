@@ -1,5 +1,6 @@
 package com.mjc.groupware.approval.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import com.mjc.groupware.approval.repository.ApprApproverRepository;
 import com.mjc.groupware.approval.repository.ApprReferencerRepository;
 import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
+import com.mjc.groupware.member.dto.MemberDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -95,6 +97,13 @@ public class ApprovalService {
 		
 		try {
 			
+			if(approvalDto.getAgreementer_no() != null) { 
+				approvalDto.setAppr_status("A");
+			} else {
+				approvalDto.setAppr_status("D");
+				approvalDto.setAppr_order_status(1);
+			}
+			
 			Approval saved = approvalRepository.save(approvalDto.toEntity());
 			
 			Long apprNo = saved.getApprNo();
@@ -106,6 +115,10 @@ public class ApprovalService {
 			// 결재자
 			approverDto.setAppr_no(apprNo);
 			approverDto.setApprover_no(approvalDto.getApprover_no());
+			if(approvalDto.getApprover_no().size() < 1) {
+				// 예외처리 발생
+				
+			}
 			List<ApprApprover> approverList = approverDto.toEntityList();
 			for(ApprApprover entity : approverList) {
 				try {
@@ -117,25 +130,30 @@ public class ApprovalService {
 			
 			// 합의자
 			agreementerDto.setAppr_no(apprNo);
-			agreementerDto.setAgreementer_no(approvalDto.getAgreementer_no());
-			List<ApprAgreementer> agreementerList = agreementerDto.toEntityList();
-			for(ApprAgreementer entity : agreementerList) {
-				try {
-					apprAgreementerRepository.save(entity);
-				} catch(Exception e) {
-					e.printStackTrace();
+			if(approvalDto.getAgreementer_no() != null) {
+				agreementerDto.setAgreementer_no(approvalDto.getAgreementer_no());
+				List<ApprAgreementer> agreementerList = agreementerDto.toEntityList();
+				for(ApprAgreementer entity : agreementerList) {
+					try {
+						apprAgreementerRepository.save(entity);
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			
+			
 			// 참조자
 			referencerDto.setAppr_no(apprNo);
-			referencerDto.setReferencer_no(approvalDto.getReferencer_no());
-			List<ApprReferencer> referencerList = referencerDto.toEntityList();
-			for(ApprReferencer entity : referencerList) {
-				try {
-					apprReferencerRepository.save(entity);
-				} catch(Exception e) {
-					e.printStackTrace();
+			if(approvalDto.getReferencer_no() != null) {
+				referencerDto.setReferencer_no(approvalDto.getReferencer_no());
+				List<ApprReferencer> referencerList = referencerDto.toEntityList();
+				for(ApprReferencer entity : referencerList) {
+					try {
+						apprReferencerRepository.save(entity);
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
@@ -147,6 +165,32 @@ public class ApprovalService {
 		
 		return result;
 		
+	}
+
+	public List<Approval> selectApprovalAllById(MemberDto member) {
+		
+		List<Approval> approvalList = new ArrayList<Approval>();
+		
+		approvalList = approvalRepository.findAllByMember_MemberNo(member.getMember_no());
+		
+		return approvalList;
+	}
+	
+	// 결재자 기준 결재리스트 받아오기
+	public List<Approval> selectApprovalAllByApproverId(MemberDto member) {
+		List<Approval> approvalList = new ArrayList<Approval>();
+		List<ApprApprover> approverMappingList = new ArrayList<ApprApprover>();
+		
+		approverMappingList = apprApproverRepository.findAllByMember_MemberNo(member.getMember_no());
+		
+		if(approverMappingList.size() != 0) {
+			for(ApprApprover a : approverMappingList) {
+				Approval approval = approvalRepository.findById(a.getApproval().getApprNo()).orElse(null);
+				approvalList.add(approval);
+			}
+		}
+		
+		return approvalList;
 	}
 	
 }
