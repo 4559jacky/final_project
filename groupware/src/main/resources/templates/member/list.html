@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	
+	<link th:href="@{/css/cjs/dept_create.css}" rel="stylesheet">
+	
+	<style>
+		
+	</style>
+	
+	<!-- jsTree -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	
+	<div class="page-titles mb-7 mb-md-5">
+		<div class="row">
+			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">인사 담당자 / 인사 관리</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">인사 관리</h2>
+			</div><br>
+		</div>
+	</div>
+	
+	<div class="card">
+        <div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+					<div class="row">
+                    	<div class="col-lg-3 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">부서</h4>
+                          			<br>
+  									
+  									<th:block th:if="${!#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
+   										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
+									</div>
+									</th:block>
+									<th:block th:if="${#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										등록된 부서가 없습니다.
+									</div>
+									</th:block>
+									
+									<div id="dept-tree">
+   										<ul>
+									      <li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}" th:data-parent="'#'">
+									         <span th:text="${dept.name}"></span>
+									      </li>
+									   </ul>
+									</div>
+									
+									<!-- jsTree 데이터 확인용 버튼 -->
+  									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
+  									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-9 d-flex align-items-stretch d-none" id="update_member_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="update_member_form">
+                          				<h4 class="card-title" style="font-weight: bold;">사원 목록</h4>
+                          				<br>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_list" class="form-label">부서목록</label>
+                              				<input type="text" class="form-control" id="dept_list" name="dept_list" th:value="${deptList}">
+                            			</div>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_no" class="form-label">부서번호</label>
+                              				<input type="text" class="form-control" id="dept_no" name="dept_no">
+                            			</div>
+                            			
+                            			<div class="table-responsive mb-4 border rounded-1">
+							                <table class="table text-nowrap mb-0 align-middle">
+							                  <thead class="text-dark fs-4">
+							                    <tr>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">부서</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">직급</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">권한</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">상태</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">수정</h6>
+							                      </th>
+							                    </tr>
+							                  </thead>
+							                  <tbody id="member-tbody">
+											  	
+							                  </tbody>
+							                </table>
+							              
+							              </div>
+                      				</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-9 d-flex align-items-stretch" id="none_member_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<h4 class="card-title" style="font-weight: bold;">사원 목록</h4>
+                          			<br>
+                        			
+                        			조회할 부서를 선택해주세요.
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                  	</div>            	
+                </div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		$('#dept-tree').on('click', '.jstree-anchor', function (e) {
+			e.stopPropagation();
+											
+			const nodeEl = $(this).closest('li'); 	// 해당 anchor의 상위 li로 접근해서
+			const fullId = nodeEl.attr('id'); 		// 해당 li의 id값을 추출
+			
+			const deptId = fullId?.replace('dept_', ''); // 클릭한 부서의 id를 추출
+			
+			if (deptId && deptId.trim().length > 0) {
+				$("#update_member_div").removeClass("d-none");
+				$("#none_member_div").addClass("d-none");
+				
+				$.ajax({
+					type: "post",
+					url: "/admin/member/select",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					data: {
+						deptId : deptId
+					},
+					dataType: "json",
+					success: function(data) {
+						const deptNo = data.dept_no
+						const memberListByDept = data.member_list_by_dept;
+						const resCode = data.res_code;
+						const resMsg = data.res_msg;
+						const deptListAll = data.dept_list_all;
+						const posListAll = data.pos_list_all;
+			            const roleListAll = data.role_list_all;
+			           
+						const tbody = document.getElementById('member-tbody');
+						tbody.innerHTML = '';
+						
+						memberListByDept.forEach(memberDto => {
+							const tr = document.createElement('tr');
+							
+							let deptOptions = '';
+							deptListAll.forEach(dept => {
+								const selected = String(dept.dept_no) === String(memberDto.dept_no) ? 'selected' : '';
+								deptOptions += `<option value="${dept.dept_no}" ${selected}>${dept.dept_name}</option>`;
+							});
+							
+							let posOptions = '';
+							posListAll.forEach(pos => {
+								const selected = String(pos.pos_no) === String(memberDto.pos_no) ? 'selected' : '';
+								posOptions += `<option value="${pos.pos_no}" ${selected}>${pos.pos_name}</option>`;
+							});
+
+							let roleOptions = '';
+							roleListAll.forEach(role => {
+								const selected = role.role_no === memberDto.role_no ? 'selected' : '';
+								roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
+							});
+							
+							const statusList = [
+								{ no: 100, name: '재직' },
+								{ no: 101, name: '수습' },
+								{ no: 102, name: '인턴' },
+								{ no: 200, name: '전출' },
+								{ no: 300, name: '휴직' },
+								{ no: 301, name: '대기' },
+								{ no: 400, name: '해고' },
+								{ no: 401, name: '은퇴' },
+								{ no: 402, name: '퇴사' },
+								{ no: 900, name: '사망' }
+							];
+							let statusOptions = '';
+							statusList.forEach(status => {
+							  const selected = memberDto.status === status.no ? 'selected' : '';
+							  statusOptions += `<option value="${status.no}" ${selected}>${status.name}</option>`;
+							});
+
+							tr.innerHTML = `
+								<td>
+									<div class="d-flex align-items-center">
+										<div class="ms-3">
+											<h6 class="fs-4 fw-semibold mb-0">${memberDto.member_name}</h6>
+											<span class="fw-normal">#${memberDto.member_no}</span>
+										</div>
+									</div>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="dept_no">
+										${deptOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="pos_no">
+										${posOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="role_no">
+										${roleOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="status">
+										${statusOptions}
+									</select>
+								</td>
+								<td>
+									<button type="button" 
+										class="btn btn-outline-primary btn-sm px-3 d-flex align-items-center justify-content-center edit-member-btn" 
+										data-member-no="${memberDto.member_no}">수정
+									</button>
+								</td>
+							`;
+
+							tbody.appendChild(tr);
+						});
+						
+					},
+					error: function(error) {
+					    console.log(error);
+					}
+				});
+			}
+		});
+										
+		$(document).on("click", function (e) {
+			// 트리 안쪽이 아닌 다른 곳을 클릭했을 경우
+			if (!$(e.target).closest('#dept-tree').length) {
+				if (
+					!$(e.target).closest('#dept-tree').length && 
+					!$(e.target).closest('#update_member_div').length &&
+					!$(e.target).closest('#create_member_div').length
+				) {
+					$("#update_member_div").addClass("d-none");
+					$("#none_member_div").removeClass("d-none");
+				}
+			}
+		});
+	</script>
+	
+	<script>
+		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직
+		document.getElementById('member-tbody').addEventListener('click', function (e) {
+			
+			if (e.target.classList.contains('edit-member-btn')) {
+
+				if(!confirm("정말로 수정하시겠습니까?")) {
+					return;
+				}
+				
+				const tr = e.target.closest('tr');
+				const memberNo = e.target.dataset.memberNo;
+	
+				// tr 안의 select 값들 추출
+				const deptNo = tr.querySelector('select[name="dept_no"]').value;
+				const posNo = tr.querySelector('select[name="pos_no"]').value;
+				const roleNo = tr.querySelector('select[name="role_no"]').value;
+				const status = tr.querySelector('select[name="status"]').value;
+	
+				const updateData = {
+					member_no: memberNo,
+					dept_no: deptNo,
+					pos_no: posNo,
+					role_no: roleNo,
+					status: status
+				};
+				
+				fetch('/admin/member/update', {
+					method : "post",
+					headers : {
+						'Content-Type': 'application/json',
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body: JSON.stringify(updateData)
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/member";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+	</script>
+	
+	<!-- Bootstrap Common JS Files Start -->
+	
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+	
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- jsTree -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+	<script th:src="@{/js/cjs/jstree.js}"></script>
+
+</th:block>
+</html>
