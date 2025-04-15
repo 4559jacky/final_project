@@ -20,21 +20,23 @@ import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.specification.MemberSpecification;
+import com.mjc.groupware.plan.controller.PlanController;
 import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
 
 
-
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+
 	
 	private final MemberRepository repository;
 	private final DeptRepository deptRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final DataSource dataSource;
 	private final UserDetailsService userDetailsService;
+
 	
 	public Member selectMemberOne(MemberDto dto) {
 		Member result = repository.findByMemberId(dto.getMember_id());
@@ -132,10 +134,77 @@ public class MemberService {
 		}
 	}
 	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateMemberInfo(MemberDto dto) {
+		// 앞서 많이 썼지만 @Transaction + 도메인메소드 응용해서 바뀐 부분만 수정하는 로직 - 이렇게 안 하면 데이터로 넣지 않는 부분에 null이 들어감
+		try {
+			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+			
+			target.updateProfileInfo(
+			        dto.getMember_name(),
+			        dto.getMember_gender(),
+			        dto.getMember_birth(),
+			        dto.getMember_phone(),
+			        dto.getMember_email(),
+			        dto.getMember_addr1(),
+			        dto.getMember_addr2(),
+			        dto.getMember_addr3()
+			    );
+			
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("개인정보 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
 	// 결재라인 부서의 속한 사원들select
 	public List<Member> selectMemberAllByDeptId(Long id) { 
 		List<Member> memberList = repository.findAllByDept_DeptNo(id); 
 		return memberList;
+	}
+	
+	
+	// 전자서명 저장
+	public int createSignatureApi(Long member_no, String signature) {
+		
+		int result = 0;
+		
+		try {
+			Member entity = repository.findById(member_no).orElse(null);
+			MemberDto memberDto = new MemberDto().toDto(entity);
+			memberDto.setSignature(signature);
+			
+			Member member = Member.builder()
+								.memberNo(memberDto.getMember_no())
+								.memberId(memberDto.getMember_id())
+								.memberPw(memberDto.getMember_pw())
+								.memberName(memberDto.getMember_name())
+								.memberBirth(memberDto.getMember_birth())
+								.memberGender(memberDto.getMember_gender())
+								.memberAddr1(memberDto.getMember_addr1())
+								.memberAddr2(memberDto.getMember_addr2())
+								.memberAddr3(memberDto.getMember_addr3())
+								.pos(Pos.builder().posNo(memberDto.getPos_no()).build())
+								.dept(Dept.builder().deptNo(memberDto.getDept_no()).build())
+								.role(Role.builder().roleNo(memberDto.getRole_no()).build())
+								.status(memberDto.getStatus())
+								.signature(signature)
+								.build();
+			
+			Member saved = repository.save(member);
+			
+			System.out.println(memberDto);
+			
+			if(saved != null) {
+				result = 1;
+			}
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	

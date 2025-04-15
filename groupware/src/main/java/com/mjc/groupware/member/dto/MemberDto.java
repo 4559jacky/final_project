@@ -32,6 +32,7 @@ public class MemberDto {
 	private String member_addr1;
 	private String member_addr2;
 	private String member_addr3;
+	private String member_email;
 	private String member_phone;
 	private Long pos_no;
 	private Long dept_no;
@@ -42,6 +43,7 @@ public class MemberDto {
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	private LocalDateTime end_date;
+	private String signature;
 	
 	public Member toEntity() {
 		return Member.builder()
@@ -58,6 +60,7 @@ public class MemberDto {
 				.dept(Dept.builder().deptNo(this.getDept_no()).build())
 				.role(Role.builder().roleNo(this.getRole_no()).build())
 				.status(this.getStatus())
+				.signature(signature)
 				.build();
 	}
 	

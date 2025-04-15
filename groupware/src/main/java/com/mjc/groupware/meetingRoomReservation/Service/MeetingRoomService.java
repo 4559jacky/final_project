@@ -53,7 +53,8 @@ public class MeetingRoomService {
 	    // 그룹화된 예약들을 DTO로 변환
 	    for (List<MeetingRoomReservation> group : groupedMap.values()) {
 	        MeetingRoomReservation first = group.get(0);
-
+	        String roomName = first.getMeetingRoomNo().getMeetingRoomName(); // ← 회의실 이름 가져오기
+	        
 	        Long meetingRoomNo = first.getMeetingRoomNo().getMeetingRoomNo();
 	        String title = first.getMeetingTitle();
 	        LocalDate date = first.getMeetingDate();
@@ -85,6 +86,7 @@ public class MeetingRoomService {
 	                .meeting_date(date)
 	                .meeting_start_time(startTimes)
 	                .member_no(memberNos)
+	                .meeting_room_name(roomName)
 	                .build();
 
 	        dtoList.add(dto);
@@ -99,6 +101,8 @@ public class MeetingRoomService {
 	public List<MeetingRoom> selectMeetingRoomAll(){
 		return repository.findAll();
 	}
+	
+
 	
 	// 사용자 - 회의실 예약 
 	@Transactional(rollbackFor = Exception.class)
@@ -145,6 +149,11 @@ public class MeetingRoomService {
 	
 	
 	/////////////////////////////////////////////////
+	
+	// 관리자 - 회의실 예약 내역 전체 조회
+	public List<MeetingRoomReservation> adminSelectMeetingReservationAll(){
+		return reservationRepositoty.findAll();
+	}
 	
 	
 	// 관리자 - 회의실 목록 전체 조회
