@@ -2,7 +2,7 @@ package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
 
-import com.mjc.groupware.shared.entity.File;
+import com.mjc.groupware.shared.entity.SharedFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +17,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class FileDto {
+public class SharedFileDto {
 	private Long file_no;
 	private String file_name;
 	private String file_new_name;
@@ -28,8 +28,8 @@ public class FileDto {
 	private Long member_no;
 	private LocalDateTime reg_date;
 
-	public File toEntity() {
-		return File.builder()
+	public SharedFile toEntity() {
+		return SharedFile.builder()
 				.fileNo(file_no)
 				.fileName(file_name)
 				.fileNewName(file_new_name)
@@ -38,8 +38,8 @@ public class FileDto {
 				.build();
 	}
 	
-	public FileDto toDto(File file) {
-		return FileDto.builder()
+	public SharedFileDto toDto(SharedFile file) {
+		return SharedFileDto.builder()
 				.file_no(file.getFileNo())
 				.file_name(file.getFileName())
 				.file_new_name(file.getFileNewName())

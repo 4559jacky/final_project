@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class File {
+public class SharedFile {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="file_no")
@@ -53,5 +53,5 @@ public class File {
 	
 	@ManyToOne
 	@JoinColumn(name="folder_no", nullable = false)
-	private Folder folder;
+	private SharedFolder folder;
 }

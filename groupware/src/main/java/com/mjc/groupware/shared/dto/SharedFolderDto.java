@@ -2,7 +2,7 @@ package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
 
-import com.mjc.groupware.shared.entity.Folder;
+import com.mjc.groupware.shared.entity.SharedFolder;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +17,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class FolderDto {
+public class SharedFolderDto {
 	private Long folder_no;
 	private String folder_name;
 	private Long folder_parent_no;
@@ -25,15 +25,15 @@ public class FolderDto {
 	private LocalDateTime reg_date;
 	
 	
-	public Folder toEntity(){
-		return Folder.builder()
+	public SharedFolder toEntity(){
+		return SharedFolder.builder()
 				.folderNo(folder_no)
 				.folderName(folder_name)
 				.build();
 	}
 	
-	public FolderDto toDto(Folder folder) {
-		return FolderDto.builder()
+	public SharedFolderDto toDto(SharedFolder folder) {
+		return SharedFolderDto.builder()
 				.folder_no(folder.getFolderNo())
 				.folder_name(folder.getFolderName())
 				.build();

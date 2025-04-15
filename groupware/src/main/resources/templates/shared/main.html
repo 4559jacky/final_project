@@ -5,7 +5,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-	
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<!-- Custom CSS Files -->
 	
 	
@@ -89,8 +89,12 @@ layout:decorate="~{/include/layout}">
       </div>
 
       <!-- 버튼 -->
-      <div class="mb-2">
-        <button class="btn btn-sm btn-outline-secondary">📤 업로드</button>
+      <div class="mb-2 d-flex gap-2">
+        <input type="file" name="file" id="fileInput" style="display: none;"  onchange="uploadFile(this.files[0])">
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('fileInput').click()">📤 업로드</button>
+       
+        
+      
         <button class="btn btn-sm btn-outline-secondary">📁 새폴더</button>
         <button class="btn btn-sm btn-outline-secondary">🔁 이동 to</button>
         <button class="btn btn-sm btn-outline-secondary">⚙️ 파일공유설정</button>
@@ -155,8 +159,33 @@ layout:decorate="~{/include/layout}">
     </div>
   </div>
 </div>
-	
-	
+	<!-- 업로드 -->
+	<script>
+		function uploadFile(file){
+			//파일이 없는 경우 함수 종료
+			if(!file) return;
+		
+			// 서버에서 @RequestParam("file")로 받을 수 있도록 세팅
+			const formData = new FromData();
+			formData.append("file", file);
+			
+			fetch("/shared/file/upload",{
+				method: "POST",
+				body: formData
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if(data.res_code === "200"){
+					location.reload();
+				}
+			})
+			.catch(err => {
+				console.error("파일 업로드 실패", err);
+				alert("파일 업로드 중 오류가 발생했습니다.")
+			})
+		}
+	</script>
 	
 	
 	<!-- ---------------------------------------------------------------------------- -->

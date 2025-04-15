@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Folder {
+public class SharedFolder {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="folder_no")
@@ -40,7 +40,7 @@ public class Folder {
 	
 	@ManyToOne
 	@JoinColumn(name="folder_parent_no")
-	private Folder parentFolder;
+	private SharedFolder parentFolder;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
