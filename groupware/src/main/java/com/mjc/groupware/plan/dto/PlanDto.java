@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.plan.entity.Plan;
 
 import lombok.AllArgsConstructor;
@@ -27,13 +29,17 @@ public class PlanDto {
 	private Long plan_no;
 	private String plan_title;
     private String plan_content;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime reg_date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime mod_date;
     private LocalDate start_date;
     private LocalDate end_date;
     private Long reg_member_no;
     private String plan_type;
     private String color;
+    private String member_name;
+    private String dept_name;
     
     // DB저장
 	public Plan toEntity() {
@@ -45,7 +51,7 @@ public class PlanDto {
 				.modDate(mod_date)
 				.startDate(start_date)
 				.endDate(end_date)
-				.regMemberNo(reg_member_no)
+				.member(Member.builder().memberNo(reg_member_no).build())
 				.planType(plan_type)
 				.color(color)
 				.build();
@@ -60,21 +66,11 @@ public class PlanDto {
 				.mod_date(plan.getModDate())
 				.start_date(plan.getStartDate())
 				.end_date(plan.getEndDate())
-				.reg_member_no(plan.getRegMemberNo())
+				.reg_member_no(plan.getMember().getMemberNo())
 				.plan_type(plan.getPlanType())
 				.color(plan.getColor())
-				.build();
-	}
-	
-	// 조회
-	public static PlanDto fromEntity(Plan plan) {
-		return PlanDto.builder()
-				.plan_no(plan.getPlanNo())
-				.plan_title(plan.getPlanTitle())
-				.start_date(plan.getStartDate())
-				.end_date(plan.getEndDate())
-				.plan_type(plan.getPlanType())
-				.color(plan.getColor())
+				.member_name(plan.getMember() != null ? plan.getMember().getMemberName() : null)
+				.dept_name(plan.getMember().getDept() != null ? plan.getMember().getDept().getDeptName() : null)
 				.build();
 	}
 	
@@ -90,6 +86,8 @@ public class PlanDto {
 		Map<String, Object> extendedProps = new HashMap<>();
 		extendedProps.put("planType", plan_type);
 		extendedProps.put("planContent", plan_content);
+		extendedProps.put("memberName", member_name);
+		extendedProps.put("deptName", dept_name);
 		event.put("extendedProps", extendedProps);
 
 		return event;

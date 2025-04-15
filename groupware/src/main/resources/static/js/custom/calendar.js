@@ -49,23 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		week : '주',
 		day : '일',
   };
-  /*var calendarEventsList = "";*/
-  var calendarEventsList = [
-      {
-        id: 2,
-        title: "Seminar #4",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
-        end: `${newDate.getFullYear()}-${getDynamicMonth()}-10`,
-        extendedProps: { calendar: "Success" },
-      },
-      {
-        groupId: "999",
-        id: 3,
-        title: "Meeting #5",
-        start: `${newDate.getFullYear()}-${getDynamicMonth()}-09T16:00:00`,
-        extendedProps: { calendar: "Primary" },
-      },
-    ];
+  var calendarEventsList = "";
+
   /*=====================*/
   // Calendar Select fn.
   /*=====================*/
@@ -94,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Calender Event Function
   /*=====================*/
-  	var calendarEventClick = function (info) {
+ /* 	var calendarEventClick = function (info) {
 		console.log("이벤트 클릭됨:", info.event);
     var eventObj = info.event;
 
@@ -104,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	 document.getElementById("event-start-date").value = eventObj.startStr.slice(0, 10);
 	 document.getElementById("event-end-date").value = eventObj.endStr ? eventObj.endStr.slice(0, 10) : "";
 	 document.getElementById("event-description").value = eventObj.extendedProps.description || "";
-
+	 
 	 const detailModal = new bootstrap.Modal(document.getElementById("eventModaldetail"));
 	 detailModal.show();
 	 
@@ -130,16 +115,21 @@ document.addEventListener("DOMContentLoaded", function () {
       getModalAddBtnEl.style.display = "none";
       getModalUpdateBtnEl.style.display = "block";
     }
-  };
+  };*/
   /*=====================*/
   // Active Calender
   /*=====================*/
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
 	locale:'ko',
-	dayMaxEvents:true,
+	dayMaxEvents:3,
+	eventDisplay: 'block',
 	editable:true,
+	expandRows: true,
+	initialView: 'dayGridMonth',
+	navLinks: true,
 	nowIndicator:true,
+	googleCalendarApiKey:'',
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
@@ -161,8 +151,43 @@ document.addEventListener("DOMContentLoaded", function () {
 		            failureCallback(); // 오류 처리
 		        });
 	},
-/*    events: calendarEventsList,*/
-	eventClick:calendarEventClick,
+	/*eventClick:calendarEventClick,*/
+	eventClick:function(info){
+		console.log("클릭이벤트 작동 확인",info);
+		
+		const eventId = info.event.id;
+		console.log("eventId체크",eventId);
+		
+		fetch('/plan/detail/'+eventId, {
+			method:'get'
+		})
+		  .then(res =>{
+			if (!res.ok) throw new Error("요청 실패");
+			return res.json();
+		  })
+		  .then(data => {
+			new bootstrap.Modal(document.getElementById("eventModaldetail")).show();
+			
+			console.log("가져온 데이터:", data);
+			document.getElementById("detail-event-writer").value = data.member_name;
+		    document.getElementById("detail-event-department").value = data.dept_name;
+		    document.getElementById("detail-event-title").value = data.plan_title;
+		    document.getElementById("detail-event-description").value = data.plan_content;
+			/*document.getElementById("type-company").value = data.plan_type;
+			document.getElementById("type-team").value = data.plan_type;
+			document.getElementById("type-personal").value = data.plan_type;
+			document.getElementById("type-leave").value = data.plan_type;*/
+			
+			document.getElementById("detail-event-created-date").value = data.reg_date;
+			document.getElementById("detail-event-modified-date").value = data.mod_date;
+			
+		    document.getElementById("detail-event-start-date").value = data.start_date;
+		    document.getElementById("detail-event-end-date").value = data.end_date;
+		    
+		  })
+		  .catch(err => console.error("디테일 로딩 실패", err));
+
+	},
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
@@ -187,38 +212,6 @@ document.addEventListener("DOMContentLoaded", function () {
         calendar.setOption("height", 1052);
       }
     },
-/*	eventDidMount: function(info) {
-	   let icon = '';
-	   let badgeColor = '';
-
-	   switch (info.event.extendedProps.calendar) {
-	     case '회사':
-	       icon = '🏢';
-	       badgeColor = 'primary';
-	       break;
-	     case '부서':
-	       icon = '👥';
-	       badgeColor = 'success';
-	       break;
-	     case '개인':
-	       icon = '🙋‍♂️';
-	       badgeColor = 'warning';
-	       break;
-	     case '휴가':
-	       icon = '🌴';
-	       badgeColor = 'danger';
-	       break;
-	     default:
-	       icon = '📌';
-	       badgeColor = 'secondary';
-	   }
-
-	   // 제목 앞에 아이콘과 뱃지 붙이기
-	   info.el.innerHTML = `
-	     <span class="badge bg-${badgeColor} me-1">${icon}</span>
-	     ${info.event.title}
-	   `;
-	 }*/
   });
   /*=====================*/
   // Update Calender Event

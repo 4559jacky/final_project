@@ -1,17 +1,20 @@
 package com.mjc.groupware.plan.controller;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
 import com.mjc.groupware.plan.service.PlanService;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class PlanController {
 	
 	private final PlanService planService;
+	private final MemberService memberService;
 
 	// HTML리턴(페이지 이동용)
 	@GetMapping("/calendar")
@@ -46,19 +50,30 @@ public class PlanController {
 
 		for(Plan plan : plans) {
 	    Map<String, Object> event = new HashMap<>();
+	    event.put("id", plan.getPlanNo());
 	    event.put("title", plan.getPlanTitle());
 	    event.put("start", plan.getStartDate());
 	    event.put("end", plan.getEndDate().plusDays(1));
-//	    event.put("color", getColorByType(plan_type));
+	    event.put("color", getColorByType(plan.getPlanType()));
 	    
 	    Map<String, Object> extendedProps = new HashMap<>();
 	    extendedProps.put("calendar", plan.getPlanType());
-	    extendedProps.put("description", "content");
+	    extendedProps.put("description", plan.getPlanContent());
 	    event.put("extendedProps", extendedProps);
 
 	    events.add(event);
 		}
 	    return events;
+	}
+
+	private String getColorByType(String planType) {
+	    switch (planType) {
+	        case "회사": return "rgba(92, 100, 242, 0.7)";
+	        case "부서": return "rgba(242, 75, 120, 0.7)";
+	        case "개인": return "rgba(63, 191, 155, 0.7)";
+	        case "휴가": return "rgba(242, 146, 29, 0.7)";
+	        default: return "rgba(108, 117, 125, 0.5)"; // 기본 회색 투명
+	    }
 	}
 
 	//일정 등록
@@ -78,6 +93,21 @@ public class PlanController {
 		return resultMap;
 	}
 
-	
+	// 상세모달창
+	@GetMapping("/plan/detail/{id}")
+	@ResponseBody
+	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
+		System.out.println("planId"+planId);
+		
+	    Plan plan = planService.selectPlanById(planId);
+	    
+	    System.out.println(plan);
+
+	    PlanDto dto = new PlanDto().toDto(plan);
+	    
+	    System.out.println(dto);
+	    return dto;
+	}
+
 	
 }
