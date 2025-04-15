@@ -266,7 +266,7 @@ public class MemberController {
 		        @RequestParam("signature") String signature) {
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "전자서명 저장에 성공하였습니다.");
+		resultMap.put("res_msg", "전자서명 저장에 실패하였습니다.");
 		
 		int result = 0;
 		
@@ -274,7 +274,27 @@ public class MemberController {
 		
 		if(result > 0) {
 			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "전자서명 저장에 실패하였습니다.");
+			resultMap.put("res_msg", "전자서명 저장에 성공하였습니다.");
+		}
+		
+		return resultMap;
+	 }
+	 
+	 @PostMapping("/member/update/signature")
+	 @ResponseBody
+	 public Map<String,String> updateSignatureApi(@RequestParam("memberNo") Long memberNo,
+		        @RequestParam("updateSignature") String signature) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "전자서명 변경에 실패하였습니다.");
+		
+		int result = 0;
+		
+		result = service.createSignatureApi(memberNo, signature);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "전자서명 변경에 성공하였습니다.");
 		}
 		
 		return resultMap;
