@@ -5,7 +5,10 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 	<th:block layout:fragment="content">
-  		
+		<link rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+		<link th:href="@{/css/ysw.css}" rel="stylesheet">
+		
   		<!-- 상단 메뉴 표시  -->
         <div class="col-lg-8 col-md-6 col-12 align-self-center">
           <nav aria-label="breadcrumb">
@@ -44,18 +47,18 @@ layout:decorate="~{/include/layout}">
 				        <tr th:if="${!#lists.isEmpty(meetingRoomList)}"
 				        	th:each="meetingRoom: ${meetingRoomList}">
 				        	<th:block th:if="${meetingRoom.meetingRoomStatus != 'D'}">
-						        <th th:text="${meetingRoom.meetingRoomName}">회의실명</th>
-						        <th th:if="${meetingRoom.meetingRoomStatus == 'Y'}">
+						        <td th:text="${meetingRoom.meetingRoomName}">회의실명</td>
+						        <td th:if="${meetingRoom.meetingRoomStatus == 'Y'}">
 						        	<button type="button" class="btn bg-success-subtle text-success px-3 py-1" th:onclick="|javascript:updateMeetingRoomStatus('${meetingRoom.meetingRoomNo}')|">사용 가능</button>
-						        </th>
-						         <th th:if="${meetingRoom.meetingRoomStatus == 'N'}">
+						        </td>
+						         <td th:if="${meetingRoom.meetingRoomStatus == 'N'}">
 						        	<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1" th:onclick="|javascript:updateMeetingRoomStatus('${meetingRoom.meetingRoomNo}')|">사용 불가</button>
-						        </th>
-						        <th style="padding-top: 0.2rem; padding-bottom: 0.2rem;">
+						        </td>
+						        <td style="padding-top: 0.2rem; padding-bottom: 0.2rem;">
 								    <button class="btn btn-primary me-2 px-3 py-1" data-bs-toggle="modal" data-bs-target="#updateMeetingRoomModal"
 								    		th:attr="data-id=${meetingRoom.meetingRoomNo}, data-name=${meetingRoom.meetingRoomName}" onclick="openUpdateModal(this)">수정</button>
 								    <button class="btn btn-primary px-3 py-1" th:onclick="|javascript:deleteMeetingRoom('${meetingRoom.meetingRoomNo}')|">삭제</button>
-								</th>
+								</td>
 				        	</th:block>
 				        </tr>
 			        </tbody>

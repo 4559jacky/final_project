@@ -41,4 +41,7 @@ public class MeetingRoomReservation {
 	
 	@Column(name="meeting_start_time")
 	private LocalTime meetingStartTime;
+	
+	@Column(name="reservation_status")
+	private String reservationStatus;
 }
