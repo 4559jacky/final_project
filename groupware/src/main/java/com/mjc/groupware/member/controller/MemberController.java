@@ -248,13 +248,7 @@ public class MemberController {
 		
 		logger.info("MemberResponseDto: {}", dto);
 		
-		try {
-			System.out.println(dto.getMember_no());
-			System.out.println(dto.getPos_no());
-			System.out.println(dto.getDept_no());
-			System.out.println(dto.getStatus());
-			System.out.println(dto.getRole_no());
-			
+		try {			
 			service.updateMember(dto);
 			
 			resultMap.put("res_code", "200");

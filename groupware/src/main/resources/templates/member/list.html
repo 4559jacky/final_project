@@ -283,7 +283,13 @@ layout:decorate="~{/include/layout}">
 	<script>
 		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직
 		document.getElementById('member-tbody').addEventListener('click', function (e) {
+			
 			if (e.target.classList.contains('edit-member-btn')) {
+
+				if(!confirm("정말로 수정하시겠습니까?")) {
+					return;
+				}
+				
 				const tr = e.target.closest('tr');
 				const memberNo = e.target.dataset.memberNo;
 	
