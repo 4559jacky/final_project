@@ -182,13 +182,22 @@ public class ApprovalService {
 		List<ApprApprover> approverMappingList = new ArrayList<ApprApprover>();
 		
 		approverMappingList = apprApproverRepository.findAllByMember_MemberNo(member.getMember_no());
+		// 합의자 리스트를 뽑음
+		
 		
 		if(approverMappingList.size() != 0) {
 			for(ApprApprover a : approverMappingList) {
 				Approval approval = approvalRepository.findById(a.getApproval().getApprNo()).orElse(null);
-				approvalList.add(approval);
+				
+				if(approval.getApprOrderStatus() == a.getApproverOrder()) {
+					approvalList.add(approval);
+				}
 			}
 		}
+		
+		// 합의자 목록 정보 추출
+		
+		
 		
 		return approvalList;
 	}
