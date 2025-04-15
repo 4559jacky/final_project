@@ -276,8 +276,8 @@ layout:decorate="~{/include/layout}">
 							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
 		        		},
 		        		body: JSON.stringify({
-							posNo: Number(posNo),
-							posName: newName
+							pos_no: Number(posNo),
+							pos_name: newName
 						})
 		      		})
 		        	.then(response => response.json())
@@ -342,7 +342,7 @@ layout:decorate="~{/include/layout}">
 							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
 						},
 		        		body: JSON.stringify({
-							posNo: Number(posNo)
+							pos_no: Number(posNo)
 						})
 					})
 					.then(response => response.json())
