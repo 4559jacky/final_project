@@ -59,7 +59,7 @@ public class MemberDto {
 				.dept(Dept.builder().deptNo(this.getDept_no()).build())
 				.role(Role.builder().roleNo(this.getRole_no()).build())
 				.status(this.getStatus())
-				.signature(signature)
+				.signature(this.getSignature())
 				.build();
 	}
 	
@@ -69,8 +69,12 @@ public class MemberDto {
 				.member_id(member.getMemberId())
 				.member_pw(member.getMemberPw())
 				.member_name(member.getMemberName())
+				.pos_no(member.getPos().getPosNo())
+				.dept_no(member.getDept().getDeptNo())
+				.role_no(role_no)
 				.dept_name(member.getDept() != null ? member.getDept().getDeptName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
 				.pos_name(member.getPos() != null ? member.getPos().getPosName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
+				.signature(member.getSignature())
 				.build();
 	}
 	

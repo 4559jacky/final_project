@@ -167,11 +167,28 @@ public class ApprovalService {
 		
 	}
 
-	public List<Approval> selectApprovaAlllById(MemberDto member) {
+	public List<Approval> selectApprovalAllById(MemberDto member) {
 		
 		List<Approval> approvalList = new ArrayList<Approval>();
 		
 		approvalList = approvalRepository.findAllByMember_MemberNo(member.getMember_no());
+		
+		return approvalList;
+	}
+	
+	// 결재자 기준 결재리스트 받아오기
+	public List<Approval> selectApprovalAllByApproverId(MemberDto member) {
+		List<Approval> approvalList = new ArrayList<Approval>();
+		List<ApprApprover> approverMappingList = new ArrayList<ApprApprover>();
+		
+		approverMappingList = apprApproverRepository.findAllByMember_MemberNo(member.getMember_no());
+		
+		if(approverMappingList.size() != 0) {
+			for(ApprApprover a : approverMappingList) {
+				Approval approval = approvalRepository.findById(a.getApproval().getApprNo()).orElse(null);
+				approvalList.add(approval);
+			}
+		}
 		
 		return approvalList;
 	}
