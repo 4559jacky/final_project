@@ -2,8 +2,10 @@ package com.mjc.groupware.plan.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mjc.groupware.plan.entity.Plan;
 
 import lombok.AllArgsConstructor;
@@ -21,6 +23,7 @@ import lombok.ToString;
 @Builder
 public class PlanDto {
 
+	@JsonProperty("plan_id")
 	private Long plan_no;
 	private String plan_title;
     private String plan_content;
@@ -30,7 +33,9 @@ public class PlanDto {
     private LocalDate end_date;
     private Long reg_member_no;
     private String plan_type;
-	
+    private String color;
+    
+    // DB저장
 	public Plan toEntity() {
 		return Plan.builder()
 				.planNo(plan_no)
@@ -42,6 +47,7 @@ public class PlanDto {
 				.endDate(end_date)
 				.regMemberNo(reg_member_no)
 				.planType(plan_type)
+				.color(color)
 				.build();
 	}
 	
@@ -56,7 +62,49 @@ public class PlanDto {
 				.end_date(plan.getEndDate())
 				.reg_member_no(plan.getRegMemberNo())
 				.plan_type(plan.getPlanType())
+				.color(plan.getColor())
 				.build();
 	}
+	
+	// 조회
+	public static PlanDto fromEntity(Plan plan) {
+		return PlanDto.builder()
+				.plan_no(plan.getPlanNo())
+				.plan_title(plan.getPlanTitle())
+				.start_date(plan.getStartDate())
+				.end_date(plan.getEndDate())
+				.plan_type(plan.getPlanType())
+				.color(plan.getColor())
+				.build();
+	}
+	
+	// FullCalendar용 JSON변환
+	public Map<String, Object> toFullCalendarEvent() {
+		Map<String, Object> event = new HashMap<>();
+		event.put("id", plan_no);
+		event.put("title", plan_title);
+		event.put("start", start_date.toString());
+		event.put("end", end_date.plusDays(1).toString());
+		event.put("color", getColorByType(plan_type));
+
+		Map<String, Object> extendedProps = new HashMap<>();
+		extendedProps.put("planType", plan_type);
+		extendedProps.put("planContent", plan_content);
+		event.put("extendedProps", extendedProps);
+
+		return event;
+	}
+
+	private String getColorByType(String type) {
+		switch (type) {
+			case "회사": return "#007bff";
+			case "부서": return "#28a745";
+			case "개인": return "#ffc107";
+			case "휴가": return "#dc3545";
+			default: return "#6c757d"; // 기본 회색
+		}
+	}
+
+
 	
 }
