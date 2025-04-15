@@ -84,9 +84,6 @@ public class Member {
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
 	
-	@Column(name="signature")
-	private String signature;
-	
 	@ManyToOne
 	@JoinColumn(name="dept_no")
 	private Dept dept;
