@@ -10,19 +10,22 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.dto.SharedFileDto;
 import com.mjc.groupware.shared.entity.SharedFile;
+import com.mjc.groupware.shared.entity.SharedFolder;
 import com.mjc.groupware.shared.repository.FileRepository;
+import com.mjc.groupware.shared.repository.FolderRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class FileService {
+public class SharedFileService {
 
     @Value("${ffupload.location}") // 📁 실제 파일이 저장될 루트 경로 (yml에서 설정)
     private String fileDir;
 
     private final FileRepository fileRepository; //  DB 저장용 JPA 리포지토리
-
+    private final FolderRepository folderRepository;
+    
     public SharedFileDto uploadFile(MultipartFile file, Member member) {
     	SharedFileDto dto = new SharedFileDto(); //  반환할 DTO 객체 준비
 
@@ -41,7 +44,8 @@ public class FileService {
             // 3. 원본 파일명, 확장자 추출
             String oriName = file.getOriginalFilename();
             String fileExt = oriName.substring(oriName.lastIndexOf("."));
-
+            
+            System.out.println("파일명: " + file.getOriginalFilename());
             // 4. 새로운 고유 파일명 생성 (UUID 사용)
             String uuid = UUID.randomUUID().toString().replaceAll("-", "");
             String newName = uuid + fileExt;
@@ -59,13 +63,18 @@ public class FileService {
             // 7. 실제 파일 저장
             File saveFile = new File(fullPath);
             file.transferTo(saveFile);
-
+            
+            //폴더 정보 설정
+            SharedFolder folder = folderRepository.findById(1L)
+                    .orElseThrow(() -> new IllegalArgumentException("기본 폴더 없음"));
+            
             // 8. Entity 생성 및 DB 저장
             SharedFile entity = SharedFile.builder()
                     .fileName(oriName)
                     .fileNewName(newName)
                     .filePath(fullPath)
                     .member(member)
+                    .folder(folder)
                     .build();
 
             SharedFile saved = fileRepository.save(entity); // ✅ DB 저장

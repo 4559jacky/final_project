@@ -162,15 +162,20 @@ layout:decorate="~{/include/layout}">
 	<!-- 업로드 -->
 	<script>
 		function uploadFile(file){
+			console.log("선택된 파일:",file);
 			//파일이 없는 경우 함수 종료
 			if(!file) return;
 		
 			// 서버에서 @RequestParam("file")로 받을 수 있도록 세팅
-			const formData = new FromData();
+			const formData = new FormData();
 			formData.append("file", file);
 			
 			fetch("/shared/file/upload",{
 				method: "POST",
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
 				body: formData
 			})
 			.then(response => response.json())

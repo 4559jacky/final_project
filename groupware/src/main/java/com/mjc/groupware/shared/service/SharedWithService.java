@@ -1,5 +1,5 @@
 package com.mjc.groupware.shared.service;
 
-public class WithService {
+public class SharedWithService {
 
 }

@@ -8,11 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.dto.SharedFileDto;
-import com.mjc.groupware.shared.service.FileService;
+import com.mjc.groupware.shared.service.SharedFileService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SharedFileController {
 	
-	private final FileService fileService;
+	private final SharedFileService fileService;
 	
 	
 	// 공유문서함 메인화면 view
@@ -30,6 +31,7 @@ public class SharedFileController {
 	}
 	
 	@PostMapping("/shared/file/upload")
+	@ResponseBody
 	public Map<String,String> uploadFile(@RequestParam("file") MultipartFile file,
 							 @AuthenticationPrincipal(expression = "member") Member member) {
 		Map<String,String> result = new HashMap<>();
