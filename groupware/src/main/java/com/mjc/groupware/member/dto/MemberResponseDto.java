@@ -26,6 +26,14 @@ public class MemberResponseDto {
 	
 	@JsonProperty("dept_no")
 	private Long dept_no;
+	@JsonProperty("member_no")
+    private Long member_no;
+	@JsonProperty("pos_no")
+    private Long pos_no;
+	@JsonProperty("role_no")
+    private Long role_no;
+	@JsonProperty("status")
+    private int status;
 	
 	private List<MemberDto> member_list_by_dept;
 	

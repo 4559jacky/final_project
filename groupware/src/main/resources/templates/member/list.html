@@ -10,6 +10,10 @@ layout:decorate="~{/include/layout}">
 	
 	<link th:href="@{/css/cjs/dept_create.css}" rel="stylesheet">
 	
+	<style>
+		
+	</style>
+	
 	<!-- jsTree -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 	
@@ -185,25 +189,32 @@ layout:decorate="~{/include/layout}">
 							
 							let posOptions = '';
 							posListAll.forEach(pos => {
-								const selected = String(pos.posNo) === String(memberDto.pos_no) ? 'selected' : '';
-								posOptions += `<option value="${pos.posNo}" ${selected}>${pos.posName}</option>`;
+								const selected = String(pos.pos_no) === String(memberDto.pos_no) ? 'selected' : '';
+								posOptions += `<option value="${pos.pos_no}" ${selected}>${pos.pos_name}</option>`;
 							});
 
 							let roleOptions = '';
 							roleListAll.forEach(role => {
 								const selected = role.role_no === memberDto.role_no ? 'selected' : '';
-								roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_name}</option>`;
+								roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
 							});
-
+							
 							const statusList = [
-								{ code: 1, name: '재직' },
-								{ code: 2, name: '휴직' },
-								{ code: 3, name: '퇴사' }
+								{ no: 100, name: '재직' },
+								{ no: 101, name: '수습' },
+								{ no: 102, name: '인턴' },
+								{ no: 200, name: '전출' },
+								{ no: 300, name: '휴직' },
+								{ no: 301, name: '대기' },
+								{ no: 400, name: '해고' },
+								{ no: 401, name: '은퇴' },
+								{ no: 402, name: '퇴사' },
+								{ no: 900, name: '사망' }
 							];
 							let statusOptions = '';
 							statusList.forEach(status => {
-								const selected = memberDto.status === status.code ? 'selected' : '';
-								statusOptions += `<option value="${status.code}" ${selected}>${status.name}</option>`;
+							  const selected = memberDto.status === status.no ? 'selected' : '';
+							  statusOptions += `<option value="${status.no}" ${selected}>${status.name}</option>`;
 							});
 
 							tr.innerHTML = `
@@ -216,22 +227,22 @@ layout:decorate="~{/include/layout}">
 									</div>
 								</td>
 								<td>
-									<select class="mb-0 fw-normal fs-4">
+									<select class="mb-0 fw-normal fs-4" name="dept_no">
 										${deptOptions}
 									</select>
 								</td>
 								<td>
-									<select class="mb-0 fw-normal fs-4">
+									<select class="mb-0 fw-normal fs-4" name="pos_no">
 										${posOptions}
 									</select>
 								</td>
 								<td>
-									<select class="mb-0 fw-normal fs-4">
+									<select class="mb-0 fw-normal fs-4" name="role_no">
 										${roleOptions}
 									</select>
 								</td>
 								<td>
-									<select class="mb-0 fw-normal fs-4">
+									<select class="mb-0 fw-normal fs-4" name="status">
 										${statusOptions}
 									</select>
 								</td>
@@ -265,6 +276,50 @@ layout:decorate="~{/include/layout}">
 					$("#update_member_div").addClass("d-none");
 					$("#none_member_div").removeClass("d-none");
 				}
+			}
+		});
+	</script>
+	
+	<script>
+		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직
+		document.getElementById('member-tbody').addEventListener('click', function (e) {
+			if (e.target.classList.contains('edit-member-btn')) {
+				const tr = e.target.closest('tr');
+				const memberNo = e.target.dataset.memberNo;
+	
+				// tr 안의 select 값들 추출
+				const deptNo = tr.querySelector('select[name="dept_no"]').value;
+				const posNo = tr.querySelector('select[name="pos_no"]').value;
+				const roleNo = tr.querySelector('select[name="role_no"]').value;
+				const status = tr.querySelector('select[name="status"]').value;
+	
+				const updateData = {
+					member_no: memberNo,
+					dept_no: deptNo,
+					pos_no: posNo,
+					role_no: roleNo,
+					status: status
+				};
+				
+				fetch('/admin/member/update', {
+					method : "post",
+					headers : {
+						'Content-Type': 'application/json',
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body: JSON.stringify(updateData)
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/member";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
 			}
 		});
 	</script>

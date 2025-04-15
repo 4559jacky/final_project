@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -177,7 +178,7 @@ public class MemberController {
         			memberDtoList.add(memberDto);						
                 }
         		
-        		List<Dept> deptList = deptService.selectDeptAll();
+        		List<Dept> deptList = deptService.SelectDeptAllOrderByDeptNameAsc();
         		List<DeptDto> deptDtoList = new ArrayList<>();
         		
         		for(Dept dept : deptList) {
@@ -190,7 +191,7 @@ public class MemberController {
         		}
         		
         		
-        		List<Pos> posList = posService.selectPosAll();
+        		List<Pos> posList = posService.selectPosAllByPosOrderAsc();
         		List<PosDto> posDtoList = new ArrayList<>();
         		
         		for(Pos pos : posList) {
@@ -210,6 +211,7 @@ public class MemberController {
         		    RoleDto roleDto = RoleDto.builder()
         		        .role_no(role.getRoleNo())
         		        .role_name(role.getRoleName())
+	        		    .role_nickname(role.getRoleNickname())
         		        .build();
 
         		    roleDtoList.add(roleDto);
@@ -222,7 +224,7 @@ public class MemberController {
         		responseDto.setRole_list_all(roleDtoList);
         		                
                 responseDto.setRes_code("200");
-                responseDto.setRes_msg("사원 목록이 성공적으로 조회되었습니다.");
+                responseDto.setRes_msg("사원 목록 조회가 성공적으로 완료되었습니다.");
 			}
         } catch(IllegalArgumentException e) {
         	responseDto.setRes_code("400");
@@ -234,6 +236,36 @@ public class MemberController {
 		}
         
 		return responseDto;
+	}
+	
+	@PostMapping("/admin/member/update")
+	@ResponseBody
+	public Map<String, String> updateMember(@RequestBody MemberResponseDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("MemberResponseDto: {}", dto);
+		
+		try {
+			System.out.println(dto.getMember_no());
+			System.out.println(dto.getPos_no());
+			System.out.println(dto.getDept_no());
+			System.out.println(dto.getStatus());
+			System.out.println(dto.getRole_no());
+			
+			service.updateMember(dto);
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+			
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
 	}
 	
 	@GetMapping("/member/{id}/update")

@@ -121,4 +121,11 @@ public class Member {
 			this.memberAddr3 = addr3;
 	}
 	
+	public void updateMember(Dept dept, Pos pos, Role role, int status) {
+		this.dept = dept;
+		this.pos = pos;
+		this.role = role;
+		this.status = status;
+	}
+	
 }

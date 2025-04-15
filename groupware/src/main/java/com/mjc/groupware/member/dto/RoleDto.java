@@ -17,5 +17,6 @@ public class RoleDto {
 	
 	private Long role_no;
 	private String role_name;
+	private String role_nickname;
 	
 }
