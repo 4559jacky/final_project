@@ -45,7 +45,7 @@ public class MeetingRoomService {
 						.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngDate(filterDto.getMeeting_date()));
 		}else if(filterDto.getMeeting_date() != null) {
 		}
-		
+		 
 		// 모든 예약을 조회
 	    List<MeetingRoomReservation> reservations = reservationRepositoty.findAll(spec);
 
