@@ -100,170 +100,22 @@ layout:decorate="~{/include/layout}">
 							                        <h6 class="fs-4 fw-semibold mb-0">직급</h6>
 							                      </th>
 							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">권한</h6>
+							                      </th>
+							                      <th>
 							                        <h6 class="fs-4 fw-semibold mb-0">상태</h6>
 							                      </th>
 							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">권한</h6>
+							                        <h6 class="fs-4 fw-semibold mb-0">수정</h6>
 							                      </th>
 							                    </tr>
 							                  </thead>
-							                  <tbody>
-							                    <tr th:each="member : ${memberListByDept}">
-							                    	<td>
-												      <div class="d-flex align-items-center">
-												        <img th:src="@{${member.profileImgUrl}}" class="rounded-circle" width="40" height="40" />
-												        <div class="ms-3">
-												          <h6 class="fs-4 fw-semibold mb-0" th:text="${member.memberName}">사원 이름</h6>
-												          <span class="fw-normal" th:text="${member.memberNo}">사번</span>
-												        </div>
-												      </div>
-												    </td>
-							                      <td>
-							                        <p class="mb-0 fw-normal fs-4">Elite Admin</p>
-							                      </td>
-							                      <td>
-							                        <h6 class="fs-4 fw-semibold mb-0">$3.9k</h6>
-							                      </td>
-							                      <td>
-							                        <span class="badge bg-success-subtle text-success">Active</span>
-							                      </td>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <a href="javascript:void(0)" class="text-bg-secondary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            S
-							                          </a>
-							                          <a href="javascript:void(0)" class="text-bg-danger text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            D
-							                          </a>
-							                        </div>
-							                      </td>
-							                    </tr>
-							                    <tr>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <img src="../assets/images/profile/user-2.jpg" class="rounded-circle" width="40" height="40" />
-							                          <div class="ms-3">
-							                            <h6 class="fs-4 fw-semibold mb-0">Arlene McCoy</h6>
-							                            <span class="fw-normal">Project Manager</span>
-							                          </div>
-							                        </div>
-							                      </td>
-							                      <td>
-							                        <p class="mb-0 fw-normal fs-4">Real Homes WP Theme</p>
-							                      </td>
-							                      <td>
-							                        <h6 class="fs-4 fw-semibold mb-0">$24.5k</h6>
-							                      </td>
-							                      <td>
-							                        <span class="badge bg-warning-subtle text-warning">Pending</span>
-							                      </td>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <a href="javascript:void(0)" class="text-bg-primary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            A
-							                          </a>
-							                          <a href="javascript:void(0)" class="text-bg-warning text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            X
-							                          </a>
-							                          <a href="javascript:void(0)" class="text-bg-secondary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            N
-							                          </a>
-							                        </div>
-							                      </td>
-							                    </tr>
-							                    <tr>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <img src="../assets/images/profile/user-6.jpg" class="rounded-circle" width="40" height="40" />
-							                          <div class="ms-3">
-							                            <h6 class="fs-4 fw-semibold mb-0">Christopher Jamil</h6>
-							                            <span class="fw-normal">Project Manager</span>
-							                          </div>
-							                        </div>
-							                      </td>
-							                      <td>
-							                        <p class="mb-0 fw-normal fs-4">MedicalPro WP Theme</p>
-							                      </td>
-							                      
-							                       <td>
-							                        <h6 class="fs-4 fw-semibold mb-0">$12.8k</h6>
-							                      </td>
-							                      <td>
-							                        <span class="badge bg-primary-subtle text-primary">Completed</span>
-							                      </td>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <a href="javascript:void(0)" class="text-bg-danger text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            X
-							                          </a>
-							                        </div>
-							                      </td>
-							                    </tr>
-							                    <tr>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <img src="../assets/images/profile/user-4.jpg" class="rounded-circle" width="40" height="40" />
-							                          <div class="ms-3">
-							                            <h6 class="fs-4 fw-semibold mb-0">Evelyn Pope</h6>
-							                            <span class="fw-normal">Frontend Engineer</span>
-							                          </div>
-							                        </div>
-							                      </td>
-							                      <td>
-							                        <p class="mb-0 fw-normal fs-4">Hosting Press HTML</p>
-							                      </td>
-							                      <td>
-							                        <h6 class="fs-4 fw-semibold mb-0">$2.4k</h6>
-							                      </td>
-							                      <td>
-							                        <span class="badge bg-success-subtle text-success">Active</span>
-							                      </td>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <a href="javascript:void(0)" class="text-bg-primary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            Y
-							                          </a>
-							                          <a href="javascript:void(0)" class="text-bg-danger text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            X
-							                          </a>
-							                        </div>
-							                      </td>
-							                    </tr>
-							                    <tr>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <img src="../assets/images/profile/user-5.jpg" class="rounded-circle" width="40" height="40" />
-							                          <div class="ms-3">
-							                            <h6 class="fs-4 fw-semibold mb-0">Micheal Doe</h6>
-							                            <span class="fw-normal">Content Writer</span>
-							                          </div>
-							                        </div>
-							                      </td>
-							                      <td>
-							                        <p class="mb-0 fw-normal fs-4">Hosting Press HTML</p>
-							                      </td>
-							                      <td>
-							                        <h6 class="fs-4 fw-semibold mb-0">$9.3k</h6>
-							                      </td>
-							                      <td>
-							                        <span class="badge bg-danger-subtle text-danger">Cancel</span>
-							                      </td>
-							                      <td>
-							                        <div class="d-flex align-items-center">
-							                          <a href="javascript:void(0)" class="text-bg-secondary text-white fs-6 round-40 rounded-circle me-n2 card-hover border border-2 border-white d-flex align-items-center justify-content-center">
-							                            S
-							                          </a>
-							                        </div>
-							                      </td>
-							                      
-							                    </tr>
+							                  <tbody id="member-tbody">
+											  	
 							                  </tbody>
 							                </table>
+							              
 							              </div>
-                            			
-                            			
-                            			
-                      					
                       				</form>
                         		</div>
                       		</div>
@@ -292,9 +144,9 @@ layout:decorate="~{/include/layout}">
 											
 			const nodeEl = $(this).closest('li'); 	// 해당 anchor의 상위 li로 접근해서
 			const fullId = nodeEl.attr('id'); 		// 해당 li의 id값을 추출
-																						
+			
 			const deptId = fullId?.replace('dept_', ''); // 클릭한 부서의 id를 추출
-
+			
 			if (deptId && deptId.trim().length > 0) {
 				$("#update_member_div").removeClass("d-none");
 				$("#none_member_div").addClass("d-none");
@@ -311,32 +163,92 @@ layout:decorate="~{/include/layout}">
 					},
 					dataType: "json",
 					success: function(data) {
-						console.log(data.member_list_by_dept);
-
-						/* $('form[name="update_dept_form"] input[name="dept_no"]').val(Number(data.dept_no));
-						$('form[name="update_dept_form"] input[name="dept_status"][value="' + data.dept_status + '"]').prop('checked', true);
-						$('form[name="update_dept_form"] input[name="dept_name"]').val(data.dept_name);
-						$('form[name="update_dept_form"] select[name="member_no"]').val(Number(data.member_no));
-							
-						$('form[name="update_dept_form"] select[name="parent_dept_no"]').val(Number(data.parent_dept_no));
+						const deptNo = data.dept_no
+						const memberListByDept = data.member_list_by_dept;
+						const resCode = data.res_code;
+						const resMsg = data.res_msg;
+						const deptListAll = data.dept_list_all;
+						const posListAll = data.pos_list_all;
+			            const roleListAll = data.role_list_all;
+			           
+						const tbody = document.getElementById('member-tbody');
+						tbody.innerHTML = '';
 						
-						const parentSelect = $('form[name="update_dept_form"] select[name="parent_dept_no"]');
-						parentSelect.find('option').each(function() {
-							if ($(this).val() === String(currentDeptNo)) {
-								$(this).css('display', 'none');
-							} else {
-								$(this).css('display', 'block');
-							}
-						});
+						memberListByDept.forEach(memberDto => {
+							const tr = document.createElement('tr');
+							
+							let deptOptions = '';
+							deptListAll.forEach(dept => {
+								const selected = String(dept.dept_no) === String(memberDto.dept_no) ? 'selected' : '';
+								deptOptions += `<option value="${dept.dept_no}" ${selected}>${dept.dept_name}</option>`;
+							});
+							
+							let posOptions = '';
+							posListAll.forEach(pos => {
+								const selected = String(pos.posNo) === String(memberDto.pos_no) ? 'selected' : '';
+								posOptions += `<option value="${pos.posNo}" ${selected}>${pos.posName}</option>`;
+							});
 
-						$('form[name="update_dept_form"] input[name="dept_phone"]').val(data.dept_phone);
-						$('form[name="update_dept_form"] input[name="dept_location"]').val(data.dept_location); */
+							let roleOptions = '';
+							roleListAll.forEach(role => {
+								const selected = role.role_no === memberDto.role_no ? 'selected' : '';
+								roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_name}</option>`;
+							});
+
+							const statusList = [
+								{ code: 1, name: '재직' },
+								{ code: 2, name: '휴직' },
+								{ code: 3, name: '퇴사' }
+							];
+							let statusOptions = '';
+							statusList.forEach(status => {
+								const selected = memberDto.status === status.code ? 'selected' : '';
+								statusOptions += `<option value="${status.code}" ${selected}>${status.name}</option>`;
+							});
+
+							tr.innerHTML = `
+								<td>
+									<div class="d-flex align-items-center">
+										<div class="ms-3">
+											<h6 class="fs-4 fw-semibold mb-0">${memberDto.member_name}</h6>
+											<span class="fw-normal">#${memberDto.member_no}</span>
+										</div>
+									</div>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4">
+										${deptOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4">
+										${posOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4">
+										${roleOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4">
+										${statusOptions}
+									</select>
+								</td>
+								<td>
+									<button type="button" 
+										class="btn btn-outline-primary btn-sm px-3 d-flex align-items-center justify-content-center edit-member-btn" 
+										data-member-no="${memberDto.member_no}">수정
+									</button>
+								</td>
+							`;
+
+							tbody.appendChild(tr);
+						});
 						
 					},
-					error: function(xhr, status, error) {
-					    console.log("xhr:", xhr);  // XMLHttpRequest 객체
-					    console.log("status:", status);  // 상태 코드 (예: "timeout", "error", "abort", "parsererror")
-					    console.log("error:", error);  // 실제 오류 메시지
+					error: function(error) {
+					    console.log(error);
 					}
 				});
 			}

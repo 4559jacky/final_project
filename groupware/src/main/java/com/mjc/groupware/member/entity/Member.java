@@ -69,6 +69,9 @@ public class Member {
 
     @Column(name = "status")
     private int status;
+    
+    @Column(name = "signature")
+    private String signature;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")

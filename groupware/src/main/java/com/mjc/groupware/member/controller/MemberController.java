@@ -21,15 +21,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.address.service.AddressService;
+import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberAttachService;
 import com.mjc.groupware.member.service.MemberService;
+import com.mjc.groupware.member.service.RoleService;
+import com.mjc.groupware.pos.dto.PosDto;
 import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.repository.PosRepository;
 import com.mjc.groupware.pos.service.PosService;
@@ -50,6 +55,7 @@ public class MemberController {
 	private final MemberAttachService memberAttachService;
 	private final PosService posService;
 	private final DeptService deptService;
+	private final RoleService roleService;
 	private final AddressService addressService;
 	private final PosRepository posRepository;
 	
@@ -104,7 +110,7 @@ public class MemberController {
 			}
 		} catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
-	        resultMap.put("res_msg", e.getMessage());
+	        resultMap.put("res_msg", e.getMessage());	
 		} catch(Exception e) {
 			logger.error("사원 등록 중 오류 발생", e);
 			resultMap.put("res_code", "500");
@@ -117,10 +123,14 @@ public class MemberController {
 	@GetMapping("/admin/member")
 	public String selectMemberAll(Model model) {
 		List<Dept> deptList = deptService.selectDeptAll();
+		List<Pos> posList = posService.selectPosAll();
+		List<Role> roleList = roleService.selectRoleAll();
 		List<Member> memberList = service.selectMemberAll();
 		
 		model.addAttribute("deptList", deptList);
 		model.addAttribute("memberList", memberList);
+		model.addAttribute("posList", posList);
+		model.addAttribute("roleList", roleList);
 		
 		return "member/list";
 	}
@@ -139,10 +149,10 @@ public class MemberController {
         	if(deptId != null && !deptId.trim().isEmpty()) {
         		Long deptNo = Long.parseLong(deptId);
         		
-        		List<Member> result = service.selectMemberAllByDeptId(deptNo);
+        		List<Member> memberList = service.selectMemberAllByDeptId(deptNo);
         		
         		List<MemberDto> memberDtoList = new ArrayList<>();
-        		for (Member member : result) {
+        		for (Member member : memberList) {
         			MemberDto memberDto = MemberDto.builder()
                             .member_no(member.getMemberNo())
                             .member_id(member.getMemberId())
@@ -161,23 +171,59 @@ public class MemberController {
                             .status(member.getStatus())
                             .dept_name(member.getDept() != null ? member.getDept().getDeptName() : null)
                             .pos_name(member.getPos() != null ? member.getPos().getPosName() : null)
-                            .reg_date(member.getRegDate())
-                            .mod_date(member.getModDate())
-                            .end_date(member.getEndDate())
+                            .role_name(member.getRole() != null ? member.getRole().getRoleName() : null)
                             .build();
         			
-        			memberDtoList.add(memberDto);
+        			memberDtoList.add(memberDto);						
                 }
         		
-        		responseDto.setDept_no(deptNo);
-                responseDto.setMember_list_by_dept(memberDtoList);
+        		List<Dept> deptList = deptService.selectDeptAll();
+        		List<DeptDto> deptDtoList = new ArrayList<>();
+        		
+        		for(Dept dept : deptList) {
+        			DeptDto deptDto = DeptDto.builder()
+        					.dept_no(dept.getDeptNo())
+        					.dept_name(dept.getDeptName())
+        					.build();
+        			
+        			deptDtoList.add(deptDto);
+        		}
+        		
+        		
+        		List<Pos> posList = posService.selectPosAll();
+        		List<PosDto> posDtoList = new ArrayList<>();
+        		
+        		for(Pos pos : posList) {
+        		    PosDto posDto = PosDto.builder()
+        		        .pos_no(pos.getPosNo())
+        		        .pos_name(pos.getPosName())
+        		        .pos_order(pos.getPosOrder())
+        		        .build();
 
-                if (result != null) {
-                    responseDto.setRes_code("200");
-                    responseDto.setRes_msg("사원 목록이 성공적으로 조회되었습니다.");
-                }
+        		    posDtoList.add(posDto);
+        		}
+        		
+        		List<Role> roleList = roleService.selectRoleAll();
+        		List<RoleDto> roleDtoList = new ArrayList<>();
+        		
+        		for(Role role : roleList) {
+        		    RoleDto roleDto = RoleDto.builder()
+        		        .role_no(role.getRoleNo())
+        		        .role_name(role.getRoleName())
+        		        .build();
+
+        		    roleDtoList.add(roleDto);
+        		}
+
+        		responseDto.setDept_no(deptNo);
+        		responseDto.setMember_list_by_dept(memberDtoList);
+        		responseDto.setDept_list_all(deptDtoList);
+        		responseDto.setPos_list_all(posDtoList);
+        		responseDto.setRole_list_all(roleDtoList);
+        		                
+                responseDto.setRes_code("200");
+                responseDto.setRes_msg("사원 목록이 성공적으로 조회되었습니다.");
 			}
-        	
         } catch(IllegalArgumentException e) {
         	responseDto.setRes_code("400");
         	responseDto.setRes_msg(e.getMessage());
@@ -186,8 +232,6 @@ public class MemberController {
 			responseDto.setRes_code("500");
 			responseDto.setRes_msg("사원 조회 중 알 수 없는 오류가 발생했습니다.");
 		}
-        
-        System.out.println(responseDto);
         
 		return responseDto;
 	}

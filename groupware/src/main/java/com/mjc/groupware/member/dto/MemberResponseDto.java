@@ -3,6 +3,8 @@ package com.mjc.groupware.member.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mjc.groupware.dept.dto.DeptDto;
+import com.mjc.groupware.pos.dto.PosDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,5 +28,10 @@ public class MemberResponseDto {
 	private Long dept_no;
 	
 	private List<MemberDto> member_list_by_dept;
+	
+	private List<DeptDto> dept_list_all;
+	private List<PosDto> pos_list_all;
+	private List<RoleDto> role_list_all;
+	private List<String> status_list_all;
 	
 }
