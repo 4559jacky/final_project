@@ -151,6 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		            failureCallback(); // 오류 처리
 		        });
 	},
+
 	/*eventClick:calendarEventClick,*/
 	eventClick:function(info){
 		console.log("클릭이벤트 작동 확인",info);
@@ -188,6 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		  .catch(err => console.error("디테일 로딩 실패", err));
 
 	},
+
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");

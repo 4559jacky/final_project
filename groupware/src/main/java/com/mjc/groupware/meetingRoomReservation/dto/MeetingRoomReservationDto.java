@@ -29,7 +29,9 @@ public class MeetingRoomReservationDto {
 	private LocalDate meeting_date;
 	private List<LocalTime> meeting_start_time;
 	private List<Long> member_no;
+	private List<String> member_name;
 	private String meeting_room_name;
+	private String reservation_status;
 	
 	public List<Map<String, Object>> toFullCalendarEvents() {
 	    List<Map<String, Object>> events = new ArrayList<>();

@@ -16,19 +16,26 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.address.service.AddressService;
+import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberAttachService;
 import com.mjc.groupware.member.service.MemberService;
+import com.mjc.groupware.member.service.RoleService;
+import com.mjc.groupware.pos.dto.PosDto;
 import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.repository.PosRepository;
 import com.mjc.groupware.pos.service.PosService;
@@ -49,6 +56,7 @@ public class MemberController {
 	private final MemberAttachService memberAttachService;
 	private final PosService posService;
 	private final DeptService deptService;
+	private final RoleService roleService;
 	private final AddressService addressService;
 	private final PosRepository posRepository;
 	
@@ -103,12 +111,153 @@ public class MemberController {
 			}
 		} catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
-	        resultMap.put("res_msg", e.getMessage());
+	        resultMap.put("res_msg", e.getMessage());	
 		} catch(Exception e) {
 			logger.error("사원 등록 중 오류 발생", e);
 			resultMap.put("res_code", "500");
 			resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
 		} 
+		
+		return resultMap;
+	}
+	
+	@GetMapping("/admin/member")
+	public String selectMemberAll(Model model) {
+		List<Dept> deptList = deptService.selectDeptAll();
+		List<Pos> posList = posService.selectPosAll();
+		List<Role> roleList = roleService.selectRoleAll();
+		List<Member> memberList = service.selectMemberAll();
+		
+		model.addAttribute("deptList", deptList);
+		model.addAttribute("memberList", memberList);
+		model.addAttribute("posList", posList);
+		model.addAttribute("roleList", roleList);
+		
+		return "member/list";
+	}
+	
+	@PostMapping("/admin/member/select")
+	@ResponseBody
+	public MemberResponseDto selectMemberAllByDeptNoApi(@RequestParam("deptId") String deptId) {
+		MemberResponseDto responseDto = new MemberResponseDto();
+		
+		responseDto.setRes_code("500");
+	    responseDto.setRes_msg("사원 조회 중 알 수 없는 오류가 발생했습니다.");
+        
+        logger.info("deptId: {}", deptId);
+        
+        try {
+        	if(deptId != null && !deptId.trim().isEmpty()) {
+        		Long deptNo = Long.parseLong(deptId);
+        		
+        		List<Member> memberList = service.selectMemberAllByDeptId(deptNo);
+        		
+        		List<MemberDto> memberDtoList = new ArrayList<>();
+        		for (Member member : memberList) {
+        			MemberDto memberDto = MemberDto.builder()
+                            .member_no(member.getMemberNo())
+                            .member_id(member.getMemberId())
+                            .member_pw(member.getMemberPw())
+                            .member_name(member.getMemberName())
+                            .member_birth(member.getMemberBirth())
+                            .member_gender(member.getMemberGender())
+                            .member_addr1(member.getMemberAddr1())
+                            .member_addr2(member.getMemberAddr2())
+                            .member_addr3(member.getMemberAddr3())
+                            .member_email(member.getMemberEmail())
+                            .member_phone(member.getMemberPhone())
+                            .pos_no(member.getPos() != null ? member.getPos().getPosNo() : null)
+                            .dept_no(member.getDept() != null ? member.getDept().getDeptNo() : null)
+                            .role_no(member.getRole() != null ? member.getRole().getRoleNo() : null)
+                            .status(member.getStatus())
+                            .dept_name(member.getDept() != null ? member.getDept().getDeptName() : null)
+                            .pos_name(member.getPos() != null ? member.getPos().getPosName() : null)
+                            .role_name(member.getRole() != null ? member.getRole().getRoleName() : null)
+                            .build();
+        			
+        			memberDtoList.add(memberDto);						
+                }
+        		
+        		List<Dept> deptList = deptService.SelectDeptAllOrderByDeptNameAsc();
+        		List<DeptDto> deptDtoList = new ArrayList<>();
+        		
+        		for(Dept dept : deptList) {
+        			DeptDto deptDto = DeptDto.builder()
+        					.dept_no(dept.getDeptNo())
+        					.dept_name(dept.getDeptName())
+        					.build();
+        			
+        			deptDtoList.add(deptDto);
+        		}
+        		
+        		
+        		List<Pos> posList = posService.selectPosAllByPosOrderAsc();
+        		List<PosDto> posDtoList = new ArrayList<>();
+        		
+        		for(Pos pos : posList) {
+        		    PosDto posDto = PosDto.builder()
+        		        .pos_no(pos.getPosNo())
+        		        .pos_name(pos.getPosName())
+        		        .pos_order(pos.getPosOrder())
+        		        .build();
+
+        		    posDtoList.add(posDto);
+        		}
+        		
+        		List<Role> roleList = roleService.selectRoleAll();
+        		List<RoleDto> roleDtoList = new ArrayList<>();
+        		
+        		for(Role role : roleList) {
+        		    RoleDto roleDto = RoleDto.builder()
+        		        .role_no(role.getRoleNo())
+        		        .role_name(role.getRoleName())
+	        		    .role_nickname(role.getRoleNickname())
+        		        .build();
+
+        		    roleDtoList.add(roleDto);
+        		}
+
+        		responseDto.setDept_no(deptNo);
+        		responseDto.setMember_list_by_dept(memberDtoList);
+        		responseDto.setDept_list_all(deptDtoList);
+        		responseDto.setPos_list_all(posDtoList);
+        		responseDto.setRole_list_all(roleDtoList);
+        		                
+                responseDto.setRes_code("200");
+                responseDto.setRes_msg("사원 목록 조회가 성공적으로 완료되었습니다.");
+			}
+        } catch(IllegalArgumentException e) {
+        	responseDto.setRes_code("400");
+        	responseDto.setRes_msg(e.getMessage());
+		} catch(Exception e) {
+			logger.error("사원 조회 중 오류 발생", e);
+			responseDto.setRes_code("500");
+			responseDto.setRes_msg("사원 조회 중 알 수 없는 오류가 발생했습니다.");
+		}
+        
+		return responseDto;
+	}
+	
+	@PostMapping("/admin/member/update")
+	@ResponseBody
+	public Map<String, String> updateMember(@RequestBody MemberResponseDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("MemberResponseDto: {}", dto);
+		
+		try {			
+			service.updateMember(dto);
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+			
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		}
 		
 		return resultMap;
 	}
@@ -266,7 +415,7 @@ public class MemberController {
 		        @RequestParam("signature") String signature) {
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "전자서명 저장에 성공하였습니다.");
+		resultMap.put("res_msg", "전자서명 저장에 실패하였습니다.");
 		
 		int result = 0;
 		
@@ -274,7 +423,27 @@ public class MemberController {
 		
 		if(result > 0) {
 			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "전자서명 저장에 실패하였습니다.");
+			resultMap.put("res_msg", "전자서명 저장에 성공하였습니다.");
+		}
+		
+		return resultMap;
+	 }
+	 
+	 @PostMapping("/member/update/signature")
+	 @ResponseBody
+	 public Map<String,String> updateSignatureApi(@RequestParam("memberNo") Long memberNo,
+		        @RequestParam("updateSignature") String signature) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "전자서명 변경에 실패하였습니다.");
+		
+		int result = 0;
+		
+		result = service.createSignatureApi(memberNo, signature);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "전자서명 변경에 성공하였습니다.");
 		}
 		
 		return resultMap;

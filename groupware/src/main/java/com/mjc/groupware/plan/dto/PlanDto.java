@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mjc.groupware.member.entity.Member;
+
 import com.mjc.groupware.plan.entity.Plan;
 
 import lombok.AllArgsConstructor;
@@ -40,6 +42,7 @@ public class PlanDto {
     private String color;
     private String member_name;
     private String dept_name;
+
     
     // DB저장
 	public Plan toEntity() {
@@ -71,6 +74,7 @@ public class PlanDto {
 				.color(plan.getColor())
 				.member_name(plan.getMember() != null ? plan.getMember().getMemberName() : null)
 				.dept_name(plan.getMember().getDept() != null ? plan.getMember().getDept().getDeptName() : null)
+
 				.build();
 	}
 	
@@ -88,6 +92,7 @@ public class PlanDto {
 		extendedProps.put("planContent", plan_content);
 		extendedProps.put("memberName", member_name);
 		extendedProps.put("deptName", dept_name);
+
 		event.put("extendedProps", extendedProps);
 
 		return event;

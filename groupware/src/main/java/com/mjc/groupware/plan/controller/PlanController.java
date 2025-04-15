@@ -1,10 +1,13 @@
 package com.mjc.groupware.plan.controller;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +53,7 @@ public class PlanController {
 
 		for(Plan plan : plans) {
 	    Map<String, Object> event = new HashMap<>();
+
 	    event.put("id", plan.getPlanNo());
 	    event.put("title", plan.getPlanTitle());
 	    event.put("start", plan.getStartDate());
@@ -59,12 +63,14 @@ public class PlanController {
 	    Map<String, Object> extendedProps = new HashMap<>();
 	    extendedProps.put("calendar", plan.getPlanType());
 	    extendedProps.put("description", plan.getPlanContent());
+
 	    event.put("extendedProps", extendedProps);
 
 	    events.add(event);
 		}
 	    return events;
 	}
+
 
 	private String getColorByType(String planType) {
 	    switch (planType) {
@@ -75,6 +81,7 @@ public class PlanController {
 	        default: return "rgba(108, 117, 125, 0.5)"; // 기본 회색 투명
 	    }
 	}
+
 
 	//일정 등록
 	@PostMapping("/plan/create")

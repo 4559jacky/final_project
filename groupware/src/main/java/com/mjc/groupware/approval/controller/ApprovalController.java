@@ -144,8 +144,9 @@ public class ApprovalController {
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-	    
-	    List<Approval> approvalList = service.selectApprovaAlllById(member);
+	    System.out.println(member);
+	    List<Approval> approvalList = service.selectApprovalAllById(member);
+	    model.addAttribute("member", member);
 	    model.addAttribute("approvalList", approvalList);
 		
 		return "/approval/user/approval";
@@ -160,7 +161,10 @@ public class ApprovalController {
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
+	    List<Approval> approvalList = service.selectApprovalAllByApproverId(member);
 	    
+	    model.addAttribute("member", member);
+	    model.addAttribute("approvalList", approvalList);
 	    
 		
 		return "/approval/user/receiveApproval";

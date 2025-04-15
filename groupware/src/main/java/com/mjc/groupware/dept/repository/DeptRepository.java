@@ -16,4 +16,6 @@ public interface DeptRepository extends JpaRepository<Dept, Long> {
 	boolean existsByDeptNameAndDeptStatusNot(String deptName, Integer excludedStatus);
 	List<Dept> findByDeptNameAndDeptStatusNot(String deptName, int excludedStatus);
 	
+	List<Dept> findAllByOrderByDeptNameAsc();
+	
 }

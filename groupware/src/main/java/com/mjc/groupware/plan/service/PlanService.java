@@ -31,9 +31,11 @@ public class PlanService {
 	}
 
 	//
+
 	public List<Plan> selectAllPlans() {
 	    return planRepository.findAll();
 	}
+
 
 	// 상세모달창
 	public Plan selectPlanById(Long planId) {
