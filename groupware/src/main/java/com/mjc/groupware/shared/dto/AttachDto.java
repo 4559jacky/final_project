@@ -3,8 +3,6 @@ package com.mjc.groupware.shared.dto;
 import java.time.LocalDateTime;
 
 import com.mjc.groupware.board.entity.BoardAttach;
-import com.mjc.groupware.shared.entity.Attach;
-import com.mjc.groupware.shared.entity.Shared;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

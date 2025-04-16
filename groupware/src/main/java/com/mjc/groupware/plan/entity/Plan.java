@@ -6,17 +6,22 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.mjc.groupware.member.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name="plan")
@@ -25,6 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Plan {
 
 	@Id
@@ -37,6 +43,9 @@ public class Plan {
 	
 	@Column(name = "plan_content")
     private String planContent;
+	
+	@Column(name = "color")
+	private String color;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -52,10 +61,12 @@ public class Plan {
 	@Column(name = "end_date")
     private LocalDate endDate;
 	
-	@Column(name = "reg_member_no")
-    private Long regMemberNo;
+	@ManyToOne
+	@JoinColumn(name = "reg_member_no")
+    private Member member;
 	
 	@Column(name = "plan_type")
     private String planType;
+
 
 }

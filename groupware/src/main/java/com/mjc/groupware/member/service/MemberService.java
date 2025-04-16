@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.specification.MemberSpecification;
-import com.mjc.groupware.plan.controller.PlanController;
 import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
@@ -126,7 +126,7 @@ public class MemberService {
 //			SecurityContextHolder.getContext().setAuthentication(newAuth);
 			
 			// 비밀번호 수정 후 -> 로그인 된 사원의 인증 상태를 해제 (즉, 인증이 풀리면서 /login 으로 강제로 끌려들어감)
-			SecurityContextHolder.getContext().setAuthentication(null);	
+			SecurityContextHolder.getContext().setAuthentication(null);
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		} catch(Exception e) {
@@ -155,6 +155,26 @@ public class MemberService {
 			throw new IllegalArgumentException(e.getMessage());
 		} catch(Exception e) {
 			throw new RuntimeException("개인정보 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateMember(MemberResponseDto dto) {
+		// 당연하게도 dto에 삽입된 정보만 바꿀 것이므로 @Transaction + 도메인메소드 활용
+		try {
+			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+			
+			target.updateMember(
+					Dept.builder().deptNo(dto.getDept_no()).build(),
+					Pos.builder().posNo(dto.getPos_no()).build(),
+					Role.builder().roleNo(dto.getRole_no()).build(),
+					dto.getStatus()
+					);
+			
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("사원 정보 수정 중 알 수 없는 문제가 발생했습니다.");
 		}
 	}
 	
@@ -206,6 +226,5 @@ public class MemberService {
 		
 		return result;
 	}
-	
-	
+
 }

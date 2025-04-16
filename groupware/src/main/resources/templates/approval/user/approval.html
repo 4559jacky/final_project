@@ -97,11 +97,20 @@
 			</form>
 
 			<!-- 버튼 그룹 -->
+
 			<div class="d-flex gap-2">
-				<button class="btn btn-primary rounded-pill" data-bs-toggle="modal"
-					id="signature_btn" data-bs-target="#signatureModal"
-					th:value="${#authentication.principal.member.memberNo}">전자서명
-					등록</button>
+				<th:block th:if="${#strings.isEmpty(member.signature)}">
+					<button class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+						id="signature_btn" data-bs-target="#signatureModal"
+						th:value="${#authentication.principal.member.memberNo}">전자서명
+						등록</button>
+				</th:block>
+				<th:block th:if="${!#strings.isEmpty(member.signature)}">
+					<button class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+						id="saveSignature_btn" data-bs-target="#saveSignatureModal"
+						th:value="${#authentication.principal.member.memberNo}">전자서명
+						보기</button>
+				</th:block>
 				<button class="btn btn-primary rounded-pill"
 					onclick='createApproval();'>결재 작성</button>
 			</div>
@@ -189,6 +198,66 @@
 		</div>
 	</div>
 
+	<!-- 서명 조회 Modal -->
+	<div class="modal fade" id="saveSignatureModal" tabindex="-1"
+		aria-labelledby="signatureModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="saveSignatureModalLabel">서명</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+
+				<div class="modal-body">
+					<div id="saveSignatureContainer" class="p-3 bg-light rounded shadow-sm">
+						<div id="saveSignature" style="width: 100%; height: 250px;">
+							<input type="hidden" th:value="${member.signature}"
+								id="member_signature"> <img src="" id="signImg"
+								class="signature-img" alt="서명 이미지">
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button class="btn btn-primary" data-bs-toggle="modal"
+						id="updateSignature_btn" data-bs-target="#updateSignatureModal"
+						th:value="${#authentication.principal.member.memberNo}">변경</button>
+					<button onclick="closeSignature(); return false;"
+						class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 서명 업데이트 Modal -->
+	<div class="modal fade" id="updateSignatureModal" tabindex="-1"
+		aria-labelledby="signatureModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="updateSignatureModalLabel">서명란: 마우스로
+						입력하세요</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+
+				<div class="modal-body">
+					<div id="updateSignatureContainer" class="p-3 bg-light rounded shadow-sm">
+						<div id="updateSignature" style="width: 100%; height: 250px;"></div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button onclick="updateSignature(); return false;"
+						class="btn btn-primary">변경</button>
+					<button onclick="closeSignature(); return false;"
+						class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 
 	<script>
 		const createApproval = function() {
@@ -196,20 +265,52 @@
 		}
 
 		let memberNo = 0;
-		
+
 		const token = $('meta[name="_csrf"]').attr('content');
 		const header = $('meta[name="_csrf_header"]').attr('content');
 
 		let isSignatureInitialized = false;
 
 		$(document).ready(function() {
+
+			$('#saveSignatureModal').on('shown.bs.modal', function() {
+
+				memberNo = $('#saveSignature_btn').val(); // 회원 번호 가져오기
+				console.log("memberNo:", memberNo);
+
+				const signature = $('#member_signature').val();
+
+				if (signature) {
+					const imgSrc = 'data:image/png;base64,' + signature;
+					$('#signImg').attr('src', imgSrc);
+				} else {
+					$('#signImg').attr('src', '');
+				}
+			});
+
 			$('#signatureModal').on('shown.bs.modal', function() {
+
 				memberNo = $('#signature_btn').val(); // 회원 번호 가져오기
 				console.log("memberNo:", memberNo);
 
 				// 한 번만 초기화되게 체크
 				if (!isSignatureInitialized) {
 					$("#signature").jSignature({
+						height : 300,
+						width : 600
+					});
+					isSignatureInitialized = true;
+				}
+			});
+			
+			$('#updateSignatureModal').on('shown.bs.modal', function() {
+
+				memberNo = $('#updateSignature_btn').val(); // 회원 번호 가져오기
+				console.log("memberNo:", memberNo);
+
+				// 한 번만 초기화되게 체크
+				if (!isSignatureInitialized) {
+					$("#updateSignature").jSignature({
 						height : 300,
 						width : 600
 					});
@@ -223,28 +324,64 @@
 					$("#signature").jSignature("reset");
 				}
 			});
+			
+			$('#updateSignatureModal').on('hidden.bs.modal', function() {
+				if (isSignatureInitialized) {
+					$("#updateSignature").jSignature("reset");
+				}
+			});
 		});
 
 		// 서명 저장
 		function saveSignature() {
 			const data = $("#signature").jSignature("getData", "image");
-			
+
 			const imageData = data[1];
-			
+
 			$.ajax({
-				url: '/member/create/signature',
-				method:'post',
-				data: {
+				url : '/member/create/signature',
+				method : 'post',
+				data : {
 					memberNo : memberNo,
-					signature:imageData
+					signature : imageData
 				},
-				beforeSend: function(xhr) {
-			        xhr.setRequestHeader(header, token);  // spring security
-			    },
-				success: function(data) {
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader(header, token); // spring security
+				},
+				success : function(data) {
 					alert(data.res_msg);
+					location.reload();
 				},
-				error: function() {
+				error : function() {
+					alert('서명 저장 실패');
+				}
+			})
+
+			// 모달 닫기
+			$('#signatureModal').modal('hide');
+		}
+		
+		// 서명변경
+		function updateSignature() {
+			const data = $("#updateSignature").jSignature("getData", "image");
+
+			const imageData = data[1];
+
+			$.ajax({
+				url : '/member/update/signature',
+				method : 'post',
+				data : {
+					memberNo : memberNo,
+					updateSignature : imageData
+				},
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader(header, token); // spring security
+				},
+				success : function(data) {
+					alert(data.res_msg);
+					location.reload();
+				},
+				error : function() {
 					alert('서명 저장 실패');
 				}
 			})

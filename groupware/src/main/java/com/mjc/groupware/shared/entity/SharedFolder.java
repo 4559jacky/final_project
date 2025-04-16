@@ -1,5 +1,11 @@
 package com.mjc.groupware.shared.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.mjc.groupware.member.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,30 +18,31 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
-@Table(name="shared_attach")
+@Table(name="shared_folder")
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@ToString
-public class Attach {
+public class SharedFolder {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long attachNo;
+	@Column(name="folder_no")
+	private Long folderNo;
 	
-	@Column(name="ori_name")
-	private String oriName;
-	
-	@Column(name="new_name")
-	private String newName;
-	
-	@Column(name="attach_path")
-	private String attachPath;
+	@Column(name="folder_name")
+	private String folderName;
 	
 	@ManyToOne
-	@JoinColumn(name="shared_no")
-	private Shared shared;
+	@JoinColumn(name="member_no", nullable = false)
+	private Member member;
+	
+	@ManyToOne
+	@JoinColumn(name="folder_parent_no")
+	private SharedFolder parentFolder;
+	
+	@CreationTimestamp
+	@Column(updatable=false,name="reg_date")
+	private LocalDateTime regDate;
 }
