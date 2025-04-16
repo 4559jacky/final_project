@@ -67,6 +67,9 @@
 					</tr>
 				</thead>
 				<tbody>
+					<tr th:if="${#lists.isEmpty(reservationList)}">
+				            <td colspan="6" class="text-center">회의실 예약 목록이 없습니다.</td>
+				        </tr>
 					<tr th:each="list:${reservationList}">
 						<td th:text="${list.meeting_room_name}">회의실</td>
 						<td th:text="${list.meeting_title}">회의명</td>
@@ -109,15 +112,47 @@
 		        	      document.querySelector('meta[name="_csrf"]').content
 		        	  },
 		        	  body: JSON.stringify({
-							roomNo: roomNo,
-							date: date
+							roomNo:roomNo,
+							date:date
 						})
 		        	})
 		        	  .then(response => response.json())
 		        	  .then(data => {
-		        		  console.log(data);
+		        		  const tbody = document.querySelector("tbody");
+		                  tbody.innerHTML = ""; // ✅ 초기화는 여기서!
+
+		                  if (data.length === 0) {
+		                    const emptyRow = document.createElement("tr");
+		                    emptyRow.innerHTML = `
+		                      <td colspan="6" class="text-center">검색 결과가 없습니다.</td>
+		                    `;
+		                    tbody.appendChild(emptyRow);
+		                    return;
+		                  }
+
+		                  data.forEach(list => {
+		                    const tr = document.createElement("tr");
+
+		                    tr.innerHTML = `
+		                      <td>${list.meeting_room_name}</td>
+		                      <td>${list.meeting_title}</td>
+		                      <td>${Array.isArray(list.member_name) ? list.member_name.join(", ") : ''}</td>
+		                      <td>${list.meeting_date}</td>
+		                      <td>${Array.isArray(list.meeting_start_time) ? list.meeting_start_time.join(", ") : ''}</td>
+		                      <td>
+		                        <button type="button" class="btn ${
+		                          list.reservation_status === 'Y'
+		                            ? 'bg-success-subtle text-success'
+		                            : 'bg-danger-subtle text-danger'
+		                        } px-3 py-1" disabled>
+		                          ${list.reservation_status === 'Y' ? '예약' : '취소'}
+		                        </button>
+		                      </td>
+		                    `;
+
+		                    tbody.appendChild(tr);
+		        		  })
 		        	  });
-		        
 		      });
 		    }
 		  });
