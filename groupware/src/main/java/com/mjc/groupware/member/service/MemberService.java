@@ -69,7 +69,7 @@ public class MemberService {
 					.memberName(dto.getMember_name())
 					.pos(dto.getPos_no() != 0 ?	Pos.builder().posNo(dto.getPos_no()).build() : null)
 					.dept(dto.getDept_no() != 0 ? Dept.builder().deptNo(dto.getDept_no()).build() : null)
-					.role(Role.builder().roleNo((long)3).build())
+					.role(Role.builder().roleNo((long)2).build())
 					.status(100)
 					.build());
 					

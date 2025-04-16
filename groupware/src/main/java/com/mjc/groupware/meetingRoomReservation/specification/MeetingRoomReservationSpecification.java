@@ -8,15 +8,17 @@ import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoomReservation;
 
 public class MeetingRoomReservationSpecification {
 	
-	// 회의실이 일치하는 검색 조건
-	public static Specification<MeetingRoomReservation> meetingReservationContainsMeeitngRoomNo(Long keyword){
-		return (root, query, criteriaBuilder) ->
-			criteriaBuilder.like(root.get("meetingRoomNo"),"%"+keyword+"%");
-	}
+	// Long이나 LocalDate는 equal
 	
-	// 날짜가 일치하는 검색 조건
-	public static Specification<MeetingRoomReservation> meetingReservationContainsMeeitngDate(LocalDate keyword){
-		return (root, query, criteriaBuilder) ->
-			criteriaBuilder.like(root.get("meetingDate"),"%"+keyword+"%");
-	}
+	// 회의실 번호가 일치하는 검색 조건
+    public static Specification<MeetingRoomReservation> meetingReservationContainsMeeitngRoomNo(Long keyword){
+        return (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("meetingRoomNo").get("meetingRoomNo"), keyword);
+    }
+
+    // 날짜가 일치하는 검색 조건
+    public static Specification<MeetingRoomReservation> meetingReservationContainsMeeitngDate(LocalDate keyword){
+        return (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("meetingDate"), keyword);
+    }
 }

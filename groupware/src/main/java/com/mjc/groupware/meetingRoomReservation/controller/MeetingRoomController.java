@@ -33,7 +33,15 @@ public class MeetingRoomController {
 	
 	// 사용자 - 회의실 예약 페이지 전환
 	@GetMapping("/meetingRoom")
-	public String meetingRoomView() {
+	public String meetingRoomView(Model model) {
+		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
+		List<MeetingRoomReservationDto> resultList = service.selectMeetingRoomReservationAll(dto);
+		
+		List<MeetingRoom> meetingRoomList = service.adminSelectMeetingRoomAll();
+		
+		model.addAttribute("reservationList",resultList);
+		model.addAttribute("meetingRoomList",meetingRoomList);
+		
 		return "/meetingRoom/meetingRoomReservation";
 	}
 	
@@ -103,9 +111,16 @@ public class MeetingRoomController {
 	public List<MeetingRoomReservationDto> adminSelectFilter(@RequestBody Map<String,String> param){
 		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
 		
-		dto.setMeeting_room_no(Long.parseLong(param.get("roomNo")));
-		LocalDate meetingDate = LocalDate.parse(param.get("date")); 
-		dto.setMeeting_date(meetingDate);
+		String roomNo = param.get("roomNo");
+		String date = param.get("date");
+		
+		if(roomNo != null && !roomNo.isEmpty()) {
+			dto.setMeeting_room_no(Long.parseLong(roomNo));
+		}
+		if(date != null && !date.isEmpty()) {
+			dto.setMeeting_date(LocalDate.parse(date));		
+		}
+
 		
 		List<MeetingRoomReservationDto> list = service.selectMeetingRoomReservationAll(dto);
 		
