@@ -79,3 +79,38 @@ table select:focus {
 	border-color: var(--bs-primary, #5c9ded);
 	box-shadow: 0 0 0 0.2rem rgba(92, 157, 237, 0.25);
 }
+
+/* 사원 조회 테이블 css */
+.table th {
+	text-align: center;
+}
+
+.table th:nth-child(1), .table td:nth-child(1) {
+	min-width: 30px;
+	text-align: center;
+}
+
+.table th:nth-child(2), .table td:nth-child(2) {
+	min-width: 140px;
+}
+
+.table th:nth-child(3), .table td:nth-child(3) {
+	min-width: 140px;
+}
+
+.table th:nth-child(4), .table td:nth-child(4) {
+	min-width: 140px;
+}
+
+.table th:nth-child(5), .table td:nth-child(5) {
+	min-width: 140px;
+}
+
+.table th:nth-child(6), .table td:nth-child(6) {
+	min-width: 100px;
+}
+
+.table th:nth-child(7), .table td:nth-child(7) {
+	min-width: 80px;
+}
+/* 사원 조회 테이블 css 끝 */
