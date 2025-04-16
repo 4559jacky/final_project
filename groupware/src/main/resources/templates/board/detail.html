@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/include/layout}">
+
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<th:block layout:fragment="content">
+
+    <!-- 상단 경로 및 제목 -->
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center">
+                <li class="breadcrumb-item">
+                    <a class="text-muted text-decoration-none" th:href="@{/home}">
+                        <i class="ti ti-home fs-5"></i>
+                    </a>
+                </li>
+                <li class="breadcrumb-item" aria-current="page">자유게시판 상세/댓글</li>
+            </ol>
+        </nav>
+        <br>
+        <h2 class="mb-0 fw-bolder fs-8">자유게시판 상세</h2>
+    </div>
+    <br><br>
+
+    <!-- 게시글 제목 -->
+    <h2 class="text-center mb-4 fw-bolder fs-4" th:text="${board.boardTitle != null ? board.boardTitle : '제목 없음'}">게시글 제목</h2>
+
+    <!-- 조회수 및 등록일 (오른쪽 정렬) -->
+    <div class="mb-3 text-end text-muted small">
+        <i class="ti ti-eye"></i> <span th:text="${board.views}">0</span> |
+        <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
+    </div>
+
+    <!-- 게시글 내용 (텍스트 박스 스타일) -->
+    <section>
+        <div class="board_detail mb-4">
+            <textarea class="form-control" rows="10" readonly
+                      style="resize: none; background-color: #f9f9f9; border: 1px solid #ddd;"
+                      th:utext="${board.boardContent != null ? board.boardContent : '내용 없음'}">게시글 내용</textarea>
+        </div>
+        <hr>
+
+        <!-- 작성자 정보 및 수정/삭제 버튼 (본인만 표시) 보여주기식으로 일단 써둠-->
+        <span th:if="${board.member != null}">
+            작성자: <span th:text="${board.member.memberNo}"></span> <!-- memberNo 사용 -->
+        </span>
+
+        <th:block sec:authorize="isAuthenticated()">
+            <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="buttons text-end mt-2">
+                <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
+                <a class="btn btn-danger" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
+            </div>
+        </th:block>
+    </section>
+
+    <!-- 삭제 스크립트 -->
+    <script>
+    const boardDelete = (boardNo) => {
+        if (!confirm("게시글을 삭제하시겠습니까?")) return;
+
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+
+        fetch(`/board/delete/${boardNo}`, {  // 이 부분을 수정
+            method: 'POST',  // 삭제는 POST 요청으로 보낼 거야
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.res_msg);
+                if (data.res_code === '200') {
+                    location.href = "/board/list";
+                }
+            })
+            .catch(error => {
+                console.error("삭제 실패:", error);
+                alert("삭제 요청 중 오류가 발생했습니다.");
+            });
+    };
+    </script>
+
+    <!-- JavaScript 파일 로딩 -->
+    <script th:src="@{/assets/js/vendor.min.js}"></script>
+    <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+    <script th:src="@{/assets/js/theme/app.init.js}"></script>
+    <script th:src="@{/assets/js/theme/theme.js}"></script>
+    <script th:src="@{/assets/js/theme/app.min.js}"></script>
+    <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+    <!-- solar icons -->
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+    <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+    <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+</th:block>
+</html>
