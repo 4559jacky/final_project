@@ -19,7 +19,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class BoardAttachDto {
-    private Long attach_no;
+    private Long boardattach_no;
     private Long board_no;
     private String ori_name;
     private String new_name;
@@ -29,7 +29,7 @@ public class BoardAttachDto {
     
     public BoardAttach toEntity() {
     	return BoardAttach.builder()
-    				.attachNo(attach_no)
+    				.attachNo(boardattach_no)
     				.oriName(ori_name)
     				.newName(new_name)
     				.attachPath(attach_path)

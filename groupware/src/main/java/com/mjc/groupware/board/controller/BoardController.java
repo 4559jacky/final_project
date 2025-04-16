@@ -171,7 +171,7 @@ public class BoardController {
     
     
 
-    // 게시글 삭제 처리 (Soft Delete)
+    // 게시글 삭제 처리
     @PostMapping("/board/delete/{boardNo}")
     @ResponseBody
     public Map<String, String> deleteBoard(@PathVariable("boardNo") Long boardNo) {

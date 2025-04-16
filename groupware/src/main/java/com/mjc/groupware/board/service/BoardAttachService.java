@@ -28,24 +28,26 @@ public class BoardAttachService {
     private final BoardRepository boardRepository;
     private final BoardAttachRepository attachRepository;
 
-    // 파일 단일 조회
+    // 파일 단일 조회(O)
     public BoardAttach selectAttachOne(Long id) {
         return attachRepository.findById(id).orElse(null);
     }
 
-    // 게시글에 속한 첨부파일 목록 조회
+    // 게시글에 속한 첨부파일 목록 조회(O)
     public List<BoardAttach> selectAttachList(Long boardNo) {
         Board board = boardRepository.findById(boardNo).orElse(null);
-        Specification<BoardAttach> spec = (root, query, cb) -> null;
+        // Specification 생성(BoardAttach)
+        Specification<BoardAttach> spec = (root, query, criteriaBuilder) -> null;
         spec = spec.and(BoardAttachSpecification.boardEquals(board));
+        // findAll 메소드에 전달(spec)
         return attachRepository.findAll(spec);
     }
 
-    // 파일 메타데이터 삭제
-    public int deleteMetaData(Long attachNo) {
+    // 파일 메타데이터 삭제(O)
+    public int deleteMetaData(Long attach_no) {
         int result = 0;
         try {
-            BoardAttach target = attachRepository.findById(attachNo).orElse(null);
+            BoardAttach target = attachRepository.findById(attach_no).orElse(null);
             if (target != null) {
                 attachRepository.delete(target);
             }
@@ -56,11 +58,11 @@ public class BoardAttachService {
         return result;
     }
 
-    // 실제 파일 삭제
-    public int deleteFileData(Long attachNo) {
+    // 실제 파일 삭제(O)
+    public int deleteFileData(Long attach_no) {
         int result = 0;
         try {
-            BoardAttach boardattach = attachRepository.findById(attachNo).orElse(null);
+            BoardAttach boardattach = attachRepository.findById(attach_no).orElse(null);
             if (boardattach != null) {
                 File file = new File(boardattach.getAttachPath());
                 if (file.exists()) {
@@ -81,30 +83,25 @@ public class BoardAttachService {
             if (file == null || file.isEmpty()) {
                 throw new Exception("존재하지 않는 파일입니다.");
             }
-
             long fileSize = file.getSize();
             if (fileSize >= 1048576) {
                 throw new Exception("허용 용량을 초과한 파일입니다.");
             }
-
             String oriName = file.getOriginalFilename();
             dto.setOri_name(oriName);
-
-            String fileExt = oriName.substring(oriName.lastIndexOf("."));
-            String uniqueName = UUID.randomUUID().toString().replaceAll("-", "");
-            String newName = uniqueName + fileExt;
+            String fileExt = oriName.substring(oriName.lastIndexOf("."),oriName.length());
+            UUID uuid = UUID.randomUUID();
+            String uniqueName = uuid.toString().replaceAll("-", "");
+            String newName = uniqueName+fileExt;
             dto.setNew_name(newName);
-
             String downDir = fileDir + "board/" + newName;
             dto.setAttach_path(downDir);
-
             File saveFile = new File(downDir);
-            if (!saveFile.getParentFile().exists()) {
-                saveFile.getParentFile().mkdirs();
+         
+            if(saveFile.exists() == false) {
+            	saveFile.mkdirs();
             }
-
             file.transferTo(saveFile);
-
         } catch (Exception e) {
             dto = null;
             e.printStackTrace();
