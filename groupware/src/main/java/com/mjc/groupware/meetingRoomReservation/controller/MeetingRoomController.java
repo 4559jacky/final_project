@@ -1,7 +1,6 @@
 package com.mjc.groupware.meetingRoomReservation.controller;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.meetingRoomReservation.Service.MeetingRoomService;
@@ -38,30 +39,18 @@ public class MeetingRoomController {
 	
 	// 사용자 - 전체 회의실 예약 일정 캘린더에 조회
 	@GetMapping("/selectReservation")
+	@ResponseBody
 	public List<Map<String, Object>> selectMeetingRoomReservationAll() {
-	    List<MeetingRoomReservationDto> reservations = service.selectMeetingRoomReservationAll();
+		MeetingRoomReservationDto filterDto = new MeetingRoomReservationDto();
+	    List<MeetingRoomReservationDto> reservations = service.selectMeetingRoomReservationAll(filterDto);
 	    List<Map<String, Object>> events = new ArrayList<>();
 
 	    for (MeetingRoomReservationDto dto : reservations) {
-	        // 각 시작 시간에 대해 이벤트를 생성
-	        for (LocalTime startTime : dto.getMeeting_start_time()) {
-	            Map<String, Object> event = new HashMap<>();
-
-	            // LocalDate와 startTime 결합하여 LocalDateTime 생성
-	            LocalDateTime startDateTime = LocalDateTime.of(dto.getMeeting_date(), startTime);
-
-	            // event에 start 값 추가
-	            event.put("title", dto.getMeeting_title());
-	            event.put("start", startDateTime.toString());  // YYYY-MM-DDTHH:mm:ss 형식으로 전달
-
-	            // 이벤트 리스트에 추가
-	            events.add(event);
-	        }
+	        events.addAll(dto.toFullCalendarEvents());
 	    }
 
 	    return events;
 	}
-
 
 
 	// 사용자 - 회의실, 시간 조회
@@ -71,11 +60,12 @@ public class MeetingRoomController {
 	    return service.selectMeetingRoomAll();
 	}
 	
+	
+	
 	// 사용자 - 회의실 예약
 	@PostMapping("/reservation")
 	@ResponseBody
 	public Map<String,String> createMeetingRoomReservation(MeetingRoomReservationDto dto) {
-		System.out.println(dto);
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "회의실 예약 중 오류가 발생하였습니다.");
@@ -93,7 +83,34 @@ public class MeetingRoomController {
 	
 	//////////////////////////////////////////////////////////////////
 	
+	// 관리자 - 회의실 전체 예약 내역 조회
+	@GetMapping("/admin/meetingReservation")
+	public String adminSelectMeetingReservationAll(Model model) {
+		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
+		List<MeetingRoomReservationDto> resultList = service.selectMeetingRoomReservationAll(dto);
+		
+		List<MeetingRoom> meetingRoomList = service.adminSelectMeetingRoomAll();
+		
+		model.addAttribute("reservationList",resultList);
+		model.addAttribute("meetingRoomList",meetingRoomList);
+		 
+		return "/meetingRoom/AdminMeetingReservation";
+	}
 	
+	// 관리자 - 회의실 전체 예약 내역 조회 필터
+	@PostMapping("/admin/selectFilter")
+	@ResponseBody
+	public List<MeetingRoomReservationDto> adminSelectFilter(@RequestBody Map<String,String> param){
+		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
+		
+		dto.setMeeting_room_no(Long.parseLong(param.get("roomNo")));
+		LocalDate meetingDate = LocalDate.parse(param.get("date")); 
+		dto.setMeeting_date(meetingDate);
+		
+		List<MeetingRoomReservationDto> list = service.selectMeetingRoomReservationAll(dto);
+		
+		return list;
+	}
 	
 	// 관리자 - 전체 회의실 목록 조회
 	@GetMapping("/admin/meetingRoom")

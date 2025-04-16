@@ -8,3 +8,38 @@
   max-height: 600px;
   overflow-y: auto;
 }
+#signatureContainer {
+  border: none !important;         /* 회색 선 제거 */
+  background-color: #f8f9fa;       /* 부트스트랩 light 배경 */
+}
+
+#signature {
+  max-width: 100%;
+  height: 250px;
+  border: 1px solid #ced4da;
+  background-color: white;
+}
+
+/* jSignature 내부 canvas의 기본 스타일 초기화 */
+#signature canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+#updateSignatureContainer {
+  border: none !important;         /* 회색 선 제거 */
+  background-color: #f8f9fa;       /* 부트스트랩 light 배경 */
+}
+
+#updateSignature {
+  max-width: 100%;
+  height: 250px;
+  border: 1px solid #ced4da;
+  background-color: white;
+}
+
+/* jSignature 내부 canvas의 기본 스타일 초기화 */
+#updateSignature canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+

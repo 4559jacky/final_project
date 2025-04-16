@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.service.ApprovalService;
-import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
@@ -135,12 +136,37 @@ public class ApprovalController {
 	// 사용자 : 인증받은 모든 사원이 접근 가능한 url
 	
 	@GetMapping("/approval")
-	public String approvalView() {
+	public String approvalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    System.out.println(member);
+	    List<Approval> approvalList = service.selectApprovalAllById(member);
+	    model.addAttribute("member", member);
+	    model.addAttribute("approvalList", approvalList);
+		
 		return "/approval/user/approval";
 	}
 	
 	@GetMapping("/approval/receive")
-	public String receiveApprovalView() {
+	public String receiveApprovalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    List<Approval> approvalList = service.selectApprovalAllByApproverId(member);
+	    
+	    model.addAttribute("member", member);
+	    model.addAttribute("approvalList", approvalList);
+	    
+		
 		return "/approval/user/receiveApproval";
 	}
 	
@@ -181,7 +207,25 @@ public class ApprovalController {
 	
 	// Dept dept = deptService.selectDeptAll();
 	
-	
-	
+	@PostMapping("/approval/create")
+	@ResponseBody
+	public Map<String,String> createApprovalApi(ApprovalDto approvalDto) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 요청에 실패하였습니다.");
+		
+		System.out.println("결재자 : "+approvalDto.getApprover_no().get(0));
+		
+		int result = service.createApprovalApi(approvalDto);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 요청되었습니다.");
+		}
+		
+		return resultMap;
+		
+		
+	}
 	
 }

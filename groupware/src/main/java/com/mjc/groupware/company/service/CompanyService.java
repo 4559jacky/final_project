@@ -26,40 +26,43 @@ public class CompanyService {
 	
 	private final CompanyRepository repository;
 	
-	public CompanyDto uploadFile(MultipartFile file) {
+	public CompanyDto uploadFile(MultipartFile file) throws Exception {
 		CompanyDto dto = new CompanyDto();
 		
 		try {
 			if(file == null || file.isEmpty()) {
-				throw new Exception("존재하지 않는 파일입니다.");
+				dto.setOri_name(null);
+				dto.setNew_name(null);
+				dto.setAttach_path(null);
+			} else {
+				long fileSize = file.getSize();
+				if(fileSize <= 0 || 2 * 1024 * 1024 < fileSize) {
+					throw new Exception("파일 크기 : " + fileSize +"(파일 사이즈가 2MB를 넘습니다.");
+				}
+				
+				String oriName = file.getOriginalFilename();
+				dto.setOri_name(oriName);
+				
+				String fileExt = oriName.substring(oriName.lastIndexOf("."), oriName.length());
+				
+				String newName = UUID.randomUUID().toString().replaceAll("-", "") + fileExt;
+				dto.setNew_name(newName);
+				
+				String downDir = fileDir+newName;
+				dto.setAttach_path(downDir);
+				
+				File saveFile = new File(downDir);
+				
+				if(!saveFile.exists()) {
+					saveFile.mkdirs();
+				}
+				
+				file.transferTo(saveFile);
 			}
-			
-			long fileSize = file.getSize();
-			if(fileSize <= 0 || 2 * 1024 * 1024 < fileSize) {
-				throw new Exception("파일 크기 : " + fileSize +"(파일 사이즈가 2MB를 넘습니다.");
-			}
-			
-			String oriName = file.getOriginalFilename();
-			dto.setOri_name(oriName);
-			
-			String fileExt = oriName.substring(oriName.lastIndexOf("."), oriName.length());
-			
-			String newName = UUID.randomUUID().toString().replaceAll("-", "") + fileExt;
-			dto.setNew_name(newName);
-			
-			String downDir = fileDir+newName;
-			dto.setAttach_path(downDir);
-			
-			File saveFile = new File(downDir);
-			
-			if(!saveFile.exists()) {
-				saveFile.mkdirs();
-			}
-			
-			file.transferTo(saveFile);
-		} catch(Exception e) {
+		} 
+		catch(Exception e) {
 			dto = null;
-			logger.error("프로필 등록 중 오류 발생", e);
+			throw new Exception(e.getMessage());
 		}
 		
 		return dto;
@@ -102,4 +105,5 @@ public class CompanyService {
                 .dark_logo_path("/uploads/" + latest.getNewName())
 				.build();
 	}
+	
 }

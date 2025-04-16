@@ -2,6 +2,7 @@ package com.mjc.groupware.member.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
@@ -32,16 +33,19 @@ public class MemberDto {
 	private String member_addr1;
 	private String member_addr2;
 	private String member_addr3;
+	private String member_email;
 	private String member_phone;
 	private Long pos_no;
 	private Long dept_no;
-	private Long role_no = (long) 3;
+	private Long role_no = (long) 2;
 	private int status = 100;
 	private String dept_name; // 04/09 JJI 사원 부서명 불러오기위해 추가
 	private String pos_name; // 04/09 JJI 사원 직급명 불러오기위해 추가
+	private String role_name;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	private LocalDateTime end_date;
+	private String signature;
 	
 	public Member toEntity() {
 		return Member.builder()
@@ -58,6 +62,7 @@ public class MemberDto {
 				.dept(Dept.builder().deptNo(this.getDept_no()).build())
 				.role(Role.builder().roleNo(this.getRole_no()).build())
 				.status(this.getStatus())
+				.signature(this.getSignature())
 				.build();
 	}
 	
@@ -67,9 +72,15 @@ public class MemberDto {
 				.member_id(member.getMemberId())
 				.member_pw(member.getMemberPw())
 				.member_name(member.getMemberName())
+				.pos_no(member.getPos().getPosNo())
+				.dept_no(member.getDept().getDeptNo())
+				.role_no(role_no)
 				.dept_name(member.getDept() != null ? member.getDept().getDeptName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
 				.pos_name(member.getPos() != null ? member.getPos().getPosName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
+				.signature(member.getSignature())
 				.build();
 	}
+	
+
 	
 }

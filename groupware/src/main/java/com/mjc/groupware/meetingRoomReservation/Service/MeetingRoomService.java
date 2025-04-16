@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoomReservationMap
 import com.mjc.groupware.meetingRoomReservation.repository.MeetingRoomRepository;
 import com.mjc.groupware.meetingRoomReservation.repository.MeetingRoomReservationMappingRepository;
 import com.mjc.groupware.meetingRoomReservation.repository.MeetingRoomReservationRepository;
+import com.mjc.groupware.meetingRoomReservation.specification.MeetingRoomReservationSpecification;
 import com.mjc.groupware.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
@@ -30,10 +32,22 @@ public class MeetingRoomService {
 	private final MeetingRoomReservationRepository reservationRepositoty;
 	private final MeetingRoomReservationMappingRepository mappingRepository;
 	
-	
-	public List<MeetingRoomReservationDto> selectMeetingRoomReservationAll() {
-	    // 모든 예약을 조회
-	    List<MeetingRoomReservation> reservations = reservationRepositoty.findAll();
+	// 사용자, 관리자 - 회의실 예약 내역 전체 조회 
+	public List<MeetingRoomReservationDto> selectMeetingRoomReservationAll(MeetingRoomReservationDto filterDto) {
+	    // 전체 조회 필터
+		Specification<MeetingRoomReservation> spec = (root, query, criteriaBuilder) -> null;
+		if(filterDto.getMeeting_room_no() != null) {
+			spec = spec.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngRoomNo(filterDto.getMeeting_room_no()));
+		}else if(filterDto.getMeeting_date() != null) {
+			spec = spec.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngDate(filterDto.getMeeting_date()));
+		}else if(filterDto.getMeeting_room_no() != null && filterDto.getMeeting_date() != null) {
+			spec = spec.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngRoomNo(filterDto.getMeeting_room_no()))
+						.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngDate(filterDto.getMeeting_date()));
+		}else if(filterDto.getMeeting_date() != null) {
+		}
+		 
+		// 모든 예약을 조회
+	    List<MeetingRoomReservation> reservations = reservationRepositoty.findAll(spec);
 
 	    // 결과를 저장할 DTO 리스트
 	    List<MeetingRoomReservationDto> dtoList = new ArrayList<>();
@@ -43,50 +57,65 @@ public class MeetingRoomService {
 
 	    // 예약들을 그룹화
 	    for (MeetingRoomReservation res : reservations) {
+	    	// key = 회의실 번호_날짜_제목
 	        String key = res.getMeetingRoomNo().getMeetingRoomNo() + "_" +
 	                     res.getMeetingDate() + "_" +
 	                     res.getMeetingTitle();
-
+	        // 해당 key로 그룹이 없다면 새로 만들고 현재 예약 추가 
 	        groupedMap.computeIfAbsent(key, k -> new ArrayList<>()).add(res);
 	    }
 
 	    // 그룹화된 예약들을 DTO로 변환
 	    for (List<MeetingRoomReservation> group : groupedMap.values()) {
+	    	// 첫번째 예약 가져옴 (회의실명, 제목, 날짜 동일)
 	        MeetingRoomReservation first = group.get(0);
-
-	        Long meetingRoomNo = first.getMeetingRoomNo().getMeetingRoomNo();
+	        // 첫번째 예약에서 공통 데이터 뽑기 (회의실 명, 번호, 제목 , 날짜)
+	        String roomName = first.getMeetingRoomNo().getMeetingRoomName(); 
+	        Long meetingRoomNo = first.getMeetingRoomNo().getMeetingRoomNo(); 
 	        String title = first.getMeetingTitle();
 	        LocalDate date = first.getMeetingDate();
+	        String reservationStatus = first.getReservationStatus();
 
+	        // 시작 시간과, 참석자 번호, 참석자 이름, 참석자 직급 담을 리스트 만들기 
 	        List<LocalTime> startTimes = new ArrayList<>();
 	        List<Long> memberNos = new ArrayList<>();
+	        List<String> memberNames = new ArrayList<>();
 
-	        // 각 예약에서 startTime과 memberNo를 처리
+	        // 예약들에서 시작 시간 리스트에 추가 
 	        for (MeetingRoomReservation r : group) {
 	            startTimes.add(r.getMeetingStartTime());
 
-	            // 각 예약에 관련된 Mapping 정보 처리
+	            // 예약 하나에 연결된 참석자 정보 조회 
 	            // MeetingRoomReservationMapping은 별도로 조회해서 처리
 	            List<MeetingRoomReservationMapping> mappings = mappingRepository
 	                    .findByReservationNo(r); // 별도로 Repository에서 조회
-
+	            
+	            // 참석자 하나씩 돌면서 중복없이 리스트에 넣음
 	            for (MeetingRoomReservationMapping rm : mappings) {
-	                Long memberNo = rm.getMappingNo();
+	            	Member member = rm.getMemberNo(); 
+            	    Long memberNo = member.getMemberNo();
+            	    String memberName = member.getMemberName();
+            	    
 	                if (!memberNos.contains(memberNo)) {
 	                    memberNos.add(memberNo);
+	                    memberNames.add(memberName);
+	                    
 	                }
 	            }
 	        }
 
-	        // DTO 생성
+	        // 지금까지 모은 정보들 DTO 생성 (회의실 번호, 제목, 날짜, 시간, 참석자, 회의실명)
 	        MeetingRoomReservationDto dto = MeetingRoomReservationDto.builder()
 	                .meeting_room_no(meetingRoomNo)
 	                .meeting_title(title)
 	                .meeting_date(date)
 	                .meeting_start_time(startTimes)
 	                .member_no(memberNos)
+	                .member_name(memberNames)
+	                .meeting_room_name(roomName)
+	                .reservation_status(reservationStatus)
 	                .build();
-
+	        // 최종 리스트레 추가 
 	        dtoList.add(dto);
 	    }
 
@@ -94,11 +123,15 @@ public class MeetingRoomService {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////////////////
+	
 	
 	// 사용자 - 회의실 조회, 시간 조회
 	public List<MeetingRoom> selectMeetingRoomAll(){
 		return repository.findAll();
 	}
+	
+
 	
 	// 사용자 - 회의실 예약 
 	@Transactional(rollbackFor = Exception.class)
@@ -113,6 +146,7 @@ public class MeetingRoomService {
 						.meetingTitle(dto.getMeeting_title())
 						.meetingDate(dto.getMeeting_date())
 						.meetingStartTime(time)
+						.reservationStatus(dto.getReservation_status())
 						.build();
 				
 				MeetingRoomReservation saved = reservationRepositoty.save(reservation);
@@ -144,8 +178,7 @@ public class MeetingRoomService {
 
 	
 	
-	/////////////////////////////////////////////////
-	
+	////////////////////////////////////////////////////////////////////
 	
 	// 관리자 - 회의실 목록 전체 조회
 	public List<MeetingRoom> adminSelectMeetingRoomAll(){

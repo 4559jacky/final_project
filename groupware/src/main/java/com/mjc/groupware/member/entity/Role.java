@@ -30,6 +30,9 @@ public class Role {
 	@Column(name="role_name")
 	private String roleName;
 	
+	@Column(name="role_nickname")
+	private String roleNickname;
+	
 	@OneToMany(mappedBy = "role")
 	private List<Member> members;
 	
