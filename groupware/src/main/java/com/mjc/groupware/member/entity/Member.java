@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.pos.entity.Pos;
 
@@ -69,6 +70,9 @@ public class Member {
 
     @Column(name = "status")
     private int status;
+    
+    @Column(name = "signature")
+    private String signature;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -80,9 +84,6 @@ public class Member {
 	
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
-	
-	@Column(name="signature")
-	private String signature;
 	
 	@ManyToOne
 	@JoinColumn(name="dept_no")
@@ -99,6 +100,7 @@ public class Member {
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
 	
+
 	@OneToMany(mappedBy="member")
 	private List<MemberAttach> memberAttachs;
 	
@@ -119,6 +121,14 @@ public class Member {
 			this.memberAddr1 = addr1;
 			this.memberAddr2 = addr2;
 			this.memberAddr3 = addr3;
+	}
+
+	
+	public void updateMember(Dept dept, Pos pos, Role role, int status) {
+		this.dept = dept;
+		this.pos = pos;
+		this.role = role;
+		this.status = status;
 	}
 	
 }

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<div class="container-fluid px-4">
+	   <div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb align-items-center">
+          <li class="breadcrumb-item">
+            <a class="text-muted text-decoration-none" th:href="@{/home}">
+              <i class="ti ti-home fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item" aria-current="page">공지사항 게시판</li>
+        </ol>
+      </nav><br>
+      <h2 class="mb-0 fw-bolder fs-8">공지사항 게시판</h2>
+    </div><br>
+ 		<div class="d-flex justify-content-between align-items-center mb-3">
+    		<form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2">
+            	 <!-- 정렬 -->
+        	<select name="sort" class="form-select rounded-pill" onchange="this.form.submit()" style="width: 150px; height: 40px; background-color: white; border: 1px solid #ced4da;">
+        		<option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
+        		<option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+    		</select>
+      	<!-- Search + Button -->
+        		<div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
+             		style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
+            	<button type="submit" class="btn border-0 bg-transparent p-0">
+                	<i class="ti ti-search fs-5 text-primary"></i>
+            	</button>
+            <input type="text" name="keyword"
+                   th:value="${keyword}"
+                   class="form-control border-0 bg-transparent ms-2"
+                   placeholder="검색어를 입력하세요."
+                   style="box-shadow: none; background-color: transparent;">
+        </div>
+    		</form>
+    			<button type="button" class="btn btn-primary rounded-pill"
+            		onclick="location.href='/notice/create'">게시글 작성</button>
+		</div>
+	<!-- Table -->
+    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+		  <div class="table-responsive">
+		    <table class="table align-middle text-center">
+		      <!-- 테이블 헤더 -->
+		      <thead class="table-light">
+		        <tr>
+		          <th>번호</th>
+		          <th>제목</th>
+		          <th>작성자</th>
+		          <th>등록일</th>
+		          <th>수정일</th>
+		          <th>조회수</th>
+		        </tr>
+		      </thead>
+		      <!-- 테이블 바디 -->
+		        <tbody>
+		        	<!--iterStat -> 반복 상태 객체 -->
+  					<tr th:each="notice, iterStat : ${noticeList}">
+    					<td th:text="${iterStat.count}">1</td>
+   						<td>	
+   							<a th:href="@{/notice/detail(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}" ></a>
+   						</td>
+    					<td th:text="${notice.member.memberName}">작성자</td> <!-- 작성자 정보 없음 -->
+    					<td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">등록일</td>
+    					<td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd')}">수정일</td>
+    					<td th:text="${notice.views}">조회수</td>
+  					</tr>
+			 	</tbody>
+		    </table>
+		  </div>
+		</div>
+		<script th:inline="javascript">
+			let msg = /*[[${message}]]*/ null;
+			if (msg !== null){
+				alert(msg);
+			}
+		</script>
+		
+		<!-- Pagination -->
+		<nav class="d-flex justify-content-center mt-4">
+			<ul class="pagination">
+				<li class="page-item disabled"><a class="page-link">‹</a></li>
+				<li class="page-item active"><a class="page-link" href="#">1</a></li>
+				<li class="page-item"><a class="page-link" href="#">2</a></li>
+				<li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item"><a class="page-link" href="#">...</a></li>
+				<li class="page-item"><a class="page-link" href="#">10</a></li>
+				<li class="page-item"><a class="page-link" href="#">›</a></li>
+			</ul>
+		</nav>
+	<!-- --------------------- -->
+	</div>					
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+</th:block>
+</html>
