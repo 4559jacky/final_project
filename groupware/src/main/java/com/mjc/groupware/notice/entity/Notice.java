@@ -1,4 +1,4 @@
-package com.mjc.groupware.shared.entity;
+package com.mjc.groupware.notice.entity;
 
 import java.time.LocalDateTime;
 
@@ -21,22 +21,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="shared_board")
+@Table(name="notice_board")
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Shared {
+public class Notice {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="shared_no")
-	private Long sharedNo;
+	@Column(name="notice_no")
+	private Long noticeNo;
 	
-	@Column(name="shared_title")
-	private String sharedTitle;
+	@Column(name="notice_title")
+	private String noticeTitle;
 	
-	@Column(name="shared_content")
-	private String sharedContent;
+	@Column(name="notice_content")
+	private String noticeContent;
 	
 	@Column(name="views")
 	private int views;
@@ -52,4 +52,10 @@ public class Shared {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
+
+	public void update(String title, String content, LocalDateTime modDate) {
+		this.noticeTitle = title;
+		this.noticeContent = content;
+		this.modDate = modDate;
+	}
 }

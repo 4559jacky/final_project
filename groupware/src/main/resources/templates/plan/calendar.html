@@ -48,27 +48,20 @@ layout:decorate="~{/include/layout}">
 				    </div>
 			    </div>
 		</div>
+		<style type="text/css">
+			.fc-day-sun .fc-daygrid-day-number {
+			    color: red !important;
+			  }
+			 .fc-day-sat .fc-daygrid-day-number {
+			    color: blue !important;
+			  }
+		</style>
           <div class="card">
             <div class="card-body calender-sidebar app-calendar">
               <div id="calendar"></div>
-				
-				<!-- <div class="row" th:if="${not #lists.isEmpty(resultList)}">
-				  <div class="col-md-4" th:each="plan : ${resultList}">
-				    <div class="card mb-3">
-				      <div class="card-header" th:text="${plan.planTitle}">일정 제목</div>
-				      <div class="card-body">
-				        <p><strong>종류:</strong> <span th:text="${plan.planType}">종류</span></p>
-				        <p><strong>기간:</strong> <span th:text="${plan.startDate}">시작일</span> ~ <span th:text="${plan.endDate}">종료일</span></p>
-				        <p th:text="${plan.planContent}">내용</p>
-				      </div>
-				    </div>
-				  </div>
-				</div>
-				<script>
-				
-				</script> -->
             </div>
           </div>
+          
           <!-- BEGIN MODAL -->
           <form name="plan_form" action="/plan/create" method="post">
           <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -84,6 +77,7 @@ layout:decorate="~{/include/layout}">
                   <div class="row">
                     <div class="col-md-12">
                       <div>
+                      	<input type="hidden" name="reg_member_no" th:value="${#authentication.principal.member.memberNo}">
                         <label class="form-label">일정명</label>
                         <input id="event-title" type="text" class="form-control" name="plan_title"/>
                       </div>
@@ -223,43 +217,43 @@ layout:decorate="~{/include/layout}">
 			        <div class="row g-3 mb-3">
 			          <div class="col">
 			            <label class="form-label">작성자</label>
-			            <input type="text" class="form-control" id="event-writer" readonly />
+			            <input type="text" class="form-control" id="detail-event-writer" readonly />
 			          </div>
 			          <div class="col">
 			            <label class="form-label">부서</label>
-			            <input type="text" class="form-control" id="event-department" readonly />
+			            <input type="text" class="form-control" id="detail-event-department" readonly />
 			          </div>
 			        </div>
 			
 			        <!-- 일정명 -->
 			        <div class="mb-3">
 			          <label class="form-label">일정명</label>
-			          <input type="text" class="form-control" id="event-title" />
+			          <input type="text" class="form-control" id="detail-event-title" />
 			        </div>
 			
 			        <!-- 내용 -->
 			        <div class="mb-3">
 			          <label class="form-label">내용</label>
-			          <textarea class="form-control" id="event-description" rows="4"></textarea>
+			          <textarea class="form-control" id="detail-event-description" rows="4"></textarea>
 			        </div>
 			
 			        <!-- 일정 타입 -->
 			        <div class="mb-3">
 			          <label class="form-label d-block">일정 타입</label>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="plan_type" value="회사" id="type-company">
+			            <input class="form-check-input" type="radio" name="plan_type" value="회사" id="detail-type-company">
 			            <label class="form-check-label" for="type-company">회사</label>
 			          </div>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="plan_type" value="부서" id="type-team">
+			            <input class="form-check-input" type="radio" name="plan_type" value="부서" id="detail-type-team">
 			            <label class="form-check-label" for="type-team">부서</label>
 			          </div>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="plan_type" value="개인" id="type-personal">
+			            <input class="form-check-input" type="radio" name="plan_type" value="개인" id="detail-type-personal">
 			            <label class="form-check-label" for="type-personal">개인</label>
 			          </div>
 			          <div class="form-check form-check-inline">
-			            <input class="form-check-input" type="radio" name="plan_type" value="휴가" id="type-leave">
+			            <input class="form-check-input" type="radio" name="plan_type" value="휴가" id="detail-type-leave">
 			            <label class="form-check-label" for="type-leave">휴가</label>
 			          </div>
 			        </div>
@@ -268,22 +262,22 @@ layout:decorate="~{/include/layout}">
 			        <div class="row g-3 mb-3">
 			          <div class="col">
 			            <label class="form-label">작성일</label>
-			            <input type="date" class="form-control" id="event-created-date" readonly />
+			            <input type="text" class="form-control" id="detail-event-created-date" readonly />
 			          </div>
 			          <div class="col">
 			            <label class="form-label">수정일</label>
-			            <input type="date" class="form-control" id="event-modified-date" readonly />
+			            <input type="text" class="form-control" id="detail-event-modified-date" readonly />
 			          </div>
 			        </div>
 			
 			        <div class="row g-3 mb-3">
 			          <div class="col">
 			            <label class="form-label">시작일</label>
-			            <input type="date" class="form-control" id="event-start-date" />
+			            <input type="date" class="form-control" id="detail-event-start-date" />
 			          </div>
 			          <div class="col">
 			            <label class="form-label">종료일</label>
-			            <input type="date" class="form-control" id="event-end-date" />
+			            <input type="date" class="form-control" id="detail-event-end-date" />
 			          </div>
 			        </div>
 			

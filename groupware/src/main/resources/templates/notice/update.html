@@ -8,6 +8,7 @@ layout:decorate="~{/include/layout}">
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<!-- Summernote CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+	<!-- 여기에 작성하시면 됩니다. -->
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb align-items-center">
@@ -15,43 +16,35 @@ layout:decorate="~{/include/layout}">
 					class="text-muted text-decoration-none" th:href="@{/home}"> <i
 						class="ti ti-home fs-5"></i>
 				</a></li>
-				<li class="breadcrumb-item" aria-current="page">공유 문서함</li>
+				<li class="breadcrumb-item" aria-current="page">공지사항 게시판</li>
 			</ol>
 		</nav>
 		<br>
-		<h2 class="mb-0 fw-bolder fs-8">공유 문서함 게시글 작성</h2>
+		<h2 class="mb-0 fw-bolder fs-8">공지사항 게시판 게시글 수정</h2>
 	</div>
-	<br>
-
-	<!-- Bootstrap 스타일 적용된 Form -->
-	<form name="create_shared_form" action="/admin/shared/create" method="post">
-		<div class="container mt-4">
-			<div class="card shadow-sm p-4">
-				<!-- 제목 + 버튼 -->
-				<div class="row align-items-center mb-3">
-					<div class="col-md-9 col-sm-12 mb-2 mb-md-0">
-						<label for="shared_title" class="form-label fw-semibold">제목</label>
-						<input type="text" class="form-control" id="shared_title"
-							name="shared_title" placeholder="게시글 제목을 입력하세요">
-						<input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}"/>
+	<section>
+		<form name="update_notice_form" method="post">
+			<div class="container mt-4">
+				<div class="card shadow-sm p-4">
+					<div class="row align-items-center mb-3">
+						<div class="col-md-9 col-sm-12 mb-2 mb-md-0">
+			<input type="hidden" name="notice_no" th:value="${notice.noticeNo}">
+			<input type="text" name="notice_title" th:value="${notice.noticeTitle}">
+			<!-- <input type="hidden" name="member_name" th:value="${shared.member.memberName}"> -->
+			<input type="hidden" name="notice_content">
+						</div>		
 					</div>
+						<div class="post-form">
+							<textarea name="notice_content" id="summernote"></textarea>
+						</div>
+				</div>
 					<div class="col-md-3 col-sm-12 text-md-end text-start">
-						<label class="d-none d-md-block invisible">제출</label>
 						<input type="submit" class="btn btn-primary w-100" value="작성 완료">
 					</div>
-				</div>
-
-				<!-- 에디터 영역 -->
-				<div class="post-form">
-					<textarea name="shared_content" id="summernote"></textarea>
-				</div>
-			</div>
-		</div>
-	</form>
-</th:block>
-
-<!-- 스크립트 -->
-<th:block layout:fragment="scripts">
+			</div>	
+		</form>
+	</section>
+		<th:block layout:fragment="scripts">
 	<script>
     $(document).ready(function () {
       console.log("Summernote 상태:", $.fn.summernote);
@@ -96,16 +89,16 @@ layout:decorate="~{/include/layout}">
       });
     });
     
-    const form = document.create_shared_form;
+    const form = document.update_notice_form;
     form.addEventListener('submit', (e) => {
     	  e.preventDefault();
 
     	  let vali_check = false;
     	  let vali_text = "";
 
-    	  const title = form.shared_title.value;
+    	  const title = form.notice_title.value;
     	  const content = $('#summernote').summernote('code');
-
+		
     	  if (!title) {
     	    vali_text += "제목을 입력하세요.";
     	  } else if (!content || content === '<p><br></p>') {
@@ -118,7 +111,7 @@ layout:decorate="~{/include/layout}">
     	    alert(vali_text);
     	  } else {
     	    const payload = new FormData(form);
-    	    fetch("/admin/shared/create", {
+    	    fetch("/notice/update", {
     	      	method: 'post',
     	      	headers: {
 					'header': document.querySelector('meta[name="_csrf_header"]').content,
@@ -131,7 +124,7 @@ layout:decorate="~{/include/layout}">
     	      console.log(data);
     	      alert(data.res_msg);
     	      if (data.res_code === '200') {
-    	        location.href = '/admin/shared';
+    	        location.href = '/notice';
     	      }
     	    })
     	    .catch(error => {
@@ -139,8 +132,9 @@ layout:decorate="~{/include/layout}">
     	    });
     	  }
     	});
-  </script>
-  <!-- Import vendorJs Files -->
+    </script>
+	<!-- --------------------- -->
+	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	
   	<!-- Import Js Files -->

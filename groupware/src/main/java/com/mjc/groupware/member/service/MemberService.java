@@ -21,7 +21,6 @@ import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.specification.MemberSpecification;
-import com.mjc.groupware.plan.controller.PlanController;
 import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
@@ -227,6 +226,5 @@ public class MemberService {
 		
 		return result;
 	}
-	
-	
+
 }
