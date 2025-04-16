@@ -1,15 +1,15 @@
 package com.mjc.groupware.plan.dto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mjc.groupware.member.entity.Member;
-
 import com.mjc.groupware.plan.entity.Plan;
 
 import lombok.AllArgsConstructor;
@@ -35,8 +35,12 @@ public class PlanDto {
     private LocalDateTime reg_date;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime mod_date;
-    private LocalDate start_date;
-    private LocalDate end_date;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime start_date;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime end_date;
     private Long reg_member_no;
     private String plan_type;
     private String color;
@@ -80,6 +84,7 @@ public class PlanDto {
 	
 	// FullCalendar용 JSON변환
 	public Map<String, Object> toFullCalendarEvent() {
+		
 		Map<String, Object> event = new HashMap<>();
 		event.put("id", plan_no);
 		event.put("title", plan_title);

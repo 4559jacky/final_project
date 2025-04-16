@@ -1,12 +1,10 @@
 package com.mjc.groupware.plan.controller;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import org.springframework.http.ResponseEntity;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
@@ -82,7 +79,6 @@ public class PlanController {
 	    }
 	}
 
-
 	//일정 등록
 	@PostMapping("/plan/create")
 	@ResponseBody
@@ -104,17 +100,75 @@ public class PlanController {
 	@GetMapping("/plan/detail/{id}")
 	@ResponseBody
 	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
-		System.out.println("planId"+planId);
-		
+//		System.out.println("planId"+planId);
 	    Plan plan = planService.selectPlanById(planId);
-	    
-	    System.out.println(plan);
-
+//	    System.out.println(plan);
 	    PlanDto dto = new PlanDto().toDto(plan);
-	    
-	    System.out.println(dto);
+//	    System.out.println(dto);
 	    return dto;
 	}
 
+	// 상세모달창 수정
+//	@PostMapping("/plan/update/{id}")
+//	@ResponseBody
+//	public Map<String, String> updatePlanApi(
+//	    @PathVariable Long id,
+//	    @RequestParam String title,
+//	    @RequestParam String content,
+//	    @RequestParam LocalDateTime startDate,
+//	    @RequestParam LocalDateTime endDate,
+//	    @RequestParam String planType) {
+//	    
+//	    Map<String, String> resultMap = new HashMap<>();
+//	    resultMap.put("res_code", "500");
+//	    resultMap.put("res_msg", "일정 수정 중 오류가 발생했습니다.");
+//
+//	    try {
+//	        Plan updated = planService.updatePlanOne(
+//	            id,  
+//	            title,  // 각 필드를 @RequestParam으로 받아서 처리
+//	            content,
+//	            startDate,
+//	            endDate,
+//	            planType
+//	        );
+//	        
+//	        if (updated != null) {
+//	            resultMap.put("res_code", "200");
+//	            resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
+//	        }
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	    }
+//
+//	    return resultMap;
+//	}
+	@PostMapping("/plan/{id}/update")
+	@ResponseBody
+	public Map<String,String> updateTodoApi(@PathVariable("id") Long id){
+	    System.out.println("받은 id: " + id);
+
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "할일 수정중 오류가 발생했습니다.");
+		
+		Plan result = planService.updatePlanOne(id);
+		if(result != null) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "할일이 등록되었습니다.");
+		}
+		return resultMap;
+	}
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
