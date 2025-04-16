@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileSystemUtils;
 
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomDto;
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomReservationDto;
@@ -177,6 +178,26 @@ public class MeetingRoomService {
 
 	}
 
+	// 사용자 - 회의실 예약 취소 
+	public int deleteReservation(Long reservationNo) {
+	    int result = 0;
+	    try {
+	        // 예약 가져오기
+	        MeetingRoomReservation target = reservationRepositoty.findById(reservationNo).orElse(null);
+
+	        if (target != null) {
+	            // 상태가 Y면 N으로, N이면 Y로 바꾸기 (취소 기능 기준으로는 그냥 N으로 바꿔도 됨)
+	            if ("Y".equals(target.getReservationStatus())) {
+	                target.setReservationStatus("N");;  // 취소된 상태
+	                reservationRepositoty.save(target);
+	                result = 1;
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return result;
+	}
 	
 	
 	////////////////////////////////////////////////////////////////////
