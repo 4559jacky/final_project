@@ -4,6 +4,14 @@ xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
+<style>
+  .modal-backdrop {
+    z-index: 1040 !important;
+  }
+  .modal {
+    z-index: 1050 !important;
+  }
+</style>
 <th:block layout:fragment="content">
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<!-- Summernote CSS -->
@@ -28,10 +36,10 @@ layout:decorate="~{/include/layout}">
 				<div class="card shadow-sm p-4">
 					<div class="row align-items-center mb-3">
 						<div class="col-md-9 col-sm-12 mb-2 mb-md-0">
-			<input type="hidden" name="notice_no" th:value="${notice.noticeNo}">
-			<input type="text" name="notice_title" th:value="${notice.noticeTitle}">
-			<!-- <input type="hidden" name="member_name" th:value="${shared.member.memberName}"> -->
-			<input type="hidden" name="notice_content">
+							<input type="hidden" name="notice_no" th:value="${notice.noticeNo}">
+							<input type="text" name="notice_title" th:value="${notice.noticeTitle}">
+							<!-- <input type="hidden" name="member_name" th:value="${shared.member.memberName}"> -->
+							<input type="hidden" name="notice_content">
 						</div>		
 					</div>
 						<div class="post-form">
@@ -51,6 +59,7 @@ layout:decorate="~{/include/layout}">
 
       $('#summernote').summernote({
     	    height: 800,
+    	    dialogsInBody: true,
     	    lang: 'ko-KR',
     	    codeviewFilter: false,
     	    toolbar: [
