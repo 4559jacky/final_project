@@ -16,6 +16,8 @@ import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
+import com.mjc.groupware.approval.mybatis.mapper.ApprovalMapper;
+import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.repository.ApprAgreementerRepository;
 import com.mjc.groupware.approval.repository.ApprApproverRepository;
 import com.mjc.groupware.approval.repository.ApprReferencerRepository;
@@ -35,6 +37,7 @@ public class ApprovalService {
 	private final ApprApproverRepository apprApproverRepository;
 	private final ApprAgreementerRepository apprAgreementerRepository;
 	private final ApprReferencerRepository apprReferencerRepository;
+	private final ApprovalMapper approvalMapper;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
@@ -176,30 +179,35 @@ public class ApprovalService {
 		return approvalList;
 	}
 	
-	// 결재자 기준 결재리스트 받아오기
-	public List<Approval> selectApprovalAllByApproverId(MemberDto member) {
-		List<Approval> approvalList = new ArrayList<Approval>();
-		List<ApprApprover> approverMappingList = new ArrayList<ApprApprover>();
+	// 결재리스트 받아오기 - 받은 문서함 출력
+	public List<ApprovalVo> selectApprovalAllByApproverId(MemberDto member) {
+		List<ApprovalVo> approvalVoList = new ArrayList<ApprovalVo>();
+		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(member.getMember_no());
+
+		// List<ApprApprover> approverMappingList = new ArrayList<ApprApprover>();
+		// approverMappingList = apprApproverRepository.findAllByMember_MemberNo(member.getMember_no());
 		
-		approverMappingList = apprApproverRepository.findAllByMember_MemberNo(member.getMember_no());
-		// 합의자 리스트를 뽑음
-		
-		
-		if(approverMappingList.size() != 0) {
-			for(ApprApprover a : approverMappingList) {
-				Approval approval = approvalRepository.findById(a.getApproval().getApprNo()).orElse(null);
-				
-				if(approval.getApprOrderStatus() == a.getApproverOrder()) {
-					approvalList.add(approval);
-				}
-			}
-		}
-		
-		// 합의자 목록 정보 추출
-		
-		
-		
-		return approvalList;
+		return approvalVoList;
+	}
+
+	public Approval selectApprovalOneByApprovalNo(Long id) {
+		Approval approval = approvalRepository.findById(id).orElse(null);
+		return approval;
+	}
+
+	public List<ApprApprover> selectApprApproverAllByApprovalNo(Long id) {
+		List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(id);
+		return approverList;
+	}
+	
+	public List<ApprAgreementer> selectApprAgreementerAllByApprovalNo(Long id) {
+		List<ApprAgreementer> agreementerList = apprAgreementerRepository.findAllByApproval_ApprNo(id);
+		return agreementerList;
+	}
+
+	public List<ApprReferencer> selectApprReferencerAllByApprovalNo(Long id) {
+		List<ApprReferencer> referencerList = apprReferencerRepository.findAllByApproval_ApprNo(id);
+		return referencerList;
 	}
 	
 }

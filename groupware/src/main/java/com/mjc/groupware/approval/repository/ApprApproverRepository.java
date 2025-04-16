@@ -8,5 +8,6 @@ import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.Approval;
 
 public interface ApprApproverRepository extends JpaRepository<ApprApprover, Long> {
-	List<ApprApprover> findAllByMember_MemberNo(Long id); 
+	List<ApprApprover> findAllByMember_MemberNo(Long id);
+	List<ApprApprover> findAllByApproval_ApprNo(Long id);
 }
