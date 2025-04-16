@@ -91,15 +91,15 @@ table select:focus {
 }
 
 .table th:nth-child(2), .table td:nth-child(2) {
-	min-width: 140px;
+	min-width: 160px;
 }
 
 .table th:nth-child(3), .table td:nth-child(3) {
-	min-width: 140px;
+	min-width: 160px;
 }
 
 .table th:nth-child(4), .table td:nth-child(4) {
-	min-width: 140px;
+	min-width: 120px;
 }
 
 .table th:nth-child(5), .table td:nth-child(5) {
@@ -107,10 +107,57 @@ table select:focus {
 }
 
 .table th:nth-child(6), .table td:nth-child(6) {
-	min-width: 100px;
+	min-width: 120px;
 }
 
 .table th:nth-child(7), .table td:nth-child(7) {
 	min-width: 80px;
+}
+
+#chkUpdateBtn {
+	padding-top: 7px;
+	font-size: 0.9rem;
+}
+
+select {
+	-webkit-appearance: none; /* Safari와 Chrome */
+	-moz-appearance: none; /* Firefox */
+	appearance: none; /* 최신 브라우저 */
+	background-image: none; /* 기본 화살표 제거 */
+}
+
+select {
+	text-align: center; /* 옵션 텍스트를 중앙으로 정렬 */
+	text-align-last: center; /* 마지막 옵션도 중앙 정렬 */
+}
+
+option {
+	text-align: center; /* 옵션 항목을 중앙으로 정렬 */
+}
+
+select:focus {
+	border-color: #007bff;
+	outline: none;
+}
+
+select::after {
+	content: ' ▼';
+	font-size: 12px;
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.text-success {
+	color: #198754 !important;
+}
+
+.text-danger {
+	color: #dc3545 !important;
+}
+
+.text-secondary {
+	color: #6c757d !important;
 }
 /* 사원 조회 테이블 css 끝 */

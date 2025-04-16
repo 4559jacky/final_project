@@ -178,6 +178,12 @@ public class MemberService {
 		}
 	}
 	
+	// 특정 부서에 속한 모든 사원들을 조회(직급 순서 기준으로 오름차순, 같다면 PK기준으로 오름차순)
+	public List<Member> selectMemberAllByDeptIdByPosOrder(Long id) {
+		List<Member> memberList = repository.findAllByDeptNoSortedByPosOrder(id);
+		return memberList;
+	}
+	
 	// 결재라인 부서의 속한 사원들select
 	public List<Member> selectMemberAllByDeptId(Long id) { 
 		List<Member> memberList = repository.findAllByDept_DeptNo(id); 

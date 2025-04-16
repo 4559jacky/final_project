@@ -150,7 +150,7 @@ public class MemberController {
         	if(deptId != null && !deptId.trim().isEmpty()) {
         		Long deptNo = Long.parseLong(deptId);
         		
-        		List<Member> memberList = service.selectMemberAllByDeptId(deptNo);
+        		List<Member> memberList = service.selectMemberAllByDeptIdByPosOrder(deptNo);
         		
         		List<MemberDto> memberDtoList = new ArrayList<>();
         		for (Member member : memberList) {
@@ -253,7 +253,38 @@ public class MemberController {
 			
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	@PostMapping("/admin/members/update")
+	@ResponseBody
+	public Map<String, String> updateMembersApi(@RequestBody List<MemberResponseDto> dtoList) {
+		// 체크박스를 통한 사원정보 다중 수정
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("List<MemberResponseDto>: {}", dtoList);
+		
+		try {
+			for(MemberResponseDto dto : dtoList) {
+				service.updateMember(dto);
+			}
 			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
 		} catch(Exception e) {
 			resultMap.put("res_code", "500");
 			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
