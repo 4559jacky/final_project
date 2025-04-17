@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var dd = String(currentDate.getDate()).padStart(2, "0");
     var mm = String(currentDate.getMonth() + 1).padStart(2, "0"); //January is 0!
     var yyyy = currentDate.getFullYear();
-    var combineDate = `${yyyy}-${mm}-${dd}T00:00:00`;
+    var combineDate = `${yyyy}-${mm}-${dd}T00:00`;
     getModalAddBtnEl.style.display = "block";
     getModalUpdateBtnEl.style.display = "none";
     myModal.show();
@@ -155,11 +155,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		        });
 	},
 
-	/*eventClick:calendarEventClick,*/
-	
+	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
 		/*console.log("클릭이벤트 작동 확인",info);*/
-		
 		const eventId = info.event.id;
 		/*console.log("eventId체크",eventId);*/
 		getEvent = info.event;
@@ -201,7 +199,44 @@ document.addEventListener("DOMContentLoaded", function () {
 		  })
 		  .catch(err => console.error("디테일 로딩 실패", err));
 	},
+	// 이미 추가된 일정을 다른날로 드래그해서 이동
+	/*eventDrop: function(info) {
+	  const movedEvent = info.event;
 
+	  const planId = movedEvent.id;
+	  const newStartDate = movedEvent.start.toISOString().slice(0, 10);
+	  const newEndDate = movedEvent.end
+	    ? movedEvent.end.toISOString().slice(0, 10)
+	    : newStartDate;
+
+	  fetch("/plan/" + planId + "/update", {
+	    method: "POST",
+	    headers: {
+	      "Content-Type": "application/json",
+	      "header": document.querySelector('meta[name="_csrf_header"]').content,
+	      "X-CSRF-Token": document.querySelector('meta[name="_csrf"]').content,
+	    },
+	    body: JSON.stringify({
+	      id: planId,
+	      startDate: newStartDate,
+	      endDate: newEndDate
+	    }),
+	  })
+	    .then((res) => res.json())
+	    .then((data) => {
+	      if (data.res_code === "200") {
+	        alert("일정 날짜가 수정되었습니다.");
+	      } else {
+	        alert("일정 수정 실패: " + data.res_msg);
+	        info.revert(); // 서버 저장 실패 시 되돌리기
+	      }
+	    })
+	    .catch((err) => {
+	      console.error("드래그 날짜 이동 실패", err);
+	      alert("서버 오류 발생. 다시 시도해 주세요.");
+	      info.revert(); // 에러 발생 시 되돌리기
+	    });
+	},*/
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
@@ -260,9 +295,10 @@ document.addEventListener("DOMContentLoaded", function () {
 	  getEvent.setDates(new Date(newStartDate),new Date(newEndDate));
 	  
 	  // 서버에 수정된 값 전달
-	    fetch("/plan/"+planId+"/update/", {
+	    fetch("/plan/"+planId+"/update", {
 	      method: "POST",
 	      headers: {
+			'Content-Type': 'application/json',
 			'header': document.querySelector('meta[name="_csrf_header"]').content,
 			'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
 	      },
