@@ -69,24 +69,27 @@
 						</tr>
 						<tr>
 							<th class="text-center bg-light">결재자</th>
-							<td colspan="5">
-								<th:block th:if="${!#lists.isEmpty(approverList)}"
+							<td colspan="5"><th:block
+									th:if="${!#lists.isEmpty(approverList)}"
 									th:each="approver : ${approverList}">
-									<span th:text="|${approver.member.memberName} ${approver.member.pos.posName} (${approver.member.dept.deptName}) |"></span>
+									<span
+										th:text="|${approver.member.memberName} ${approver.member.pos.posName} (${approver.member.dept.deptName}) |"></span>
 								</th:block></td>
 						</tr>
 						<tr>
 							<th class="text-center bg-light">참조자</th>
-							<td colspan="2">
-								<th:block th:if="${!#lists.isEmpty(referencerList)}"
+							<td colspan="2"><th:block
+									th:if="${!#lists.isEmpty(referencerList)}"
 									th:each="referencer : ${referencerList}">
-									<span th:text="|${referencer.member.memberName} ${referencer.member.pos.posName} (${referencer.member.dept.deptName}) |"></span>
+									<span
+										th:text="|${referencer.member.memberName} ${referencer.member.pos.posName} (${referencer.member.dept.deptName}) |"></span>
 								</th:block></td>
 							<th class="text-center bg-light">합의자</th>
-							<td colspan="2">
-								<th:block th:if="${!#lists.isEmpty(agreementerList)}"
+							<td colspan="2"><th:block
+									th:if="${!#lists.isEmpty(agreementerList)}"
 									th:each="agreementer : ${agreementerList}">
-									<span th:text="|${agreementer.member.memberName} ${agreementer.member.pos.posName} (${agreementer.member.dept.deptName}) |"></span>
+									<span
+										th:text="|${agreementer.member.memberName} ${agreementer.member.pos.posName} (${agreementer.member.dept.deptName}) |"></span>
 								</th:block></td>
 						</tr>
 						<tr>
@@ -101,93 +104,81 @@
 					th:utext="${approval.apprText}"></div>
 
 				<!-- 전자결재 테이블 -->
-				<div class="border rounded-4 p-4 bg-light mb-4">
-					<h5 class="fw-bold mb-3">전자 서명</h5>
-					<div class="table-responsive">
-						<table class="table table-bordered text-center align-middle">
-							<thead class="table-light">
-								<tr>
-									<!-- <th th:if="${!#lists.isEmpty(approverList)}"
-									th:each="approver : ${approverList}"><br>
-									<span class="fw-normal text-muted" th:text="{approver.member.memberName}">홍길동</span></th> -->
-									<!-- <th>결재자<br>
-									<span class="fw-normal text-muted">김영희</span></th>
-									<th>결재자<br>
-									<span class="fw-normal text-muted">박철수</span></th> -->
-								</tr>
-							</thead>
-							<tbody>
-								<!-- <tr>
-									결재자 서명
-									<td><img src="" alt="결재자 서명"
-										class="img-fluid border rounded" style="max-height: 80px;">
-									</td>
-									합의자 서명
-									<td><img src="" alt="합의자 서명"
-										class="img-fluid border rounded" style="max-height: 80px;">
-									</td>
-									참조자 - 서명 없음
-									<td class="text-muted">서명 없음</td>
-								</tr> -->
-							</tbody>
-						</table>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-bordered text-center align-middle">
-							<thead class="table-light">
-								<tr>
-									<th>합의자<br>
-									<span class="fw-normal text-muted">홍길동</span></th>
-									<th>합의자<br>
-									<span class="fw-normal text-muted">김영희</span></th>
-									<th>합의자<br>
-									<span class="fw-normal text-muted">박철수</span></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<!-- 결재자 서명 -->
-									<td><img src="" alt="결재자 서명"
-										class="img-fluid border rounded" style="max-height: 80px;">
-									</td>
-									<!-- 합의자 서명 -->
-									<td><img src="" alt="합의자 서명"
-										class="img-fluid border rounded" style="max-height: 80px;">
-									</td>
-									<!-- 참조자 - 서명 없음 -->
-									<td class="text-muted">서명 없음</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-bordered text-center align-middle">
-							<thead class="table-light">
-								<tr>
-									<th>참조자<br>
-									<span class="fw-normal text-muted">홍길동</span></th>
-									<th>참조자<br>
-									<span class="fw-normal text-muted">김영희</span></th>
-									<th>참조자<br>
-									<span class="fw-normal text-muted">박철수</span></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<!-- 결재자 서명 -->
-									<td><img src="" alt="결재자 서명"
-										class="img-fluid border rounded" style="max-height: 80px;">
-									</td>
-									<!-- 합의자 서명 -->
-									<td><img src="" alt="합의자 서명"
-										class="img-fluid border rounded" style="max-height: 80px;">
-									</td>
-									<!-- 참조자 - 서명 없음 -->
-									<td class="text-muted">서명 없음</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+				<h5 class="fw-bold mb-3">결재 상태</h5>
+				<div class="table-responsive">
+					<p th:if="${!#lists.isEmpty(approverList)}">결재자</p>
+					<table class="table table-bordered text-center align-middle">
+						<thead class="table-light">
+							<tr>
+								<th:block th:if="${!#lists.isEmpty(approverList)}"
+									th:each="approver : ${approverList}">
+									<th><span class="fw-normal text-muted"
+										th:text="|${approver.member.memberName} ${approver.member.pos.posName} (${approver.member.dept.deptName})|">홍길동</span></th>
+								</th:block>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th:block th:if="${!#lists.isEmpty(approverList)}"
+									th:each="approver : ${approverList}">
+									<td th:if="${approver.approverDecisionStatus == 'C'}"><img
+										src="" alt="결재자 서명" class="img-fluid border rounded"
+										style="max-height: 80px;"></td>
+									<td th:if="${approver.approverDecisionStatus != 'C'}"></td>
+								</th:block>
+							</tr>
+							<tr></tr>
+							<tr></tr>
+							<tr></tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="table-responsive">
+					<p th:if="${!#lists.isEmpty(agreementerList)}">합의자</p>
+					<table class="table table-bordered text-center align-middle">
+						<thead class="table-light">
+							<tr>
+								<th:block th:if="${!#lists.isEmpty(agreementerList)}"
+									th:each="agreementer : ${agreementerList}">
+									<th><span class="fw-normal text-muted"
+										th:text="|${agreementer.member.memberName} ${agreementer.member.pos.posName} (${agreementer.member.dept.deptName})|">홍길동</span></th>
+								</th:block>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th:block th:if="${!#lists.isEmpty(agreementerList)}"
+									th:each="agreementer : ${agreementerList}">
+									<td th:if="${agreementer.agreementerAgreeStatus == 'C'}"><img
+										src="" alt="결재자 서명" class="img-fluid border rounded"
+										style="max-height: 80px;"></td>
+									<td th:if="${agreementer.agreementerAgreeStatus != 'C'}"></td>
+								</th:block>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="table-responsive">
+					<p th:if="${!#lists.isEmpty(referencerList)}">참조자</p>
+					<table class="table table-bordered text-center align-middle">
+						<thead class="table-light">
+							<tr>
+								<th:block th:if="${!#lists.isEmpty(referencerList)}"
+									th:each="referencer : ${referencerList}">
+									<th>참조자</th>
+								</th:block>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th:block th:if="${!#lists.isEmpty(referencerList)}"
+									th:each="referencer : ${referencerList}">
+									<td><span class="fw-normal text-muted"
+										th:text="|${referencer.member.memberName} ${referencer.member.pos.posName} (${referencer.member.dept.deptName})|">홍길동</span></td>
+								</th:block>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 				<div class="d-flex justify-content-end gap-2">
 					<button class="btn btn-primary px-4">승인</button>
