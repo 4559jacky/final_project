@@ -134,21 +134,24 @@
 		                    const tr = document.createElement("tr");
 
 		                    tr.innerHTML = `
-		                      <td>${list.meeting_room_name}</td>
-		                      <td>${list.meeting_title}</td>
-		                      <td>${Array.isArray(list.member_name) ? list.member_name.join(", ") : ''}</td>
-		                      <td>${list.meeting_date}</td>
-		                      <td>${Array.isArray(list.meeting_start_time) ? list.meeting_start_time.join(", ") : ''}</td>
-		                      <td>
-		                        <button type="button" class="btn ${
-		                          list.reservation_status === 'Y'
-		                            ? 'bg-success-subtle text-success'
-		                            : 'bg-danger-subtle text-danger'
-		                        } px-3 py-1" disabled>
-		                          ${list.reservation_status === 'Y' ? '예약' : '취소'}
-		                        </button>
-		                      </td>
-		                    `;
+		                    	  <td>${list.meeting_room_name}</td>
+		                    	  <td>${list.meeting_title}</td>
+		                    	  <td>${Array.isArray(list.member_name) ? list.member_name.join(", ") : ''}</td>
+		                    	  <td>${list.meeting_date}</td>
+		                    	  <td>${Array.isArray(list.meeting_start_time) 
+		                    	        ? list.meeting_start_time.map(time => time.slice(0, 5)).join(", ") 
+		                    	        : ''}</td>
+		                    	  <td>
+		                    	    <button type="button" class="btn ${
+		                    	      list.reservation_status === 'Y'
+		                    	        ? 'bg-success-subtle text-success'
+		                    	        : 'bg-danger-subtle text-danger'
+		                    	    } px-3 py-1" disabled>
+		                    	      ${list.reservation_status === 'Y' ? '예약' : '취소'}
+		                    	    </button>
+		                    	  </td>
+		                    	`;
+
 
 		                    tbody.appendChild(tr);
 		        		  })

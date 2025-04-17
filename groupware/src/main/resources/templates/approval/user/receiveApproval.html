@@ -125,7 +125,7 @@
 						<tr th:if="${!#lists.isEmpty(approvalVoList)}"
 							th:each="approvalVo, approvalStatus : ${approvalVoList}"
 							th:attr="data-approver-no=${approvalVo.appr_no}">
-							<td th:text="${approvalVo.appr_no}">번호</td>
+							<td th:text="${approvalVoList.size() - approvalStatus.index}">번호</td>
 							<td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td>
 							<td th:text="${approvalVo.member_name}">작성자</td>
 							<th:block th:if="${approvalVo.appr_status == 'A'}">
@@ -150,7 +150,7 @@
 							<th:block th:if="${approvalVo.relationship == 'R'}">
 								<td><span class="badge bg-warning-subtle text-dark">참조자</span></td>
 							</th:block>
-							<td th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
+							<td th:text="${#temporals.format(approvalVo.appr_req_date,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approvalVo.approval_form_name}">양식
 								종류</td>
 						</tr>

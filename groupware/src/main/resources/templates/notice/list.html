@@ -61,8 +61,9 @@ layout:decorate="~{/include/layout}">
 		      <!-- 테이블 바디 -->
 		        <tbody>
 		        	<!--iterStat -> 반복 상태 객체 -->
-  					<tr th:each="notice, iterStat : ${noticeList}">
-    					<td th:text="${iterStat.count}">1</td>
+  					<tr th:each="notice, iterStat : ${noticeList.content}">
+    					<!-- 글번호 계산 -->
+    					<td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
    						<td>	
    							<a th:href="@{/notice/detail(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}" ></a>
    						</td>
@@ -84,15 +85,29 @@ layout:decorate="~{/include/layout}">
 		
 		<!-- Pagination -->
 		<nav class="d-flex justify-content-center mt-4">
-			<ul class="pagination">
-				<li class="page-item disabled"><a class="page-link">‹</a></li>
-				<li class="page-item active"><a class="page-link" href="#">1</a></li>
-				<li class="page-item"><a class="page-link" href="#">2</a></li>
-				<li class="page-item"><a class="page-link" href="#">3</a></li>
-				<li class="page-item"><a class="page-link" href="#">...</a></li>
-				<li class="page-item"><a class="page-link" href="#">10</a></li>
-				<li class="page-item"><a class="page-link" href="#">›</a></li>
-			</ul>
+  			<ul class="pagination">
+
+    		<!-- 이전 -->
+    			<li class="page-item" th:classappend="${noticeList.first} ? 'disabled'">
+      				<a class="page-link"
+        			 th:href="@{/notice(page=${noticeList.number - 1}, sort=${sort}, keyword=${keyword})}">‹</a>
+    			</li>
+
+    		<!-- 페이지 번호들 -->
+    			<li class="page-item"
+        		th:each="i : ${#numbers.sequence(0, noticeList.totalPages - 1)}"
+        		th:classappend="${i == noticeList.number} ? 'active'">
+      				<a class="page-link"
+         			th:href="@{/notice(page=${i}, sort=${sort}, keyword=${keyword})}"
+         			th:text="${i + 1}">1</a>
+    			</li>
+
+    		<!-- 다음 -->
+   				 <li class="page-item" th:classappend="${noticeList.last} ? 'disabled'">
+      				<a class="page-link"
+         			th:href="@{/notice(page=${noticeList.number + 1}, sort=${sort}, keyword=${keyword})}">›</a>
+    			</li>
+  			</ul>
 		</nav>
 	<!-- --------------------- -->
 	</div>					

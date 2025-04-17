@@ -43,7 +43,7 @@
 		</ul>
 		<div class="container-fluid my-5 px-4">
 			<div class="row">
-				<!-- 왼쪽 결재 양식 선택 영역 --> 
+				<!-- 왼쪽 결재 양식 선택 영역 -->
 				<div class="col-md-3">
 					<div class="card shadow-sm rounded-4 p-4">
 						<h5 class="fw-bold mb-4 text-center">결재 양식</h5>
@@ -52,7 +52,7 @@
 								th:each="form : ${formList}">
 								<th:block th:if="${form.approvalFormStatus == 'Y'}">
 									<!-- class="btn btn-primary" -->
-									<button class="btn btn-outline-primary"
+									<button class="btn btn-outline-primary form-btn"
 										th:text="${form.approvalFormName}"
 										th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식
 										이름</button>
@@ -62,31 +62,14 @@
 					</div>
 				</div>
 
-				<!-- 오른쪽 결재 양식 내용 영역 -->
-				<div class="col-md-9" id="div1">
-					<div class="card shadow-sm rounded-4 p-4 bg-white"
-						style="min-height: 600px; position: relative;">
-						<!-- 여기에 동적 양식 들어감 -->
-						<div id="approval-content">
-							<th:block>
-
-							</th:block>
-						</div>
-
-						<!-- 하단 버튼 -->
-						<div
-							class="d-flex justify-content-end gap-2 position-absolute bottom-0 end-0 m-4">
-							<button class="btn btn-primary px-4" onclick="createApproval();">결재
-								작성</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-9" id="div2">
-					<form name="create_approval_form" action="/approval/create" method="post">
+				<div class="col-md-9">
+					<form name="create_approval_form" action="/approval/create"
+						method="post">
 						<div class="card shadow-sm rounded-4 p-4 bg-white"
 							style="min-height: 600px; position: relative;" id="form_div">
 							<th:block>
-							<input type="hidden" name="appr_sender" th:value="${#authentication.principal.member.memberNo}">
+								<input type="hidden" name="appr_sender"
+									th:value="${#authentication.principal.member.memberNo}">
 								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
 									제목</h4>
 								<table class="table table-bordered align-middle">
@@ -101,26 +84,60 @@
 										</tr>
 										<tr>
 											<th class="text-center bg-light">제목</th>
-											<td colspan="5"><input type="text" name="appr_title" class="form-control w-100"></td>
+											<td colspan="5"><input type="text" name="appr_title"
+												class="form-control w-100"></td>
+											<!-- <th class="text-center bg-light">작성일</th>
+											<td name="appr_reg_date"></td> -->
 										</tr>
 										<tr>
-											<th class="text-center bg-light">작성일</th>
-											<td colspan="2"><input type="date" name="appr_reg_date"></td>
 											<th class="text-center bg-light">일시</th>
-											<td><input type="date" name="start_date"></td>
-											<td><input type="date" name="end_date"></td>
+											<td colspan="5"><input type="date" name="start_date">
+												<span> ~ </span><input type="date" name="end_date">
+											</td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">결재자</th>
-											<td colspan="4"><div id="approver" name="approver"></div></td>
-											<td><button type="button" data-bs-toggle="modal"
-													data-bs-target="#approvalLineModal">결재 라인</button></td>
+											<td colspan="4">
+												<table class="table table-bordered text-center mb-0">
+													<thead class="table-light">
+														<tr id="approver">
+
+														</tr>
+													</thead>
+													<tbody>
+														<tr id="approver_signature">
+
+														</tr>
+													</tbody>
+												</table>
+											</td>
+											<td>
+												<button type="button" data-bs-toggle="modal"
+													class="btn btn-primary px-4"
+													data-bs-target="#approvalLineModal"
+													style="font-size: 14px;">결재 라인</button>
+											</td>
+										</tr>
+										<tr>
+											<th class="text-center bg-light">합의자</th>
+											<td colspan="5">
+												<table class="table table-bordered text-center mb-0">
+													<thead class="table-light">
+														<tr id="agreementer">
+															
+														</tr>
+													</thead>
+													<tbody>
+														<tr id="agreementer_signature">
+															
+														</tr>
+													</tbody>
+												</table>
+											</td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">참조자</th>
-											<td colspan="2"><div id="referencer" name="referencer"></div></td>
-											<th class="text-center bg-light">합의자</th>
-											<td colspan="2"><div id="agreementer" name="agreementer"></div></td>
+											<td colspan="5"><div id="referencer" name="referencer"></div></td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">첨부 파일</th>
@@ -130,9 +147,7 @@
 								</table>
 							</th:block>
 							<!-- 여기에 동적 양식 들어감 -->
-							<div id="approval-content2">
-								
-							</div>
+							<div id="approval-content"></div>
 						</div>
 						<!-- 승인요청 버튼: div2 하단 오른쪽 정렬 -->
 						<div class="d-flex justify-content-end mt-3">
@@ -172,7 +187,9 @@
 						<div class="col-6 ps-3 d-flex flex-column">
 							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
 							<div id="memberListBox"
-								class="flex-grow-1 overflow-auto border rounded bg-light p-2">
+								class="flex-grow-1 overflow-auto border rounded bg-light p-2"
+								style="max-height: 250px;">
+								<!-- ✅ 스크롤 영역 고정 높이 설정 -->
 								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
@@ -182,7 +199,7 @@
 					<div class="row gx-3 text-center" style="height: 200px;">
 						<div class="col d-flex flex-column">
 							<div class="d-flex justify-content-between mb-2">
-								<span class="fw-semibold">결재자</span>
+								<span class="fw-semibold">결재자 <span style="font-size:9px;">❗위에서 아래로 등록된 사원부터 결재가 진행됩니다.</span></span>
 								<button class="btn btn-outline-primary btn-sm"
 									onclick="approver_btn();">등록</button>
 							</div>
@@ -227,6 +244,150 @@
 
 	<script>
 	
+	// 처음 페이지로 들어오면 자동으로 맨 위에 양식이 클릭
+	document.addEventListener("DOMContentLoaded", function() {
+        // 첫 번째 버튼을 자동 클릭
+        const firstButton = document.querySelector('.form-btn');
+        if (firstButton) {
+          firstButton.click();
+        }
+      });
+	
+	
+	
+	const viewForm = function (approvalFormNo) {
+
+		  if (approvalFormNo !== null) {
+		    fetch('/approval/create/' + approvalFormNo, {
+		      method: 'POST',
+		      headers: {
+		        'Content-Type': 'application/json',
+		        [document.querySelector('meta[name="_csrf_header"]').content]:
+		          document.querySelector('meta[name="_csrf"]').content
+		      }
+		    })
+		      .then(response => response.json())
+		      .then(data => {
+		    	  
+		    	  const approvalForm = data.approvalForm;
+		    	  const member = data.member;
+		    	  
+		    	  console.log(approvalForm);
+		    	  
+		    	  const form_div = document.getElementById('form_div');
+		    	  let form_no = document.createElement('input');
+		    	  form_no.setAttribute('type', 'hidden');
+		    	  form_no.setAttribute('name', 'approval_type_no');
+		    	  form_no.setAttribute('value', `${approvalFormNo}`);
+		    	  
+		    	  form_div.appendChild(form_no);
+		    	  
+		    	  const approval_div = document.getElementById('approval-content');
+		    	  approval_div.innerHTML = '';
+
+		    	  // 제목 삽입
+		          const titleElement = document.getElementById('approval_form_name');
+		          if (titleElement) {
+		            titleElement.innerText = approvalForm.approval_form_name;
+		          }
+		          
+		       	  // 기안자 정보 삽입
+		          document.querySelector("td[name='sender_name']").innerText = member.member_name;
+		          document.querySelector("td[name='dept_name']").innerText = member.dept_name;
+		          document.querySelector("td[name='pos_name']").innerText = member.pos_name;
+
+		    	  // contenteditable div
+		    	  const editor = document.createElement('div');
+		    	  editor.className = 'form-control';
+		    	  editor.setAttribute('name','appr_content');
+		    	  editor.contentEditable = true;
+		    	  editor.innerHTML = approvalForm.approval_form;
+		    	  editor.style.minHeight = '300px';
+		    	  approval_div.appendChild(editor);
+		    	  
+		    	  const input = document.createElement('input');
+		    	  input.setAttribute('type', 'hidden');
+		    	  input.setAttribute('name', 'appr_text');
+		    	  
+		    	  approval_div.append(input);
+		    	  
+					// 기존 선택된 버튼에서 클래스 제거
+					document.querySelectorAll('.btn-outline-primary, .btn-outline-secondary').forEach(btn => {
+					  btn.classList.remove('selected-button');
+					});
+					
+					// 클릭한 버튼 찾아서 클래스 추가
+					const clickedBtn = [...document.querySelectorAll('.btn')].find(
+					  btn => btn.getAttribute('onclick') === `javascript:viewForm('${approvalFormNo}')`
+					);
+					
+					if (clickedBtn) {
+					  clickedBtn.classList.add('selected-button');
+					}
+		      });
+		  } else {
+		    alert('먼저 작성할 양식을 선택해주세요.');
+		  }
+		};
+	
+	// 결재라인 버튼 클릭시 모달창에 등록한 관련자 정보를 가져옴
+	document.addEventListener('DOMContentLoaded', function() {
+		$('#approvalLineModal').on('shown.bs.modal', function() {
+			
+			let approverList = document.querySelectorAll("th[name='approverTh']");
+
+		    approverList.forEach(function(member) {
+		    	
+		    	let text = member.innerText;
+		    	let memberNo = member.querySelector("input[name='approver_no']").value;
+		    	
+                const li = document.createElement("li");
+                li.className = 'list-group-item approver_li';
+                li.innerHTML = `<button class="selected_approver" value="${memberNo}">-</button> ${text}`;
+                document.getElementById("approverList").appendChild(li);
+		    });
+
+		    let agreementerList = document.querySelectorAll("th[name='agreementerTh']");
+
+		    agreementerList.forEach(function(member) {
+		    	let text = member.innerText;
+		    	let memberNo = member.querySelector("input[name='agreementer_no']").value;
+		    	
+                const li = document.createElement("li");
+                li.className = 'list-group-item agreementer_li';
+                li.innerHTML = `<button class="selected_agreementer" value="${memberNo}">-</button> ${text}`;
+                document.getElementById("agreementerList").appendChild(li);
+		    });
+
+		    let referencerList = document.querySelectorAll("span[name='referencerSpan']");
+
+		    referencerList.forEach(function(member) {
+		    	let text = member.innerText;
+		    	let memberNo = member.querySelector("input[name='referencer_no']").value;
+		    	
+                const li = document.createElement("li");
+                li.className = 'list-group-item referencer_li';
+                li.innerHTML = `<button class="selected_referencer" value="${memberNo}">-</button> ${text}`;
+                document.getElementById("referencerList").appendChild(li);
+		    });
+		});
+		
+		// 모달창 닫을 때 li 초기화
+		$('#approvalLineModal').on('hidden.bs.modal', function () {
+			
+			const list = document.getElementById("memberList");
+            list.innerHTML = ""; // 기존 목록 초기화
+			
+	        document.getElementById("approverList").innerHTML = "";
+	        document.getElementById("agreementerList").innerHTML = "";
+	        document.getElementById("referencerList").innerHTML = "";
+	    });
+		
+	})
+		
+		
+	
+	// 결재라인
 	const approver_btn = function() {
 	    let checkedMember = [];
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
@@ -251,7 +412,7 @@
 
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item approver_li';
-	                li.innerHTML = `<button class="selected_approver" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                li.innerHTML = `<button class="selected_approver" value="${data.member_no}">-</button> ${data.member_name} ${data.pos_name} (${data.dept_name})`;
 	                
 	                list.appendChild(li);
 	            })
@@ -308,7 +469,7 @@
 
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item referencer_li';
-	                li.innerHTML = `<button class="selected_referencer" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                li.innerHTML = `<button class="selected_referencer" value="${data.member_no}">-</button> ${data.member_name} ${data.pos_name} (${data.dept_name})`;
 	                
 	                list.appendChild(li);
 	            })
@@ -363,7 +524,7 @@
 
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item agreementer_li';
-	                li.innerHTML = `<button class="selected_agreementer" value="${data.member_no}">-</button> ${data.member_name} (${data.pos_name})`;
+	                li.innerHTML = `<button class="selected_agreementer" value="${data.member_no}">-</button> ${data.member_name} ${data.pos_name} (${data.dept_name})`;
 	                
 	                list.appendChild(li);
 	            })
@@ -393,8 +554,11 @@
 	
 	// 결재라인 선택완료
     const selectApprovalMember = function () {
+		
         let approverList = document.querySelectorAll('.approver_li');
-        let approverDiv = document.getElementById('approver');
+        let approverTr = document.getElementById('approver');
+        approverTr.innerHtml = '';
+        let approverSignatureTr = document.getElementById('approver_signature');
 
 
         approverList.forEach(approver => {
@@ -407,19 +571,23 @@
                 console.log(approverName);
 
                 // 중복 방지
-                if (!approverDiv.querySelector(`span[data-approver-id="${approverId}"]`)) {
-				    let span = document.createElement('span');
-				    span.setAttribute('data-approver-id', approverId);
-				    span.textContent = approverName;
+                if (!approverTr.querySelector(`th[data-approver-id="${approverId}"]`)) {
+				    let th = document.createElement('th');
+				    th.setAttribute('data-approver-id', approverId);
+				    th.setAttribute('name', 'approverTh');
+				    th.textContent = approverName;
 				    
-				    approverDiv.append(span);
+				    let td = document.createElement('td');
+				    
+				    approverTr.append(th);
+				    approverSignatureTr.append(td);
 				    
 				    let input = document.createElement('input');
 				    input.setAttribute('type', 'hidden');
 				    input.setAttribute('name', 'approver_no');
 				    input.setAttribute('value', `${approverId}`);
 				    
-				    approverDiv.append(input);
+				    th.append(input);
 				}
             }
         });
@@ -441,6 +609,7 @@
                 if (!referencerDiv.querySelector(`span[data-referencer-id="${referencerId}"]`)) {
 				    let span = document.createElement('span');
 				    span.setAttribute('data-referencer-id', referencerId);
+				    span.setAttribute('name', 'referencerSpan');
 				    span.textContent = referencerName;
 				    referencerDiv.append(span);
 				    
@@ -449,15 +618,15 @@
 				    input.setAttribute('name', 'referencer_no');
 				    input.setAttribute('value', `${referencerId}`);
 				    
-				    referencerDiv.append(input);
+				    span.append(input);
 				    
 				}
             }
         });
         
         let agreementerList = document.querySelectorAll('.agreementer_li');
-        let agreementerDiv = document.getElementById('agreementer');
-
+        let agreementerTr = document.getElementById('agreementer');
+		let agreementerSignatureTr = document.getElementById('agreementer_signature');
 
         agreementerList.forEach(agreementer => {
             let button = agreementer.querySelector('.selected_agreementer');
@@ -469,18 +638,23 @@
                 console.log(agreementerName);
 
                 // 중복 방지
-                if (!agreementerDiv.querySelector(`span[data-agreementer-id="${agreementerId}"]`)) {
-				    let span = document.createElement('span');
-				    span.setAttribute('data-agreementer-id', agreementerId);
-				    span.textContent = agreementerName;
-				    agreementerDiv.append(span);
+                if (!agreementerTr.querySelector(`th[data-agreementer-id="${agreementerId}"]`)) {
+				    let th = document.createElement('th');
+				    th.setAttribute('data-agreementer-id', agreementerId);
+				    th.setAttribute('name', 'agreementerTh');
+				    th.textContent = agreementerName;
+				    let td = document.createElement('td');
+				    
+				    agreementerTr.append(th);
+				    agreementerSignatureTr.append(td);
+				    
 				    
 				    let input = document.createElement('input');
 				    input.setAttribute('type', 'hidden');
 				    input.setAttribute('name', 'agreementer_no');
 				    input.setAttribute('value', `${agreementerId}`);
 				    
-				    agreementerDiv.append(input);
+				    th.append(input);
 				}
             }
         });
@@ -489,153 +663,10 @@
         bootstrap.Modal.getInstance(document.getElementById("approvalLineModal")).hide();
 	    
     };
-	
-	  
-	  $(document).ready(function(){
-		  $('#div2').hide();
-	  })
-	
-	  let selectedApprovalFormNo = null; // 전역 변수
-
-	  const viewForm = function(approvalFormNo) {
-		  $('#div2').hide();
-		  $('#div1').show();
-		  selectedApprovalFormNo = approvalFormNo;
-
-		  fetch('/approvalForm/view/' + approvalFormNo, {
-		    method: 'POST',
-		    headers: {
-		      'Content-Type': 'application/json',
-		      'header': document.querySelector('meta[name="_csrf_header"]').content,
-		      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-		    }
-		  })
-		  .then(res => res.json())
-		  .then(data => {
-		    const html = `
-		      <h4>${data.approval_form_name}</h4>
-		      <div>${data.approval_form}</div>
-		    `;
-		    document.getElementById('approval-content').innerHTML = html;
-
-		    // 기존 선택된 버튼에서 클래스 제거
-		    document.querySelectorAll('.btn-outline-primary, .btn-outline-secondary').forEach(btn => {
-		      btn.classList.remove('selected-button');
-		    });
-
-		    // 클릭한 버튼 찾아서 클래스 추가
-		    const clickedBtn = [...document.querySelectorAll('.btn')].find(
-		      btn => btn.getAttribute('onclick') === `javascript:viewForm('${approvalFormNo}')`
-		    );
-
-		    if (clickedBtn) {
-		      clickedBtn.classList.add('selected-button');
-		    }
-		  })
-		  .catch(err => console.error('Fetch Error:', err));
-		};
-	  
-		/* const createApproval = function() {
-			  if (selectedApprovalFormNo !== null) {
-			    window.location.href = '/approval/create/' + selectedApprovalFormNo;
-			  } else {
-			    alert('먼저 작성할 양식을 선택해주세요.');
-			  }
-		}; */
+    
+    
 		
-		const createApproval = function () {
-			  $('#div1').hide();
-			  $('#div2').show();
-
-			  if (selectedApprovalFormNo !== null) {
-			    fetch('/approval/create/' + selectedApprovalFormNo, {
-			      method: 'POST',
-			      headers: {
-			        'Content-Type': 'application/json',
-			        [document.querySelector('meta[name="_csrf_header"]').content]:
-			          document.querySelector('meta[name="_csrf"]').content
-			      }
-			    })
-			      .then(response => response.json())
-			      .then(data => {
-			    	  
-			    	  const approvalForm = data.approvalForm;
-			    	  const member = data.member;
-			    	  
-			    	  console.log(approvalForm);
-			    	  
-			    	  const form_div = document.getElementById('form_div');
-			    	  let form_no = document.createElement('input');
-			    	  form_no.setAttribute('type', 'hidden');
-			    	  form_no.setAttribute('name', 'approval_type_no');
-			    	  form_no.setAttribute('value', `${selectedApprovalFormNo}`);
-			    	  
-			    	  form_div.appendChild(form_no);
-			    	  
-			    	  const approval_div = document.getElementById('approval-content2');
-			    	  approval_div.innerHTML = '';
-
-			    	  // 제목 삽입
-			          const titleElement = document.getElementById('approval_form_name');
-			          if (titleElement) {
-			            titleElement.innerText = approvalForm.approval_form_name;
-			          }
-			          
-			       	  // 기안자 정보 삽입
-			          document.querySelector("td[name='sender_name']").innerText = member.member_name;
-			          document.querySelector("td[name='dept_name']").innerText = member.dept_name;
-			          document.querySelector("td[name='pos_name']").innerText = member.pos_name;
-
-			    	  // contenteditable div
-			    	  const editor = document.createElement('div');
-			    	  editor.className = 'form-control';
-			    	  editor.setAttribute('name','appr_content');
-			    	  editor.contentEditable = true;
-			    	  editor.innerHTML = approvalForm.approval_form;
-			    	  editor.style.minHeight = '300px';
-			    	  approval_div.appendChild(editor);
-			    	  
-			    	  const input = document.createElement('input');
-			    	  input.setAttribute('type', 'hidden');
-			    	  input.setAttribute('name', 'appr_text');
-			    	  
-			    	  approval_div.append(input);
-			      });
-			  } else {
-			    alert('먼저 작성할 양식을 선택해주세요.');
-			  }
-			};
-			
-		/* const approvalForm = document.create_approval_form;
-		approvalForm.addEventListener('click', function() {
-			let valid = true;
-			let valid_msg = '';
-			let apprTitle = approvalForm.appr_title.value;
-			let agreementerList = approvalForm.agreementer_no;
-			let apprRegDate = approvalForm.appr_reg_date.value;
-			let apprText = approvalForm.appr_text.value;
-			if(!apprTitle) {
-				valid = false;
-				valid_msg += '제목을 입력해주세요.';
-			} else if(agreementerList.length == 0) {
-				valid = false;
-				valid_msg += '결재자를 선택해주세요.';
-			} else if(!apprRegDate) {
-				valid = false;
-				valid_msg += '작성일을 입력해주세요.';
-			} else if(!apprText) {
-				valid = false;
-				vliad_msg += '내용을 입력해주세요.';
-			}
-			
-			if(valid == false) {
-				alert(valid_msg);
-			} else {
-				console.log('test');
-			}
-			
-		}) */
-		
+		// 승인요청 버튼 클릭 시 결재 생성
 		const createApprovalForm = document.create_approval_form;
 		createApprovalForm.addEventListener('submit', (e) =>{
 			e.preventDefault();

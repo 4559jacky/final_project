@@ -323,6 +323,9 @@
 			.then(data => {
 				MeetingRoomButtons(data);
 			});
+			
+			// 회의실 예약 시간 조회 
+		    
 	
 			// 회의실 선택 모달 보여줌
 			const dateInfoModal = new bootstrap.Modal(document.getElementById("dateInfoModal"));
@@ -373,41 +376,91 @@
 								b.className = "btn bg-primary-subtle text-primary";
 								b.classList.add("selected");
 							}
-						});
-
+						}); 
 					    // 클릭된 버튼만 primary 스타일 + 비활성화 처리
 					    btn.className = "btn btn-primary";
-
+					    
 					    // 기존 시간 버튼 초기화
 					    timeContainer.innerHTML = "";
 					    
 					    // 날짜랑 회의실 정보 불러옴
-					    const selectedDate = document.getElementById("meetingDate").value;
-					    const meetingRoomNo = document.getElementById("meetingRoomNo").value;
+					    const selectedDate = document.getElementById("selectDate").value;
+					    const meetingRoomNo = document.getElementById("roomNo").value;
 					    
-					    // 시간 버튼 표시
-					    let timeButtons = 
-					    	`<button type="button" class="btn bg-primary-subtle text-primary" data-time="09:00">09:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="10:00">10:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="11:00">11:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="12:00">12:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="13:00">13:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="14:00">14:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="15:00">15:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="16:00">16:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="17:00">17:00</button>`;
+					    // 해당 회의실 예약 내역 조회  
+						fetch("/reservationInfo", {
+						    	  method: 'POST',
+						    	  headers: {
+						    		  'Content-Type':'application/json',
+						    	    [document.querySelector('meta[name="_csrf_header"]').content]:
+						    	      document.querySelector('meta[name="_csrf"]').content
+						    	  },
+						    	  body: JSON.stringify({
+								    		meetingRoomNo:meetingRoomNo,
+								    		selectedDate:selectedDate
+										})
+						    	  })
+						.then(response => response.json())
+						.then(data => {
+						    const timeList = [
+						        "09:00", "10:00", "11:00", "12:00",
+						        "13:00", "14:00", "15:00", "16:00", "17:00"
+						    ];
 
-					    timeContainer.innerHTML = timeButtons;
-					    
-					    // 시간 버튼 토글 
-					    timeContainer.querySelectorAll("button[data-time]").forEach(timeBtn => {
-					    	timeBtn.addEventListener("click", () => {
-					    	    timeBtn.classList.toggle("btn-primary");
-					    	    timeBtn.classList.toggle("bg-primary-subtle");
-					    	    timeBtn.classList.toggle("text-primary");
-					    	    timeBtn.classList.toggle("selected");
-					    	});
-					    });
+						    const reservedTimeList = [];
+
+						    // ✅ 시간만 비교
+						   for (let i = 0; i < data.length; i++) {
+							    const item = data[i];
+							
+							    if (Array.isArray(item.meeting_start_time)) {
+							        const times = item.meeting_start_time.map(time => time.substring(0, 5));
+							        reservedTimeList.push(...times);
+							    } else if (typeof item.meeting_start_time === "string") {
+							        reservedTimeList.push(item.meeting_start_time.substring(0, 5));
+							    }
+							}
+
+	    
+						// 현재 날짜와 시간 체크
+						   const now = new Date();
+						   const todayStr = now.toISOString().slice(0, 10); // yyyy-MM-dd
+						   const currentHour = now.getHours();
+
+						   // 버튼 만들기 (예약된 시간 + 현재 시간 이전이면 비활성화)
+						   let timeButtons = "";
+						   for (let i = 0; i < timeList.length; i++) {
+						       const time = timeList[i];
+						       const hour = parseInt(time.split(":")[0]);
+
+						       const isPastTime = selectedDate === todayStr && hour <= currentHour;
+						       const isReserved = reservedTimeList.includes(time);
+
+						       if (isPastTime || isReserved) {
+						           timeButtons += `<button type="button" class="btn btn-rounded btn-light" disabled>${time}</button>`;
+						       } else {
+						           timeButtons += `<button type="button" class="btn bg-primary-subtle text-primary" data-time="${time}">${time}</button>`;
+						       }
+						   }
+
+
+						    timeContainer.innerHTML = timeButtons;
+
+						    // 선택 버튼 이벤트
+						    const clickableButtons = timeContainer.querySelectorAll("button[data-time]");
+						    for (let i = 0; i < clickableButtons.length; i++) {
+						        const timeBtn = clickableButtons[i];
+
+						        timeBtn.addEventListener("click", () => {
+						            timeBtn.classList.toggle("btn-primary");
+						            timeBtn.classList.toggle("bg-primary-subtle");
+						            timeBtn.classList.toggle("text-primary");
+						            timeBtn.classList.toggle("selected");
+						        });
+						    }
+						});
+
+
 					});
 				}		
 			});
@@ -737,7 +790,7 @@
 
 	<script
 		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-	<script src="../assets/libs/fullcalendar/index.global.min.js"></script>
-	<script src="../js/custom/meetingRoomCalendar.js"></script>
+	<script src="../js/ysw/fullcalendar/index.global.min.js"></script>
+	<script src="../js/ysw/meetingRoomCalendar.js"></script>
 </th:block>
 </html>
