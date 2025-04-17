@@ -36,7 +36,6 @@ public class PlanService {
 	    return planRepository.findAll();
 	}
 
-
 	// 상세모달창
 	public Plan selectPlanById(Long planId) {
 	    if (planId == null) {
@@ -67,32 +66,20 @@ public class PlanService {
 //	    
 //	}
 
-//	public Plan updatePlanOne(Long plan_no, String plan_title, String plan_content, LocalDateTime start_date,
-//			LocalDateTime end_date, String plan_type) {
-//		Plan plan = planRepository.findById(plan_no).orElse(null);
-//		if(plan != null) {
-//			plan.setPlanNo(plan_no);
-//			plan.setPlanTitle(plan_title);
-//			plan.setPlanContent(plan_content);
-//			plan.setModDate(LocalDateTime.now());
-//			plan.setStartDate(start_date);
-//	        plan.setEndDate(end_date);
-//		}
-//	    return plan;
-//	}
+	public Plan updatePlanOne(Long id, PlanDto dto) {
+	    Plan plan = planRepository.findById(id).orElse(null);
+	    if (plan == null) return null;
 
-	public Plan updatePlanOne(Long id) {
-		Plan target = planRepository.findById(id).orElse(null);
-		PlanDto dto = PlanDto.builder()
-				.plan_no(target.getPlanNo())
-				.plan_title(target.getPlanTitle())
-				.plan_content(target.getPlanContent())
-				.start_date(target.getStartDate())
-				.end_date(target.getEndDate())
-				.build();
+	    plan.setPlanTitle(dto.getPlan_title());
+	    plan.setPlanContent(dto.getPlan_content());
+	    plan.setModDate(LocalDateTime.now());
+	    plan.setStartDate(dto.getStart_date());
+	    plan.setEndDate(dto.getEnd_date());
+	    plan.setPlanType(dto.getPlan_type());
 
-		return planRepository.save(dto.toEntity());
+	    return planRepository.save(plan);
 	}
+
 
 
 }
