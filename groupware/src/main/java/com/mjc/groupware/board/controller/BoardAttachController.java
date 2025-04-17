@@ -40,7 +40,7 @@ public class BoardAttachController {
             Resource resource = new InputStreamResource(Files.newInputStream(filePath));
             
             String oriFileName = fileData.getOriName();
-            String encodedName = URLEncoder.encode(fileData.getOriName(), StandardCharsets.UTF_8);
+            String encodedName = URLEncoder.encode(oriFileName, StandardCharsets.UTF_8);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodedName);

@@ -39,6 +39,11 @@ public class WebSecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
 		http.userDetailsService(customUserDetailsService)
+		// hjh 스마트에디터 쓰려면 필수로 넣어야함.
+		.headers(headers -> headers
+	            .frameOptions(frame -> frame.sameOrigin()) 
+		)
+		// 
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/logout").permitAll()
 				.requestMatchers("/admin/**").hasRole("ADMIN")

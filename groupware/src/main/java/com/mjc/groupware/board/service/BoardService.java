@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.mjc.groupware.board.dto.BoardDto;
 import com.mjc.groupware.board.dto.PageDto;
 import com.mjc.groupware.board.dto.SearchDto;
@@ -31,25 +32,17 @@ public class BoardService {
 
     // 게시글 등록
     @Transactional(rollbackFor = Exception.class)
-    public int createBoard(BoardDto dto) {
-        int result = 0;
-        try {
-        	Member member = memberRepository.findById(dto.getMember_no()).orElse(null); // 예외 처리
-        	
-        	if(member != null) {
-        		Board param = Board.builder()
-        				.boardTitle(dto.getBoard_title())
-        				.boardContent(dto.getBoard_content())
-        				.boardStatus("N")
-        				.member(Member.builder().memberNo(member.getMemberNo()).build())
-        				.build();
-        		Board saved = repository.save(param);
-        	}
-            result = 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+    public Board createBoard(BoardDto dto) {
+        Member member = memberRepository.findById(dto.getMember_no()).orElse(null);
+
+        Board board = Board.builder()
+                .boardTitle(dto.getBoard_title())
+                .boardContent(dto.getBoard_content())
+                .boardStatus("N")
+                .member(Member.builder().memberNo(member.getMemberNo()).build())
+                .build();
+
+        return repository.save(board); // 저장된 Board 반환!
     }
     
     
@@ -74,10 +67,19 @@ public class BoardService {
     // 게시글 목록 검색,정렬,페이징
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
 
-        // 정렬 방식 설정
-        Pageable pageable = PageRequest.of(pageDto.getNowPage() - 1,
-        		pageDto.getNumPerPage(),searchDto.getOrder_type() == 2 
-        		? Sort.by("regDate").ascending() : Sort.by("regDate").descending());
+        // 정렬 방식 설정(최신순,오래된순,조회순 정렬 가능해짐) - 2025-04-16(수요일) 정렬 완료
+    	Sort sort;
+    	if (searchDto.getOrder_type() == 1) { // 최신순
+    	    sort = Sort.by(Sort.Direction.DESC, "regDate");
+    	} else if (searchDto.getOrder_type() == 2) { // 오래된순
+    	    sort = Sort.by(Sort.Direction.ASC, "regDate");
+    	} else if (searchDto.getOrder_type() == 3) { // 조회순
+    	    sort = Sort.by(Sort.Direction.DESC, "views");
+    	} else {
+    	    sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본값: 최신순
+    	}
+    	
+    	Pageable pageable = PageRequest.of(pageDto.getNowPage() -1, pageDto.getNumPerPage(), sort);
 
         // 삭제되지 않은 게시글만 조회
         Specification<Board> spec = Specification.where(
@@ -100,7 +102,7 @@ public class BoardService {
     }
     
 
- // 게시글 수정 서비스
+    // 게시글 수정 서비스
     @Transactional
     public Board updateBoard(BoardDto boardDto) {
         // 게시글을 DB에서 조회 (게시글이 존재하지 않으면 예외 발생)
@@ -110,7 +112,8 @@ public class BoardService {
         // 1. 게시글 수정
         board.setBoardTitle(boardDto.getBoard_title());
         board.setBoardContent(boardDto.getBoard_content());
-        board.setModDate(LocalDateTime.now());  // 수정일자 업데이트
+        // 수정일자 업데이트(처음 게시글 작성하면 수정일이 나오지 않음 / 수정을 하면 그때 수정일자가 게시글 목록에 수정일자가 찍힘)
+        board.setModDate(LocalDateTime.now());  
 
         // 2. 파일 삭제 처리
         if (boardDto.getDeleteFiles() != null && !boardDto.getDeleteFiles().isEmpty()) {
@@ -121,7 +124,7 @@ public class BoardService {
         return repository.save(board);  // 수정된 게시글을 DB에 저장
     }
     
-
+    // 게시글 삭제("N" -> "Y" 게시글 목록에서 삭제되면 데이터베이스 안에 삭제 여부가 "N" -> "Y"로 바뀜)
     @Transactional
     public void deleteBoard(Long boardNo) {
         Board board = repository.findById(boardNo)

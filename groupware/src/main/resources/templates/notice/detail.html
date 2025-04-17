@@ -38,6 +38,12 @@
             </div>
             <!-- 게시글 내용 -->
             <div class="border-top pt-3">
+            	<h5 class="fw-semibold">첨부파일</h5>
+            	<ul>
+            		<li th:each="attach : ${attachList}">
+            			<a th:href="@{${attach.attachPath}}" th:text="${attach.oriName}" download></a>
+            		</li>
+            	</ul>
                 <div th:utext="${notice.noticeContent}" class="post-content"></div>
             </div>
             <!-- 버튼 -->
