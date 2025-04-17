@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	  getEvent.setExtendedProp("calendar", newCalendarType);
 	  getEvent.setDates(new Date(newStartDate),new Date(newEndDate));
 	  
-	  // 서버에 수정된 값 전달
+	  // 서버에 수정된 값 전달..
 	    fetch("/plan/"+planId+"/update", {
 	      method: "POST",
 	      headers: {
