@@ -17,6 +17,7 @@ import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
@@ -56,6 +57,20 @@ public class MemberService {
 		return resultList;
 	}
 	
+	public List<Member> selectMemberAll(MemberSearchDto searchDto) {
+		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
+
+		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
+			// 아무것도 입력하지않으면 findAll() 과 동일함
+		} else {
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));			
+		}
+
+		List<Member> resultList = repository.findAll(spec);
+		
+		return resultList;
+	}
+	
 	@Transactional(rollbackFor = Exception.class)
 	public Member createMember(MemberDto dto) {
 		Member result = null;
@@ -69,7 +84,7 @@ public class MemberService {
 					.memberName(dto.getMember_name())
 					.pos(dto.getPos_no() != 0 ?	Pos.builder().posNo(dto.getPos_no()).build() : null)
 					.dept(dto.getDept_no() != 0 ? Dept.builder().deptNo(dto.getDept_no()).build() : null)
-					.role(Role.builder().roleNo((long)3).build())
+					.role(Role.builder().roleNo((long)2).build())
 					.status(100)
 					.build());
 					
@@ -176,6 +191,12 @@ public class MemberService {
 		} catch(Exception e) {
 			throw new RuntimeException("사원 정보 수정 중 알 수 없는 문제가 발생했습니다.");
 		}
+	}
+	
+	// 특정 부서에 속한 모든 사원들을 조회(직급 순서 기준으로 오름차순, 같다면 PK기준으로 오름차순)
+	public List<Member> selectMemberAllByDeptIdByPosOrder(Long id) {
+		List<Member> memberList = repository.findAllByDeptNoSortedByPosOrder(id);
+		return memberList;
 	}
 	
 	// 결재라인 부서의 속한 사원들select

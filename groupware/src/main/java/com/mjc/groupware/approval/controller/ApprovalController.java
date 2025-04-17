@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,10 +17,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.entity.ApprAgreementer;
+import com.mjc.groupware.approval.entity.ApprApprover;
+import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
+import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
-import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
@@ -33,13 +35,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApprovalController {
 
-    private final WebSecurityCustomizer configure;
-	
 	private Logger logger = LoggerFactory.getLogger(ApprovalController.class);
 	
 	private final ApprovalService service;
 	private final MemberService memberService;
-	private final DeptService deptService;
 
 	// 관리자 : 관리자만 접근 가능한 url
 	
@@ -161,13 +160,29 @@ public class ApprovalController {
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-	    List<Approval> approvalList = service.selectApprovalAllByApproverId(member);
+	    List<ApprovalVo> approvalVoList = service.selectApprovalAllByApproverId(member);
 	    
 	    model.addAttribute("member", member);
-	    model.addAttribute("approvalList", approvalList);
+	    model.addAttribute("approvalVoList", approvalVoList);
 	    
 		
 		return "/approval/user/receiveApproval";
+	}
+	
+	@GetMapping("/approval/receive/detail/{id}")
+	public String receiveApprovalDetailView(@PathVariable("id") Long id, Model model) {
+		
+	    Approval approval = service.selectApprovalOneByApprovalNo(id);
+	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
+	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
+	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
+	    
+	    model.addAttribute("approval", approval);
+	    model.addAttribute("approverList", approverList);
+	    model.addAttribute("agreementerList", agreementerList);
+	    model.addAttribute("referencerList", referencerList);
+		
+		return "/approval/user/receiveApprovalDetail";
 	}
 	
 	@GetMapping("/approval/create")

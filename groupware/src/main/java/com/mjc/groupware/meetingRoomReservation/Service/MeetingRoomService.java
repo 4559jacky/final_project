@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileSystemUtils;
 
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomDto;
 import com.mjc.groupware.meetingRoomReservation.dto.MeetingRoomReservationDto;
@@ -36,15 +37,14 @@ public class MeetingRoomService {
 	public List<MeetingRoomReservationDto> selectMeetingRoomReservationAll(MeetingRoomReservationDto filterDto) {
 	    // 전체 조회 필터
 		Specification<MeetingRoomReservation> spec = (root, query, criteriaBuilder) -> null;
-		if(filterDto.getMeeting_room_no() != null) {
-			spec = spec.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngRoomNo(filterDto.getMeeting_room_no()));
-		}else if(filterDto.getMeeting_date() != null) {
-			spec = spec.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngDate(filterDto.getMeeting_date()));
-		}else if(filterDto.getMeeting_room_no() != null && filterDto.getMeeting_date() != null) {
-			spec = spec.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngRoomNo(filterDto.getMeeting_room_no()))
-						.and(MeetingRoomReservationSpecification.meetingReservationContainsMeeitngDate(filterDto.getMeeting_date()));
-		}else if(filterDto.getMeeting_date() != null) {
-		}
+		if (filterDto.getMeeting_room_no() != null) {
+	        spec = spec.and(MeetingRoomReservationSpecification
+	                .meetingReservationContainsMeeitngRoomNo(filterDto.getMeeting_room_no()));
+	    }
+	    if (filterDto.getMeeting_date() != null) {
+	        spec = spec.and(MeetingRoomReservationSpecification
+	                .meetingReservationContainsMeeitngDate(filterDto.getMeeting_date()));
+	    }
 		 
 		// 모든 예약을 조회
 	    List<MeetingRoomReservation> reservations = reservationRepositoty.findAll(spec);
@@ -75,6 +75,7 @@ public class MeetingRoomService {
 	        String title = first.getMeetingTitle();
 	        LocalDate date = first.getMeetingDate();
 	        String reservationStatus = first.getReservationStatus();
+	        Long reservationNo = first.getReservationNo();
 
 	        // 시작 시간과, 참석자 번호, 참석자 이름, 참석자 직급 담을 리스트 만들기 
 	        List<LocalTime> startTimes = new ArrayList<>();
@@ -114,6 +115,7 @@ public class MeetingRoomService {
 	                .member_name(memberNames)
 	                .meeting_room_name(roomName)
 	                .reservation_status(reservationStatus)
+	                .reservation_no(reservationNo)
 	                .build();
 	        // 최종 리스트레 추가 
 	        dtoList.add(dto);
@@ -176,6 +178,26 @@ public class MeetingRoomService {
 
 	}
 
+	// 사용자 - 회의실 예약 취소 
+	public int deleteReservation(Long reservationNo) {
+	    int result = 0;
+	    try {
+	        // 예약 가져오기
+	        MeetingRoomReservation target = reservationRepositoty.findById(reservationNo).orElse(null);
+
+	        if (target != null) {
+	            // 상태가 Y면 N으로, N이면 Y로 바꾸기 (취소 기능 기준으로는 그냥 N으로 바꿔도 됨)
+	            if ("Y".equals(target.getReservationStatus())) {
+	                target.setReservationStatus("N");;  // 취소된 상태
+	                reservationRepositoty.save(target);
+	                result = 1;
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return result;
+	}
 	
 	
 	////////////////////////////////////////////////////////////////////

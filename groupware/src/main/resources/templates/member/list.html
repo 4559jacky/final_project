@@ -8,11 +8,7 @@ layout:decorate="~{/include/layout}">
 	
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	
-	<link th:href="@{/css/cjs/dept_create.css}" rel="stylesheet">
-	
-	<style>
-		
-	</style>
+	<link th:href="@{/css/cjs/member_list.css}" rel="stylesheet">
 	
 	<!-- jsTree -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
@@ -77,7 +73,13 @@ layout:decorate="~{/include/layout}">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
                         			<form name="update_member_form">
-                          				<h4 class="card-title" style="font-weight: bold;">사원 목록</h4>
+                          				<div class="d-flex justify-content-between align-items-center mb-3">
+										  <h4 class="card-title fw-bold mb-0">사원 목록</h4>
+										  <button type="button" id="chkUpdateBtn" class="btn btn-primary btn-sm">
+										    일괄 수정
+										  </button>
+										</div>
+										
                           				<br>
                           				
                           				<div class="mb-3" style="display:none;">
@@ -95,6 +97,9 @@ layout:decorate="~{/include/layout}">
 							                  <thead class="text-dark fs-4">
 							                    <tr>
 							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+							                      </th>
+							                      <th>
 							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
 							                      </th>
 							                      <th>
@@ -109,13 +114,10 @@ layout:decorate="~{/include/layout}">
 							                      <th>
 							                        <h6 class="fs-4 fw-semibold mb-0">상태</h6>
 							                      </th>
-							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">수정</h6>
-							                      </th>
 							                    </tr>
 							                  </thead>
 							                  <tbody id="member-tbody">
-											  	
+												
 							                  </tbody>
 							                </table>
 							              
@@ -128,10 +130,147 @@ layout:decorate="~{/include/layout}">
                    		<div class="col-lg-9 d-flex align-items-stretch" id="none_member_div">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
-                        			<h4 class="card-title" style="font-weight: bold;">사원 목록</h4>
-                          			<br>
-                        			
-                        			조회할 부서를 선택해주세요.
+                        			<form name="update_members_form">
+                        				<div class="d-flex justify-content-between align-items-center mb-3">
+										  
+										  <div class="d-flex align-items-center">
+										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
+										    
+										    <div class="input-group">
+										      <th:block th:if="${searchText != null}">
+											  	<input type="text" id="search_text" name="search_text" th:value="${searchText}" class="form-control form-control-sm" placeholder="사원 이름 검색" />
+										      </th:block>
+										      <th:block th:if="${searchText == null}">
+										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원 이름 검색" />
+										      </th:block>
+										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
+										    </div>
+										  </div>
+										
+										  
+										  <button type="button" id="checkboxUpdateBtn" class="btn btn-primary btn-sm">
+										    일괄 수정
+										  </button>
+										</div>
+										
+										<br>
+										
+										<div class="table-responsive mb-4 border rounded-1">
+							                <table class="table text-nowrap mb-0 align-middle">
+							                  <thead class="text-dark fs-4">
+							                    <tr>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">부서</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">직급</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">권한</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">상태</h6>
+							                      </th>
+							                    </tr>
+							                  </thead>
+							                  <tbody id="member-tbody">
+						                		<tr th:if="${memberList != null}" th:each="member : ${memberList}">
+													<td>
+														<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
+													</td>
+													<td>
+														<div class="d-flex align-items-center">
+															<div class="ms-3">
+																<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+																<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
+															</div>
+														</div>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="dept_no">
+															<option value="">-</option>
+															<option th:each="dept : ${deptList}"
+																	th:value="${dept.deptNo}"
+																	th:text="${dept.deptName}"
+																	th:selected="${dept.deptNo == member.dept?.deptNo}">
+															</option>
+														</select>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="pos_no">
+															<option value="">-</option>
+															<option th:each="pos : ${posList}"
+																	th:value="${pos.posNo}"
+																	th:text="${pos.posName}"
+																	th:selected="${pos.posNo == member.pos?.posNo}">
+															</option>
+														</select>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="role_no">
+															<option value="">-</option>
+															<option th:each="role : ${roleList}"
+																	th:value="${role.roleNo}"
+																	th:text="${role.roleNickname}"
+																	th:selected="${role.roleNo == member.role?.roleNo}">
+															</option>
+														</select>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="status">
+															<option value="">-</option>
+															<option th:each="status : ${statusList}"
+																	th:value="${status.status_no}"
+																	th:text="${status.status_name}"
+																	th:selected="${status.status_no == member.status}">
+															</option>
+														</select>
+													</td>
+											  	</tr>
+											  	<tr th:if="${memberList == null}">
+											  		<td colspan="7">사원 정보가 없습니다.</td>
+											  	</tr>
+							                  	</tbody>
+							                </table>
+							              
+							              </div>
+						                
+										<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+
+										  <nav>
+										    <ul class="pagination mb-0">
+										      <li class="page-item disabled" id="previousPage">
+										        <a class="page-link" href="#" aria-label="Previous">
+										          <span aria-hidden="true">&laquo;</span>
+										        </a>
+										      </li>
+										      <li class="page-item" id="page1"><a class="page-link" href="#">1</a></li>
+										      <li class="page-item" id="page2"><a class="page-link" href="#">2</a></li>
+										      <li class="page-item" id="page3"><a class="page-link" href="#">3</a></li>
+										      <li class="page-item" id="nextPage">
+										        <a class="page-link" href="#" aria-label="Next">
+										          <span aria-hidden="true">&raquo;</span>
+										        </a>
+										      </li>
+										    </ul>
+										  </nav>
+										  
+										  <div class="position-absolute end-0">
+										    <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;">
+										      <option value="10">10명</option>
+										      <option value="20">20명</option>
+										      <option value="30">30명</option>
+										    </select>
+										  </div>
+										</div>
+                        			</form>
+									
                         		</div>
                       		</div>
                    		</div>
@@ -178,6 +317,13 @@ layout:decorate="~{/include/layout}">
 						const tbody = document.getElementById('member-tbody');
 						tbody.innerHTML = '';
 						
+						if (memberListByDept.length === 0) {
+							  const tr = document.createElement('tr');
+							  tr.innerHTML = `<td colspan="7" class="text-center text-muted py-4">사원 정보가 없습니다.</td>`;
+							  tbody.appendChild(tr);
+							  return;
+						}
+						
 						memberListByDept.forEach(memberDto => {
 							const tr = document.createElement('tr');
 							
@@ -216,12 +362,15 @@ layout:decorate="~{/include/layout}">
 							  const selected = memberDto.status === status.no ? 'selected' : '';
 							  statusOptions += `<option value="${status.no}" ${selected}>${status.name}</option>`;
 							});
-
+							
 							tr.innerHTML = `
+								<td>
+									<input type="checkbox" class="form-check-input member-checkbox me-2" data-member-no="${memberDto.member_no}">
+								</td>
 								<td>
 									<div class="d-flex align-items-center">
 										<div class="ms-3">
-											<h6 class="fs-4 fw-semibold mb-0">${memberDto.member_name}</h6>
+											<h6 class="fs-4 fw-semibold mb-0 member-name">${memberDto.member_name}</h6>
 											<span class="fw-normal">#${memberDto.member_no}</span>
 										</div>
 									</div>
@@ -246,14 +395,17 @@ layout:decorate="~{/include/layout}">
 										${statusOptions}
 									</select>
 								</td>
-								<td>
-									<button type="button" 
-										class="btn btn-outline-primary btn-sm px-3 d-flex align-items-center justify-content-center edit-member-btn" 
-										data-member-no="${memberDto.member_no}">수정
-									</button>
-								</td>
 							`;
-
+							
+							const btnTr = document.createElement('tr');
+							btnTr.innerHTML = `
+							  <td colspan="7" class="text-end">
+							    <button type="button" id="bulkUpdateBtn" class="btn btn-primary">
+							      선택 항목 일괄 수정
+							    </button>
+							  </td>
+							`;
+							
 							tbody.appendChild(tr);
 						});
 						
@@ -281,7 +433,7 @@ layout:decorate="~{/include/layout}">
 	</script>
 	
 	<script>
-		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직
+		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직 - 피드백 이후 현재 쓰지 않고 있음
 		document.getElementById('member-tbody').addEventListener('click', function (e) {
 			
 			if (e.target.classList.contains('edit-member-btn')) {
@@ -328,6 +480,130 @@ layout:decorate="~{/include/layout}">
 				})
 			}
 		});
+	</script>
+	
+	<script>
+		// 부서별 조회에서 일괄 수정 버튼을 눌렀을 때 발생하는 로직
+		document.getElementById('chkUpdateBtn').addEventListener('click', function () {
+			const checkedRows = document.querySelectorAll('.member-checkbox:checked');
+			if (checkedRows.length === 0) {
+				alert('수정할 사원을 선택해주세요.');
+			    return;
+			}
+			
+			const updateList = [];
+			const nameList = [];
+			
+			checkedRows.forEach(checkbox => {
+			    const tr = checkbox.closest('tr');
+			    const memberNo = checkbox.dataset.memberNo;
+			    const deptNo = tr.querySelector('select[name="dept_no"]').value;
+			    const posNo = tr.querySelector('select[name="pos_no"]').value;
+			    const roleNo = tr.querySelector('select[name="role_no"]').value;
+			    const status = tr.querySelector('select[name="status"]').value;
+				
+			    const memberName = tr.querySelector('.member-name').textContent.trim();
+			    
+			    updateList.push({
+				    member_no: memberNo,
+				    dept_no: deptNo,
+				    pos_no: posNo,
+				    role_no: roleNo,
+				    status: status
+			    });
+			    
+			    nameList.push(memberName);
+			});
+			
+			const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
+			
+			if(!confirm(nameConfirmMsg)) {
+				return;
+			}
+			
+			fetch('/admin/members/update', {
+				method : "post",
+				headers : {
+					'Content-Type': 'application/json',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body: JSON.stringify(updateList)
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if(data.res_code == '200') {
+					location.href = "/admin/member";
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			})
+		});
+	</script>
+	
+	<script>
+	// 전체 조회에서 일괄 수정 버튼을 눌렀을 때 발생하는 로직
+	document.getElementById('checkboxUpdateBtn').addEventListener('click', function () {
+		const checkedRows = document.querySelectorAll('.member-checkbox:checked');
+		if (checkedRows.length === 0) {
+			alert('수정할 사원을 선택해주세요.');
+		    return;
+		}
+		
+		const updateList = [];
+		const nameList = [];
+		
+		checkedRows.forEach(checkbox => {
+		    const tr = checkbox.closest('tr');
+		    const memberNo = checkbox.dataset.memberNo;
+		    const deptNo = tr.querySelector('select[name="dept_no"]').value;
+		    const posNo = tr.querySelector('select[name="pos_no"]').value;
+		    const roleNo = tr.querySelector('select[name="role_no"]').value;
+		    const status = tr.querySelector('select[name="status"]').value;
+			
+		    const memberName = tr.querySelector('.member-name').textContent.trim();
+		    
+		    updateList.push({
+			    member_no: memberNo,
+			    dept_no: deptNo,
+			    pos_no: posNo,
+			    role_no: roleNo,
+			    status: status
+		    });
+		    
+		    nameList.push(memberName);
+		});
+		
+		console.log(updateList);
+		
+		const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
+		
+		if(!confirm(nameConfirmMsg)) {
+			return;
+		}
+		
+		fetch('/admin/memberAll/update', {
+			method : "post",
+			headers : {
+				'Content-Type': 'application/json',
+				'header': document.querySelector('meta[name="_csrf_header"]').content,
+				'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			},
+			body: JSON.stringify(updateList)
+		})
+		.then(response => response.json())
+		.then(data => {
+			alert(data.res_msg);
+			if(data.res_code == '200') {
+				location.href = "/admin/member";
+			}
+		})
+		.catch(error => {
+			console.log(error);
+		})
+	});
 	</script>
 	
 	<!-- Bootstrap Common JS Files Start -->

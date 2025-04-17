@@ -4,6 +4,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+	<link th:href="@{/css/ysw.css}" rel="stylesheet">
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb align-items-center">
@@ -199,6 +200,88 @@
 		</div>
 	</div>
 	
+	<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+		<h5 class="card-title" style="font-weight: bold; color: black;">나의 회의실 예약 내역</h5>
+		<br>
+		<div class="table-responsive">
+			<div class="d-flex justify-content-end align-items-center mb-3 gap-5">
+				<!-- 회의실별 조회 -->
+				<div class="d-flex align-items-center gap-2">
+					<label for="roomSelect" class="form-label mb-0 fw-bold">회의실 선택</label> 
+					<select id="roomSelect" class="form-select filter_btn" style="width: 200px; height: 36px;">
+						<option value="">전체</option>
+						<th:block th:each="room:${meetingRoomList}">
+							<th:block th:if="${room.meetingRoomStatus == 'Y'}">
+								<option th:value="${room.meetingRoomNo}" th:text="${room.meetingRoomName}">회의실명</option>
+							</th:block>
+							<th:block th:if="${room.meetingRoomStatus == 'N'}">
+								<option th:value="${room.meetingRoomNo}" th:text="${room.meetingRoomName}">회의실명</option>
+							</th:block>
+							<th:block th:if="${room.meetingRoomStatus == 'D'}">
+								<option th:value="${room.meetingRoomNo}" th:text="${room.meetingRoomName}">회의실명</option>
+							</th:block>
+						</th:block>
+						<!-- 필요한 회의실 옵션 추가 -->
+					</select>
+				</div>
+				<!-- 날짜별 조회 -->
+				<div class="d-flex align-items-center gap-2">
+					<label for="dateSelect" class="form-label mb-0 fw-bold">날짜 선택</label> 
+					<input type="date" id="dateSelect" class="form-control filter_btn" style="width: 200px; height: 36px;">
+				</div>
+			</div>
+			<input type="hidden" id="loginMemberNo" th:value="${#authentication.principal.member.memberNo}">
+			<table class="table align-middle text-center" id="myReservationTable">
+				<thead class="table-light">
+					<tr>
+						<th>회의실</th>
+						<th>회의명</th>
+						<th>사용자</th>
+						<th>날짜</th>
+						<th>시간</th> 
+						<th>예약 상태</th>
+					</tr>
+				</thead>
+				<tbody id="reservation-body">
+				    <tr th:each="list : ${reservationList}"
+				        th:if="${#lists.contains(list.member_no, #authentication.principal.member.memberNo)}"
+				        class="reservation-row">
+				        <td th:text="${list.meeting_room_name}">회의실</td>
+				        <td th:text="${list.meeting_title}">회의명</td>
+				        <td th:text="${#strings.listJoin(list.member_name, ', ')}">회의인원</td>
+				        <td th:text="${list.meeting_date}">날짜</td>
+				        <td th:text="${#strings.listJoin(list.meeting_start_time, ', ')}">회의시작 시간</td>
+				        <td>
+				            <!-- 취소 가능: 상태 Y + 시간이 안 지남 -->
+					        <button type="button" class="btn bg-danger-subtle text-danger px-3 py-1 cancel_btn"
+					            th:if="${list.reservation_status == 'Y' and 
+					                    T(java.time.LocalDateTime).of(list.meeting_date, list.meeting_start_time[0])
+					                        .isAfter(T(java.time.LocalDateTime).now())}"
+					            th:attr="data-id=${list.reservation_no}">예약 취소</button>
+					
+					        <!-- 취소 불가: 상태 Y + 시간이 지남 -->
+					        <button type="button" class="btn btn-rounded btn-light px-3 py-1"
+					            th:if="${list.reservation_status == 'Y' and 
+					                    T(java.time.LocalDateTime).of(list.meeting_date, list.meeting_start_time[0])
+					                        .isBefore(T(java.time.LocalDateTime).now())}"
+					            disabled>취소 불가</button>
+					
+					        <!-- 취소 완료 -->
+					        <button type="button" class="btn bg-danger-subtle text-danger px-3 py-1"
+					            th:if="${list.reservation_status == 'N'}"
+					            disabled>취소 완료</button>
+				        </td>
+				    </tr>
+				
+				    <!-- 아무 회의도 없을 경우 -->
+				    <tr id="no-reservation-row">
+				        <td colspan="6" class="text-center">회의실 예약 목록이 없습니다.</td>
+				    </tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
 	<script>
 		const form = document.meetingRoom_title_form;
 		const input = document.getElementById("meetingRoomTitle");
@@ -301,10 +384,6 @@
 					    // 날짜랑 회의실 정보 불러옴
 					    const selectedDate = document.getElementById("meetingDate").value;
 					    const meetingRoomNo = document.getElementById("meetingRoomNo").value;
-					    
-					    // 날짜에 예약된 시간들 조회 
-					    
-					    
 					    
 					    // 시간 버튼 표시
 					    let timeButtons = 
@@ -510,6 +589,126 @@
 		    selectedUsersInputs.innerHTML = "";
 		});
 			
+		
+		// 내 회의실 예약 내역 조회 필터
+		document.addEventListener("DOMContentLoaded", function () {
+		    const filters = document.getElementsByClassName("filter_btn");
+	
+		    for (let i = 0; i < filters.length; i++) {
+		      filters[i].addEventListener("change", function () {
+		    	const memberNo = document.getElementById("loginMemberNo").value;
+		        const roomNo = document.getElementById("roomSelect").value;
+		        const date = document.getElementById("dateSelect").value;
+		        console.log(roomNo, date, memberNo);
+		        
+		        fetch("/selectFilter", {
+		        	  method: 'POST',
+		        	  headers: {
+		        		  'Content-Type':'application/json',
+		        	    [document.querySelector('meta[name="_csrf_header"]').content]:
+		        	      document.querySelector('meta[name="_csrf"]').content
+		        	  },
+		        	  body: JSON.stringify({
+							roomNo:roomNo,
+							date:date,
+							memberNo:memberNo
+						})
+		        	})
+		        	  .then(response => response.json())
+		        	  .then(data => {
+		        		  const tbody = document.querySelector("#myReservationTable tbody");
+		                  tbody.innerHTML = ""; // ✅ 초기화는 여기서!
+
+		                  if (data.length === 0) {
+		                    const emptyRow = document.createElement("tr");
+		                    emptyRow.innerHTML = `
+		                      <td colspan="6" class="text-center">검색 결과가 없습니다.</td>
+		                    `;
+		                    tbody.appendChild(emptyRow);
+		                    return;
+		                  }
+
+		                  data.forEach(list => {
+		                    const tr = document.createElement("tr");
+
+		                    tr.innerHTML = `
+		                    	  <td>${list.meeting_room_name}</td>
+		                    	  <td>${list.meeting_title}</td>
+		                    	  <td>${Array.isArray(list.member_name) ? list.member_name.join(", ") : ''}</td>
+		                    	  <td>${list.meeting_date}</td>
+		                    	  <td>${Array.isArray(list.meeting_start_time) 
+		                    	        ? list.meeting_start_time.map(time => time.slice(0, 5)).join(", ") 
+		                    	        : ''}</td>
+		                    	  <td>
+		                    	    ${list.reservation_status === 'Y'
+		                    	      ? isFuture(list.meeting_date, list.meeting_start_time[0])
+		                    	        ? `<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1 cancel_btn" data-id="${list.reservation_no}">예약 취소</button>`
+		                    	        : `<button type="button" class="btn btn-rounded btn-light px-3 py-1" disabled>취소 불가</button>`
+		                    	      : `<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1" disabled>취소 완료</button>`
+		                    	    }
+		                    	  </td>
+		                    	`;
+
+
+		                    tbody.appendChild(tr);
+		        		  })
+		        	  });
+		      });
+		    }
+		  });
+		
+		// 회의실 예약 내역 목록 개수 
+		document.addEventListener("DOMContentLoaded", function () {
+	        const reservationRows = document.querySelectorAll(".reservation-row");
+	        const noDataRow = document.getElementById("no-reservation-row");
+	
+	        if (reservationRows.length > 0) {
+	            noDataRow.style.display = "none";
+	        } else {
+	            noDataRow.style.display = "";
+	        }
+	    });
+		
+		// 취소 시간 비교 함수
+		function isFuture(dateStr, timeStr) {
+		  const now = new Date();
+		  const dateTime = new Date(`${dateStr}T${timeStr}`);
+		  return dateTime > now;
+		}
+
+	
+		// 회의실 예약 취소 cancel_btn
+		document.addEventListener("DOMContentLoaded", function () {
+		    const tbody = document.querySelector("#myReservationTable tbody");
+		
+		    tbody.addEventListener("click", function (e) {
+		        const btn = e.target.closest(".cancel_btn");
+		        if (btn) {
+		            const reservationNo = btn.getAttribute("data-id");
+		
+		            if (confirm("회의실 예약을 취소하시겠습니까?")) {
+		                fetch('/delete/' + reservationNo, {
+		                    method: 'post',
+		                    headers: {
+		                        'header': document.querySelector('meta[name="_csrf_header"]').content,
+		                        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		                    },
+		                })
+		                .then(response => response.json())
+		                .then(data => {
+		                    alert(data.res_msg);
+		                    if (data.res_code == 200) {
+		                        location.reload();
+		                    }
+		                });
+		            }
+		        }
+		    });
+		});
+
+
+
+	
 	</script>
 
 	<!-- Bootstrap Common JS Files Start -->
