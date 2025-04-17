@@ -1,6 +1,7 @@
 package com.mjc.groupware.member.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.dto.RoleDto;
+import com.mjc.groupware.member.dto.StatusDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -123,15 +125,29 @@ public class MemberController {
 	
 	@GetMapping("/admin/member")
 	public String selectMemberAll(Model model) {
+		List<Member> memberList = service.selectMemberAll();
 		List<Dept> deptList = deptService.selectDeptAll();
 		List<Pos> posList = posService.selectPosAll();
 		List<Role> roleList = roleService.selectRoleAll();
-		List<Member> memberList = service.selectMemberAll();
 		
-		model.addAttribute("deptList", deptList);
+		List<StatusDto> statusList = Arrays.asList(
+		        new StatusDto(100, "재직"),
+		        new StatusDto(101, "수습"),
+		        new StatusDto(102, "인턴"),
+		        new StatusDto(200, "전출"),
+		        new StatusDto(300, "휴직"),
+		        new StatusDto(301, "대기"),
+		        new StatusDto(400, "해고"),
+		        new StatusDto(401, "은퇴"),
+		        new StatusDto(402, "퇴사"),
+		        new StatusDto(900, "사망")
+		    );
+		
 		model.addAttribute("memberList", memberList);
+		model.addAttribute("deptList", deptList);
 		model.addAttribute("posList", posList);
 		model.addAttribute("roleList", roleList);
+		model.addAttribute("statusList", statusList);
 		
 		return "member/list";
 	}

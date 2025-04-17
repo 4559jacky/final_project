@@ -175,36 +175,56 @@ layout:decorate="~{/include/layout}">
 							                    </tr>
 							                  </thead>
 							                  <tbody id="member-tbody">
-						                		<tr th:if="${memberList != null}">
+						                		<tr th:if="${memberList != null}" th:each="member : ${memberList}">
 													<td>
-														<input type="checkbox" class="form-check-input member-checkbox me-2" data-member-no="${memberDto.member_no}">
+														<input type="checkbox" class="form-check-input member-checkbox me-2" data-member-no="${member.memberNo}">
 													</td>
 													<td>
 														<div class="d-flex align-items-center">
 															<div class="ms-3">
-																<h6 class="fs-4 fw-semibold mb-0 member-name">이하나</h6>
-																<span class="fw-normal">#50000</span>
+																<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+																<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
 															</div>
 														</div>
 													</td>
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="dept_no">
-															
+															<option value="">-</option>
+															<option th:each="dept : ${deptList}"
+																	th:value="${dept.deptNo}"
+																	th:text="${dept.deptName}"
+																	th:selected="${dept.deptNo == member.dept?.deptNo}">
+															</option>
 														</select>
 													</td>
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="pos_no">
-															
+															<option value="">-</option>
+															<option th:each="pos : ${posList}"
+																	th:value="${pos.posNo}"
+																	th:text="${pos.posName}"
+																	th:selected="${pos.posNo == member.pos?.posNo}">
+															</option>
 														</select>
 													</td>
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="role_no">
-															
+															<option value="">-</option>
+															<option th:each="role : ${roleList}"
+																	th:value="${role.roleNo}"
+																	th:text="${role.roleNickname}"
+																	th:selected="${role.roleNo == member.role?.roleNo}">
+															</option>
 														</select>
 													</td>
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="status">
-															
+															<option value="">-</option>
+															<option th:each="status : ${statusList}"
+																	th:value="${status.status_no}"
+																	th:text="${status.status_name}"
+																	th:selected="${status.status_no == member.status}">
+															</option>
 														</select>
 													</td>
 											  	</tr>
