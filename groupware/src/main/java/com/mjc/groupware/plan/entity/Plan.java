@@ -56,10 +56,10 @@ public class Plan {
     private LocalDateTime modDate;
 	
 	@Column(name = "start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 	
 	@Column(name = "end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 	
 	@ManyToOne
 	@JoinColumn(name = "reg_member_no")
