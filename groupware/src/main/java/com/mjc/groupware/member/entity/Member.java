@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.pos.entity.Pos;
 
@@ -99,6 +100,7 @@ public class Member {
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
 	
+
 	@OneToMany(mappedBy="member")
 	private List<MemberAttach> memberAttachs;
 	
@@ -120,6 +122,7 @@ public class Member {
 			this.memberAddr2 = addr2;
 			this.memberAddr3 = addr3;
 	}
+
 	
 	public void updateMember(Dept dept, Pos pos, Role role, int status) {
 		this.dept = dept;
