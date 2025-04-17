@@ -57,10 +57,10 @@ public class MeetingRoomService {
 
 	    // 예약들을 그룹화
 	    for (MeetingRoomReservation res : reservations) {
-	    	// key = 회의실 번호_날짜_제목
-	        String key = res.getMeetingRoomNo().getMeetingRoomNo() + "_" +
-	                     res.getMeetingDate() + "_" +
-	                     res.getMeetingTitle();
+	    	// key = 회의실 번호_날짜_시간
+	    	String key = res.getMeetingRoomNo().getMeetingRoomNo() + "_" +
+	                res.getMeetingDate() + "_" +
+	                res.getMeetingStartTime(); 
 	        // 해당 key로 그룹이 없다면 새로 만들고 현재 예약 추가 
 	        groupedMap.computeIfAbsent(key, k -> new ArrayList<>()).add(res);
 	    }
