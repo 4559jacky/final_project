@@ -89,7 +89,7 @@ public class PlanDto {
 		event.put("id", plan_no);
 		event.put("title", plan_title);
 		event.put("start", start_date.toString());
-		event.put("end", end_date.plusDays(1).toString());
+		event.put("end", end_date.toString());
 		event.put("color", getColorByType(plan_type));
 
 		Map<String, Object> extendedProps = new HashMap<>();

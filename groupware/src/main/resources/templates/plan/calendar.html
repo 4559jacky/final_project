@@ -122,14 +122,14 @@ layout:decorate="~{/include/layout}">
 
                     <div class="col-md-12 mt-6">
                       <div>
-                        <label class="form-label">시작일</label>
+                        <label class="form-label">시작일시</label>
                         <input id="event-start-date" type="datetime-local" class="form-control" name="start_date"/>
                       </div>
                     </div>
 
                     <div class="col-md-12 mt-6">
                       <div>
-                        <label class="form-label">종료일</label>
+                        <label class="form-label">종료일시</label>
                         <input id="event-end-date" type="datetime-local" class="form-control" name="end_date"/>
                       </div>
                     </div>
@@ -203,9 +203,7 @@ layout:decorate="~{/include/layout}">
 
           </script>
           <!-- 상세 MODAL -->
-          <form name="detail_form" th:action="@{/plan/update/__planNo__}" method="post">
-  			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
+          <form name="detail_form">
 			<div class="modal fade" id="eventModaldetail" tabindex="-1">
 			  <div class="modal-dialog modal-dialog-centered">
 			    <div class="modal-content p-4">
@@ -234,7 +232,7 @@ layout:decorate="~{/include/layout}">
 			          </div>
 			          <div class="col">
 			            <label class="form-label">수정일</label>
-			            <input type="text" class="form-control" id="detail-event-modified-date" readonly style="background-color: #f8f9fa;"/>
+			            <input type="text" class="form-control" id="detail-event-modified-date" name="updatedAt" readonly style="background-color: #f8f9fa;"/>
 			          </div>
 			        </div>
 			        
