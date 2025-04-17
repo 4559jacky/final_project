@@ -209,7 +209,16 @@ layout:decorate="~{/include/layout}">
 								     	<!-- 근속상태 -->
 								    	<div class="flex-grow-1">
 								      		<label for="employment_status" class="form-label">근속상태</label>
-								      		<input type="text" class="form-control" id="employment_status" name="employment_status" value="정직원" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 100}" value="재직" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 101}" value="수습" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 102}" value="인턴" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 200}" value="전출" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 300}" value="휴직" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 301}" value="대기" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 400}" value="해고" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 401}" value="은퇴" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 402}" value="퇴사" disabled />
+								      		<input type="text" class="form-control" id="employment_status" name="employment_status" th:if="${member.status == 900}" value="사망" disabled />
 								    	</div>
 								    	<!-- 입사일 -->
 								    	<div class="flex-grow-1">
