@@ -139,7 +139,7 @@
 						<tr th:if="${!#lists.isEmpty(approvalList)}"
 							th:each="approval, approvalStatus : ${approvalList}"
 							th:attr="data-approver-no=${approval.apprNo}">
-							<td th:text="${approval.apprNo}">번호</td>
+							<td th:text="${approvalList.size() - approvalStatus.index}">번호</td>
 							<td th:text="${approval.apprTitle}">제목</td>
 							<td th:text="${approval.member.memberName}">작성자</td>
 							<th:block th:if="${approval.apprStatus == 'A'}">
