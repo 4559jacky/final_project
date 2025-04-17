@@ -1,6 +1,5 @@
 package com.mjc.groupware.board.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mjc.groupware.board.dto.BoardAttachDto;
 import com.mjc.groupware.board.dto.BoardDto;
 import com.mjc.groupware.board.dto.PageDto;
 import com.mjc.groupware.board.dto.SearchDto;
@@ -29,7 +27,6 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
-import com.mjc.groupware.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,32 +50,24 @@ public class BoardController {
     @ResponseBody
     public Map<String, String> createBoard(BoardDto dto) {
         Map<String, String> resultMap = new HashMap<>();
-        	resultMap.put("res_code", "500");
-        	resultMap.put("res_msg", "게시글 등록중 오류가 발생하였습니다.");
-        	
-        	// 게시글 이미지 파일 리스트 초기화
-        	List<BoardAttachDto> boardAttachList = new ArrayList<>();
-        	
-        	// 파일이 존재하지 않으면 빈 리스트로 처리
-        	List<MultipartFile> files = dto.getFiles() == null ? new ArrayList<>() : dto.getFiles();
-        	
-        	for(MultipartFile mf : dto.getFiles()) {
-    			BoardAttachDto boardattachDto = boardAttachService.uploadFile(mf);
-    			if(boardattachDto != null) boardAttachList.add(boardattachDto);
-    		}
-        	
-        	int result = boardService.createBoard(dto);
-        	
-        	if(result > 0) {
-        		resultMap.put("res_code", "200");
-        		resultMap.put("res_msg", "게시글이 등록되었습니다.");
-        	}
-        	return resultMap;
-        	
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
+        
+        // 게시글 등록
+        Board board = boardService.createBoard(dto); // 게시글 등록
+        
+        if (board == null) {
+            return resultMap; // 실패 메시지 그대로 반환
+        }
+
+        // 게시글과 첨부파일 관련 데이터를 처리한 후 성공 메시지 반환
+        resultMap.put("res_code", "200");
+        resultMap.put("res_msg", "게시글이 등록되었습니다.");
+        
+        return resultMap;
     }
     
-    
- // 게시글 목록 조회 (API)
+    // 게시글 목록 조회 (API)
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
        
@@ -168,8 +157,6 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
-    
-    
 
     // 게시글 삭제 처리
     @PostMapping("/board/delete/{boardNo}")
@@ -190,5 +177,4 @@ public class BoardController {
         return resultMap;
     }
     
-
 }
