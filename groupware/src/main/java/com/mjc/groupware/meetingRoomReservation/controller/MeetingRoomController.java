@@ -54,7 +54,9 @@ public class MeetingRoomController {
 	    List<Map<String, Object>> events = new ArrayList<>();
 
 	    for (MeetingRoomReservationDto dto : reservations) {
-	        events.addAll(dto.toFullCalendarEvents());
+	    	  if (!"N".equals(dto.getReservation_status())) {
+	              events.addAll(dto.toFullCalendarEvents());
+	          }
 	    }
 
 	    return events;
@@ -88,6 +90,90 @@ public class MeetingRoomController {
 		return resultMap;
 	}
 	
+	// 사용자 - 회의실 예약 정보 조회 
+	@PostMapping("/reservationInfo")
+	@ResponseBody
+	public List<MeetingRoomReservationDto> selectReservationById(@RequestBody Map<String,String> param){
+		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
+		
+		String roomNo = param.get("meetingRoomNo");
+		String date = param.get("selectedDate");
+		
+		if(roomNo != null && !roomNo.isEmpty()) {
+			dto.setMeeting_room_no(Long.parseLong(roomNo));
+		}
+		if(date != null && !date.isEmpty()) {
+			dto.setMeeting_date(LocalDate.parse(date));		
+		}
+
+		List<MeetingRoomReservationDto> list = service.selectMeetingRoomReservationAll(dto);
+		List<MeetingRoomReservationDto> result = new ArrayList<>();
+
+		  for (MeetingRoomReservationDto res : list) {
+		        // ✅ 날짜와 회의실 번호가 모두 일치할 때만 추가
+		        if (res.getMeeting_room_no().equals(dto.getMeeting_room_no())
+		                && res.getMeeting_date().equals(dto.getMeeting_date())
+		                && res.getReservation_status().equals("Y")) {
+		            result.add(res);
+		        }
+		    }
+			return result;
+		
+	}
+	
+	// 사용자 - 회의실 예약 취소
+	@PostMapping("/delete/{id}")
+	@ResponseBody
+	public Map<String,String> deleteReservation(@PathVariable("id") Long reservationNo) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "회의실 예약 취소 중 오류가 발생하였습니다.");
+		
+		int result = service.deleteReservation(reservationNo);
+		
+		if(result>0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "회의실 취소가 완료되었습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	// 사용자 - 내 회의실 예약 내역 필터 
+	@PostMapping("/selectFilter")
+	@ResponseBody
+	public List<MeetingRoomReservationDto> SelectFilter(@RequestBody Map<String,String> param){
+		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
+		
+		String roomNo = param.get("roomNo");
+		String date = param.get("date");
+		String memberNo = param.get("memberNo");
+		
+		if(roomNo != null && !roomNo.isEmpty()) {
+			dto.setMeeting_room_no(Long.parseLong(roomNo));
+		}
+		if(date != null && !date.isEmpty()) {
+			dto.setMeeting_date(LocalDate.parse(date));		
+		}
+
+		List<MeetingRoomReservationDto> list = service.selectMeetingRoomReservationAll(dto);
+		 List<MeetingRoomReservationDto> result = new ArrayList<>();
+
+		    // ✅ for문 돌면서 member_no에 내가 있는지만 확인해서 추가
+		    if (memberNo != null && !memberNo.isEmpty()) {
+		        Long myMemberNo = Long.parseLong(memberNo);
+
+		        for (MeetingRoomReservationDto res : list) {
+		            List<Long> memberList = res.getMember_no();
+		            if (memberList != null && memberList.contains(myMemberNo)) {
+		                result.add(res);
+		            }
+		        }
+		    
+		    }
+			return result;
+		
+	}
 	
 	//////////////////////////////////////////////////////////////////
 	

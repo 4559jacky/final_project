@@ -34,7 +34,6 @@ public class BoardDto {
     
     // 이미지 파일 관련 코드
     private List<Long> deleteFiles;
-    private List<MultipartFile> files = new ArrayList<>();
     
     public Board toEntity() {
     	return Board.builder()

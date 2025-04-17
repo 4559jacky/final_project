@@ -112,37 +112,46 @@
 							<th>제목</th>
 							<th>작성자</th>
 							<th>상태</th>
+							<th>관련</th>
 							<th>작성일</th>
 							<th>양식 종류</th>
 						</tr>
 					</thead>
 					<!-- 테이블 바디 -->
 					<tbody>
-						<tr th:if="${#lists.isEmpty(approvalList)}">
-							<td colspan="6">받은 결재 요청이 없습니다.</td>
+						<tr th:if="${#lists.isEmpty(approvalVoList)}">
+							<td colspan="7">받은 결재 요청이 없습니다.</td>
 						</tr>
-						<tr th:if="${!#lists.isEmpty(approvalList)}"
-							th:each="approval, approvalStatus : ${approvalList}"
-							th:attr="data-approver-no=${approval.apprNo}">
-							<td th:text="${approval.apprNo}">번호</td>
-							<td th:text="${approval.apprTitle}">제목</td>
-							<td th:text="${approval.member.memberName}">작성자</td>
-							<th:block th:if="${approval.apprStatus == 'A'}">
+						<tr th:if="${!#lists.isEmpty(approvalVoList)}"
+							th:each="approvalVo, approvalStatus : ${approvalVoList}"
+							th:attr="data-approver-no=${approvalVo.appr_no}">
+							<td th:text="${approvalVoList.size() - approvalStatus.index}">번호</td>
+							<td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td>
+							<td th:text="${approvalVo.member_name}">작성자</td>
+							<th:block th:if="${approvalVo.appr_status == 'A'}">
 								<td><span class="badge bg-warning-subtle text-dark">합의 대기중</span></td>
 							</th:block>
-							<th:block th:if="${approval.apprStatus == 'D'}">
+							<th:block th:if="${approvalVo.appr_status == 'D'}">
 								<td><span class="badge bg-warning-subtle text-dark">결재 대기중</span></td>
 							</th:block>
-							<th:block th:if="${approval.apprStatus == 'C'}">
+							<th:block th:if="${approvalVo.appr_status == 'C'}">
 								<td><span class="badge bg-warning-subtle text-dark">승인</span></td>
 							</th:block>
-							<th:block th:if="${approval.apprStatus == 'R'}">
+							<th:block th:if="${approvalVo.appr_status == 'R'}">
 								<td><span class="badge bg-warning-subtle text-dark">반려</span></td>
 							</th:block>
-							<td
-							
-								th:text="${#temporals.format(approval.apprReqDate,'yyyy-MM-dd HH:mm')}">요청일</td>
-							<td th:text="${approval.approvalForm.approvalFormName}">양식
+							<!-- 결재 관련자 종류 구분 -->
+							<th:block th:if="${approvalVo.relationship == 'P'}">
+								<td><span class="badge bg-warning-subtle text-dark">결재자</span></td>
+							</th:block>
+							<th:block th:if="${approvalVo.relationship == 'A'}">
+								<td><span class="badge bg-warning-subtle text-dark">합의자</span></td>
+							</th:block>
+							<th:block th:if="${approvalVo.relationship == 'R'}">
+								<td><span class="badge bg-warning-subtle text-dark">참조자</span></td>
+							</th:block>
+							<td th:text="${#temporals.format(approvalVo.appr_req_date,'yyyy-MM-dd HH:mm')}">요청일</td>
+							<td th:text="${approvalVo.approval_form_name}">양식
 								종류</td>
 						</tr>
 					</tbody>

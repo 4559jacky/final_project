@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mjc.groupware.meetingRoomReservation.entity.MeetingRoomReservation;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -57,5 +59,12 @@ public class MeetingRoomReservationDto {
 
 	    return events;
 	}
+	
+	
+	/*
+	 * public MeetingRoomReservationDto toDto(MeetingRoomReservation reservation) {
+	 * return MeetingRoomReservationDto.builder()
+	 * .reservation_no(reservation.getReservationNo()) .build(); }
+	 */
 
 }
