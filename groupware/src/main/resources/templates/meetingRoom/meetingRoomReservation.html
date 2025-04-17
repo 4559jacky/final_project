@@ -387,8 +387,7 @@
 					    const selectedDate = document.getElementById("selectDate").value;
 					    const meetingRoomNo = document.getElementById("roomNo").value;
 					    
-					    // 해당 회의실 예약 내역 조회
-					    
+					    // 해당 회의실 예약 내역 조회  
 						fetch("/reservationInfo", {
 						    	  method: 'POST',
 						    	  headers: {
@@ -422,17 +421,28 @@
 							    }
 							}
 
+	    
+						// 현재 날짜와 시간 체크
+						   const now = new Date();
+						   const todayStr = now.toISOString().slice(0, 10); // yyyy-MM-dd
+						   const currentHour = now.getHours();
 
-						    // 버튼 만들기
-						    let timeButtons = "";
-						    for (let i = 0; i < timeList.length; i++) {
-						        const time = timeList[i];
-						        if (reservedTimeList.includes(time)) {
-						            timeButtons += `<button type="button" class="btn btn-rounded btn-light" disabled>${time}</button>`;
-						        } else {
-						            timeButtons += `<button type="button" class="btn bg-primary-subtle text-primary" data-time="${time}">${time}</button>`;
-						        }
-						    }
+						   // 버튼 만들기 (예약된 시간 + 현재 시간 이전이면 비활성화)
+						   let timeButtons = "";
+						   for (let i = 0; i < timeList.length; i++) {
+						       const time = timeList[i];
+						       const hour = parseInt(time.split(":")[0]);
+
+						       const isPastTime = selectedDate === todayStr && hour <= currentHour;
+						       const isReserved = reservedTimeList.includes(time);
+
+						       if (isPastTime || isReserved) {
+						           timeButtons += `<button type="button" class="btn btn-rounded btn-light" disabled>${time}</button>`;
+						       } else {
+						           timeButtons += `<button type="button" class="btn bg-primary-subtle text-primary" data-time="${time}">${time}</button>`;
+						       }
+						   }
+
 
 						    timeContainer.innerHTML = timeButtons;
 
