@@ -7,10 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.mjc.groupware.board.entity.Board;
-import com.mjc.groupware.member.entity.Member;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface BoardRepository extends JpaRepository<Board, Long> {
+import com.mjc.groupware.board.entity.Board;
+
+public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecificationExecutor<Board>{
 	Optional<Board> findByBoardNo(Long boardNo);  // board_no 필드 기준
 	 // 회원 번호와 게시판 상태(TEMP)로 게시글을 조회하는 쿼리 메소드
     List<Board> findByMemberMemberNoAndBoardStatus(Long memberNo, String boardStatus);

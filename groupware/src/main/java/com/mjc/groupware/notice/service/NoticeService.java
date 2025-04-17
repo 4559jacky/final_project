@@ -1,9 +1,12 @@
 package com.mjc.groupware.notice.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.member.entity.Member;
@@ -11,6 +14,7 @@ import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.notice.dto.NoticeDto;
 import com.mjc.groupware.notice.entity.Notice;
 import com.mjc.groupware.notice.repository.NoticeRepository;
+import com.mjc.groupware.notice.specification.NoticeSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,13 +45,18 @@ public class NoticeService {
     }
 
     // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능
-    public List<Notice> searchNotice(String keyword, String sort) {
+    public Page<Notice> searchNotice(String keyword, String sort, int page) {
         Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
     	Sort sortObj = Sort.by(direction, "regDate");
+    	Pageable pageable = PageRequest.of(page, 10, sortObj);
     	if (keyword == null || keyword.isBlank()) {
-            return repository.findAll(sortObj);
+            return repository.findAll(pageable);
         } else {
-            return repository.findByNoticeTitleContainingIgnoreCaseOrNoticeContentContainingIgnoreCase(keyword, keyword, sortObj);
+            return repository.findAll(
+            		Specification.where(
+            				NoticeSpecification.noticeTitleContains(keyword)
+            				.or(NoticeSpecification.noticeContentContains(keyword))
+            			), pageable);
         }
     }
     

@@ -90,6 +90,37 @@ public class MeetingRoomController {
 		return resultMap;
 	}
 	
+	// 사용자 - 회의실 예약 정보 조회 
+	@PostMapping("/reservationInfo")
+	@ResponseBody
+	public List<MeetingRoomReservationDto> selectReservationById(@RequestBody Map<String,String> param){
+		MeetingRoomReservationDto dto = new MeetingRoomReservationDto();
+		
+		String roomNo = param.get("meetingRoomNo");
+		String date = param.get("selectedDate");
+		
+		if(roomNo != null && !roomNo.isEmpty()) {
+			dto.setMeeting_room_no(Long.parseLong(roomNo));
+		}
+		if(date != null && !date.isEmpty()) {
+			dto.setMeeting_date(LocalDate.parse(date));		
+		}
+
+		List<MeetingRoomReservationDto> list = service.selectMeetingRoomReservationAll(dto);
+		List<MeetingRoomReservationDto> result = new ArrayList<>();
+
+		  for (MeetingRoomReservationDto res : list) {
+		        // ✅ 날짜와 회의실 번호가 모두 일치할 때만 추가
+		        if (res.getMeeting_room_no().equals(dto.getMeeting_room_no())
+		                && res.getMeeting_date().equals(dto.getMeeting_date())
+		                && res.getReservation_status().equals("Y")) {
+		            result.add(res);
+		        }
+		    }
+			return result;
+		
+	}
+	
 	// 사용자 - 회의실 예약 취소
 	@PostMapping("/delete/{id}")
 	@ResponseBody
