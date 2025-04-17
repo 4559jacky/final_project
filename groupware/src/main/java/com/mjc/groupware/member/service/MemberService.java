@@ -99,7 +99,7 @@ public class MemberService {
 	public void transferMembersOfDept(Long fromDeptNo, Long toDeptNo) {
 		// 삭제인 경우(get_status == 3 인 경우 - 해당 부서의 멤버 구성원을 선택한 부서로 이관시켜주는 작업
 		List<Member> members = repository.findAllByDept_DeptNo(fromDeptNo);
-			
+		
 		Dept transferDept = null;
 		if (toDeptNo != null) {
 			transferDept = deptRepository.findById(toDeptNo)
@@ -180,11 +180,11 @@ public class MemberService {
 			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 			
 			target.updateMember(
-					Dept.builder().deptNo(dto.getDept_no()).build(),
-					Pos.builder().posNo(dto.getPos_no()).build(),
-					Role.builder().roleNo(dto.getRole_no()).build(),
-					dto.getStatus()
-					);
+				dto.getDept_no() != null ? Dept.builder().deptNo(dto.getDept_no()).build() : null,
+				dto.getPos_no() != null ? Pos.builder().posNo(dto.getPos_no()).build() : null,
+				Role.builder().roleNo(dto.getRole_no()).build(),
+				dto.getStatus()
+			);
 			
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException(e.getMessage());

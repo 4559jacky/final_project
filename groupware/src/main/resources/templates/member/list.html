@@ -130,12 +130,12 @@ layout:decorate="~{/include/layout}">
                    		<div class="col-lg-9 d-flex align-items-stretch" id="none_member_div">
                     		<div class="card w-100 border position-relative overflow-hidden">
                         		<div class="card-body p-4">
-                        			<form name="update_members_form">
+                        			<form name="update_members_form" action="/admin/member" method="get">
                         				<div class="d-flex justify-content-between align-items-center mb-3">
 										  
 										  <div class="d-flex align-items-center">
 										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
-										    
+											
 										    <div class="input-group">
 										      <th:block th:if="${searchText != null}">
 											  	<input type="text" id="search_text" name="search_text" th:value="${searchText}" class="form-control form-control-sm" placeholder="사원 이름 검색" />
@@ -214,7 +214,6 @@ layout:decorate="~{/include/layout}">
 													</td>
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="role_no">
-															<option value="">-</option>
 															<option th:each="role : ${roleList}"
 																	th:value="${role.roleNo}"
 																	th:text="${role.roleNickname}"
@@ -224,7 +223,6 @@ layout:decorate="~{/include/layout}">
 													</td>
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="status">
-															<option value="">-</option>
 															<option th:each="status : ${statusList}"
 																	th:value="${status.status_no}"
 																	th:text="${status.status_name}"
@@ -338,7 +336,7 @@ layout:decorate="~{/include/layout}">
 								const selected = String(pos.pos_no) === String(memberDto.pos_no) ? 'selected' : '';
 								posOptions += `<option value="${pos.pos_no}" ${selected}>${pos.pos_name}</option>`;
 							});
-
+							
 							let roleOptions = '';
 							roleListAll.forEach(role => {
 								const selected = role.role_no === memberDto.role_no ? 'selected' : '';
@@ -397,15 +395,6 @@ layout:decorate="~{/include/layout}">
 								</td>
 							`;
 							
-							const btnTr = document.createElement('tr');
-							btnTr.innerHTML = `
-							  <td colspan="7" class="text-end">
-							    <button type="button" id="bulkUpdateBtn" class="btn btn-primary">
-							      선택 항목 일괄 수정
-							    </button>
-							  </td>
-							`;
-							
 							tbody.appendChild(tr);
 						});
 						
@@ -416,7 +405,7 @@ layout:decorate="~{/include/layout}">
 				});
 			}
 		});
-										
+		
 		$(document).on("click", function (e) {
 			// 트리 안쪽이 아닌 다른 곳을 클릭했을 경우
 			if (!$(e.target).closest('#dept-tree').length) {
@@ -575,8 +564,6 @@ layout:decorate="~{/include/layout}">
 		    
 		    nameList.push(memberName);
 		});
-		
-		console.log(updateList);
 		
 		const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
 		

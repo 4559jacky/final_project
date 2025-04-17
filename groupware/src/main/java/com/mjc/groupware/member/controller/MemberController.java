@@ -324,6 +324,7 @@ public class MemberController {
 		
 		try {
 			for(MemberResponseDto dto : dtoList) {
+				
 				service.updateMember(dto);
 			}
 			
