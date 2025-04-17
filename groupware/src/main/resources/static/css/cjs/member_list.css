@@ -166,3 +166,8 @@ select::after {
 	color: #6c757d !important;
 }
 /* 사원 조회 테이블 css 끝 */
+
+/* 다크모드에서 placeholder 톤 다운 */
+[data-bs-theme="dark"] input::placeholder {
+  color: #aaa; /* 연한 회색으로 눈에 부담 없게 */
+}

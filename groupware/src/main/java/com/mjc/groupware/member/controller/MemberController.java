@@ -29,6 +29,7 @@ import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.dto.StatusDto;
 import com.mjc.groupware.member.entity.Member;
@@ -124,12 +125,12 @@ public class MemberController {
 	}
 	
 	@GetMapping("/admin/member")
-	public String selectMemberAll(Model model) {
-		List<Member> memberList = service.selectMemberAll();
+	public String selectMemberAll(Model model, MemberSearchDto searchDto) {
+		List<Member> memberList = service.selectMemberAll(searchDto);
 		List<Dept> deptList = deptService.selectDeptAll();
 		List<Pos> posList = posService.selectPosAll();
 		List<Role> roleList = roleService.selectRoleAll();
-		
+
 		List<StatusDto> statusList = Arrays.asList(
 		        new StatusDto(100, "재직"),
 		        new StatusDto(101, "수습"),
@@ -148,6 +149,7 @@ public class MemberController {
 		model.addAttribute("posList", posList);
 		model.addAttribute("roleList", roleList);
 		model.addAttribute("statusList", statusList);
+		model.addAttribute("searchText", searchDto.getSearch_text());
 		
 		return "member/list";
 	}

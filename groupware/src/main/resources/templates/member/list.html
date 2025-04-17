@@ -137,7 +137,12 @@ layout:decorate="~{/include/layout}">
 										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
 										    
 										    <div class="input-group">
-										      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="사원 이름 검색" />
+										      <th:block th:if="${searchText != null}">
+											  	<input type="text" id="search_text" name="search_text" th:value="${searchText}" class="form-control form-control-sm" placeholder="사원 이름 검색" />
+										      </th:block>
+										      <th:block th:if="${searchText == null}">
+										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원 이름 검색" />
+										      </th:block>
 										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
 										    </div>
 										  </div>

@@ -17,6 +17,7 @@ import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
@@ -52,6 +53,20 @@ public class MemberService {
 	
 	public List<Member> selectMemberAll() {
 		List<Member> resultList = repository.findAll();
+		
+		return resultList;
+	}
+	
+	public List<Member> selectMemberAll(MemberSearchDto searchDto) {
+		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
+
+		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
+			// 아무것도 입력하지않으면 findAll() 과 동일함
+		} else {
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));			
+		}
+
+		List<Member> resultList = repository.findAll(spec);
 		
 		return resultList;
 	}
