@@ -119,6 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Active Calender
   /*=====================*/
+  let getEvent = null;
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
 	locale:'ko',
@@ -145,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		            return response.json();
 		        })
 		        .then(data => {
-					console.log("이벤트데이터:"+data);
+					/*console.log("이벤트데이터:"+data);*/
 		            successCallback(data); // FullCalendar에 이벤트 전달
 		        })
 		        .catch(error => {
@@ -155,11 +156,13 @@ document.addEventListener("DOMContentLoaded", function () {
 	},
 
 	/*eventClick:calendarEventClick,*/
+	
 	eventClick:function(info){
-		console.log("클릭이벤트 작동 확인",info);
+		/*console.log("클릭이벤트 작동 확인",info);*/
 		
 		const eventId = info.event.id;
-		console.log("eventId체크",eventId);
+		/*console.log("eventId체크",eventId);*/
+		getEvent = info.event;
 		
 		fetch('/plan/detail/'+eventId, {
 			method:'get'
@@ -174,23 +177,29 @@ document.addEventListener("DOMContentLoaded", function () {
 			document.querySelector(".btn-update-event").dataset.id = data.plan_no;
 			
 			console.log("가져온 데이터:", data);
+			// 고정값
+			document.getElementById("detail-event-id").value = data.reg_member_no;
 			document.getElementById("detail-event-writer").value = data.member_name;
 		    document.getElementById("detail-event-department").value = data.dept_name;
-		    document.getElementById("detail-event-title").value = data.plan_title;
-		    document.getElementById("detail-event-description").value = data.plan_content;
-			/*document.getElementById("type-company").value = data.plan_type;
-			document.getElementById("type-team").value = data.plan_type;
-			document.getElementById("type-personal").value = data.plan_type;
-			document.getElementById("type-leave").value = data.plan_type;*/
-			
 			document.getElementById("detail-event-created-date").value = data.reg_date;
 			document.getElementById("detail-event-modified-date").value = data.mod_date;
+			// 수정가능값
+		    document.getElementById("detail-event-title").value = data.plan_title;
+		    document.getElementById("detail-event-description").value = data.plan_content;
 		    document.getElementById("detail-event-start-date").value = data.start_date.split('T')[0];;
 		    document.getElementById("detail-event-end-date").value = data.end_date.split('T')[0];
-		    
+			const planType = data.plan_type;
+			    if (planType === "회사") {
+			      document.getElementById("detail-type-company").checked = true;
+			    } else if (planType === "부서") {
+			      document.getElementById("detail-type-team").checked = true;
+			    } else if (planType === "개인") {
+			      document.getElementById("detail-type-personal").checked = true;
+			    } else if (planType === "휴가") {
+			      document.getElementById("detail-type-leave").checked = true;
+			    }
 		  })
 		  .catch(err => console.error("디테일 로딩 실패", err));
-
 	},
 
     select: calendarSelect,
@@ -221,30 +230,35 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Update Calender Event
   /*=====================*/
-  /*상세모달창 수정클릭시*/
+  /*상세모달창 수정버튼 클릭시 동작*/
   getModalUpdateBtnEl.addEventListener("click", function () {
-	  var getPublicID = this.dataset.fcEventPublicId;
-	  var getEvent = calendar.getEventById(getPublicID);
-	  
-	  console.log("수정버튼 클릭:", getEvent);
-
-	  var newTitle = document.getElementById("event-title").value;
-	  var newDescription = document.getElementById("event-description").value;
-	  var newStartDate = document.getElementById("event-start-date").value;
-	  var newEndDate = document.getElementById("event-end-date").value;
-	  var newCalendarType = document.querySelector('input[name="event-level"]:checked')?.value;
-	  var planId = this.dataset.id;
+	  var planId = document.getElementById("detail-event-id").value;
+	  var newTitle = document.getElementById("detail-event-title").value;
+	  var newDescription = document.getElementById("detail-event-description").value;
+	  var newStartDate = document.getElementById("detail-event-start-date").value;
+	  var newEndDate = document.getElementById("detail-event-end-date").value;
+	  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
+	  console.log("value값 확인:",newCalendarType);
 
 	  // 수정일 자동 반영
-	  var today = new Date().toISOString().split("T")[0];
-	  document.getElementById("event-modified-date").value = today;
-
+	  var now = new Date();
+	  var formattedDateTime =
+	    now.getFullYear() + "-" +
+	    String(now.getMonth() + 1).padStart(2, '0') + "-" +
+	    String(now.getDate()).padStart(2, '0') + " " +
+	    String(now.getHours()).padStart(2, '0') + ":" +
+	    String(now.getMinutes()).padStart(2, '0');
+	  document.getElementById("detail-event-modified-date").value = formattedDateTime;
+	  console.log("수정일 자동 반영:", formattedDateTime);
+	  
+	  console.log("수정할 이벤트 객체:", getEvent); // 수정 버튼 이벤트 안에서!
 	  // 풀캘린더 상의 이벤트 수정
+	  // setProp => FullCalendar의 이벤트 객체에서만 가능한 함수
 	  getEvent.setProp("title", newTitle);
 	  getEvent.setExtendedProp("description", newDescription);
 	  getEvent.setExtendedProp("calendar", newCalendarType);
-	  getEvent.setDates(newStartDate, newEndDate);
-
+	  getEvent.setDates(new Date(newStartDate),new Date(newEndDate));
+	  
 	  // 서버에 수정된 값 전달
 	    fetch("/plan/"+planId+"/update/", {
 	      method: "POST",
@@ -256,8 +270,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	        id: planId,
 	        title: newTitle,
 	        content: newDescription,
+			calendarType: newCalendarType,
 	        startDate: newStartDate,
-	        endDate: newEndDate
+	        endDate: newEndDate		
 	      })
 	    })
 	      .then(res => res.json())

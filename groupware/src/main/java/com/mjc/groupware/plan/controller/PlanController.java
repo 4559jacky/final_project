@@ -145,7 +145,7 @@ public class PlanController {
 //	}
 	@PostMapping("/plan/{id}/update")
 	@ResponseBody
-	public Map<String,String> updateTodoApi(@PathVariable("id") Long id){
+	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, PlanDto dto){
 	    System.out.println("받은 id: " + id);
 
 		Map<String,String> resultMap = new HashMap<String,String>();
