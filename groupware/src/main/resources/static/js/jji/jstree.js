@@ -69,7 +69,7 @@ $(document).ready(function() {
 	                data.forEach(member => {
 	                    const li = document.createElement("li");
 	                    li.className = "list-group-item";
-						li.innerHTML = `<label><input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} (${member.pos_name})&nbsp</label>`;
+						li.innerHTML = `<label><input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} ${member.pos_name}&nbsp</label>`;
 	                    // li.textContent = `<input type="checkbox" th:value='${member.member_no}'>${member.member_name} (${member.pos_name})`;
 	                    list.appendChild(li);
 	                });
