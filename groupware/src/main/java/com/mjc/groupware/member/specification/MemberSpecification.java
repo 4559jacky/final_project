@@ -16,4 +16,8 @@ public class MemberSpecification {
 			criteriaBuilder.like(root.get("memberName"),"%"+keyword+"%");
  	}
 	
+	public static Specification<Member> memberNoEquals(Long memberNo) {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("memberNo"), memberNo);
+	}
+	
 }

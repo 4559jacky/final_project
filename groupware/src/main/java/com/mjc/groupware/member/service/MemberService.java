@@ -66,13 +66,21 @@ public class MemberService {
 		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
 		
 		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("memberNo").ascending());
-
+		
 		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
 			// 아무것도 입력하지않으면 findAll() 과 동일함
 		} else {
-			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));			
+			
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));
+			
+			try {
+				Long memberNo = Long.parseLong(searchDto.getSearch_text());
+				spec = spec.or(MemberSpecification.memberNoEquals(memberNo));
+			} catch(Exception e) {
+				
+			}
 		}
-
+		
 		Page<Member> resultList = repository.findAll(spec, pageable);
 		
 		return resultList;
