@@ -54,14 +54,33 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Calendar Select fn.
   /*=====================*/
-  // 캘린더 일정추가
+  // 캘린더 일정추가시 시간셋팅
   var calendarSelect = function (info) {
     getModalAddBtnEl.style.display = "block";
     getModalUpdateBtnEl.style.display = "none";
     myModal.show();
-    getModalStartDateEl.value = info.startStr;
-    getModalEndDateEl.value = info.endStr;
+
+    // 시작일시: 현재 시간
+	const startDate = new Date(info.start); // 드래그한 날짜
+    const now = new Date();
+	startDate.setHours(now.getHours(), now.getMinutes(), 0, 0); // 현재 시간만 적용
+
+    // 종료일시: 드래그 끝 날짜의 오후 11:59
+    const rawEndDate = new Date(info.end);
+    rawEndDate.setDate(rawEndDate.getDate() - 1); //FullCalendar는 end를 다음 날로 넘겨서 하루뺌
+    rawEndDate.setHours(23, 59, 0, 0); // 오후 11:59로 설정
+
+    // input에 넣을 형식: YYYY-MM-DDTHH:mm
+    const formatToLocalDatetime = (date) => {
+    const offset = date.getTimezoneOffset();
+    const local = new Date(date.getTime() - offset * 60 * 1000);
+    return local.toISOString().slice(0, 16);
+    };
+
+    getModalStartDateEl.value = formatToLocalDatetime(startDate);
+    getModalEndDateEl.value = formatToLocalDatetime(rawEndDate);
   };
+
   /*=====================*/
   // Calendar AddEvent fn.
   /*=====================*/
@@ -172,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		  .then(data => {
 			new bootstrap.Modal(document.getElementById("eventModaldetail")).show();
 			
-			document.querySelector(".btn-update-event").dataset.id = data.plan_no;
+			document.querySelector("#eventModaldetail .btn-update-event").dataset.id = data.plan_no;
 			
 			console.log("가져온 데이터:", data);
 			// 고정값
