@@ -1,6 +1,7 @@
 package com.mjc.groupware.member.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,9 @@ import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.RoleDto;
+import com.mjc.groupware.member.dto.StatusDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -122,16 +125,31 @@ public class MemberController {
 	}
 	
 	@GetMapping("/admin/member")
-	public String selectMemberAll(Model model) {
+	public String selectMemberAll(Model model, MemberSearchDto searchDto) {
+		List<Member> memberList = service.selectMemberAll(searchDto);
 		List<Dept> deptList = deptService.selectDeptAll();
 		List<Pos> posList = posService.selectPosAll();
 		List<Role> roleList = roleService.selectRoleAll();
-		List<Member> memberList = service.selectMemberAll();
+
+		List<StatusDto> statusList = Arrays.asList(
+		        new StatusDto(100, "재직"),
+		        new StatusDto(101, "수습"),
+		        new StatusDto(102, "인턴"),
+		        new StatusDto(200, "전출"),
+		        new StatusDto(300, "휴직"),
+		        new StatusDto(301, "대기"),
+		        new StatusDto(400, "해고"),
+		        new StatusDto(401, "은퇴"),
+		        new StatusDto(402, "퇴사"),
+		        new StatusDto(900, "사망")
+		    );
 		
-		model.addAttribute("deptList", deptList);
 		model.addAttribute("memberList", memberList);
+		model.addAttribute("deptList", deptList);
 		model.addAttribute("posList", posList);
 		model.addAttribute("roleList", roleList);
+		model.addAttribute("statusList", statusList);
+		model.addAttribute("searchText", searchDto.getSearch_text());
 		
 		return "member/list";
 	}
@@ -150,7 +168,7 @@ public class MemberController {
         	if(deptId != null && !deptId.trim().isEmpty()) {
         		Long deptNo = Long.parseLong(deptId);
         		
-        		List<Member> memberList = service.selectMemberAllByDeptId(deptNo);
+        		List<Member> memberList = service.selectMemberAllByDeptIdByPosOrder(deptNo);
         		
         		List<MemberDto> memberDtoList = new ArrayList<>();
         		for (Member member : memberList) {
@@ -253,7 +271,67 @@ public class MemberController {
 			
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	@PostMapping("/admin/members/update")
+	@ResponseBody
+	public Map<String, String> updateMembersApi(@RequestBody List<MemberResponseDto> dtoList) {
+		// 체크박스를 통한 사원정보 다중 수정
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("List<MemberResponseDto>: {}", dtoList);
+		
+		try {
+			for(MemberResponseDto dto : dtoList) {
+				service.updateMember(dto);
+			}
 			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	@PostMapping("/admin/memberAll/update")
+	@ResponseBody
+	public Map<String, String> updateMemberAllApi(@RequestBody List<MemberResponseDto> dtoList) {
+		// 체크박스를 통한 사원정보 다중 수정
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("List<MemberResponseDto>: {}", dtoList);
+		
+		try {
+			for(MemberResponseDto dto : dtoList) {
+				service.updateMember(dto);
+			}
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
 		} catch(Exception e) {
 			resultMap.put("res_code", "500");
 			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");

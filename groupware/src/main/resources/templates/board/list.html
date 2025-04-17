@@ -34,6 +34,12 @@
                 <option value="3" th:selected="${searchDto.order_type == 3}">조회순</option>
             </select>
             
+                <!-- (선택) 검색 타입 드롭다운 추가 2025-04-16 -->
+    			<select name="search_type" class="form-select ms-2" style="width: 120px;">
+        			<option th:value="1" th:selected="${searchDto.search_type == 1}">제목</option>
+        			<option th:value="2" th:selected="${searchDto.search_type == 2}">내용</option>
+        			<option th:value="3" th:selected="${searchDto.search_type == 3}">제목+내용</option>
+    			</select>
             
             <!-- 검색창 -->
             <div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
@@ -46,7 +52,10 @@
                        placeholder="검색어를 입력하세요."
                        style="box-shadow: none; background-color: transparent;">
             </div>
-        </form>
+            
+               <!-- 검색 초기화 버튼 -->
+    		<a th:href="@{/board/list}" class="btn btn-primary">목록</a>
+		</form>
         
         <!-- 글쓰기 버튼 -->
         <div>

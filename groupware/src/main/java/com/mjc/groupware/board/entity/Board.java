@@ -45,7 +45,7 @@ public class Board {
     private int views = 0;
 
     @Column(name = "board_status", nullable = false)
-    private String boardStatus = "N"; // 삭제 되지 않는 상태
+    private String boardStatus = "Y"; // 삭제 되지 않는 상태
 
     @CreationTimestamp
     @Column(updatable=false, name = "reg_date")
