@@ -309,6 +309,35 @@ public class MemberController {
 		return resultMap;
 	}
 	
+	@PostMapping("/admin/memberAll/update")
+	@ResponseBody
+	public Map<String, String> updateMemberAllApi(@RequestBody List<MemberResponseDto> dtoList) {
+		// 체크박스를 통한 사원정보 다중 수정
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("List<MemberResponseDto>: {}", dtoList);
+		
+		try {
+			for(MemberResponseDto dto : dtoList) {
+				service.updateMember(dto);
+			}
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사원 정보 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+			resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "사원 정보 수정 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
+	}
+	
 	@GetMapping("/member/{id}/update")
 	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model) {
 		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
