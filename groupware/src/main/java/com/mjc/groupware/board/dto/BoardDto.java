@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.board.entity.Board;
+import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.member.entity.Member;
 
 import lombok.AllArgsConstructor;
@@ -32,7 +33,9 @@ public class BoardDto {
     private LocalDateTime reg_date;  
     private LocalDateTime mod_date; 
     
-    // 이미지 파일 관련 코드
+    // 파일 첨부
+    private List<BoardAttach> attachList;
+    // 삭제할 파일 ID 리스트 변수 추가
     private List<Long> deleteFiles;
     
     public Board toEntity() {

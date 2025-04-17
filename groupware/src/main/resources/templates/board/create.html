@@ -23,34 +23,38 @@
   <!-- 게시글 작성 폼 -->
   <form id="create_board_form" name="create_board_form" class="mt-4" th:action="@{/board}" th:method="post" enctype="multipart/form-data">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-  
-	<input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}">
+    <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}">
 
+    <!-- 투표 추가 버튼 -->
+    <div class="mb-3 text-end">
+      <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
+    </div>
+
+    <!-- 제목 -->
     <div class="row mb-3 align-items-center">
-      <div class="col-md-10">
+      <div class="mb-3">
         <label for="board_title" class="form-label"><strong>제목</strong></label>
-        <input type="text" class="form-control" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
-      </div>
-      <div class="col-md-2 mt-4 text-end">
-        <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
+        <input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
       </div>
     </div>
 
-    <div class="mb-3">
-      <label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
-      <input class="form-control" type="file" id="board_file" name="board_file" multiple>
-    </div>
-
+    <!-- 내용 -->
     <div class="mb-3">
       <label for="board_content" class="form-label"><strong>내용</strong></label>
-      <!-- Start Editor가 적용될 div (textarea는 숨기고 실제 내용은 Start Editor로 작성) -->
       <div id="editor" style="margin-top: 10px;"></div>
       <textarea id="board_content" name="board_content" hidden></textarea>
     </div>
-    
+    <br>
+
+    <!-- 파일 첨부 -->
+	<div class="mb-3">
+  		<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
+  		<input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
+	</div>
+
+    <!-- 버튼 -->
     <div class="d-flex justify-content-end gap-2 mt-4">
       <button type="submit" class="btn btn-primary">작성 완료</button>
-      <button type="button" class="btn btn-primary" onclick="saveTemp()">임시 저장</button>
       <button type="button" class="btn btn-primary" onclick="window.location.href='/board/list'">취소</button>
     </div>
   </form>
@@ -59,60 +63,56 @@
   <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
   <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
-<script>
-    // Start Editor 초기화
+  <script>
     const editor = new toastui.Editor({
       el: document.querySelector('#editor'),
       height: '400px',
-      initialEditType: 'wysiwyg',  // "wysiwyg"는 WYSIWYG 모드로 에디터 초기화
-      previewStyle: 'vertical'  // 미리보기 스타일 설정 (vertical: 좌우 분할)
+      initialEditType: 'wysiwyg',
+      previewStyle: 'vertical'
     });
 
-    // 게시글 작성 처리
     const form = document.create_board_form;
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-    
+
       let vali_check = false;
       let vali_text = "";
-    
-      if(!form.board_title.value){
-          vali_text += "제목을 입력하세요.";
-      } else if(!editor.getHTML()){  // Start Editor 내용 확인
-          vali_text += "내용을 입력하세요.";
+
+      if (!form.board_title.value) {
+        vali_text += "제목을 입력하세요.";
+      } else if (!editor.getHTML()) {
+        vali_text += "내용을 입력하세요.";
       } else {
-          vali_check = true;
+        vali_check = true;
       }
-    
-      if(vali_check == false){
-          alert(vali_text);
+
+      if (!vali_check) {
+        alert(vali_text);
       } else {
-          // Start Editor에서 작성한 내용을 board_content에 저장
-          const content = editor.getHTML(); // HTML로 가져오기 (getMarkdown()도 가능)
-          document.getElementById('board_content').value = content;
-          
-          const payload = new FormData(form);
-          fetch("/board", {
-              method: 'post',
-              headers: {
-                  'header': document.querySelector('meta[name="_csrf_header"]').content,
-                  'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-              },
-              body: payload
-          })
-          .then(response => response.json())
-          .then(data => {
-              alert(data.res_msg);
-              if(data.res_code == '200') {
-                  location.href = "/board/list";
-              }
-          })
-          .catch(error => {
-              console.log(error);
-          });
+        document.getElementById('board_content').value = editor.getHTML();
+
+        const payload = new FormData(form);
+        fetch("/board", {
+          method: 'post',
+          headers: {
+            'header': document.querySelector('meta[name="_csrf_header"]').content,
+            'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+          },
+          body: payload
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.res_msg);
+          if (data.res_code == '200') {
+            location.href = "/board/list";
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
       }
     });
-</script>
+  </script>
 
   <!-- Bootstrap Common JS Files Start -->
   
