@@ -5,6 +5,10 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +22,7 @@ import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
@@ -57,8 +62,10 @@ public class MemberService {
 		return resultList;
 	}
 	
-	public List<Member> selectMemberAll(MemberSearchDto searchDto) {
+	public Page<Member> selectMemberAll(MemberSearchDto searchDto, PageDto pageDto) {		
 		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
+		
+		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("memberNo").ascending());
 
 		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
 			// 아무것도 입력하지않으면 findAll() 과 동일함
@@ -66,7 +73,7 @@ public class MemberService {
 			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));			
 		}
 
-		List<Member> resultList = repository.findAll(spec);
+		Page<Member> resultList = repository.findAll(spec, pageable);
 		
 		return resultList;
 	}

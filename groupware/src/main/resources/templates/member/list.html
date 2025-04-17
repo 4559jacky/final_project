@@ -248,9 +248,9 @@ layout:decorate="~{/include/layout}">
 										          <span aria-hidden="true">&laquo;</span>
 										        </a>
 										      </li>
-										      <li class="page-item" id="page1"><a class="page-link" href="#">1</a></li>
-										      <li class="page-item" id="page2"><a class="page-link" href="#">2</a></li>
-										      <li class="page-item" id="page3"><a class="page-link" href="#">3</a></li>
+										      <li class="page-item" id="page1"><a class="page-link" th:href="@{/admin/member(nowPage=1)}">1</a></li>
+										      <li class="page-item" id="page2"><a class="page-link" th:href="@{/admin/member(nowPage=2)}">2</a></li>
+										      <li class="page-item" id="page3"><a class="page-link" th:href="@{/admin/member(nowPage=3)}">3</a></li>
 										      <li class="page-item" id="nextPage">
 										        <a class="page-link" href="#" aria-label="Next">
 										          <span aria-hidden="true">&raquo;</span>
