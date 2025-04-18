@@ -27,6 +27,7 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
+import com.mjc.groupware.board.service.BoardService.HtmlUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,24 +49,28 @@ public class BoardController {
     // 게시글 등록 처리 (API)
     @PostMapping("/board")
     @ResponseBody
-    public Map<String, String> createBoard(BoardDto dto) {
+    public Map<String, String> createBoard(BoardDto dto, @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+
+        String cleanedContent = HtmlUtils.removeHtmlTags(dto.getBoard_content());
+        dto.setBoard_content(cleanedContent);
+
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("res_code", "500");
         resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
-        
-        // 게시글 등록
-        Board board = boardService.createBoard(dto); // 게시글 등록
-        
+
+        Board board = boardService.createBoard(dto, files); // 파일 리스트 함께 전달
+
         if (board == null) {
-            return resultMap; // 실패 메시지 그대로 반환
+            return resultMap;
         }
 
-        // 게시글과 첨부파일 관련 데이터를 처리한 후 성공 메시지 반환
         resultMap.put("res_code", "200");
         resultMap.put("res_msg", "게시글이 등록되었습니다.");
-        
         return resultMap;
     }
+
+    
+    
     
     // 게시글 목록 조회 (API)
     @GetMapping("/board/list")
@@ -109,7 +114,7 @@ public class BoardController {
     
     
     
- // 게시글 수정 페이지 (수정 화면 띄우기)
+    // 게시글 수정 페이지 (수정 화면 띄우기)
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
         Optional<Board> optionalBoard = boardService.selectBoardOne(id);
@@ -134,29 +139,32 @@ public class BoardController {
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateBoard(
             @PathVariable("boardNo") Long boardNo,
-            @ModelAttribute BoardDto boardDto) {
+            @ModelAttribute BoardDto boardDto,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {  // 삭제할 파일 ID 리스트 추가
+
         try {
-            // boardDto에 boardNo 세팅
+            String cleanedContent = HtmlUtils.removeHtmlTags(boardDto.getBoard_content());
+            boardDto.setBoard_content(cleanedContent);
             boardDto.setBoard_no(boardNo);
 
-            // 게시글 수정 처리
-            boardService.updateBoard(boardDto);
+            // 삭제할 파일 리스트를 BoardDto에 세팅
+            boardDto.setDeleteFiles(deleteFiles);
 
-            // 성공 응답 JSON 반환
+            boardService.updateBoard(boardDto, files);  // 파일 리스트와 삭제 파일 리스트 함께 전달
+
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "200");
             result.put("res_msg", "수정 성공");
-
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            // 에러 응답 JSON 반환
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "500");
             result.put("res_msg", "에러: " + e.getMessage());
-
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
+    
 
     // 게시글 삭제 처리
     @PostMapping("/board/delete/{boardNo}")

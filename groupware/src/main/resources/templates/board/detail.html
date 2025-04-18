@@ -7,16 +7,32 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    
+    <!-- Start Editor CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.css" rel="stylesheet">
+        <!-- 이미지 크기 조정을 위한 추가 스타일 -->
+<style>
+    /* 이미지 크기 제한 */
+    #start-editor img {
+        max-width: 50%;  /* 이미지의 최대 너비를 50%로 설정 */
+        height: auto;     /* 비율을 유지하여 높이 자동 조정 */
+        display: block;   /* 이미지 위아래 여백 없애기 */
+        margin: 0 auto;   /* 이미지를 가운데 정렬 */
+    }
+</style>
+    
 </head>
 
 <th:block layout:fragment="content">
 
-    <!-- 게시글 제목 및 정보 -->
+    <!-- 페이지 제목 -->
     <div class="col-lg-8 col-md-6 col-12 align-self-center">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center">
                 <li class="breadcrumb-item">
-                    <a class="text-muted text-decoration-none" th:href="@{/home}"><i class="ti ti-home fs-5"></i></a>
+                    <a class="text-muted text-decoration-none" th:href="@{/home}">
+                        <i class="ti ti-home fs-5"></i>
+                    </a>
                 </li>
                 <li class="breadcrumb-item">자유게시판 상세/댓글</li>
             </ol>
@@ -24,53 +40,66 @@
         <br>
         <h2 class="mb-0 fw-bolder fs-8">자유게시판 상세</h2>
     </div>
+<br>
+
+    <!-- 전체를 감싸는 카드 스타일 박스 -->
+<div class="p-5 bg-white rounded-4 shadow-sm mb-5">
 
     <!-- 게시글 제목 -->
-    <h2 class="text-center mb-4 fw-bolder fs-4" th:text="${board.boardTitle ?: '제목 없음'}"></h2>
+    <h2 class="text-center mb-4" 
+        th:text="${board.boardTitle ?: '제목 없음'}" 
+        style="font-size: 2rem; font-weight: 900;">
+    </h2>
 
     <!-- 조회수 및 등록일 -->
-    <div class="mb-3 text-end text-muted small">
-        <i class="ti ti-eye"></i> <span th:text="${board.views}">0</span> |
+    <div class="mb-4 text-end text-muted small" 
+         style="font-size: 1.1rem;">
+        <i class="ti ti-eye"></i> 
+        <span th:text="${board.views}">0</span> |
         <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
     </div>
 
-    <!-- 게시글 내용 -->
-    <section>
-        <div class="board_detail mb-4">
-            <textarea class="form-control" rows="10" readonly
-                      style="resize: none; background-color: #f9f9f9; border: 1px solid #ddd;"
-                      th:utext="${board.boardContent ?: '내용 없음'}"></textarea>
+    <hr>
+
+    <!-- 게시글 본문 -->
+    <div class="board_detail mt-4">
+        <div id="start-editor"
+             class="form-control border-0"
+             style="background-color: #f9f9f9; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem;"
+             th:utext="${board.boardContent ?: '내용 없음'}">
         </div>
+    </div>
+    <br>
+            <th:block sec:authorize="isAuthenticated()">
+                <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="text-end">
+                    <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
+                    <a class="btn btn-danger" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
+                </div>
+            </th:block>
+	</div>
+        <!-- 작성자 및 버튼 -->
+        <div class="d-flex justify-content-between align-items-center">
+            <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
 
-        <!-- 작성자 정보 및 수정/삭제 -->
-        <div>작성자: <span th:text="${board.member?.memberNo}"></span></div>
-
-        <th:block sec:authorize="isAuthenticated()">
-            <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="buttons text-end mt-2">
-                <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
-                <a class="btn btn-danger" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
-            </div>
-        </th:block>
-    </section>
+        </div>
 
     <hr>
 
-    <!-- 댓글 입력 영역 -->
-    <section class="mb-4">
-        <label class="fw-bold fs-6">💬 댓글 작성</label>
-        <div class="d-flex">
-            <textarea id="reply_content" class="form-control me-2" rows="2" placeholder="댓글을 입력하세요"></textarea>
-            <button type="button" class="btn btn-primary" onclick="submitReply()">등록</button>
-        </div>
-    </section>
+   <!-- 댓글 작성 영역 (카드 박스 스타일) -->
+<div class="p-4 bg-white rounded-4 shadow-sm mb-4">
+    <label class="fw-bold fs-5 mb-2 d-block">💬 댓글 작성</label>
+    <div class="d-flex">
+        <textarea id="reply_content" class="form-control me-2" rows="2" placeholder="댓글을 입력하세요" style="resize: none;"></textarea>
+        <button type="button" class="btn btn-primary" onclick="submitReply()">등록</button>
+    </div>
+</div>
 
-    <!-- 댓글 목록 -->
+    <!-- 댓글 리스트 출력 영역 -->
     <div id="reply_list"></div>
 
-    <!-- 삭제 스크립트 -->
+    <!-- 삭제 기능 JavaScript -->
     <script>
-        const boardNo = 1;  // boardNo 값을 JavaScript 변수로 설정
-
+        const boardNo = /*[[${board.boardNo}]]*/ 0; // Thymeleaf에서 값 주입
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
@@ -87,10 +116,30 @@
             .then(res => res.json())
             .then(data => {
                 alert(data.res_msg);
-                if (data.res_code === '200') location.href = '/board/list';
+                if (data.res_code === '200') {
+                    location.href = '/board/list';
+                }
             });
         };
     </script>
+
+    <!-- Start Editor JS -->
+    <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
+    
+    <!-- 초기화 스크립트 -->
+    <script>
+        window.onload = function() {
+            const editor = new StartEditor({
+                el: '#start-editor',
+                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'link', 'image'],
+                placeholder: '내용을 작성하세요...'
+            });
+        };
+    </script>
+    
+    
+      <!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
 
     <!-- JavaScript 파일 로딩 -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>

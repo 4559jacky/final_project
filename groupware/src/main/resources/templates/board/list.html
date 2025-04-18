@@ -21,47 +21,45 @@
         <h2 class="mb-0 fw-bolder fs-8">자유게시판 목록 관리</h2>
     </div><br>
 
-    <!-- 정렬 + 검색 form -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <form th:action="@{/board/list}" method="get" class="d-flex gap-2">
-            <input type="hidden" name="nowPage" th:value="${pageDto.nowPage}" />
-            <input type="hidden" name="numPerPage" th:value="${pageDto.numPerPage}" />
-            
-            <!-- 정렬 드롭다운 -->
-            <select name="order_type" class="form-select" style="width: 130px;" onchange="this.form.submit()">
-                <option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
-                <option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
-                <option value="3" th:selected="${searchDto.order_type == 3}">조회순</option>
-            </select>
-            
-                <!-- (선택) 검색 타입 드롭다운 추가 2025-04-16 -->
-    			<select name="search_type" class="form-select ms-2" style="width: 120px;">
-        			<option th:value="1" th:selected="${searchDto.search_type == 1}">제목</option>
-        			<option th:value="2" th:selected="${searchDto.search_type == 2}">내용</option>
-        			<option th:value="3" th:selected="${searchDto.search_type == 3}">제목+내용</option>
-    			</select>
-            
-            <!-- 검색창 -->
-            <div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-                 style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
-                <button type="submit" class="btn border-0 bg-transparent p-0">
-                    <i class="ti ti-search fs-5 text-primary"></i>
-                </button>
-                <input type="text" name="search_text" th:value="${searchDto.search_text}"
-                       class="form-control border-0 bg-transparent ms-2"
-                       placeholder="검색어를 입력하세요."
-                       style="box-shadow: none; background-color: transparent;">
-            </div>
-            
-               <!-- 검색 초기화 버튼 -->
-    		<a th:href="@{/board/list}" class="btn btn-primary">목록</a>
-		</form>
-        
-        <!-- 글쓰기 버튼 -->
-        <div>
-            <a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
+<!-- 검색 + 정렬 통합 form -->
+<form th:action="@{/board/list}" method="get" class="d-flex justify-content-between align-items-center mb-3 w-100">
+
+    <div class="d-flex align-items-center gap-2">
+        <!-- 검색 타입 -->
+       <select name="search_type" class="form-select bg-white text-dark border ms-2" style="width: 120px;">
+    		<option th:value="1" th:selected="${searchDto.search_type == 1}">선택</option>
+    		<option th:value="2" th:selected="${searchDto.search_type == 2}">제목</option>
+    		<option th:value="3" th:selected="${searchDto.search_type == 3}">내용</option>
+    		<option th:value="4" th:selected="${searchDto.search_type == 4}">제목+내용</option>
+	  </select>
+
+        <!-- 검색창 -->
+        <div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
+             style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
+            <button type="submit" class="btn border-0 bg-transparent p-0">
+                <i class="ti ti-search fs-5 text-primary"></i>
+            </button>
+            <input type="text" name="search_text" th:value="${searchDto.search_text}"
+                   class="form-control border-0 bg-transparent ms-2"
+                   placeholder="검색어를 입력하세요."
+                   style="box-shadow: none; background-color: transparent;">
         </div>
-    </div>            
+    </div>
+
+    <!-- 오른쪽: 정렬 드롭다운 -->
+    <div>
+        <select name="order_type" class="form-select bg-white text-dark border" style="width: 130px;" onchange="this.form.submit()">
+    		<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
+    		<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
+    		<option value="3" th:selected="${searchDto.order_type == 3}">조회순</option>
+		</select>
+    </div>
+
+    <!-- 숨겨진 페이징 정보 -->
+    <input type="hidden" name="nowPage" th:value="${pageDto.nowPage}" />
+    <input type="hidden" name="numPerPage" th:value="${pageDto.numPerPage}" />
+
+</form>
 
     <!-- 결과 메시지 출력 -->
     <div th:if="${resMsg != null and resMsg != ''}" class="alert alert-success" role="alert">
@@ -81,31 +79,35 @@
                     <th>조회수</th>
                 </tr>
             </thead>
-            <tbody>
-            	<!-- boardList가 비어있을 경우 -->
-                <tr th:if="${#lists.isEmpty(boardList)}">
-                    <td colspan="5">게시물이 없습니다</td>
-                </tr>
-                
-                <tr th:each="board, stat : ${boardList}" th:data-board-no="${board.boardNo}">
-                    <td>
-                        <a th:href="@{|/board/detail/${board.boardNo}|}"
-                           th:text="${(pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</a>
-                    </td>
-                    <td>
-                        <a th:href="@{|/board/detail/${board.boardNo}|}" th:text="${board.boardTitle}">제목</a>
-                    </td>
-                    <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}"></td>
-                    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}"></td>
-                    <td th:text="${board.views}"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+          <tbody>
+    		<!-- boardList가 비어있을 경우 -->
+    		<tr th:if="${#lists.isEmpty(boardList)}">
+        		<td colspan="5">게시물이 없습니다</td>
+    		</tr>
+    
+			<tr th:each="board, stat : ${boardList}" th:data-board-no="${board.boardNo}" 
+    			th:onclick="window.location.href='/board/detail/' + [[${board.boardNo}]]" style="cursor: pointer;">
+    			<td th:text="${(searchDto.order_type == 2) ? (pageDto.totalPage - pageDto.nowPage) * pageDto.numPerPage + (pageDto.numPerPage - stat.index) : (pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</td>
+    			<td th:text="${board.boardTitle}">제목</td>
+    			<td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
+    			<td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+    			<td th:text="${board.views}">조회수</td>
+			</tr>
+		</tbody>
+	</table>
 </div>
+</div>
+	<br>
+	
+	
+	<!-- 게시글 작성 버튼은 오른쪽에 고정 -->
+		<div class="d-flex justify-content-end mb-3">
+    		<a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
+		</div><br>
 
-    <!-- 페이지네이션 -->
-    <nav class="d-flex justify-content-center mt-4">
+<!-- 페이지네이션은 가운데 정렬, 글쓰기 버튼 아래에 위치 -->
+<div class="d-flex justify-content-center mt-4">
+    <nav class="d-flex justify-content-center">
         <ul class="pagination">
             <!-- 이전 버튼 -->
             <li class="page-item" th:classappend="${pageDto.nowPage == 1} ? 'disabled'">
@@ -126,7 +128,9 @@
             </li>
         </ul>
     </nav>
-
+</div>
+    
+    
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 
     <!-- Bootstrap Common JS Files Start -->
