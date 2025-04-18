@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html
-xmlns:th="http://www.thymeleaf.org"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-	<script th:src="@{/js/jquery-3.7.1.js}"></script>
-	<div class="container-fluid px-4">
-	   <div class="col-lg-8 col-md-6 col-12 align-self-center">
+  <script th:src="@{/js/jquery-3.7.1.js}"></script>
+
+  <div class="container-fluid px-4">
+    <!-- 제목 & 경로 -->
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb align-items-center">
           <li class="breadcrumb-item">
@@ -20,112 +22,138 @@ layout:decorate="~{/include/layout}">
       </nav><br>
       <h2 class="mb-0 fw-bolder fs-8">공지사항 게시판</h2>
     </div><br>
- 		<div class="d-flex justify-content-between align-items-center mb-3">
-    		<form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2">
-            	 <!-- 정렬 -->
-        	<select name="sort" class="form-select rounded-pill" onchange="this.form.submit()" style="width: 150px; height: 40px; background-color: white; border: 1px solid #ced4da;">
-        		<option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
-        		<option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
-    		</select>
-      	<!-- Search + Button -->
-        		<div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-             		style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
-            	<button type="submit" class="btn border-0 bg-transparent p-0">
-                	<i class="ti ti-search fs-5 text-primary"></i>
-            	</button>
-            <input type="text" name="keyword"
-                   th:value="${keyword}"
-                   class="form-control border-0 bg-transparent ms-2"
-                   placeholder="검색어를 입력하세요."
-                   style="box-shadow: none; background-color: transparent;">
+
+    <!-- 🔍 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+      <!-- 왼쪽: 검색 조건 + 검색창 -->
+      <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
+        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+          <option th:value="1" th:selected="${search_type == 1}">제목</option>
+          <option th:value="2" th:selected="${search_type == 2}">내용</option>
+          <option th:value="3" th:selected="${search_type == 3}">제목+내용</option>
+        </select>
+
+        <div class="position-relative" style="max-width: 350px;">
+          <input type="text"
+                 name="keyword"
+                 th:value="${keyword}"
+                 class="form-control search-chat py-2 ps-5"
+                 id="text-srh"
+                 placeholder="Search Contact" />
+          <button type="submit"
+                  class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+            <i class="ti ti-search fs-6 text-dark"></i>
+          </button>
         </div>
-    		</form>
-    			<button type="button" class="btn btn-primary rounded-pill"
-            		onclick="location.href='/notice/create'">게시글 작성</button>
-		</div>
-	<!-- Table -->
+      </form>
+
+      <!-- 오른쪽: 정렬 -->
+      <form th:action="@{/notice}" method="get">
+        <select name="sort"
+                class="form-select w-auto bg-primary-subtle border-0"
+                onchange="this.form.submit()"
+                aria-label="정렬 선택">
+          <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
+          <option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+        </select>
+      </form>
+    </div>
+
+    <!-- 📋 테이블 -->
     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
-		  <div class="table-responsive">
-		    <table class="table align-middle text-center">
-		      <!-- 테이블 헤더 -->
-		      <thead class="table-light">
-		        <tr>
-		          <th>번호</th>
-		          <th>제목</th>
-		          <th>작성자</th>
-		          <th>등록일</th>
-		          <th>수정일</th>
-		          <th>조회수</th>
-		        </tr>
-		      </thead>
-		      <!-- 테이블 바디 -->
-		        <tbody>
-		        	<!--iterStat -> 반복 상태 객체 -->
-  					<tr th:each="notice, iterStat : ${noticeList.content}">
-    					<!-- 글번호 계산 -->
-    					<td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
-   						<td>	
-   							<a th:href="@{/notice/detail(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}" ></a>
-   						</td>
-    					<td th:text="${notice.member.memberName}">작성자</td> <!-- 작성자 정보 없음 -->
-    					<td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">등록일</td>
-    					<td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd')}">수정일</td>
-    					<td th:text="${notice.views}">조회수</td>
-  					</tr>
-			 	</tbody>
-		    </table>
-		  </div>
-		</div>
-		<script th:inline="javascript">
-			let msg = /*[[${message}]]*/ null;
-			if (msg !== null){
-				alert(msg);
-			}
-		</script>
-		
-		<!-- Pagination -->
-		<nav class="d-flex justify-content-center mt-4">
-  			<ul class="pagination">
+      <div class="table-responsive">
+        <table class="table align-middle text-center">
+          <thead class="table-light">
+            <tr>
+              <th>번호</th>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>등록일</th>
+              <th>수정일</th>
+              <th>조회수</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="notice, iterStat : ${noticeList.content}">
+              <td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
+              <td>
+                <a th:href="@{/notice/detail(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
+              </td>
+              <td th:text="${notice.member.memberName}">작성자</td>
+              <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">등록일</td>
+              <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd')}">수정일</td>
+              <td th:text="${notice.views}">조회수</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    		<!-- 이전 -->
-    			<li class="page-item" th:classappend="${noticeList.first} ? 'disabled'">
-      				<a class="page-link"
-        			 th:href="@{/notice(page=${noticeList.number - 1}, sort=${sort}, keyword=${keyword})}">‹</a>
-    			</li>
+    <!-- ⏬ 페이징바 중앙 + 작성 버튼 오른쪽 -->
+    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
+      
+      <!-- 페이징바: 중앙 정렬 -->
+      <div class="flex-grow-1 d-flex justify-content-center">
+        <nav th:if="${noticeList.totalPages > 0}">
+          <ul class="pagination mb-0">
+            <th:block th:with="currentBlock=${(noticeList.number / 5).intValue()}, totalPages=${noticeList.totalPages}">
+              <li class="page-item" th:if="${currentBlock > 0}">
+                <a class="page-link"
+                   th:href="@{/notice(page=${(currentBlock - 1) * 5}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
+                   aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
 
-    		<!-- 페이지 번호들 -->
-    			<li class="page-item"
-        		th:each="i : ${#numbers.sequence(0, noticeList.totalPages - 1)}"
-        		th:classappend="${i == noticeList.number} ? 'active'">
-      				<a class="page-link"
-         			th:href="@{/notice(page=${i}, sort=${sort}, keyword=${keyword})}"
-         			th:text="${i + 1}">1</a>
-    			</li>
+              <th:block th:with="startPage=${currentBlock * 5},
+                                 endPage=${T(java.lang.Math).min(startPage + 4, totalPages - 1)}">
+                <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                  <li class="page-item" th:classappend="${i == noticeList.number} ? 'active'">
+                    <a class="page-link"
+                       th:classappend="${i == noticeList.number} ? ' text-bg-primary border-primary text-white'"
+                       th:href="@{/notice(page=${i}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
+                       th:text="${i + 1}">페이지</a>
+                  </li>
+                </th:block>
+              </th:block>
 
-    		<!-- 다음 -->
-   				 <li class="page-item" th:classappend="${noticeList.last} ? 'disabled'">
-      				<a class="page-link"
-         			th:href="@{/notice(page=${noticeList.number + 1}, sort=${sort}, keyword=${keyword})}">›</a>
-    			</li>
-  			</ul>
-		</nav>
-	<!-- --------------------- -->
-	</div>					
-	<!-- Import vendorJs Files -->
-	<script th:src="@{/assets/js/vendor.min.js}"></script>
-	
-  	<!-- Import Js Files -->
-  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
-  	<script th:src="@{/assets/js/theme/theme.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+              <th:block th:with="nextBlockStart=${(currentBlock + 1) * 5}">
+                <li class="page-item" th:if="${nextBlockStart < totalPages}">
+                  <a class="page-link"
+                     th:href="@{/notice(page=${nextBlockStart}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
+                     aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </th:block>
+            </th:block>
+          </ul>
+        </nav>
+      </div>
 
-  	<!-- solar icons -->
-  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+      <!-- 게시글 작성 버튼: 오른쪽 끝 -->
+      <div>
+        <button type="button"
+                class="btn btn-primary rounded-pill"
+                onclick="location.href='/notice/create'">
+          게시글 작성
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script th:src="@{/assets/js/vendor.min.js}"></script>
+  <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  <script th:src="@{/assets/js/theme/app.init.js}"></script>
+  <script th:src="@{/assets/js/theme/theme.js}"></script>
+  <script th:src="@{/assets/js/theme/app.min.js}"></script>
+  <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
 </th:block>
 </html>
