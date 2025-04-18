@@ -165,22 +165,21 @@ layout:decorate="~{/include/layout}">
 									<!-- 생년월일 -->
 	                                <div class="mb-3">
 	                                  <th:block th:if="${member != null}">
-		                                  <label for="member_birth" class="form-label">생년월일</label>
-		                                  <input type="text" class="form-control" id="member_birth" name="member_birth" th:value="${member.memberBirth}"/>
+		                                  <label for="member_birth" class="form-label">생년월일<span class="text-muted small"> (8자리)</span></label>
+		                                  <input type="text" class="form-control" id="member_birth" name="member_birth" th:value="${member.memberBirth}" placeholder="yyyy-mm-dd"/>
 	                                  </th:block>
 	                                </div>
 									
 	                                <!-- 연락처 -->
 	                                <div class="mb-3">
 	                                  <th:block th:if="${member != null}">
-		                                  <label for="member_phone" class="form-label">연락처</label>
-		                                  <input type="text" class="form-control" id="member_phone" name="member_phone" th:value="${member.memberPhone}"/>
+		                                  <label for="member_phone" class="form-label">연락처<span class="text-muted small"> (10~11자리)</span></label>
+		                                  <input type="text" class="form-control" id="member_phone" name="member_phone" th:value="${member.memberPhone}" placeholder="010-XXXX-XXXX"/>
 	                                  </th:block>
 	                                </div>
 	                                
 	                              </div>
 	                              <div class="col-lg-6">
-	                              
 	                              	
 	                              	<div class="mb-3 d-flex gap-3">
 									  <div class="flex-grow-1">
@@ -243,7 +242,7 @@ layout:decorate="~{/include/layout}">
 									<div class="mb-3">
 									    <div class="row">
 									    	<!-- 광역 셀렉트 -->
-									      	<div class="col-lg-3">
+									      	<div class="col-lg-3 mb-3">
 									      		<label for="member_addr1" class="form-label">주소(광역)</label>
 											    <select class="form-select" id="member_addr1" name="member_addr1" aria-label="Select Region">
 											        <option value="">-</option>
@@ -256,7 +255,7 @@ layout:decorate="~{/include/layout}">
 											</div>
 									      	
 									      	<!-- 지역 셀렉트 -->
-									      	<div class="col-lg-3">
+									      	<div class="col-lg-3 mb-3">
 									      		<label for="member_addr2" class="form-label">주소(지역)</label>
 									        	<select class="form-select" id="member_addr2" name="member_addr2" aria-label="Select Area">
 									         		<option value="">-</option>
@@ -269,7 +268,7 @@ layout:decorate="~{/include/layout}">
 									      	</div>
 									      	
 									      	<!-- 상세주소 입력 -->
-									      	<div class="col-lg-6">
+									      	<div class="col-lg-6 mb-3">
 									      		<th:block th:if="${member != null}">
 									      			<label for="member_addr3" class="form-label">주소(상세)</label>
 									        		<input type="text" class="form-control" id="member_addr3" name="member_addr3" th:value="${member.memberAddr3}"/>
