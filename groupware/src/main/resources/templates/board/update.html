@@ -19,8 +19,9 @@
     </nav>
     <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 수정</h2>
   </div>
-<br>  
+<br><br><br>  
 
+<div class="p-5 bg-white rounded-4 shadow-sm mb-5">
     <!-- 투표 추가 버튼 -->
     <div class="mb-3 text-end">
       <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
@@ -47,11 +48,40 @@
     </div>
     <br>
     
-<!-- 파일 첨부 -->
-	<div class="mb-3">
+	<!-- 파일 첨부 -->
+	<div th:each="boardAttach : ${attachList}">
+		<input type="hidden" name="delete_files" th:value="${boardAttach.attachNo}" disabled>
+		<span th:text="${boardAttach.oriName}">파일명</span>
+		<button type="button" class="btn_close" onclick="deleteDesign(this);">삭제</button>
+	<br>
+	</div>
+	<input type="file" name="files" multiple><br>
+	<script>
+	const changeStatus = function(element){		
+		const bumo = element.parentElement;
+		const child1 = bumo.firstElementChild;	// hidden
+		const child2 = child1.nextElementSibling;	// span
+	
+		if(element.classList.contains('btn_close')){
+			element.classList.remove('btn_close');
+			element.classList.add('btn_open');
+			element.innerText = '유지';
+			child1.disabled = false;
+			child2.style.textDecoration = 'line-through';
+		} else{
+			element.classList.add('btn_close');
+			element.classList.remove('btn_open');
+			element.innerText = '삭제';
+			child2.style.textDecoration="none";
+			child1.disabled = true;
+		}
+	}
+	</script>
+	
+<!--  	<div class="mb-3">
   		<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
   		<input type="file" class="form-control bg-white text-dark" id="board_file" name="board_file" multiple>
-	</div>
+	</div> -->
 
     <!-- 수정 완료 버튼 -->
     <div class="d-flex justify-content-end gap-2 mt-4">
@@ -59,6 +89,7 @@
 	  <button type="button" class="btn btn-danger" onclick="window.location.href='/board/list'">취소</button>
     </div>
   </form>
+</div>
 
   <!-- Start Editor 스타일 및 스크립트 CDN -->
   <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
@@ -110,6 +141,7 @@
       .catch(err => alert("에러 발생: " + err.message));
     });
   </script>
+
 
   	<script th:src="@{/assets/js/vendor.min.js}"></script>
 

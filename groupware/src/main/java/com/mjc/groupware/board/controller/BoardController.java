@@ -149,7 +149,7 @@ public class BoardController {
             boardDto.setBoard_no(boardNo);
 
             // 삭제할 파일 리스트를 BoardDto에 세팅
-            boardDto.setDeleteFiles(deleteFiles);
+            boardDto.setDelete_files(deleteFiles);
 
             boardService.updateBoard(boardDto, files);  // 파일 리스트와 삭제 파일 리스트 함께 전달
 
