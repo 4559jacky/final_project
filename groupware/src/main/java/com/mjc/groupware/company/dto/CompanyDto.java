@@ -24,6 +24,7 @@ public class CompanyDto {
 	private String ori_name;
 	private String new_name;
 	private String attach_path;
+	private String theme_color;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	
