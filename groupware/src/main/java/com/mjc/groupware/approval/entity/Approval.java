@@ -37,12 +37,9 @@ public class Approval {
 	@Column(name="appr_no")
 	private Long apprNo;
 	
-	@Column(name="appr_reg_date")
-	private LocalDate apprRegDate;
-	
 	@CreationTimestamp
-	@Column(name="appr_req_date")
-	private LocalDateTime apprReqDate;
+	@Column(name="appr_reg_date")
+	private LocalDateTime apprRegDate;
 	
 	@Column(name="appr_res_date")
 	private LocalDateTime apprResDate;

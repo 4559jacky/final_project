@@ -88,8 +88,6 @@
 											<th class="text-center bg-light">제목</th>
 											<td colspan="5"><input type="text" name="appr_title"
 												class="form-control w-100"></td>
-											<!-- <th class="text-center bg-light">작성일</th>
-											<td name="appr_reg_date"></td> -->
 										</tr>
 										<tr>
 											<th class="text-center bg-light">일시</th>
@@ -105,15 +103,23 @@
 										<tr>
 											<th class="text-center bg-light">결재자</th>
 											<td colspan="4">
-												<table class="table table-bordered text-center mb-0">
+												<table class="table table-bordered text-center w-100">
 													<thead class="table-light">
 														<tr id="approver">
-
+															<th class="text-center bg-light" style="width: 20%;" name="approver"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="approver"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="approver"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="approver"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="approver"></th>
 														</tr>
 													</thead>
 													<tbody>
 														<tr id="approver_signature">
-
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
 														</tr>
 													</tbody>
 												</table>
@@ -127,15 +133,23 @@
 										<tr>
 											<th class="text-center bg-light">합의자</th>
 											<td colspan="5">
-												<table class="table table-bordered text-center mb-0">
+												<table class="table table-bordered text-center w-100">
 													<thead class="table-light">
 														<tr id="agreementer">
-
+															<th class="text-center bg-light" style="width: 20%;" name="agreementer"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="agreementer"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="agreementer"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="agreementer"></th>
+															<th class="text-center bg-light" style="width: 20%;" name="agreementer"></th>
 														</tr>
 													</thead>
 													<tbody>
 														<tr id="agreementer_signature">
-
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
 														</tr>
 													</tbody>
 												</table>
@@ -166,13 +180,17 @@
 	</div>
 
 
-	<div
-		class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show"
-		role="alert">
-		<button type="button" class="btn-close btn-close-white"
+	<!-- alert 창 -->
+	<div id="custom-alert"
+		class="alert text-white d-flex align-items-center alert-dismissible fade"
+		role="alert"
+		style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
+		<i class="bi bi-exclamation-triangle-fill me-2"></i>
+		<div id="alert-msg" style="font-size: 1.0rem; text-align: center;"></div>
+		<button type="button" class="btn-close btn-close-white ms-auto"
 			data-bs-dismiss="alert" aria-label="Close"></button>
-		<strong>실패 </strong> A simple danger alert
 	</div>
+
 
 	<!-- 결재라인 모달창 -->
 	<div class="modal fade" id="approvalLineModal" tabindex="-1"
@@ -215,7 +233,7 @@
 						<div class="col d-flex flex-column">
 							<div class="d-flex justify-content-between mb-2">
 								<span class="fw-semibold">결재자</span>
-								<button class="btn btn-outline-info btn-sm"
+								<button class="btn btn-primary btn-sm"
 									onclick="approver_btn();">등록</button>
 							</div>
 							<div
@@ -225,24 +243,24 @@
 						</div>
 						<div class="col d-flex flex-column">
 							<div class="d-flex justify-content-between mb-2">
-								<span class="fw-semibold">참조자</span>
-								<button class="btn btn-outline-info btn-sm"
-									onclick="referencer_btn();">등록</button>
-							</div>
-							<div
-								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
-								<ul id="referencerList" class="list-group fs-6 mb-0"></ul>
-							</div>
-						</div>
-						<div class="col d-flex flex-column">
-							<div class="d-flex justify-content-between mb-2">
 								<span class="fw-semibold">합의자</span>
-								<button class="btn btn-outline-info btn-sm"
+								<button class="btn btn-primary btn-sm"
 									onclick="agreementer_btn();">등록</button>
 							</div>
 							<div
 								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
 								<ul id="agreementerList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+						<div class="col d-flex flex-column">
+							<div class="d-flex justify-content-between mb-2">
+								<span class="fw-semibold">참조자</span>
+								<button class="btn btn-primary btn-sm"
+									onclick="referencer_btn();">등록</button>
+							</div>
+							<div
+								class="flex-grow-1 overflow-auto border rounded bg-white p-2">
+								<ul id="referencerList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
 					</div>
@@ -349,29 +367,35 @@
 	document.addEventListener('DOMContentLoaded', function() {
 		$('#approvalLineModal').on('shown.bs.modal', function() {
 			
-			let approverList = document.querySelectorAll("th[name='approverTh']");
+			let approverList = document.querySelectorAll("th[name='approver']");
 
 		    approverList.forEach(function(member) {
 		    	
 		    	let text = member.innerText;
-		    	let memberNo = member.querySelector("input[name='approver_no']").value;
-		    	
-                const li = document.createElement("li");
-                li.className = 'list-group-item approver_li';
-                li.innerHTML = `<button class="selected_approver" value="${memberNo}">-</button> ${text}`;
-                document.getElementById("approverList").appendChild(li);
+		    	text = text.split(' ')[1];
+		    	let input = member.querySelector("input[name='approver_no']");
+		    	if(input) {
+		    		let memberNo = input.value;
+		    		const li = document.createElement("li");
+	                li.className = 'list-group-item approver_li';
+	                li.innerHTML = `<button class="selected_approver btn-sm btn btn-rounded btn-light" value="${memberNo}">-</button> ${text}`;
+	                document.getElementById("approverList").appendChild(li);
+		    	}
 		    });
 
-		    let agreementerList = document.querySelectorAll("th[name='agreementerTh']");
+		    let agreementerList = document.querySelectorAll("th[name='agreementer']");
 
 		    agreementerList.forEach(function(member) {
+		    	console.log(member)
 		    	let text = member.innerText;
-		    	let memberNo = member.querySelector("input[name='agreementer_no']").value;
-		    	
-                const li = document.createElement("li");
-                li.className = 'list-group-item agreementer_li';
-                li.innerHTML = `<button class="selected_agreementer" value="${memberNo}">-</button> ${text}`;
-                document.getElementById("agreementerList").appendChild(li);
+		    	let input = member.querySelector("input[name='agreementer_no']");
+		    	if(input) {
+		    		let memberNo = input.value;
+		    		const li = document.createElement("li");
+	                li.className = 'list-group-item agreementer_li';
+	                li.innerHTML = `<button class="selected_agreementer btn-sm btn btn-rounded btn-light" value="${memberNo}">-</button> ${text}`;
+	                document.getElementById("agreementerList").appendChild(li);
+		    	}
 		    });
 
 		    let referencerList = document.querySelectorAll("span[name='referencerSpan']");
@@ -382,7 +406,7 @@
 		    	
                 const li = document.createElement("li");
                 li.className = 'list-group-item referencer_li';
-                li.innerHTML = `<button class="selected_referencer" value="${memberNo}">-</button> ${text}`;
+                li.innerHTML = `<button class="selected_referencer btn-sm btn btn-rounded btn-light" value="${memberNo}">-</button> ${text}`;
                 document.getElementById("referencerList").appendChild(li);
 		    });
 		});
@@ -402,7 +426,7 @@
 		
 		
 	
-	// 결재라인
+	// 결재자 등록
 	const approver_btn = function() {
 	    let checkedMember = [];
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
@@ -427,7 +451,7 @@
 
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item approver_li';
-	                li.innerHTML = `<button class="selected_approver btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name} ${data.pos_name} (${data.dept_name})`;
+	                li.innerHTML = `<button class="selected_approver btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
 	                
 	                list.appendChild(li);
 	            })
@@ -435,6 +459,7 @@
 	                console.error("사원 목록 불러오기 실패:", err);
 	            });
 	        } else {
+	        	alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
 	            console.log(`이미 추가된 사원: ${member}`);
 	        }
 	    });
@@ -457,8 +482,62 @@
 	 
 	 
 	 
+ 	// 합의자 등록버튼
+    const agreementer_btn = function() {
+	    let checkedMember = [];
+	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
+	        checkedMember.push(checkbox.value);
+	    });
+
+	    console.log(checkedMember);
+
+	    checkedMember.forEach(function(member) {
+	        // 이미 추가된 합의자인지 확인
+	        let isAlreadyAddedApprover = Array.from(document.querySelectorAll('.selected_approver')).some(el => el.value === member);
+	        let isAlreadyAddedReferencer = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
+	        let isAlreadyAddedAgreementer = Array.from(document.querySelectorAll('.selected_agreementer')).some(el => el.value === member);
+
+	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) { // 중복이 아닐 때만 추가
+	            fetch('/member/' + member, {
+	                method: 'GET'
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+	                const list = document.getElementById("agreementerList");
+
+	                const li = document.createElement("li");
+	                li.className = 'list-group-item agreementer_li';
+	                li.innerHTML = `<button class="selected_agreementer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
+	                
+	                list.appendChild(li);
+	            })
+	            .catch(err => {
+	                console.error("사원 목록 불러오기 실패:", err);
+	            });
+	        } else {
+	        	alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
+	            console.log(`이미 추가된 사원: ${member}`);
+	        }
+	    });
+	};
+	
+	 // 합의자 목록에서 - 버튼 클릭 시 항목 제거
+    document.getElementById('agreementerList').addEventListener('click', function(event) {
+        // 클릭된 요소가 .selected_approver 버튼인지 확인
+        if (event.target && event.target.classList.contains('selected_agreementer')) {
+            let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
+            console.log(approverId);
+
+            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
+            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
+            if (listItem) {
+                listItem.remove();  // <li> 요소 삭제
+            }
+        }
+    });
 	 
-	// 참조
+	 
+ 	// 참조자 등록버튼
     const referencer_btn = function() {
 	    let checkedMember = [];
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
@@ -484,7 +563,7 @@
 
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item referencer_li';
-	                li.innerHTML = `<button class="selected_referencer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name} ${data.pos_name} (${data.dept_name})`;
+	                li.innerHTML = `<button class="selected_referencer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
 	                
 	                list.appendChild(li);
 	            })
@@ -492,6 +571,7 @@
 	                console.error("사원 목록 불러오기 실패:", err);
 	            });
 	        } else {
+	        	alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
 	            console.log(`이미 추가된 사원: ${member}`);
 	        }
 	    });
@@ -513,170 +593,133 @@
 	 
 	 
 	 
-	 
- 	// 합의
-    const agreementer_btn = function() {
-	    let checkedMember = [];
-	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
-	        checkedMember.push(checkbox.value);
-	    });
-
-	    console.log(checkedMember);
-
-	    checkedMember.forEach(function(member) {
-	        // 이미 추가된 합의자인지 확인
-	        let isAlreadyAddedApprover = Array.from(document.querySelectorAll('.selected_approver')).some(el => el.value === member);
-	        let isAlreadyAddedReferencer = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
-	        let isAlreadyAddedAgreementer = Array.from(document.querySelectorAll('.selected_agreementer')).some(el => el.value === member);
-
-	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) { // 중복이 아닐 때만 추가
-	            fetch('/member/' + member, {
-	                method: 'GET'
-	            })
-	            .then(response => response.json())
-	            .then(data => {
-	                const list = document.getElementById("agreementerList");
-
-	                const li = document.createElement("li");
-	                li.className = 'list-group-item agreementer_li';
-	                li.innerHTML = `<button class="selected_agreementer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name} ${data.pos_name} (${data.dept_name})`;
-	                
-	                list.appendChild(li);
-	            })
-	            .catch(err => {
-	                console.error("사원 목록 불러오기 실패:", err);
-	            });
-	        } else {
-	            console.log(`이미 추가된 사원: ${member}`);
-	        }
-	    });
-	};
 	
-	 // 합의자 목록에서 - 버튼 클릭 시 항목 제거
-    document.getElementById('agreementerList').addEventListener('click', function(event) {
-        // 클릭된 요소가 .selected_approver 버튼인지 확인
-        if (event.target && event.target.classList.contains('selected_agreementer')) {
-            let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-            console.log(approverId);
-
-            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
-            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
-            if (listItem) {
-                listItem.remove();  // <li> 요소 삭제
-            }
-        }
-    });
-	
-	// 결재라인 선택완료
+	 // 결재라인 선택완료 버튼 누를 시
     const selectApprovalMember = function () {
-		
         let approverList = document.querySelectorAll('.approver_li');
-        let approverTr = document.getElementById('approver');
-        approverTr.innerHtml = '';
-        let approverSignatureTr = document.getElementById('approver_signature');
+        if (approverList.length > 5) {
+            alert('결재자는 최대 5명까지 지정할 수 있습니다.');
+            return; // 더 이상 진행하지 않고 함수 종료
+        }
+        
+        let approverThList = document.querySelectorAll('#approver th');
+        let approverTdList = document.querySelectorAll('#approver_signature td');
 
+        // 기존 내용 초기화
+        approverThList.forEach(th => th.innerHTML = '');
+        approverTdList.forEach(td => td.innerHTML = '');
 
+        let index = 0;
         approverList.forEach(approver => {
             let button = approver.querySelector('.selected_approver');
 
-            if (button) {
+            if (button && index < 5) {
                 let approverId = button.value;
-                let approverName = approver.innerText.replace('-', '');
-                console.log(approverId);
-                console.log(approverName);
+                let approverName = approver.innerText.replace('-', '').trim();
+                approverName = approverName.split(' ')[0];
 
-                // 중복 방지
-                if (!approverTr.querySelector(`th[data-approver-id="${approverId}"]`)) {
-				    let th = document.createElement('th');
-				    th.setAttribute('data-approver-id', approverId);
-				    th.setAttribute('name', 'approverTh');
-				    th.textContent = approverName;
-				    
-				    let td = document.createElement('td');
-				    
-				    approverTr.append(th);
-				    approverSignatureTr.append(td);
-				    
-				    let input = document.createElement('input');
-				    input.setAttribute('type', 'hidden');
-				    input.setAttribute('name', 'approver_no');
-				    input.setAttribute('value', `${approverId}`);
-				    
-				    th.append(input);
-				}
+                // 해당 위치에 이름 삽입
+                approverThList[index].textContent = '('+(index+1)+') '+approverName;
+
+                // 서명란 입력 (예시로 서명 이미지나 텍스트가 들어갈 수 있음)
+                approverTdList[index].textContent = '서명란';
+
+                // hidden input 추가
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'approver_no';
+                input.value = approverId;
+
+                approverThList[index].appendChild(input);
+                index++;
             }
         });
         
-        let referencerList = document.querySelectorAll('.referencer_li');
-        let referencerDiv = document.getElementById('referencer');
-
-
-        referencerList.forEach(referencer => {
-            let button = referencer.querySelector('.selected_referencer');
-
-            if (button) {
-                let referencerId = button.value;
-                let referencerName = referencer.innerText.replace('-', '');
-                console.log(referencerId);
-                console.log(referencerName);
-
-                // 중복 방지
-                if (!referencerDiv.querySelector(`span[data-referencer-id="${referencerId}"]`)) {
-				    let span = document.createElement('span');
-				    span.setAttribute('data-referencer-id', referencerId);
-				    span.setAttribute('name', 'referencerSpan');
-				    span.textContent = referencerName;
-				    referencerDiv.append(span);
-				    
-				    let input = document.createElement('input');
-				    input.setAttribute('type', 'hidden');
-				    input.setAttribute('name', 'referencer_no');
-				    input.setAttribute('value', `${referencerId}`);
-				    
-				    span.append(input);
-				    
-				}
-            }
-        });
+        // agreementer
+		let agreementerList = document.querySelectorAll('.agreementer_li');
         
-        let agreementerList = document.querySelectorAll('.agreementer_li');
-        let agreementerTr = document.getElementById('agreementer');
-		let agreementerSignatureTr = document.getElementById('agreementer_signature');
+        let agreementerThList = document.querySelectorAll('#agreementer th');
+        let agreementerTdList = document.querySelectorAll('#agreementer_signature td');
+        
+        if (agreementerList.length > 5) {
+            alert('합의자는 최대 5명까지 지정할 수 있습니다.');
+            return;
+        }
 
+        // 기존 내용 초기화
+        agreementerThList.forEach(th => th.innerHTML = '');
+        agreementerTdList.forEach(td => td.innerHTML = '');
+
+        let index1 = 0;
         agreementerList.forEach(agreementer => {
             let button = agreementer.querySelector('.selected_agreementer');
 
-            if (button) {
+            if (button && index1 < 5) {
                 let agreementerId = button.value;
-                let agreementerName = agreementer.innerText.replace('-', '');
-                console.log(agreementerId);
-                console.log(agreementerName);
+                let agreementerName = agreementer.innerText.replace('-', '').trim();
+                agreementerName = agreementerName.split(' ')[0];
 
-                // 중복 방지
-                if (!agreementerTr.querySelector(`th[data-agreementer-id="${agreementerId}"]`)) {
-				    let th = document.createElement('th');
-				    th.setAttribute('data-agreementer-id', agreementerId);
-				    th.setAttribute('name', 'agreementerTh');
-				    th.textContent = agreementerName;
-				    let td = document.createElement('td');
-				    
-				    agreementerTr.append(th);
-				    agreementerSignatureTr.append(td);
-				    
-				    
-				    let input = document.createElement('input');
-				    input.setAttribute('type', 'hidden');
-				    input.setAttribute('name', 'agreementer_no');
-				    input.setAttribute('value', `${agreementerId}`);
-				    
-				    th.append(input);
-				}
+                // 해당 위치에 이름 삽입
+                agreementerThList[index1].textContent = agreementerName;
+
+                // 서명란 입력 (예시로 서명 이미지나 텍스트가 들어갈 수 있음)
+                agreementerTdList[index1].textContent = '서명란';
+
+                // hidden input 추가
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'agreementer_no';
+                input.value = agreementerId;
+
+                agreementerThList[index1].appendChild(input);
+                index1++;
             }
         });
+
+        // referencer
+        let referencerList = document.querySelectorAll('.referencer_li');
+        let referencerDiv = document.getElementById('referencer');
+        referencerDiv.innerHTML = ''; // 초기화
         
-        
+        let index2 = 1;
+
+        referencerList.forEach(referencer => {
+            let button = referencer.querySelector('.selected_referencer');
+            if (button) {
+                let referencerId = button.value;
+                let referencerName = referencer.innerText.replace('-', '').trim();
+                referencerName = referencerName.split(' ')[0];
+                
+
+                if (!referencerDiv.querySelector(`span[data-referencer-id="${referencerId}"]`)) {
+                    let span = document.createElement('span');
+                    span.setAttribute('data-referencer-id', referencerId);
+                    span.setAttribute('name', 'referencerSpan');
+                    span.textContent = referencerName;
+
+                    
+
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'referencer_no';
+                    input.value = referencerId;
+
+                    span.appendChild(input);
+                    
+                    if(referencerList.length != index2) {
+                    	referencerDiv.appendChild(span);
+                    	referencerDiv.append('/');
+                    } else {
+                    	referencerDiv.appendChild(span);
+                    }
+                    
+                }
+            }
+            index2++;
+        });
+
+        // 모달 닫기
         bootstrap.Modal.getInstance(document.getElementById("approvalLineModal")).hide();
-	    
     };
     
     
@@ -688,14 +731,16 @@
 			let valid = false;
 			let valid_msg = '';
 			
+			const hasApprover = Array.from(approverThList).some(th => th.textContent.trim() !== '');
+			
 			if(!createApprovalForm.appr_title.value) {
 				valid_msg += '결재 제목을 입력해주세요.';
-			} else if(!createApprovalForm.appr_reg_date.value) {
-				valid_msg += '결재 작성일을 입력해주세요.';
 			} else if(!createApprovalForm.start_date.value) {
 				valid_msg += '시작일을 입력해주세요.';
 			} else if(!createApprovalForm.end_date.value) {
 				valid_msg += '종료일 입력해주세요.';
+			} else if(!hasApprover) {
+				valid_msg += '결재자는 한명이상 등록되어야합니다.';
 			} else {
 				valid = true;
 			}
@@ -733,6 +778,39 @@
 		
 	  	
 	</script>
+
+	<script>
+		// 얼럿창 생성 및 소멸
+		document.addEventListener('DOMContentLoaded', function () {
+	    	const alertBox = document.getElementById("custom-alert");
+	    	
+	    	if (alertBox) {
+				setTimeout(function () {
+					alertBox.classList.remove('show');
+					alertBox.classList.add('fade');
+				
+					setTimeout(function () {
+						alertBox.classList.add('d-none');
+					}, 300);
+				}, 3000);
+			}
+	  	});
+	</script>
+
+	<script>
+		// 얼럿창 x버튼
+    	document.addEventListener('DOMContentLoaded', function() {
+        	const alertCloseButton = document.querySelector('.btn-close');
+        	if (alertCloseButton) {
+            	alertCloseButton.addEventListener('click', function() {
+                	const alertBox = document.getElementById("custom-alert");
+                	alertBox.classList.add('d-none');
+            	});
+        	}
+    	});
+	</script>
+
+
 	<!-- Bootstrap Common JS Files Start -->
 
 	<!-- Import vendorJs Files -->

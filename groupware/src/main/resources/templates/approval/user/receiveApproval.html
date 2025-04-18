@@ -7,6 +7,7 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
 		<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -97,7 +98,7 @@
 			<div class="table-responsive">
 				<table class="table align-middle text-center">
 					<!-- 테이블 헤더 -->
-					<thead class="table-light">
+					<thead class="bg-light">
 						<tr>
 							<th>번호</th>
 							<th>제목</th>
@@ -120,28 +121,28 @@
 							<td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td>
 							<td th:text="${approvalVo.member_name}">작성자</td>
 							<th:block th:if="${approvalVo.appr_status == 'A'}">
-								<td><span class="badge bg-warning-subtle text-dark">합의 대기중</span></td>
+								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'D'}">
-								<td><span class="badge bg-warning-subtle text-dark">결재 대기중</span></td>
+								<td><span class="mb-1 badge  bg-info-subtle text-info">결재 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'C'}">
-								<td><span class="badge bg-warning-subtle text-dark">승인</span></td>
+								<td><span class="mb-1 badge  bg-success-subtle text-success">승인	</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'R'}">
-								<td><span class="badge bg-warning-subtle text-dark">반려</span></td>
+								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
 							</th:block>
 							<!-- 결재 관련자 종류 구분 -->
 							<th:block th:if="${approvalVo.relationship == 'P'}">
-								<td><span class="badge bg-warning-subtle text-dark">결재자</span></td>
+								<td><span class="mb-1 badge text-bg-light">결재자</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'A'}">
-								<td><span class="badge bg-warning-subtle text-dark">합의자</span></td>
+								<td><span class="mb-1 badge text-bg-light">합의자</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'R'}">
-								<td><span class="badge bg-warning-subtle text-dark">참조자</span></td>
+								<td><span class="mb-1 badge text-bg-light">참조자</span></td>
 							</th:block>
-							<td th:text="${#temporals.format(approvalVo.appr_req_date,'yyyy-MM-dd HH:mm')}">요청일</td>
+							<td th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approvalVo.approval_form_name}">양식
 								종류</td>
 						</tr>

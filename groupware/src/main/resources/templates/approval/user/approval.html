@@ -109,7 +109,7 @@
 			<div class="table-responsive">
 				<table class="table align-middle text-center">
 					<!-- 테이블 헤더 -->
-					<thead class="table-light">
+					<thead class="bg-light">
 						<tr>
 							<th>번호</th>
 							<th>제목</th>
@@ -131,19 +131,19 @@
 							<td th:text="${approval.apprTitle}">제목</td>
 							<td th:text="${approval.member.memberName}">작성자</td>
 							<th:block th:if="${approval.apprStatus == 'A'}">
-								<td><span class="badge bg-warning-subtle text-dark">합의 대기중</span></td>
+								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'D'}">
-								<td><span class="badge bg-warning-subtle text-dark">결재 대기중</span></td>
+								<td><span class="mb-1 badge  bg-info-subtle text-info">결재 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'C'}">
-								<td><span class="badge bg-warning-subtle text-dark">승인</span></td>
+								<td><span class="mb-1 badge  bg-success-subtle text-success">승인	</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'R'}">
-								<td><span class="badge bg-warning-subtle text-dark">반려</span></td>
+								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
 							</th:block>
 							<td
-								th:text="${#temporals.format(approval.apprReqDate,'yyyy-MM-dd HH:mm')}">요청일</td>
+								th:text="${#temporals.format(approval.apprRegDate,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approval.approvalForm.approvalFormName}">양식
 								종류</td>
 						</tr>
