@@ -39,13 +39,21 @@ public class PageDto {
 	}
 	
 	private void calcPaging() {
+		if (totalPage == 0) {
+			pageBarStart = 1;
+			pageBarEnd = 1;
+			prev = false;
+			next = false;
+			return;
+		}
+		
 		pageBarStart = ((nowPage-1)/pageBarSize)*pageBarSize + 1;	// 페이징바의 시작 번호 계산
 		
 		pageBarEnd = pageBarStart + pageBarSize -1;					// 페이징바의 끝 번호 계산(만일 끝번호가 전체 페이지 개수보다 크면 재할당)
-
+		
 		if(pageBarEnd > totalPage) pageBarEnd = totalPage;			// 이전, 이후 버튼이 보이는지 여부 계산
 		if(pageBarStart == 1) prev = false;
 		if(pageBarEnd >= totalPage) next = false;
-	} 
+	}
 	
 }

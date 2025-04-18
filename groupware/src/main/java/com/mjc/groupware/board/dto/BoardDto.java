@@ -36,7 +36,7 @@ public class BoardDto {
     // 파일 첨부
     private List<BoardAttach> attachList;
     // 삭제할 파일 ID 리스트 변수 추가
-    private List<Long> deleteFiles;
+    private List<Long> delete_files;
     
     public Board toEntity() {
     	return Board.builder()
