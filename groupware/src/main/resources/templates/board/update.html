@@ -19,7 +19,7 @@
     </nav>
     <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 수정</h2>
   </div>
-<br><br><br>  
+<br><br><br><br><br>
 
 <div class="p-5 bg-white rounded-4 shadow-sm mb-5">
     <!-- 투표 추가 버튼 -->
@@ -47,15 +47,18 @@
       <textarea id="board_content" name="board_content" hidden th:text="${board.boardContent}"></textarea>
     </div>
     <br>
-    
-	<!-- 파일 첨부 -->
+	
+  	<div class="mb-3">
+  		<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
+  		<input type="file" class="form-control bg-white text-dark" id="board_file" name="board_file" multiple>
+	</div>
+		<!-- 파일 첨부 -->
 	<div th:each="boardAttach : ${attachList}">
 		<input type="hidden" name="delete_files" th:value="${boardAttach.attachNo}" disabled>
 		<span th:text="${boardAttach.oriName}">파일명</span>
 		<button type="button" class="btn_close" onclick="deleteDesign(this);">삭제</button>
 	<br>
 	</div>
-	<input type="file" name="files" multiple><br>
 	<script>
 	const changeStatus = function(element){		
 		const bumo = element.parentElement;
@@ -77,11 +80,7 @@
 		}
 	}
 	</script>
-	
-<!--  	<div class="mb-3">
-  		<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
-  		<input type="file" class="form-control bg-white text-dark" id="board_file" name="board_file" multiple>
-	</div> -->
+	<hr>
 
     <!-- 수정 완료 버튼 -->
     <div class="d-flex justify-content-end gap-2 mt-4">
