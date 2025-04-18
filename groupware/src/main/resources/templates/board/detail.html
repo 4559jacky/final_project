@@ -73,19 +73,16 @@
         <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span><br>
         <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
     </div>
-
     <hr>
 
     <!-- 게시글 본문 -->
-    <div class="board_detail mt-4">
-        <div id="start-editor"
-             class="form-control border-0"
-             style="background-color: #f9f9f9; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem;"
-             th:utext="${board.boardContent ?: '내용 없음'}">
-        </div>
+	<div class="board_detail mt-4">
+    	<div id="start-editor" class="form-control" style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; border: 1px solid #ced4da; border-radius: 0.375rem;"
+         th:utext="${board.boardContent ?: '내용 없음'}">
     </div>
-    <br>
-    <hr>
+</div>
+<br>
+<hr>
     
     <!-- 일단 파일명 추가 -->
 	<div th:if="${!#lists.isEmpty(attachList)}"
@@ -93,8 +90,8 @@
   			<a th:onclick="|location.href='@{/download/{id}(id=${boardAttach.attachNo})}'|"
      		   th:text="${boardAttach.oriName}" class="file-link">파일명</a>
 	</div>
-    <hr>
-    
+	
+    	<hr>
             <th:block sec:authorize="isAuthenticated()">
                 <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="text-end">
                     <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>

@@ -26,29 +26,26 @@
 
     <div class="d-flex align-items-center gap-2">
         <!-- 검색 타입 -->
-       <select name="search_type" class="form-select bg-white text-dark border ms-2" style="width: 120px;">
+       <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
     		<option th:value="1" th:selected="${searchDto.search_type == 1}">선택</option>
     		<option th:value="2" th:selected="${searchDto.search_type == 2}">제목</option>
     		<option th:value="3" th:selected="${searchDto.search_type == 3}">내용</option>
     		<option th:value="4" th:selected="${searchDto.search_type == 4}">제목+내용</option>
 	  </select>
 
-        <!-- 검색창 -->
-        <div class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-             style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
-            <button type="submit" class="btn border-0 bg-transparent p-0">
-                <i class="ti ti-search fs-5 text-primary"></i>
-            </button>
-            <input type="text" name="search_text" th:value="${searchDto.search_text}"
-                   class="form-control border-0 bg-transparent ms-2"
-                   placeholder="검색어를 입력하세요."
-                   style="box-shadow: none; background-color: transparent;">
-        </div>
-    </div>
+        <!-- 검색창(고침) -->
+	 <div class="position-relative" style="max-width: 350px;">
+          <input type="text" name="search_text" th:value="${searchDto.search_text}"
+                 class="form-control search-chat py-2 ps-5" id="search_text" placeholder="Search Contact" />
+          <button type="submit" class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+            <i class="ti ti-search fs-6 text-dark"></i>
+          </button>
+   	</div>
+</div>
 
     <!-- 오른쪽: 정렬 드롭다운 -->
     <div>
-        <select name="order_type" class="form-select bg-white text-dark border" style="width: 130px;" onchange="this.form.submit()">
+        <select name="order_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 130px;" onchange="this.form.submit()">
     		<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
     		<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
     		<option value="3" th:selected="${searchDto.order_type == 3}">조회순</option>
@@ -74,6 +71,7 @@
                 <tr>
                     <th>번호</th>
                     <th>제목</th>
+                    <th>작성자</th>
                     <th>등록일</th>
                     <th>수정일</th>
                     <th>조회수</th>
@@ -89,6 +87,7 @@
     			th:onclick="window.location.href='/board/detail/' + [[${board.boardNo}]]" style="cursor: pointer;">
     			<td th:text="${(searchDto.order_type == 2) ? (pageDto.totalPage - pageDto.nowPage) * pageDto.numPerPage + (pageDto.numPerPage - stat.index) : (pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</td>
     			<td th:text="${board.boardTitle}">제목</td>
+    			<td th:text="${board.member.memberName}">작성자</td>
     			<td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
     			<td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
     			<td th:text="${board.views}">조회수</td>
@@ -107,27 +106,36 @@
 
 <!-- 페이지네이션은 가운데 정렬, 글쓰기 버튼 아래에 위치 -->
 <div class="d-flex justify-content-center mt-4">
-    <nav class="d-flex justify-content-center">
-        <ul class="pagination">
-            <!-- 이전 버튼 -->
-            <li class="page-item" th:classappend="${pageDto.nowPage == 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/board/list(nowPage=${pageDto.nowPage - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}">‹</a>
-            </li>
+  <nav>
+    <ul class="pagination mb-0">
+      <!-- 이전 버튼 -->
+      <li class="page-item" th:classappend="${pageDto.nowPage == 1} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/board/list(nowPage=${pageDto.nowPage - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+           aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
 
-            <!-- 페이지 번호 버튼 -->
-            <li class="page-item" th:each="i : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
-                th:classappend="${i == pageDto.nowPage} ? 'active'">
-                <a class="page-link"
-                   th:href="@{/board/list(nowPage=${i}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-                   th:text="${i}">1</a>
-            </li>
+      <!-- 페이지 번호 -->
+      <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+        <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+          <a class="page-link"
+             th:href="@{/board/list(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+             th:text="${num}">페이지</a>
+        </li>
+      </th:block>
 
-            <!-- 다음 버튼 -->
-            <li class="page-item" th:classappend="${pageDto.nowPage == pageDto.totalPage} ? 'disabled'">
-                <a class="page-link" th:href="@{/board/list(nowPage=${pageDto.nowPage + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}">›</a>
-            </li>
-        </ul>
-    </nav>
+      <!-- 다음 버튼 -->
+      <li class="page-item" th:classappend="${pageDto.nowPage == pageDto.totalPage} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/board/list(nowPage=${pageDto.nowPage + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+           aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 </div>
     
     
