@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
@@ -108,4 +109,24 @@ public class CompanyService {
 				.build();
 	}
 	
+	@Transactional(rollbackFor = Exception.class)
+	public CompanyDto updateThemeColor(String themeColor) {
+		// 가장 마지막에 등록된 회사의 객체를 뽑아서 컬러를 수정해주는 로직
+		Company latest = repository.findTop1ByOrderByRegDateDesc();
+		
+		if(latest == null) {
+			return null;
+		}
+		
+		latest.updateThemeColor(themeColor);
+		
+		return CompanyDto.builder()
+				.company_no(latest.getCompanyNo())
+				.company_name(latest.getCompanyName())
+				.ori_name(latest.getOriName())
+				.new_name(latest.getNewName())
+				.attach_path(latest.getAttachPath())
+				.theme_color(latest.getThemeColor())
+				.build();
+	}
 }

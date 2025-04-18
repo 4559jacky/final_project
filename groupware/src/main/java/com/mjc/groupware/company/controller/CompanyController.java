@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,7 +85,7 @@ public class CompanyController {
 			service.createCompany(param);
 			
 			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "프로필 정보가 수정되었습니다");
+			resultMap.put("res_msg", "프로필 정보 수정이 정상적으로 완료되었습니다.");
 		} catch(IllegalArgumentException e) {
 			logger.error("프로필 등록 중 오류 발생", e);
 			resultMap.put("res_code", "400");
@@ -98,4 +99,30 @@ public class CompanyController {
 		return resultMap;
 	}
 	
+	@PostMapping("/admin/company/color/update")
+	@ResponseBody
+	public Map<String, String> updateThemeColor(@RequestBody Map<String, String> requestData) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		logger.info("CompanyDto: {}", "");
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "테마 색상 변경 중 알 수 없는 오류가 발생했습니다.");
+		
+		try {
+			String themeColor = requestData.get("theme_color");
+			
+			CompanyDto result = service.updateThemeColor(themeColor);
+			resultMap.put("res_theme_color", result.getTheme_color());
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "테마 색상 변경이 정상적으로 완료되었습니다.");
+		} catch(Exception e) {
+			logger.error("테마 색상 변경 중 오류 발생", e);
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "테마 색상 변경 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
+	}
 }

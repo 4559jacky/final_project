@@ -52,4 +52,8 @@ public class Company {
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
 	
+	public void updateThemeColor(String themeColor) {
+		this.themeColor = themeColor;
+	}
+	
 }

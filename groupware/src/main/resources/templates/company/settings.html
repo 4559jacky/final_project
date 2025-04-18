@@ -278,13 +278,13 @@ layout:decorate="~{/include/layout}">
                           
                           <div class="d-flex flex-wrap gap-3 mb-20">
 					        <!-- 각각의 컬러칩 -->
-					        <div class="theme-option" data-theme="blue" style="width: 40px; height: 40px; border-radius: 50%; background-color: #0d6efd; cursor: pointer;" title="Blue"></div>
-					        <div class="theme-option" data-theme="dark" style="width: 40px; height: 40px; border-radius: 50%; background-color: #343a40; cursor: pointer;" title="Dark"></div>
-					        <div class="theme-option" data-theme="green" style="width: 40px; height: 40px; border-radius: 50%; background-color: #198754; cursor: pointer;" title="Green"></div>
-					        <div class="theme-option" data-theme="indigo" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6610f2; cursor: pointer;" title="Indigo"></div>
-					        <div class="theme-option" data-theme="orange" style="width: 40px; height: 40px; border-radius: 50%; background-color: #fd7e14; cursor: pointer;" title="Orange"></div>
-					        <div class="theme-option" data-theme="red" style="width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; cursor: pointer;" title="Red"></div>
-					        <div class="theme-option" data-theme="purple" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6f42c1; cursor: pointer;" title="Purple"></div>
+					        <div class="theme-option" data-theme="Blue_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #0d6efd; cursor: pointer;" title="Blue"></div>
+					        <div class="theme-option" data-theme="Dark_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #343a40; cursor: pointer;" title="Dark"></div>
+					        <div class="theme-option" data-theme="Green_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #198754; cursor: pointer;" title="Green"></div>
+					        <div class="theme-option" data-theme="Indigo_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6610f2; cursor: pointer;" title="Indigo"></div>
+					        <div class="theme-option" data-theme="Orange_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #fd7e14; cursor: pointer;" title="Orange"></div>
+					        <div class="theme-option" data-theme="Red_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; cursor: pointer;" title="Red"></div>
+					        <div class="theme-option" data-theme="Purple_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6f42c1; cursor: pointer;" title="Purple"></div>
 					      </div>
                           
 	                      <p class="mt-3">현재 테마 색상: <span id="selected-theme" class="fw-bold text-primary">None</span></p>                      
@@ -473,6 +473,40 @@ layout:decorate="~{/include/layout}">
 	
 	<script>
 		// 컬러 칩을 선택하면 동작하는 로직 :: 색상이 테마 색상이 변경되며 <p>태그 문구가 바뀜
+		document.querySelectorAll('.theme-option').forEach(option => {
+			option.addEventListener('click', function () {
+
+				if(!confirm('테마 색상을 변경하시겠습니까?')) {
+					return;
+				}
+				const selectedTheme = this.getAttribute('data-theme');
+				
+				document.getElementById('selected-theme').textContent = selectedTheme.substring(0, selectedTheme.indexOf('_'));
+				
+				fetch("/admin/company/color/update", {
+					method: "post",
+					headers: {
+						'Content-Type': 'application/json',
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+	        		body: JSON.stringify({
+	        			theme_color: selectedTheme
+					})
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if (data.res_code === '200') {
+						location.href = "/admin/company";
+					}
+				})
+				.catch(error => {
+	        		console.log(error);
+	        	});
+
+			});
+		});
 	</script>
 	
 	<!-- ---------------------------------------------------------------------------- -->
@@ -482,7 +516,7 @@ layout:decorate="~{/include/layout}">
 	
 	
 	<!-- Bootstrap Common JS Files Start -->
-
+	
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 	
@@ -493,7 +527,7 @@ layout:decorate="~{/include/layout}">
   	<script th:src="@{/assets/js/theme/theme.js}"></script>
   	<script th:src="@{/assets/js/theme/app.min.js}"></script>
   	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-
+	
   	<!-- solar icons -->
   	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
   	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
