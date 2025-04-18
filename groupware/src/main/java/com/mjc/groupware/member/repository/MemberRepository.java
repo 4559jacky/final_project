@@ -2,6 +2,8 @@ package com.mjc.groupware.member.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,6 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
 	Member findByMemberId(String keyword);
 	
 	List<Member> findAll(Specification<Member> spec);
+	Page<Member> findAll(Specification<Member> spec, Pageable pageable);
 
 	List<Member> findAllByDept_DeptNo(Long deptNo);
 	

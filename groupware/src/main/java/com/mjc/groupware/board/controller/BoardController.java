@@ -27,7 +27,7 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
-import com.mjc.groupware.board.service.BoardService.HtmlUtils;
+
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,10 +50,6 @@ public class BoardController {
     @PostMapping("/board")
     @ResponseBody
     public Map<String, String> createBoard(BoardDto dto, @RequestParam(value = "files", required = false) List<MultipartFile> files) {
-
-        String cleanedContent = HtmlUtils.removeHtmlTags(dto.getBoard_content());
-        dto.setBoard_content(cleanedContent);
-
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("res_code", "500");
         resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
@@ -98,6 +94,12 @@ public class BoardController {
     // 게시글 상세보기
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
+    	
+    	// 코드 추가
+    	List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
+    	model.addAttribute("attachList", attachList);
+    	
+    	
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
 
         if (optionalBoard.isPresent()) {
@@ -144,8 +146,6 @@ public class BoardController {
             @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {  // 삭제할 파일 ID 리스트 추가
 
         try {
-            String cleanedContent = HtmlUtils.removeHtmlTags(boardDto.getBoard_content());
-            boardDto.setBoard_content(cleanedContent);
             boardDto.setBoard_no(boardNo);
 
             // 삭제할 파일 리스트를 BoardDto에 세팅

@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.mjc.groupware.company.dto.CompanyDto;
 import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
+import com.mjc.groupware.member.dto.MemberStaticInfoDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberAttachService;
+import com.mjc.groupware.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,7 +56,7 @@ public class GlobalModelAttribute {
 				return;
 			}
 			
-			model.addAttribute("latestMyProfile", latestMyProfile);			
+			model.addAttribute("latestMyProfile", latestMyProfile);
 		}
 	}
 	
