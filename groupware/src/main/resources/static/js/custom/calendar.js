@@ -54,14 +54,33 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Calendar Select fn.
   /*=====================*/
-  // 캘린더 일정추가
+  // 캘린더 일정추가시 시간셋팅
   var calendarSelect = function (info) {
     getModalAddBtnEl.style.display = "block";
     getModalUpdateBtnEl.style.display = "none";
     myModal.show();
-    getModalStartDateEl.value = info.startStr;
-    getModalEndDateEl.value = info.endStr;
+
+    // 시작일시: 현재 시간
+	const startDate = new Date(info.start); // 드래그한 날짜
+    const now = new Date();
+	startDate.setHours(now.getHours(), now.getMinutes(), 0, 0); // 현재 시간만 적용
+
+    // 종료일시: 드래그 끝 날짜의 오후 11:59
+    const rawEndDate = new Date(info.end);
+    rawEndDate.setDate(rawEndDate.getDate() - 1); //FullCalendar는 end를 다음 날로 넘겨서 하루뺌
+    rawEndDate.setHours(23, 59, 0, 0); // 오후 11:59로 설정
+
+    // input에 넣을 형식: YYYY-MM-DDTHH:mm
+    const formatToLocalDatetime = (date) => {
+    const offset = date.getTimezoneOffset();
+    const local = new Date(date.getTime() - offset * 60 * 1000);
+    return local.toISOString().slice(0, 16);
+    };
+
+    getModalStartDateEl.value = formatToLocalDatetime(startDate);
+    getModalEndDateEl.value = formatToLocalDatetime(rawEndDate);
   };
+
   /*=====================*/
   // Calendar AddEvent fn.
   /*=====================*/
@@ -70,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var dd = String(currentDate.getDate()).padStart(2, "0");
     var mm = String(currentDate.getMonth() + 1).padStart(2, "0"); //January is 0!
     var yyyy = currentDate.getFullYear();
-    var combineDate = `${yyyy}-${mm}-${dd}T00:00:00`;
+    var combineDate = `${yyyy}-${mm}-${dd}T00:00`;
     getModalAddBtnEl.style.display = "block";
     getModalUpdateBtnEl.style.display = "none";
     myModal.show();
@@ -155,11 +174,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		        });
 	},
 
-	/*eventClick:calendarEventClick,*/
-	
+	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
 		/*console.log("클릭이벤트 작동 확인",info);*/
-		
 		const eventId = info.event.id;
 		/*console.log("eventId체크",eventId);*/
 		getEvent = info.event;
@@ -174,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		  .then(data => {
 			new bootstrap.Modal(document.getElementById("eventModaldetail")).show();
 			
-			document.querySelector(".btn-update-event").dataset.id = data.plan_no;
+			document.querySelector("#eventModaldetail .btn-update-event").dataset.id = data.plan_no;
 			
 			console.log("가져온 데이터:", data);
 			// 고정값
@@ -201,7 +218,44 @@ document.addEventListener("DOMContentLoaded", function () {
 		  })
 		  .catch(err => console.error("디테일 로딩 실패", err));
 	},
+	// 이미 추가된 일정을 다른날로 드래그해서 이동
+	/*eventDrop: function(info) {
+	  const movedEvent = info.event;
 
+	  const planId = movedEvent.id;
+	  const newStartDate = movedEvent.start.toISOString().slice(0, 10);
+	  const newEndDate = movedEvent.end
+	    ? movedEvent.end.toISOString().slice(0, 10)
+	    : newStartDate;
+
+	  fetch("/plan/" + planId + "/update", {
+	    method: "POST",
+	    headers: {
+	      "Content-Type": "application/json",
+	      "header": document.querySelector('meta[name="_csrf_header"]').content,
+	      "X-CSRF-Token": document.querySelector('meta[name="_csrf"]').content,
+	    },
+	    body: JSON.stringify({
+	      id: planId,
+	      startDate: newStartDate,
+	      endDate: newEndDate
+	    }),
+	  })
+	    .then((res) => res.json())
+	    .then((data) => {
+	      if (data.res_code === "200") {
+	        alert("일정 날짜가 수정되었습니다.");
+	      } else {
+	        alert("일정 수정 실패: " + data.res_msg);
+	        info.revert(); // 서버 저장 실패 시 되돌리기
+	      }
+	    })
+	    .catch((err) => {
+	      console.error("드래그 날짜 이동 실패", err);
+	      alert("서버 오류 발생. 다시 시도해 주세요.");
+	      info.revert(); // 에러 발생 시 되돌리기
+	    });
+	},*/
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
@@ -259,10 +313,11 @@ document.addEventListener("DOMContentLoaded", function () {
 	  getEvent.setExtendedProp("calendar", newCalendarType);
 	  getEvent.setDates(new Date(newStartDate),new Date(newEndDate));
 	  
-	  // 서버에 수정된 값 전달
-	    fetch("/plan/"+planId+"/update/", {
+	  // 서버에 수정된 값 전달..
+	    fetch("/plan/"+planId+"/update", {
 	      method: "POST",
 	      headers: {
+			'Content-Type': 'application/json',
 			'header': document.querySelector('meta[name="_csrf_header"]').content,
 			'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
 	      },

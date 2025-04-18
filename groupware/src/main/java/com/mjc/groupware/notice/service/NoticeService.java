@@ -44,7 +44,7 @@ public class NoticeService {
         return saved != null ? 1 : 0;
     }
 
-    // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능
+    // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능 + 페이징
     public Page<Notice> searchNotice(String keyword, String sort, int page) {
         Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
     	Sort sortObj = Sort.by(direction, "regDate");

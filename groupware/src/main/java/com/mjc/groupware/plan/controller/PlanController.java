@@ -1,6 +1,5 @@
 package com.mjc.groupware.plan.controller;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -54,7 +54,7 @@ public class PlanController {
 	    event.put("id", plan.getPlanNo());
 	    event.put("title", plan.getPlanTitle());
 	    event.put("start", plan.getStartDate());
-	    event.put("end", plan.getEndDate().plusDays(1));
+	    event.put("end", plan.getEndDate());
 	    event.put("color", getColorByType(plan.getPlanType()));
 	    
 	    Map<String, Object> extendedProps = new HashMap<>();
@@ -145,20 +145,25 @@ public class PlanController {
 //	}
 	@PostMapping("/plan/{id}/update")
 	@ResponseBody
-	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, PlanDto dto){
-	    System.out.println("받은 id: " + id);
+	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto){
+		System.out.println("id값:"+id);
+		System.out.println("받은 title: " + dto.getPlan_title());
+		System.out.println("받은 start_date: " + dto.getStart_date());
 
-		Map<String,String> resultMap = new HashMap<String,String>();
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "할일 수정중 오류가 발생했습니다.");
-		
-		Plan result = planService.updatePlanOne(id);
-		if(result != null) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "할일이 등록되었습니다.");
-		}
-		return resultMap;
+
+	    Map<String,String> resultMap = new HashMap<>();
+	    resultMap.put("res_code", "500");
+	    resultMap.put("res_msg", "일정 수정 중 오류가 발생했습니다.");
+
+	    Plan result = planService.updatePlanOne(id, dto);
+	    if(result != null) {
+	        resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
+	    }
+
+	    return resultMap;
 	}
+
 
 
 	

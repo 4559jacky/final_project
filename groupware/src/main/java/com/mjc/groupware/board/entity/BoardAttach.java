@@ -1,5 +1,6 @@
 package com.mjc.groupware.board.entity;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -36,4 +37,8 @@ public class BoardAttach {
 
     @Column(name = "mod_date")
     private LocalDateTime modDate;
+
+	public URI getFile_path() {
+		return null;
+	}
 }

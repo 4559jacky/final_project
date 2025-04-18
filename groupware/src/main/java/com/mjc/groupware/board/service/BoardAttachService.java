@@ -33,89 +33,90 @@ public class BoardAttachService {
         return attachRepository.findById(id).orElse(null);
     }
 
+    // 2025 - 04 -18(금요일) // 파일 목록 조회 코드 수정
     // 게시글에 속한 첨부파일 목록 조회(O)
     public List<BoardAttach> selectAttachList(Long boardNo) {
         Board board = boardRepository.findById(boardNo).orElse(null);
-        // Specification 생성(BoardAttach)
-        Specification<BoardAttach> spec = (root, query, criteriaBuilder) -> null;
+        Specification<BoardAttach> spec = (root,query,criteriaBuilder) -> null;
         spec = spec.and(BoardAttachSpecification.boardEquals(board));
-        // findAll 메소드에 전달(spec)
         return attachRepository.findAll(spec);
+        //return board != null ? attachRepository.findByBoard(board) : null;
     }
 
-    // 파일 메타데이터 삭제(O)
-    public int deleteMetaData(Long attach_no) {
-        int result = 0;
+    // 파일 메타데이터 및 실제 파일 삭제(O)
+    public boolean deleteFile(Long attachNo) {
         try {
-            BoardAttach target = attachRepository.findById(attach_no).orElse(null);
-            if (target != null) {
-                attachRepository.delete(target);
-            }
-            result = 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    // 실제 파일 삭제(O)
-    public int deleteFileData(Long attach_no) {
-        int result = 0;
-        try {
-            BoardAttach boardattach = attachRepository.findById(attach_no).orElse(null);
-            if (boardattach != null) {
-                File file = new File(boardattach.getAttachPath());
+            BoardAttach boardAttach = attachRepository.findById(attachNo).orElse(null);
+            if (boardAttach != null) {
+                // 파일 삭제
+                File file = new File(boardAttach.getAttachPath());
                 if (file.exists()) {
-                    file.delete();
+                    boolean deleted = file.delete();  // 파일 삭제
+                    if (!deleted) {
+                        return false;  // 파일 삭제 실패
+                    }
                 }
+
+                // 메타데이터 삭제
+                attachRepository.delete(boardAttach);
+                return true;
             }
-            result = 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return false;
     }
 
     // 파일 업로드 처리
     public BoardAttach uploadFile(MultipartFile file, Long boardNo) {
         if (file.isEmpty()) {
-            return null; // 파일이 없으면 null 반환
+            return null;
         }
-        
-        // 파일 경로 및 이름 생성
+
         String oriName = file.getOriginalFilename();
         String newName = UUID.randomUUID().toString() + "-" + oriName;
         String filePath = fileDir + "/" + newName;
-        
-        // 파일 저장
+
+        if (!isValidFileType(oriName)) {
+            return null;
+        }
+
         try {
             file.transferTo(new File(filePath));
         } catch (Exception e) {
             e.printStackTrace();
-            return null; // 파일 저장 오류
+            return null;
         }
 
-        // 파일 정보 BoardAttach 객체로 저장
         BoardAttach boardAttach = BoardAttach.builder()
                 .oriName(oriName)
                 .newName(newName)
                 .attachPath(filePath)
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
-                .board(Board.builder().boardNo(boardNo).build()) // boardNo 설정
+                .board(Board.builder().boardNo(boardNo).build())
                 .build();
 
-        // 데이터베이스에 저장
-        return attachRepository.save(boardAttach); // 저장된 파일 정보 반환
+        return attachRepository.save(boardAttach);
     }
     
     
+    // 파일 형식 검증 (이미지 파일만 허용)
+    private boolean isValidFileType(String fileName) {
+        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp" };
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        for (String ext : validExtensions) {
+            if (fileExtension.equals(ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    	// 파일 삭제
+    // 파일 삭제 (여러 개의 파일을 처리)
     public void deleteFiles(List<Long> fileIds) {
         for (Long fileId : fileIds) {
-            attachRepository.deleteById(fileId);
+            deleteFile(fileId);
         }
     }
-    
 }
