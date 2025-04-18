@@ -76,6 +76,7 @@ public class CompanyService {
 					.oriName(dto.getOri_name())
 					.newName(dto.getNew_name())
 					.attachPath(dto.getAttach_path())
+					.themeColor("Blue_Theme")
 					.build();
 			
 			repository.save(param);
@@ -99,6 +100,7 @@ public class CompanyService {
 				.ori_name(latest.getOriName())
 				.new_name(latest.getNewName())
 				.attach_path(latest.getAttachPath())
+				.theme_color(latest.getThemeColor())
 				.reg_date(latest.getRegDate())
 				.mod_date(latest.getModDate())
 				.light_logo_path("/uploads/" + latest.getNewName())

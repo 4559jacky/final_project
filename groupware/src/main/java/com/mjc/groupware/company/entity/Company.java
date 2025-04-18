@@ -41,6 +41,9 @@ public class Company {
 	@Column(name="attach_path")
 	private String attachPath;
 	
+	@Column(name="theme_color")
+	private String themeColor;
+	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
 	private LocalDateTime regDate;

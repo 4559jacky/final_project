@@ -28,8 +28,8 @@ public class CompanyController {
 	private final CompanyService service;
 	private final CompanyRepository repository;
 	
-	@GetMapping("/admin/company/create")
-	public String createCompanyView(Model model) {
+	@GetMapping("/admin/company")
+	public String companySettingsView(Model model) {
 		Company latest = repository.findTop1ByOrderByRegDateDesc();
 		
 		if(latest != null) {
@@ -51,7 +51,7 @@ public class CompanyController {
 			model.addAttribute("companyDto", companyDto);
 		}
 		
-		return "/company/create";
+		return "/company/settings";
 	}
 	
 	@PostMapping("/admin/company/create")
