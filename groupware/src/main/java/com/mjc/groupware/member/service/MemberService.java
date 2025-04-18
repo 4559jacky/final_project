@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +28,7 @@ import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.specification.MemberSpecification;
 import com.mjc.groupware.pos.entity.Pos;
 
@@ -180,6 +183,16 @@ public class MemberService {
 			        dto.getMember_addr2(),
 			        dto.getMember_addr3()
 			    );
+			
+			MemberDetails updatedDetails = new MemberDetails(target);
+			
+			Authentication newAuth = new UsernamePasswordAuthenticationToken(
+			        updatedDetails,
+			        null,								// 이미 인증된 유저의 세션을 갱신하는 거라서 null 로 놓는 것이 훨씬 안전하다고 함
+			        updatedDetails.getAuthorities()
+			);
+			
+			SecurityContextHolder.getContext().setAuthentication(newAuth);
 			
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException(e.getMessage());
