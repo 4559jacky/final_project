@@ -40,20 +40,20 @@ layout:decorate="~{/include/layout}">
             </li>
             <li class="nav-item" role="presentation">
             	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#pills-notifications" type="button" role="tab" aria-controls="pills-notifications" aria-selected="false">
-                	<i class="ti ti-bell me-2 fs-6"></i>
+                	<i class="ti ti-puzzle me-2 fs-6"></i>
                 	<span class="d-none d-md-block">기능 설정</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+            	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-security-tab" data-bs-toggle="pill" data-bs-target="#pills-security" type="button" role="tab" aria-controls="pills-security" aria-selected="false">
+                	<i class="ti ti-code me-2 fs-6"></i>
+                	<span class="d-none d-md-block">규칙 설정</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
             	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-bills-tab" data-bs-toggle="pill" data-bs-target="#pills-bills" type="button" role="tab" aria-controls="pills-bills" aria-selected="false">
                 	<i class="ti ti-palette me-2 fs-6"></i>
                 	<span class="d-none d-md-block">색상 설정</span>
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-            	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-security-tab" data-bs-toggle="pill" data-bs-target="#pills-security" type="button" role="tab" aria-controls="pills-security" aria-selected="false">
-                	<i class="ti ti-lock me-2 fs-6"></i>
-                	<span class="d-none d-md-block">규칙 설정</span>
                 </button>
             </li>
 		</ul>
@@ -270,7 +270,7 @@ layout:decorate="~{/include/layout}">
                 <div class="tab-pane fade" id="pills-bills" role="tabpanel" aria-labelledby="pills-bills-tab" tabindex="0">
                   <div class="row justify-content-center">
                   	
-                    <div class="col-lg-9">
+                    <div class="col-lg-12">
                       <div class="card border shadow-none">
                         <div class="card-body p-4">
                           <h4 class="card-title mb-2">테마 색상 설정</h4>
@@ -280,11 +280,11 @@ layout:decorate="~{/include/layout}">
 					        <!-- 각각의 컬러칩 -->
 					        <div class="theme-option" data-theme="Blue_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #0d6efd; cursor: pointer;" title="Blue"></div>
 					        <div class="theme-option" data-theme="Dark_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #343a40; cursor: pointer;" title="Dark"></div>
-					        <div class="theme-option" data-theme="Green_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #198754; cursor: pointer;" title="Green"></div>
-					        <div class="theme-option" data-theme="Indigo_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6610f2; cursor: pointer;" title="Indigo"></div>
-					        <div class="theme-option" data-theme="Orange_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #fd7e14; cursor: pointer;" title="Orange"></div>
-					        <div class="theme-option" data-theme="Red_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #dc3545; cursor: pointer;" title="Red"></div>
-					        <div class="theme-option" data-theme="Purple_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6f42c1; cursor: pointer;" title="Purple"></div>
+					        <div class="theme-option" data-theme="Green_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #00CEC3; cursor: pointer;" title="Green"></div>
+					        <div class="theme-option" data-theme="Indigo_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #0A7EA4; cursor: pointer;" title="Indigo"></div>
+					        <div class="theme-option" data-theme="Orange_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #FB9678; cursor: pointer;" title="Orange"></div>
+					        <div class="theme-option" data-theme="Red_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #FF5C82; cursor: pointer;" title="Red"></div>
+					        <div class="theme-option" data-theme="Purple_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #7352ff; cursor: pointer;" title="Purple"></div>
 					      </div>
                           
                           <th:block th:if="${companyDto != null}">
