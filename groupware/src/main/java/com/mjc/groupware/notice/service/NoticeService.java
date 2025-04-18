@@ -1,6 +1,10 @@
 package com.mjc.groupware.notice.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,11 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.notice.dto.NoticeDto;
+import com.mjc.groupware.notice.entity.Attach;
 import com.mjc.groupware.notice.entity.Notice;
+import com.mjc.groupware.notice.repository.AttachRepository;
 import com.mjc.groupware.notice.repository.NoticeRepository;
 import com.mjc.groupware.notice.specification.NoticeSpecification;
 
@@ -24,24 +31,37 @@ public class NoticeService {
 
     private final NoticeRepository repository;
     private final MemberRepository memberRepository; // 추가
+    private final AttachRepository attachRepository;
+    private final AttachService attachService;
     
     //게시글 생성
-    public int createNoticeApi(NoticeDto dto) {
+    public int createNoticeApi(NoticeDto dto, List<MultipartFile> files) {
         // memberNo로 Member 객체 조회
         Member member = memberRepository.findById(dto.getMember_no())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다: " + dto.getMember_no()));
 
-        // Shared 엔티티 생성
-        Notice entity = dto.toEntity();
-        entity = Notice.builder()
-                .noticeTitle(entity.getNoticeTitle())
-                .noticeContent(entity.getNoticeContent())
-                .views(entity.getViews() != 0 ? entity.getViews() : 0)
-                .member(member) // 조회한 Member 객체 설정
+        Notice entity = Notice.builder()
+                .noticeTitle(dto.getNotice_title())
+                .noticeContent(dto.getNotice_content())
+                .views(0)
+                .member(member)
                 .build();
 
         Notice saved = repository.save(entity);
-        return saved != null ? 1 : 0;
+
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    try {
+                        attachService.saveFile(file, saved);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return 0;
+                    }
+                }
+            }
+        }
+        return 1;
     }
 
     // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능 + 페이징

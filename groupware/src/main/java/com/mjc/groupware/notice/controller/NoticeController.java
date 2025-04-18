@@ -1,6 +1,7 @@
 package com.mjc.groupware.notice.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -12,11 +13,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.notice.dto.NoticeDto;
+import com.mjc.groupware.notice.entity.Attach;
 import com.mjc.groupware.notice.entity.Notice;
+import com.mjc.groupware.notice.repository.AttachRepository;
 import com.mjc.groupware.notice.repository.NoticeRepository;
 import com.mjc.groupware.notice.service.NoticeService;
 
@@ -30,6 +34,7 @@ public class NoticeController {
 
     private final NoticeService service;
     private final NoticeRepository repository;
+    private final AttachRepository attachRepository;
 
     // 게시글 목록 화면 + 게시글 검색 기능 추가 + 게시글 정렬 + 검색 조건+ 페이징
     @GetMapping("/notice")
@@ -69,24 +74,23 @@ public class NoticeController {
     @ResponseBody
     public Map<String, String> createNoticeApi(
             @ModelAttribute NoticeDto dto,
+            @RequestParam("files") List<MultipartFile> files,
             @AuthenticationPrincipal MemberDetails memberDetails) {
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("res_code", "500");
         resultMap.put("res_msg", "게시글 생성 실패");
 
-        // 로그인한 사용자 확인
         if (memberDetails == null) {
             resultMap.put("res_msg", "로그인한 사용자를 찾을 수 없습니다.");
             return resultMap;
         }
 
-        // HTML에서 넘어온 member_no를 사용 (이미 SharedDto에 바인딩됨)
         if (dto.getMember_no() == null) {
             resultMap.put("res_msg", "회원 번호를 찾을 수 없습니다.");
             return resultMap;
         }
 
-        int result = service.createNoticeApi(dto);
+        int result = service.createNoticeApi(dto, files);
 
         if (result > 0) {
             resultMap.put("res_code", "200");
@@ -104,6 +108,9 @@ public class NoticeController {
             // 게시글이 없는 경우 처리 (예: 목록으로 리다이렉트)
             return "redirect:/notice";
         }
+        
+        List<Attach> attachList= attachRepository.findByNotice(notice);
+        model.addAttribute("attachList",attachList);
         model.addAttribute("notice", notice);
         return "/notice/detail";
     }
