@@ -287,8 +287,12 @@ layout:decorate="~{/include/layout}">
 					        <div class="theme-option" data-theme="Purple_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6f42c1; cursor: pointer;" title="Purple"></div>
 					      </div>
                           
-	                      <p class="mt-3">현재 테마명: <span id="selected-theme" class="fw-bold text-primary" th:text="${(companyDto.theme_color ?: 'Blue_Theme').substring(0, (companyDto.theme_color ?: 'Blue_Theme').indexOf('_'))}"></span></p>                      
- 
+                          <th:block th:if="${companyDto != null}">
+	                      	<p class="mt-3">현재 테마명: <span id="selected-theme" class="fw-bold text-primary" th:text="${(companyDto.theme_color ?: 'Blue_Theme').substring(0, (companyDto.theme_color ?: 'Blue_Theme').indexOf('_'))}"></span></p>                      
+ 						  </th:block>
+ 						  <th:block th:if="${companyDto == null}">
+ 						    <p class="mt-3">현재 테마명: <span id="selected-theme" class="fw-bold text-primary" th:text="Blue"></span></p>
+ 						  </th:block>
                         </div>
                       </div>
                     </div>
