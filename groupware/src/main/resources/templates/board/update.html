@@ -49,10 +49,39 @@
     <br>
     
 	<!-- 파일 첨부 -->
- 	<div class="mb-3">
+	<div th:each="boardAttach : ${attachList}">
+		<input type="hidden" name="delete_files" th:value="${boardAttach.attachNo}" disabled>
+		<span th:text="${boardAttach.oriName}">파일명</span>
+		<button type="button" class="btn_close" onclick="deleteDesign(this);">삭제</button>
+	<br>
+	</div>
+	<input type="file" name="files" multiple><br>
+	<script>
+	const changeStatus = function(element){		
+		const bumo = element.parentElement;
+		const child1 = bumo.firstElementChild;	// hidden
+		const child2 = child1.nextElementSibling;	// span
+	
+		if(element.classList.contains('btn_close')){
+			element.classList.remove('btn_close');
+			element.classList.add('btn_open');
+			element.innerText = '유지';
+			child1.disabled = false;
+			child2.style.textDecoration = 'line-through';
+		} else{
+			element.classList.add('btn_close');
+			element.classList.remove('btn_open');
+			element.innerText = '삭제';
+			child2.style.textDecoration="none";
+			child1.disabled = true;
+		}
+	}
+	</script>
+	
+<!--  	<div class="mb-3">
   		<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
   		<input type="file" class="form-control bg-white text-dark" id="board_file" name="board_file" multiple>
-	</div>
+	</div> -->
 
     <!-- 수정 완료 버튼 -->
     <div class="d-flex justify-content-end gap-2 mt-4">

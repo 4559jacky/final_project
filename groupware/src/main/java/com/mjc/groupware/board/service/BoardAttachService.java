@@ -43,8 +43,9 @@ public class BoardAttachService {
         //return board != null ? attachRepository.findByBoard(board) : null;
     }
 
-    // 파일 메타데이터 및 실제 파일 삭제(O)
+    // 파일 메타데이터 및 실제 파일 삭제(O) - 살짝 수정함
     public boolean deleteFile(Long attachNo) {
+    	int result = 0;
         try {
             BoardAttach boardAttach = attachRepository.findById(attachNo).orElse(null);
             if (boardAttach != null) {
@@ -61,11 +62,13 @@ public class BoardAttachService {
                 attachRepository.delete(boardAttach);
                 return true;
             }
+            result = 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
+
 
     // 파일 업로드 처리
     public BoardAttach uploadFile(MultipartFile file, Long boardNo) {
