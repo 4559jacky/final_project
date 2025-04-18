@@ -31,14 +31,17 @@ public class NoticeController {
     private final NoticeService service;
     private final NoticeRepository repository;
 
-    // 게시글 목록 화면 + 게시글 검색 기능 추가 + 게시글 정렬
+    // 게시글 목록 화면 + 게시글 검색 기능 추가 + 게시글 정렬 + 검색 조건+ 페이징
     @GetMapping("/notice")
-    public String listView(@RequestParam(value = "keyword", required = false) String keyword, 
+    public String listView(
+    					   @RequestParam(value = "search_type", required = false) Integer searchType,
+    					   @RequestParam(value = "keyword", required = false) String keyword, 
     					   @RequestParam(value = "sort", defaultValue = "desc") String sort,	
     					   @RequestParam(value = "page", defaultValue = "0") int page,
     					   Model model) {    	
-    	Page<Notice> noticeList = service.searchNotice(keyword, sort, page);
-        model.addAttribute("noticeList", noticeList);
+    	Page<Notice> noticeList = service.searchNotice(searchType, keyword, sort, page);
+        model.addAttribute("search_type", searchType);
+    	model.addAttribute("noticeList", noticeList);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
         return "/notice/list";
