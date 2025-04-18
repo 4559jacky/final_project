@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +14,7 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.repository.BoardAttachRepository;
 import com.mjc.groupware.board.repository.BoardRepository;
+import com.mjc.groupware.board.specification.BoardAttachSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,10 +33,14 @@ public class BoardAttachService {
         return attachRepository.findById(id).orElse(null);
     }
 
+    // 2025 - 04 -18(금요일) // 파일 목록 조회 코드 수정
     // 게시글에 속한 첨부파일 목록 조회(O)
     public List<BoardAttach> selectAttachList(Long boardNo) {
         Board board = boardRepository.findById(boardNo).orElse(null);
-        return board != null ? attachRepository.findByBoard(board) : null;
+        Specification<BoardAttach> spec = (root,query,criteriaBuilder) -> null;
+        spec = spec.and(BoardAttachSpecification.boardEquals(board));
+        return attachRepository.findAll(spec);
+        //return board != null ? attachRepository.findByBoard(board) : null;
     }
 
     // 파일 메타데이터 및 실제 파일 삭제(O)

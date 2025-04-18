@@ -30,15 +30,13 @@
     <input type="hidden" name="board_no" id="board_no" th:value="${board.boardNo}">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-
 	<!-- 제목 -->
 	<div class="row mb-3 align-items-center">
   		<div class="mb-3">
     		<label for="board_title" class="form-label"><strong>제목</strong></label>
-    		<input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
+    		<input type="text" th:value="${board.boardTitle}" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
   		</div>
 	</div>
-
 
     <!-- 내용 입력 -->
     <div class="mb-3">

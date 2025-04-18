@@ -149,7 +149,6 @@ public class BoardService {
         return repository.save(board);
     }
     
-    
 
     // 게시글 삭제 ("N" -> "Y" 게시글 목록에서 삭제되면 데이터베이스 안에 삭제 여부가 "N" -> "Y"로 바뀜)
     @Transactional
@@ -163,13 +162,4 @@ public class BoardService {
         repository.save(board);
     }
 
-    // HTML 태그를 제거하는 내부 유틸리티 클래스
-    public static class HtmlUtils {
-        // HTML 태그를 제거하고 텍스트만 남기는 메서드
-        public static String removeHtmlTags(String html) {
-            if (html == null) return "";
-            // 정규 표현식을 사용하여 HTML 태그를 제거
-            return html.replaceAll("<[^>]*>", "").trim();
-        }
-    }
 }

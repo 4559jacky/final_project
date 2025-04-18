@@ -19,6 +19,20 @@
         display: block;   /* 이미지 위아래 여백 없애기 */
         margin: 0 auto;   /* 이미지를 가운데 정렬 */
     }
+   .file-link {
+  		display: inline-block;
+  		color: #007bff; /* 기본 파란색 */
+  		text-decoration: none;
+  		font-weight: 500;
+  		transition: all 0.2s ease-in-out;
+  		cursor: pointer;
+	}
+
+	.file-link:hover {
+  		color: #000; /* 마우스 올리면 검정색 */
+  		font-size: 1.05rem; /* 살짝 커지게 */
+  		text-decoration: underline;
+	}
 </style>
     
 </head>
@@ -56,7 +70,8 @@
          style="font-size: 1.1rem;">
         <i class="ti ti-eye"></i> 
         <span th:text="${board.views}">0</span> |
-        <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
+        <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span><br>
+        <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
     </div>
 
     <hr>
@@ -70,6 +85,16 @@
         </div>
     </div>
     <br>
+    <hr>
+    
+    <!-- 일단 파일명 추가 -->
+	<div th:if="${!#lists.isEmpty(attachList)}"
+     	 th:each="boardAttach : ${attachList}">
+  			<a th:onclick="|location.href='@{/download/{id}(id=${boardAttach.attachNo})}'|"
+     		   th:text="${boardAttach.oriName}" class="file-link">파일명</a>
+	</div>
+    <hr>
+    
             <th:block sec:authorize="isAuthenticated()">
                 <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="text-end">
                     <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
@@ -77,11 +102,6 @@
                 </div>
             </th:block>
 	</div>
-        <!-- 작성자 및 버튼 -->
-        <div class="d-flex justify-content-between align-items-center">
-            <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
-
-        </div>
 
     <hr>
 
