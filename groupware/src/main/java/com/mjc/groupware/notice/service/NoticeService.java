@@ -45,19 +45,25 @@ public class NoticeService {
     }
 
     // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능 + 페이징
-    public Page<Notice> searchNotice(String keyword, String sort, int page) {
+    public Page<Notice> searchNotice(Integer searchType, String keyword, String sort, int page) {
         Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
     	Sort sortObj = Sort.by(direction, "regDate");
     	Pageable pageable = PageRequest.of(page, 10, sortObj);
     	if (keyword == null || keyword.isBlank()) {
             return repository.findAll(pageable);
-        } else {
-            return repository.findAll(
-            		Specification.where(
-            				NoticeSpecification.noticeTitleContains(keyword)
-            				.or(NoticeSpecification.noticeContentContains(keyword))
-            			), pageable);
-        }
+        } 
+    	  Specification<Notice> spec = null;
+
+    	    if (searchType == null || searchType == 1) { // 제목
+    	        spec = NoticeSpecification.noticeTitleContains(keyword);
+    	    } else if (searchType == 2) { // 내용
+    	        spec = NoticeSpecification.noticeContentContains(keyword);
+    	    } else if (searchType == 3) { // 제목+내용
+    	        spec = Specification.where(NoticeSpecification.noticeTitleContains(keyword))
+    	                            .or(NoticeSpecification.noticeContentContains(keyword));
+    	    }
+
+    	    return repository.findAll(spec, pageable);
     }
     
     // 게시글 상세 조회 (조회수 증가 포함)

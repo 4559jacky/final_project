@@ -31,7 +31,7 @@ public class WebSecurityConfig {
 	WebSecurityCustomizer configure() {
 		return (web -> web.ignoring()
 					.requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-					.requestMatchers("/assets/**", "/favicon.ico")
+					.requestMatchers("/assets/**", "/favicon.ico", "/uploads/**")
 		);
 	}
 	

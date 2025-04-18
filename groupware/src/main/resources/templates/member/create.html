@@ -70,9 +70,7 @@ layout:decorate="~{/include/layout}">
                             			<div class="mb-3">
                             				<label for="pos_no" class="form-label">직급</label>
                             				<select class="form-select" id="pos_no" name="pos_no" aria-label="position-select">
-                            					<th:block th:if="${#lists.isEmpty(posList)}">
-                            						<option th:value="0" th:selected>-</option>
-                            					</th:block>
+                            					<option th:value="0" th:selected>-</option>
                             					<th:block th:if="${!#lists.isEmpty(posList)}" th:each="pos : ${posList}">
                             						<option th:value="${pos.posNo}" th:text="${pos.posName}" th:selected="${pos.posNo == selectedPosNo}"></option>
                             					</th:block>

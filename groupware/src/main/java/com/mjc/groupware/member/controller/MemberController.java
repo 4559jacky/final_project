@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +31,7 @@ import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.dto.StatusDto;
 import com.mjc.groupware.member.entity.Member;
@@ -86,7 +88,7 @@ public class MemberController {
 	@GetMapping("/admin/member/create")
 	public String createMemberView(Model model) {
 		List<Pos> posList = posService.selectPosAllByPosOrderAsc();
-		List<Dept> deptList = deptService.selectDeptAll();
+		List<Dept> deptList = deptService.SelectDeptAllOrderByDeptNameAsc();
 		
 		model.addAttribute("posList", posList);
 		model.addAttribute("deptList", deptList);
@@ -125,8 +127,12 @@ public class MemberController {
 	}
 	
 	@GetMapping("/admin/member")
-	public String selectMemberAll(Model model, MemberSearchDto searchDto) {
-		List<Member> memberList = service.selectMemberAll(searchDto);
+	public String selectMemberAll(Model model, MemberSearchDto searchDto, PageDto pageDto) {
+		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		
+		Page<Member> memberList = service.selectMemberAll(searchDto, pageDto);
+		pageDto.setTotalPage(memberList.getTotalPages());
+		
 		List<Dept> deptList = deptService.selectDeptAll();
 		List<Pos> posList = posService.selectPosAll();
 		List<Role> roleList = roleService.selectRoleAll();
@@ -150,6 +156,7 @@ public class MemberController {
 		model.addAttribute("roleList", roleList);
 		model.addAttribute("statusList", statusList);
 		model.addAttribute("searchText", searchDto.getSearch_text());
+		model.addAttribute("pageDto", pageDto);
 		
 		return "member/list";
 	}
@@ -324,6 +331,7 @@ public class MemberController {
 		
 		try {
 			for(MemberResponseDto dto : dtoList) {
+				
 				service.updateMember(dto);
 			}
 			

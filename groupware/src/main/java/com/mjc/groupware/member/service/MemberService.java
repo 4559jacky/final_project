@@ -5,8 +5,14 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,9 +24,11 @@ import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.specification.MemberSpecification;
 import com.mjc.groupware.pos.entity.Pos;
 
@@ -57,16 +65,26 @@ public class MemberService {
 		return resultList;
 	}
 	
-	public List<Member> selectMemberAll(MemberSearchDto searchDto) {
+	public Page<Member> selectMemberAll(MemberSearchDto searchDto, PageDto pageDto) {		
 		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
-
+		
+		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("memberNo").ascending());
+		
 		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
 			// 아무것도 입력하지않으면 findAll() 과 동일함
 		} else {
-			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));			
+			
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));
+			
+			try {
+				Long memberNo = Long.parseLong(searchDto.getSearch_text());
+				spec = spec.or(MemberSpecification.memberNoEquals(memberNo));
+			} catch(Exception e) {
+				
+			}
 		}
-
-		List<Member> resultList = repository.findAll(spec);
+		
+		Page<Member> resultList = repository.findAll(spec, pageable);
 		
 		return resultList;
 	}
@@ -99,7 +117,7 @@ public class MemberService {
 	public void transferMembersOfDept(Long fromDeptNo, Long toDeptNo) {
 		// 삭제인 경우(get_status == 3 인 경우 - 해당 부서의 멤버 구성원을 선택한 부서로 이관시켜주는 작업
 		List<Member> members = repository.findAllByDept_DeptNo(fromDeptNo);
-			
+		
 		Dept transferDept = null;
 		if (toDeptNo != null) {
 			transferDept = deptRepository.findById(toDeptNo)
@@ -166,6 +184,16 @@ public class MemberService {
 			        dto.getMember_addr3()
 			    );
 			
+			MemberDetails updatedDetails = new MemberDetails(target);
+			
+			Authentication newAuth = new UsernamePasswordAuthenticationToken(
+			        updatedDetails,
+			        null,								// 이미 인증된 유저의 세션을 갱신하는 거라서 null 로 놓는 것이 훨씬 안전하다고 함
+			        updatedDetails.getAuthorities()
+			);
+			
+			SecurityContextHolder.getContext().setAuthentication(newAuth);
+			
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		} catch(Exception e) {
@@ -180,11 +208,11 @@ public class MemberService {
 			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 			
 			target.updateMember(
-					Dept.builder().deptNo(dto.getDept_no()).build(),
-					Pos.builder().posNo(dto.getPos_no()).build(),
-					Role.builder().roleNo(dto.getRole_no()).build(),
-					dto.getStatus()
-					);
+				dto.getDept_no() != null ? Dept.builder().deptNo(dto.getDept_no()).build() : null,
+				dto.getPos_no() != null ? Pos.builder().posNo(dto.getPos_no()).build() : null,
+				Role.builder().roleNo(dto.getRole_no()).build(),
+				dto.getStatus()
+			);
 			
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException(e.getMessage());
