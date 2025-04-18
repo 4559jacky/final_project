@@ -254,6 +254,7 @@ layout:decorate="~{/include/layout}">
 											    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
 											      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
 											        <a class="page-link"
+											           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
 											           th:href="@{/admin/member(nowPage=${num}, search_text=${searchText})}"
 											           th:text="${num}">페이지</a>
 											      </li>
