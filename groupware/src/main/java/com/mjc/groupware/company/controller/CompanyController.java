@@ -41,6 +41,7 @@ public class CompanyController {
 					.ori_name(latest.getOriName())
 					.new_name(latest.getNewName())
 					.attach_path(latest.getAttachPath())
+					.theme_color(latest.getThemeColor())
 					.build();
 			
 			if (companyDto.getProfile_image_path() != null) {

@@ -75,7 +75,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				    <th:block th:if="${theme} != dark">
 				      <a th:href="@{/home}" class="text-nowrap nav-link d-flex align-items-center justify-content-center">
 				        <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
-				        <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
 				        <span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
 				      </a>
 				    </th:block>

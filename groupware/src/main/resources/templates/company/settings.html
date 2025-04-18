@@ -8,7 +8,7 @@ layout:decorate="~{/include/layout}">
 	
 	<!-- Custom CSS Files -->
 	
-	
+	<link th:href="@{/css/cjs/settings.css}" rel="stylesheet">
 	
 	<!-- ---------------------------------------------------------------------------- -->
 	<!-- HTML 작성 공간 -->
@@ -287,7 +287,7 @@ layout:decorate="~{/include/layout}">
 					        <div class="theme-option" data-theme="Purple_Theme" style="width: 40px; height: 40px; border-radius: 50%; background-color: #6f42c1; cursor: pointer;" title="Purple"></div>
 					      </div>
                           
-	                      <p class="mt-3">현재 테마 색상: <span id="selected-theme" class="fw-bold text-primary">None</span></p>                      
+	                      <p class="mt-3">현재 테마명: <span id="selected-theme" class="fw-bold text-primary" th:text="${(companyDto.theme_color ?: 'Blue_Theme').substring(0, (companyDto.theme_color ?: 'Blue_Theme').indexOf('_'))}"></span></p>                      
  
                         </div>
                       </div>
@@ -496,15 +496,34 @@ layout:decorate="~{/include/layout}">
 				})
 				.then(response => response.json())
 				.then(data => {
+					document.getElementById('selected-theme').textContent = data.res_theme_color.substring(0, selectedTheme.indexOf('_'));
 					alert(data.res_msg);
 					if (data.res_code === '200') {
-						location.href = "/admin/company";
+						location.reload();
 					}
 				})
 				.catch(error => {
 	        		console.log(error);
 	        	});
 
+			});
+		});
+	</script>
+	
+	<script>
+		// 선택된 컬러 강조하는 로직
+		document.addEventListener("DOMContentLoaded", function () {
+		    // 타임리프에서 현재 테마명 받아오기
+		    const currentTheme = document.getElementById('selected-theme')?.textContent?.toLowerCase();
+			
+		    // 비교한 다음 클래스 부여
+		    document.querySelectorAll('.theme-option').forEach(option => {
+		      	const optionTheme = option.getAttribute('data-theme');
+		      	const optionShort = optionTheme.substring(0, optionTheme.indexOf('_')).toLowerCase();
+				
+		      	if (optionShort === currentTheme) {
+		        	option.classList.add('selected');
+		    	}
 			});
 		});
 	</script>
