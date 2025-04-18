@@ -130,8 +130,8 @@ public class BoardService {
         board.setModDate(LocalDateTime.now());
 
         // 삭제할 파일 처리
-        if (boardDto.getDeleteFiles() != null && !boardDto.getDeleteFiles().isEmpty()) {
-            boardAttachService.deleteFiles(boardDto.getDeleteFiles());
+        if (boardDto.getDelete_files() != null && !boardDto.getDelete_files().isEmpty()) {
+            boardAttachService.deleteFiles(boardDto.getDelete_files());
         }
 
         // 새 파일 업로드 처리
