@@ -94,23 +94,23 @@ public class BoardController {
     // 게시글 상세보기
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
-    	
-    	// 코드 추가
-    	List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
-    	model.addAttribute("attachList", attachList);
-    	
-    	
+
+        // 첨부파일 먼저 조회
+        List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
+        model.addAttribute("attachList", attachList);
+
+        // 게시글 조회
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
 
         if (optionalBoard.isPresent()) {
-            // 조회수 증가
-            boardService.viewCount(boardNo); // 조회수 증가 메소드 호출
+            // 조회수 증가 (select 이후에도 가능)
+            boardService.updateViews(boardNo);  // 기존에 viewCount() 쓰던 부분을 수정
 
             model.addAttribute("board", optionalBoard.get());
             return "board/detail";
         } else {
             model.addAttribute("error", "해당 게시글을 찾을 수 없습니다.");
-            return "error";  // 에러 페이지로 이동
+            return "error";
         }
     }
     

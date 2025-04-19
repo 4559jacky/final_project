@@ -28,31 +28,28 @@ public class BoardAttachService {
     private final BoardRepository boardRepository;
     private final BoardAttachRepository attachRepository;
 
-    // 파일 단일 조회(O)
+    // 파일 단일 조회
     public BoardAttach selectAttachOne(Long id) {
         return attachRepository.findById(id).orElse(null);
     }
 
-    // 2025 - 04 -18(금요일) // 파일 목록 조회 코드 수정
-    // 게시글에 속한 첨부파일 목록 조회(O)
+    // 게시글에 속한 첨부파일 목록 조회
     public List<BoardAttach> selectAttachList(Long boardNo) {
         Board board = boardRepository.findById(boardNo).orElse(null);
-        Specification<BoardAttach> spec = (root,query,criteriaBuilder) -> null;
+        Specification<BoardAttach> spec = (root, query, criteriaBuilder) -> null;
         spec = spec.and(BoardAttachSpecification.boardEquals(board));
         return attachRepository.findAll(spec);
-        //return board != null ? attachRepository.findByBoard(board) : null;
     }
 
-    // 파일 메타데이터 및 실제 파일 삭제(O) - 살짝 수정함
+    // 파일 메타데이터 및 실제 파일 삭제
     public boolean deleteFile(Long attachNo) {
-    	int result = 0;
         try {
             BoardAttach boardAttach = attachRepository.findById(attachNo).orElse(null);
             if (boardAttach != null) {
                 // 파일 삭제
                 File file = new File(boardAttach.getAttachPath());
                 if (file.exists()) {
-                    boolean deleted = file.delete();  // 파일 삭제
+                    boolean deleted = file.delete();
                     if (!deleted) {
                         return false;  // 파일 삭제 실패
                     }
@@ -62,13 +59,11 @@ public class BoardAttachService {
                 attachRepository.delete(boardAttach);
                 return true;
             }
-            result = 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
-
 
     // 파일 업로드 처리
     public BoardAttach uploadFile(MultipartFile file, Long boardNo) {
@@ -102,8 +97,7 @@ public class BoardAttachService {
 
         return attachRepository.save(boardAttach);
     }
-    
-    
+
     // 파일 형식 검증 (이미지 파일만 허용)
     private boolean isValidFileType(String fileName) {
         String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp" };

@@ -10,31 +10,47 @@
     
     <!-- Start Editor CSS -->
     <link href="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.css" rel="stylesheet">
-        <!-- 이미지 크기 조정을 위한 추가 스타일 -->
-<style>
-    /* 이미지 크기 제한 */
-    #start-editor img {
-        max-width: 50%;  /* 이미지의 최대 너비를 50%로 설정 */
-        height: auto;     /* 비율을 유지하여 높이 자동 조정 */
-        display: block;   /* 이미지 위아래 여백 없애기 */
-        margin: 0 auto;   /* 이미지를 가운데 정렬 */
-    }
-   .file-link {
-  		display: inline-block;
-  		color: #007bff; /* 기본 파란색 */
-  		text-decoration: none;
-  		font-weight: 500;
-  		transition: all 0.2s ease-in-out;
-  		cursor: pointer;
-	}
+    <!-- 이미지 크기 조정을 위한 추가 스타일 -->
+    <style>
+        /* 이미지 크기 제한 */
+        #start-editor img {
+            max-width: 50%;  /* 이미지의 최대 너비를 50%로 설정 */
+            height: auto;     /* 비율을 유지하여 높이 자동 조정 */
+            display: block;   /* 이미지 위아래 여백 없애기 */
+            margin: 0 auto;   /* 이미지를 가운데 정렬 */
+        }
 
-	.file-link:hover {
-  		color: #000; /* 마우스 올리면 검정색 */
-  		font-size: 1.05rem; /* 살짝 커지게 */
-  		text-decoration: underline;
-	}
-</style>
-    
+        .file-link {
+            display: inline-block;
+            color: #007bff; /* 기본 파란색 */
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .file-link:hover {
+            color: #000; /* 마우스 올리면 검정색 */
+            font-size: 1.05rem; /* 살짝 커지게 */
+            text-decoration: underline;
+        }
+
+        /* 미리보기 이미지 스타일 */
+        .file-preview {
+            display: none;
+            position: absolute;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 200px;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 
 <th:block layout:fragment="content">
@@ -51,65 +67,74 @@
                 <li class="breadcrumb-item">자유게시판 상세/댓글</li>
             </ol>
         </nav>
-        <br>
         <h2 class="mb-0 fw-bolder fs-8">자유게시판 상세</h2>
     </div>
-<br><br><br><br><br>
+
+  <div class="mt-5"></div>
 
     <!-- 전체를 감싸는 카드 스타일 박스 -->
-<div class="p-5 bg-white rounded-4 shadow-sm mb-5">
+    <div class="p-5 bg-white rounded-4 shadow-sm mb-5">
 
-    <!-- 게시글 제목 -->
-    <h2 class="text-center mb-4" 
-        th:text="${board.boardTitle ?: '제목 없음'}" 
-        style="font-size: 2rem; font-weight: 900;">
-    </h2>
+        <!-- 게시글 제목 -->
+        <h2 class="text-center mb-4" 
+            th:text="${board.boardTitle ?: '제목 없음'}" 
+            style="font-size: 2rem; font-weight: 900;">
+        </h2>
 
-    <!-- 조회수 및 등록일 -->
-    <div class="mb-4 text-end text-muted small" 
-         style="font-size: 1.1rem;">
-        <i class="ti ti-eye"></i> 
-        <span th:text="${board.views}">0</span> |
-        <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span><br>
-        <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
+        <!-- 조회수 및 등록일 -->
+        <div class="mb-4 text-end text-muted small" 
+            style="font-size: 1.1rem;">
+            <i class="ti ti-eye"></i> 
+            <span th:text="${board.views}">0</span> |
+            <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span><br>
+            <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
+        </div>
+        <hr>
+
+        <!-- 게시글 본문 -->
+        <div class="board_detail mt-4">
+            <div id="start-editor" class="form-control" style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; border: 1px solid #ced4da; border-radius: 0.375rem;"
+                th:utext="${board.boardContent ?: '내용 없음'}">
+            </div>
+        </div>
+        <br>
+        <hr>
+
+        <!-- 파일명 및 미리보기 이미지 -->
+        <div th:if="${!#lists.isEmpty(attachList)}"
+             th:each="boardAttach : ${attachList}">
+            <a th:onclick="|location.href='@{/download/{id}(id=${boardAttach.attachNo})}'|"
+               th:text="${boardAttach.oriName}" 
+               class="file-link"
+               th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">
+               파일명
+            </a>
+            
+            <!-- 미리보기 이미지 -->
+            <div class="file-preview">
+                <img th:src="@{/upload/path/{filename}(filename=${boardAttach.oriName})}" alt="파일 미리보기"/>
+            </div>
+        </div>
+
+        <hr>
+        <th:block sec:authorize="isAuthenticated()">
+            <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="text-end">
+                <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
+                <a class="btn btn-danger" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
+            </div>
+        </th:block>
     </div>
-    <hr>
-
-    <!-- 게시글 본문 -->
-	<div class="board_detail mt-4">
-    	<div id="start-editor" class="form-control" style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; border: 1px solid #ced4da; border-radius: 0.375rem;"
-         th:utext="${board.boardContent ?: '내용 없음'}">
-    </div>
-</div>
-<br>
-<hr>
     
-    <!-- 일단 파일명 추가 -->
-	<div th:if="${!#lists.isEmpty(attachList)}"
-     	 th:each="boardAttach : ${attachList}">
-  			<a th:onclick="|location.href='@{/download/{id}(id=${boardAttach.attachNo})}'|"
-     		   th:text="${boardAttach.oriName}" class="file-link">파일명</a>
-	</div>
-	
-    	<hr>
-            <th:block sec:authorize="isAuthenticated()">
-                <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="text-end">
-                    <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
-                    <a class="btn btn-danger" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
-                </div>
-            </th:block>
-	</div>
-
     <hr>
 
-   <!-- 댓글 작성 영역 (카드 박스 스타일) -->
-<div class="p-4 bg-white rounded-4 shadow-sm mb-4">
-    <label class="fw-bold fs-5 mb-2 d-block">💬 댓글 작성</label>
-    <div class="d-flex">
-        <textarea id="reply_content" class="form-control me-2" rows="2" placeholder="댓글을 입력하세요" style="resize: none;"></textarea>
-        <button type="button" class="btn btn-primary" onclick="submitReply()">등록</button>
+    <!-- 댓글 작성 영역 (카드 박스 스타일) -->
+    <div class="p-4 bg-white rounded-4 shadow-sm mb-4">
+        <label class="fw-bold fs-5 mb-2 d-block">💬 댓글 작성</label>
+        <div class="d-flex">
+            <textarea id="reply_content" class="form-control me-2" rows="2" placeholder="댓글을 입력하세요" style="resize: none;"></textarea>
+            <button type="button" class="btn btn-primary" onclick="submitReply()">등록</button>
+        </div>
     </div>
-</div>
 
     <!-- 댓글 리스트 출력 영역 -->
     <div id="reply_list"></div>
@@ -140,9 +165,24 @@
         };
     </script>
 
-    <!-- Start Editor JS -->
-    <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
-    
+    <!-- 이미지 미리보기 보이기/숨기기 -->
+    <script>
+        document.querySelectorAll('.file-link').forEach(function (link) {
+            link.addEventListener('mouseover', function() {
+                var preview = link.nextElementSibling; // 해당 링크의 다음 형제 요소(미리보기 div)
+                if (preview) {
+                    preview.style.display = 'block'; // 미리보기 이미지 보이기
+                }
+            });
+            link.addEventListener('mouseout', function() {
+                var preview = link.nextElementSibling; // 해당 링크의 다음 형제 요소(미리보기 div)
+                if (preview) {
+                    preview.style.display = 'none'; // 미리보기 이미지 숨기기
+                }
+            });
+        });
+    </script>
+
     <!-- 초기화 스크립트 -->
     <script>
         window.onload = function() {
@@ -153,10 +193,12 @@
             });
         };
     </script>
-    
-    
-      <!-- Import vendorJs Files -->
-	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+    <!-- Start Editor JS -->
+    <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
+
+    <!-- Import vendorJs Files -->
+    <script th:src="@{/assets/js/vendor.min.js}"></script>
 
     <!-- JavaScript 파일 로딩 -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>
