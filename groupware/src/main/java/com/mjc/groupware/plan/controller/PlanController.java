@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -109,40 +110,6 @@ public class PlanController {
 	}
 
 	// 상세모달창 수정
-//	@PostMapping("/plan/update/{id}")
-//	@ResponseBody
-//	public Map<String, String> updatePlanApi(
-//	    @PathVariable Long id,
-//	    @RequestParam String title,
-//	    @RequestParam String content,
-//	    @RequestParam LocalDateTime startDate,
-//	    @RequestParam LocalDateTime endDate,
-//	    @RequestParam String planType) {
-//	    
-//	    Map<String, String> resultMap = new HashMap<>();
-//	    resultMap.put("res_code", "500");
-//	    resultMap.put("res_msg", "일정 수정 중 오류가 발생했습니다.");
-//
-//	    try {
-//	        Plan updated = planService.updatePlanOne(
-//	            id,  
-//	            title,  // 각 필드를 @RequestParam으로 받아서 처리
-//	            content,
-//	            startDate,
-//	            endDate,
-//	            planType
-//	        );
-//	        
-//	        if (updated != null) {
-//	            resultMap.put("res_code", "200");
-//	            resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
-//	        }
-//	    } catch (Exception e) {
-//	        e.printStackTrace();
-//	    }
-//
-//	    return resultMap;
-//	}
 	@PostMapping("/plan/{id}/update")
 	@ResponseBody
 	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto){
@@ -160,10 +127,25 @@ public class PlanController {
 	        resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
 	    }
-
 	    return resultMap;
 	}
 
+	// 상세모달창 삭제
+	@DeleteMapping("plan/{id}")
+	@ResponseBody
+	public Map<String,String> deletePlanApi(@PathVariable("id") Long id){
+		Map<String,String> resultMap = new HashMap<>();
+	    resultMap.put("res_code", "500");
+	    resultMap.put("res_msg", "일정 삭제중 오류가 발생했습니다.");
+	    
+	    int result = planService.deletePlan(id);
+	    if(result > 0) {
+	    	 resultMap.put("res_code", "200");
+		     resultMap.put("res_msg", "일정이 정상적으로 삭제되었습니다.");
+	    }
+	    
+	    return resultMap;
+	}
 	
 
 

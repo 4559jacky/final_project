@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
 	locale:'ko',
-	dayMaxEvents:3,
+	dayMaxEvents:true,
 	eventDisplay: 'block',
 	editable:true,
 	expandRows: true,
@@ -177,9 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
-		/*console.log("클릭이벤트 작동 확인",info);*/
 		const eventId = info.event.id;
-		/*console.log("eventId체크",eventId);*/
 		getEvent = info.event;
 		
 		fetch('/plan/detail/'+eventId, {
@@ -193,10 +191,10 @@ document.addEventListener("DOMContentLoaded", function () {
 			new bootstrap.Modal(document.getElementById("eventModaldetail")).show();
 			
 			document.querySelector("#eventModaldetail .btn-update-event").dataset.id = data.plan_no;
-			
 			console.log("가져온 데이터:", data);
+			
 			// 고정값
-			document.getElementById("detail-event-id").value = data.reg_member_no;
+			document.getElementById("detail-event-id").value = data.plan_id;
 			document.getElementById("detail-event-writer").value = data.member_name;
 		    document.getElementById("detail-event-department").value = data.dept_name;
 			document.getElementById("detail-event-created-date").value = data.reg_date;
@@ -285,20 +283,51 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Update Calender Event
   /*=====================*/
-  /*상세모달창 삭제버튼 클릭시 동작*/
-  getModalDeleteBtnEl.addEventListener("click",function(){
+	  /*상세모달창 삭제버튼 클릭시 동작*/
+	 /* getModalDeleteBtnEl.addEventListener("click", function () {
+	    const planId = document.getElementById("detail-event-id").value;
+		
+	    if (!planId) {
+	      alert("삭제할 일정이 없습니다.");
+	      return;
+	    }
 	
-  })
-  
-  /*상세모달창 수정버튼 클릭시 동작*/
-  getModalUpdateBtnEl.addEventListener("click", function () {
-	  var planId = document.getElementById("detail-event-id").value;
-	  var newTitle = document.getElementById("detail-event-title").value;
-	  var newDescription = document.getElementById("detail-event-description").value;
-	  var newStartDate = document.getElementById("detail-event-start-date").value;
-	  var newEndDate = document.getElementById("detail-event-end-date").value;
-	  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
-	  console.log("value값 확인:",newCalendarType);
+	    fetch("/plan/"+planId, {
+	      method: "DELETE",
+	      headers: {
+	        'header': document.querySelector('meta[name="_csrf_header"]').content,
+	        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	      }
+	    })
+	      .then(res => res.json())
+	      .then(data => {
+	        alert(data.res_msg);
+	        if (data.res_code === "200") {
+				if (getEvent) {
+				  getEvent.remove(); // 달력에서 해당 이벤트 제거
+				} else {
+				  // 대안: 달력 전체 새로고침
+				  calendar.refetchEvents();
+				}
+	          // 모달 닫기
+	          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
+	        }
+	      })
+	      .catch(err => {
+	        console.error("서버 삭제 실패", err);
+	        alert("삭제 중 오류가 발생했습니다.");
+	      });
+	  });*/
+
+	  /*상세모달창 수정버튼 클릭시 동작*/
+	  getModalUpdateBtnEl.addEventListener("click", function () {
+		  var planId = document.getElementById("detail-event-id").value;
+		  var newTitle = document.getElementById("detail-event-title").value;
+		  var newDescription = document.getElementById("detail-event-description").value;
+		  var newStartDate = document.getElementById("detail-event-start-date").value;
+		  var newEndDate = document.getElementById("detail-event-end-date").value;
+		  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
+		  console.log("value값 확인:",newCalendarType);
 
 	  // 날짜 포맷 수정
 	      const toISOFormat = (dateStr) => {
@@ -309,64 +338,45 @@ document.addEventListener("DOMContentLoaded", function () {
 	      const formattedEndDate = toISOFormat(newEndDate);
 	  
 	  // 수정일 자동 반영
-	  var now = new Date();
-	  var formattedDateTime =
-	    now.getFullYear() + "-" +
-	    String(now.getMonth() + 1).padStart(2, '0') + "-" +
-	    String(now.getDate()).padStart(2, '0') + " " +
-	    String(now.getHours()).padStart(2, '0') + ":" +
-	    String(now.getMinutes()).padStart(2, '0');
-	  document.getElementById("detail-event-modified-date").value = formattedDateTime;
+		  var now = new Date();
+		  var formattedDateTime =
+		    now.getFullYear() + "-" +
+		    String(now.getMonth() + 1).padStart(2, '0') + "-" +
+		    String(now.getDate()).padStart(2, '0') + " " +
+		    String(now.getHours()).padStart(2, '0') + ":" +
+		    String(now.getMinutes()).padStart(2, '0');
+		  document.getElementById("detail-event-modified-date").value = formattedDateTime;
 	  
 	  // 서버에 수정된 값 전달..
-	  const payload = {
-		plan_title: newTitle,
-		        plan_content: newDescription,
-		        plan_type: newCalendarType,
-		        start_date: formattedStartDate,
-		        end_date: formattedEndDate,
-		        mod_date: formattedDateTime
-	          };
-
-	    fetch("/plan/"+planId+"/update", {
-	      method: "POST",
-	      headers: {
-			'Content-Type': 'application/json',
-			'header': document.querySelector('meta[name="_csrf_header"]').content,
-			'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-	      },
-	      body: JSON.stringify(payload)
-	    })
-	      .then(res => res.json())
-	      .then(data => {
-	        alert(data.res_msg);
-	        if (data.res_code === "200") {
-	          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
-			  location.reload();
-	        }
-	      })
-	      .catch(err => {
-	        console.error("서버 수정 실패", err);
-	      });
+		  const payload = {
+			plan_title: newTitle,
+			        plan_content: newDescription,
+			        plan_type: newCalendarType,
+			        start_date: formattedStartDate,
+			        end_date: formattedEndDate,
+			        mod_date: formattedDateTime
+		          };
 	
-	/*var getPublicID = this.dataset.fcEventPublicId;
-    var getTitleUpdatedValue = getModalTitleEl.value;
-    var setModalStartDateValue = getModalStartDateEl.value;
-    var setModalEndDateValue = getModalEndDateEl.value;
-    var getEvent = calendar.getEventById(getPublicID);
-    var getModalUpdatedCheckedRadioBtnEl = document.querySelector(
-      'input[name="event-level"]:checked'
-    );
-
-    var getModalUpdatedCheckedRadioBtnValue =
-      getModalUpdatedCheckedRadioBtnEl !== null
-        ? getModalUpdatedCheckedRadioBtnEl.value
-        : "";
-
-    getEvent.setProp("title", getTitleUpdatedValue);
-    getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
-    getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
-    myModal.hide();*/
+		    fetch("/plan/"+planId+"/update", {
+		      method: "POST",
+		      headers: {
+				'Content-Type': 'application/json',
+				'header': document.querySelector('meta[name="_csrf_header"]').content,
+				'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		      },
+		      body: JSON.stringify(payload)
+		    })
+		      .then(res => res.json())
+		      .then(data => {
+		        alert(data.res_msg);
+		        if (data.res_code === "200") {
+		          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
+				  location.reload();
+		        }
+		      })
+		      .catch(err => {
+		        console.error("서버 수정 실패", err);
+		      });
   });
   /*=====================*/
   // Add Calender Event
@@ -382,30 +392,58 @@ document.addEventListener("DOMContentLoaded", function () {
     var writer = document.getElementById("event-writer").value;
     var department = document.getElementById("event-department").value;
 
-    var requestData = {
-      planName: getTitleValue,
-      planContent: description,
-      startDate: setModalStartDateValue,
-      endDate: setModalEndDateValue,
-      color: getModalCheckedRadioBtnValue,
-      regMemberNo: 1
-    };
-	calendar.addEvent({
-	      id: 12,
-	      title: getTitleValue,
-	      start: setModalStartDateValue,
-	      end: setModalEndDateValue,
-	      allDay: true,
-		  extendedProps: {
-		      calendar: getModalCheckedRadioBtnValue,
-		      description: description,
-			  writer: writer,
-			  department: department
-		    },
-	    });
+	// 서버에 보낼 데이터
+	 var requestData = {
+	   plan_title: getTitleValue,
+	   plan_content: description,
+	   plan_type: getModalCheckedRadioBtnValue,
+	   start_date: setModalStartDateValue,
+	   end_date: setModalEndDateValue,
+	   reg_member_no: 1 // 로그인된 사용자 번호 (임시)
+	 };
+
+	 // 서버로 저장 요청 보내기
+	 fetch("/plan/create", {
+	   method: "POST",
+	   headers: {
+	     'Content-Type': 'application/json',
+	     'header': document.querySelector('meta[name="_csrf_header"]').content,
+	     'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	   },
+	   body: JSON.stringify(requestData)
+	 })
+	   .then(res => res.json())
+	   .then(data => {
+	     if (data.res_code === "200") {
+	       const savedPlan = data.saved_plan; // 서버에서 받은 저장된 plan 정보
+
+	       // FullCalendar에 추가 (plan_no를 id로 사용!)
+	       calendar.addEvent({
+	         id: savedPlan.plan_no,
+	         title: savedPlan.plan_title,
+	         start: savedPlan.start_date,
+	         end: savedPlan.end_date,
+	         allDay: true,
+	         extendedProps: {
+	           calendar: savedPlan.plan_type,
+	           description: savedPlan.plan_content,
+	           writer: savedPlan.member_name,
+	           department: savedPlan.dept_name
+	         }
+	       });
+
+	       alert("일정이 등록되었습니다.");
+	       bootstrap.Modal.getInstance(document.getElementById("eventModal")).hide();
+	     } else {
+	       alert("일정 등록 실패: " + data.res_msg);
+	     }
+	   })
+	   .catch(err => {
+	     console.error("일정 등록 중 오류", err);
+	     alert("서버 오류로 등록 실패");
+	   });
   });
 
-    /*myModal.hide();*/
   /*=====================*/
   // Calendar Initd
   /*=====================*/
