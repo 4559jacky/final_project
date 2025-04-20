@@ -279,6 +279,15 @@ document.addEventListener("DOMContentLoaded", function () {
         calendar.setOption("height", 1052);
       }
     },
+	// now Date를 기준으로 이전날짜 클릭 불가능하게 하는 코드
+	selectAllow: function(selectInfo) {
+		const now = new Date();
+		  now.setHours(0, 0, 0, 0); // 오늘 자정 기준으로 시간 초기화
+		const start = new Date(selectInfo.start);
+		  start.setHours(0, 0, 0, 0); // 선택한 날짜도 자정 기준
+		  return start >= now; // 오늘 날짜는 OK, 과거는 막힘
+	}
+
   });
   /*=====================*/
   // Update Calender Event
@@ -319,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	      });
 	  });*/
 
-	  /*상세모달창 수정버튼 클릭시 동작*/
+	////*상세모달창 수정버튼 클릭시 동작*////
 	  getModalUpdateBtnEl.addEventListener("click", function () {
 		  var planId = document.getElementById("detail-event-id").value;
 		  var newTitle = document.getElementById("detail-event-title").value;
