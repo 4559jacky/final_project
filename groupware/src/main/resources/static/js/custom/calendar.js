@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var getModalEndDateEl = document.querySelector("#event-end-date");
   var getModalAddBtnEl = document.querySelector(".btn-add-event");
   var getModalUpdateBtnEl = document.querySelector(".btn-update-event");
+  var getModalDeleteBtnEl = document.querySelector(".btn-delete-event");
   var calendarsEvents = {
     Danger: "danger",
     Success: "success",
@@ -63,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 시작일시: 현재 시간
 	const startDate = new Date(info.start); // 드래그한 날짜
     const now = new Date();
-	startDate.setHours(now.getHours(), now.getMinutes(), 0, 0); // 현재 시간만 적용
+	startDate.setHours(0, 0, 0, 0); // 현재 시간만 적용
 
     // 종료일시: 드래그 끝 날짜의 오후 11:59
     const rawEndDate = new Date(info.end);
@@ -284,6 +285,11 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   // Update Calender Event
   /*=====================*/
+  /*상세모달창 삭제버튼 클릭시 동작*/
+  getModalDeleteBtnEl.addEventListener("click",function(){
+	
+  })
+  
   /*상세모달창 수정버튼 클릭시 동작*/
   getModalUpdateBtnEl.addEventListener("click", function () {
 	  var planId = document.getElementById("detail-event-id").value;
@@ -294,6 +300,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
 	  console.log("value값 확인:",newCalendarType);
 
+	  // 날짜 포맷 수정
+	      const toISOFormat = (dateStr) => {
+	          // 예: '2025-04-21 21:12' => '2025-04-21T21:12'
+	          return dateStr.replace('T', ' ');
+	      };
+	      const formattedStartDate = toISOFormat(newStartDate);
+	      const formattedEndDate = toISOFormat(newEndDate);
+	  
 	  // 수정일 자동 반영
 	  var now = new Date();
 	  var formattedDateTime =
@@ -303,17 +317,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	    String(now.getHours()).padStart(2, '0') + ":" +
 	    String(now.getMinutes()).padStart(2, '0');
 	  document.getElementById("detail-event-modified-date").value = formattedDateTime;
-	  console.log("수정일 자동 반영:", formattedDateTime);
-	  
-	  console.log("수정할 이벤트 객체:", getEvent); // 수정 버튼 이벤트 안에서!
-	  // 풀캘린더 상의 이벤트 수정
-	  // setProp => FullCalendar의 이벤트 객체에서만 가능한 함수
-	  getEvent.setProp("title", newTitle);
-	  getEvent.setExtendedProp("description", newDescription);
-	  getEvent.setExtendedProp("calendar", newCalendarType);
-	  getEvent.setDates(new Date(newStartDate),new Date(newEndDate));
 	  
 	  // 서버에 수정된 값 전달..
+	  const payload = {
+		plan_title: newTitle,
+		        plan_content: newDescription,
+		        plan_type: newCalendarType,
+		        start_date: formattedStartDate,
+		        end_date: formattedEndDate,
+		        mod_date: formattedDateTime
+	          };
+
 	    fetch("/plan/"+planId+"/update", {
 	      method: "POST",
 	      headers: {
@@ -321,20 +335,14 @@ document.addEventListener("DOMContentLoaded", function () {
 			'header': document.querySelector('meta[name="_csrf_header"]').content,
 			'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
 	      },
-	      body: JSON.stringify({
-	        id: planId,
-	        title: newTitle,
-	        content: newDescription,
-			calendarType: newCalendarType,
-	        startDate: newStartDate,
-	        endDate: newEndDate		
-	      })
+	      body: JSON.stringify(payload)
 	    })
 	      .then(res => res.json())
 	      .then(data => {
 	        alert(data.res_msg);
 	        if (data.res_code === "200") {
 	          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
+			  location.reload();
 	        }
 	      })
 	      .catch(err => {

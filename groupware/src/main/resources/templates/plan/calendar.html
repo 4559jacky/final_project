@@ -203,7 +203,7 @@ layout:decorate="~{/include/layout}">
 
           </script>
           <!-- 상세 MODAL -->
-          <form name="detail_form">
+          <form name="updateForm">
 			<div class="modal fade" id="eventModaldetail" tabindex="-1">
 			  <div class="modal-dialog modal-dialog-centered">
 			    <div class="modal-content p-4">
@@ -216,7 +216,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 고정 -->
 			        <div class="row g-3 mb-3">
 			          <div class="col">
-			          <input type="hidden" name="plan_no" id="detail-event-id" />
+			          <input type="hidden" name="id" id="detail-event-id" />
 			            <label class="form-label">작성자</label>
 			            <input type="text" class="form-control" id="detail-event-writer" readonly style="background-color: #f8f9fa;"/>
 			          </div>

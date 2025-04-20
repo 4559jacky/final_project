@@ -2,6 +2,7 @@ package com.mjc.groupware.plan.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -72,13 +73,22 @@ public class PlanService {
 
 	    plan.setPlanTitle(dto.getPlan_title());
 	    plan.setPlanContent(dto.getPlan_content());
-	    plan.setModDate(LocalDateTime.now());
-	    plan.setStartDate(dto.getStart_date());
-	    plan.setEndDate(dto.getEnd_date());
 	    plan.setPlanType(dto.getPlan_type());
+	    plan.setModDate(LocalDateTime.now()); // 수정일은 현재 시간으로 설정
+
+	    // ✅ 파싱 없이 바로 세팅
+	    if (dto.getStart_date() != null) {
+	        plan.setStartDate(dto.getStart_date());
+	    }
+
+	    if (dto.getEnd_date() != null) {
+	        plan.setEndDate(dto.getEnd_date());
+	    }
 
 	    return planRepository.save(plan);
 	}
+
+
 
 
 
