@@ -4,51 +4,61 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/include/layout}">
 
-<head>
+<head layout:fragment="head">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    
+
     <!-- Start Editor CSS -->
     <link href="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.css" rel="stylesheet">
-    <!-- 이미지 크기 조정을 위한 추가 스타일 -->
+
     <style>
-        /* 이미지 크기 제한 */
         #start-editor img {
-            max-width: 50%;  /* 이미지의 최대 너비를 50%로 설정 */
-            height: auto;     /* 비율을 유지하여 높이 자동 조정 */
-            display: block;   /* 이미지 위아래 여백 없애기 */
-            margin: 0 auto;   /* 이미지를 가운데 정렬 */
+            max-width: 50%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
 
         .file-link {
             display: inline-block;
-            color: #007bff; /* 기본 파란색 */
-            text-decoration: none;
+            color: #007bff;
             font-weight: 500;
-            transition: all 0.2s ease-in-out;
+            text-decoration: none;
             cursor: pointer;
+            transition: all 0.2s ease-in-out;
         }
 
         .file-link:hover {
-            color: #000; /* 마우스 올리면 검정색 */
-            font-size: 1.05rem; /* 살짝 커지게 */
+            color: #000;
             text-decoration: underline;
         }
 
-        /* 미리보기 이미지 스타일 */
-        .file-preview {
-            display: none;
-            position: absolute;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            padding: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .file-preview img {
+            margin-top: 10px;
             max-width: 200px;
+            height: auto;
+            display: block;
         }
 
-        .file-preview img {
-            width: 100%;
-            height: auto;
+		.reply-list {
+   			 margin-left: 20px; /* 대댓글 들여쓰기 */
+    		 border-left: 2px solid #eee; /* 경계선 */
+    		 padding-left: 15px; /* 패딩 추가 */
+		}
+
+        .reply-item {
+            margin-top: 15px;
+        }
+
+        .reply-form {
+            display: none;
+            margin-top: 10px;
+            padding-left: 20px;
+            border-left: 2px solid #ddd;
+        }
+
+        .reply-content {
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -70,53 +80,47 @@
         <h2 class="mb-0 fw-bolder fs-8">자유게시판 상세</h2>
     </div>
 
-  <div class="mt-5"></div>
+    <div class="mt-5"></div>
 
-    <!-- 전체를 감싸는 카드 스타일 박스 -->
+    <!-- 본문 카드 -->
     <div class="p-5 bg-white rounded-4 shadow-sm mb-5">
+        <h2 class="text-center mb-4"
+            th:text="${board.boardTitle ?: '제목 없음'}"
+            style="font-size: 2rem; font-weight: 900;"></h2>
 
-        <!-- 게시글 제목 -->
-        <h2 class="text-center mb-4" 
-            th:text="${board.boardTitle ?: '제목 없음'}" 
-            style="font-size: 2rem; font-weight: 900;">
-        </h2>
-
-        <!-- 조회수 및 등록일 -->
-        <div class="mb-4 text-end text-muted small" 
-            style="font-size: 1.1rem;">
-            <i class="ti ti-eye"></i> 
+        <div class="mb-4 text-end text-muted small" style="font-size: 1.1rem;">
+            <i class="ti ti-eye"></i>
             <span th:text="${board.views}">0</span> |
             <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span><br>
             <div>작성자: <span th:text="${board.member?.memberName ?: '익명'}"></span></div>
         </div>
+
         <hr>
 
-        <!-- 게시글 본문 -->
-        <div class="board_detail mt-4">
-            <div id="start-editor" class="form-control" style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; border: 1px solid #ced4da; border-radius: 0.375rem;"
-                th:utext="${board.boardContent ?: '내용 없음'}">
-            </div>
+        <!-- 본문 내용 -->
+        <div id="start-editor" class="form-control"
+             style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; border: 1px solid #ced4da; border-radius: 0.375rem;"
+             th:utext="${board.boardContent ?: '내용 없음'}">
         </div>
-        <br>
+
         <hr>
 
-        <!-- 파일명 및 미리보기 이미지 -->
+        <!-- 첨부파일 -->
         <div th:if="${!#lists.isEmpty(attachList)}"
              th:each="boardAttach : ${attachList}">
             <a th:onclick="|location.href='@{/download/{id}(id=${boardAttach.attachNo})}'|"
-               th:text="${boardAttach.oriName}" 
+               th:text="${boardAttach.oriName}"
                class="file-link"
-               th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">
-               파일명
-            </a>
-            
-            <!-- 미리보기 이미지 -->
+               th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">파일명</a>
+
             <div class="file-preview">
                 <img th:src="@{/upload/path/{filename}(filename=${boardAttach.oriName})}" alt="파일 미리보기"/>
             </div>
         </div>
 
         <hr>
+
+        <!-- 수정/삭제 버튼 -->
         <th:block sec:authorize="isAuthenticated()">
             <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="text-end">
                 <a class="btn btn-primary" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
@@ -125,23 +129,61 @@
         </th:block>
     </div>
     
-    <hr>
+    
+   <!-- 댓글 작성 영역 -->
+<div class="p-4 bg-white rounded-4 shadow-sm mb-4">
+    <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
+    <th:block sec:authorize="isAuthenticated()">
+        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST"
+              style="display: flex; gap: 10px; align-items: stretch;">
+            <textarea name="reply_content" placeholder="댓글을 입력하세요" required
+                      style="resize: none; flex-grow: 1; height: 60px;" class="form-control"></textarea>
+            <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px; padding: 6px 16px;">등록</button>
+            <input type="hidden" name="board_no" th:value="${board.boardNo}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        </form>
+    </th:block>
+    <th:block sec:authorize="isAnonymous()">
+        <p>로그인 후 댓글을 작성할 수 있습니다.</p>
+    </th:block>
+</div>
+<!-- 댓글 리스트 출력 영역 -->
+<div id="reply_list">
+    <div th:each="reply : ${replyList}" class="reply-item" style="margin-bottom:15px;">
+        <div class="reply-content">
+            <span th:text="${reply.memberName}"></span> :
+            <span th:text="${reply.reply_content}"></span>
+        </div>
 
-    <!-- 댓글 작성 영역 (카드 박스 스타일) -->
-    <div class="p-4 bg-white rounded-4 shadow-sm mb-4">
-        <label class="fw-bold fs-5 mb-2 d-block">💬 댓글 작성</label>
-        <div class="d-flex">
-            <textarea id="reply_content" class="form-control me-2" rows="2" placeholder="댓글을 입력하세요" style="resize: none;"></textarea>
-            <button type="button" class="btn btn-primary" onclick="submitReply()">등록</button>
+        <!-- 대댓글 달기 버튼 -->
+        <button type="button" class="btn btn-link" th:onclick="|showReplyForm(${reply.reply_no})|">대댓글 달기</button>
+
+        <!-- 대댓글 입력 폼 -->
+        <div class="reply-form" th:id="'reply-form-' + ${reply.reply_no}" style="display:none; margin-top:10px;">
+            <form th:action="@{/replies/{parentReplyNo}/createSubReply(parentReplyNo=${reply.reply_no})}" method="POST"
+                  style="display: flex; gap: 10px; align-items: stretch;">
+                <textarea name="reply_content" placeholder="대댓글을 입력하세요" required
+                          class="form-control" style="resize: none; flex-grow: 1; height: 60px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
+                <input type="hidden" name="board_no" th:value="${board.boardNo}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            </form>
+        </div>
+
+        <!-- 대댓글 리스트 -->
+        <div class="reply-list">
+            <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item" style="margin-bottom:10px;">
+                <div class="reply-content">
+                    <span th:text="${subReply.memberName}"></span> :
+                    <span th:text="${subReply.reply_content}"></span>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- 댓글 리스트 출력 영역 -->
-    <div id="reply_list"></div>
-
-    <!-- 삭제 기능 JavaScript -->
+</div>
+    <!-- 삭제 JS -->
     <script>
-        const boardNo = /*[[${board.boardNo}]]*/ 0; // Thymeleaf에서 값 주입
+        const boardNo = /*[[${board.boardNo}]]*/ null;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
@@ -163,57 +205,33 @@
                 }
             });
         };
+
+        function showReplyForm(replyNo) {
+            const form = document.getElementById('reply-form-' + replyNo);
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
     </script>
+	
+        <!-- Start Editor JS -->
+        <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
 
-    <!-- 이미지 미리보기 보이기/숨기기 -->
-    <script>
-        document.querySelectorAll('.file-link').forEach(function (link) {
-            link.addEventListener('mouseover', function() {
-                var preview = link.nextElementSibling; // 해당 링크의 다음 형제 요소(미리보기 div)
-                if (preview) {
-                    preview.style.display = 'block'; // 미리보기 이미지 보이기
-                }
-            });
-            link.addEventListener('mouseout', function() {
-                var preview = link.nextElementSibling; // 해당 링크의 다음 형제 요소(미리보기 div)
-                if (preview) {
-                    preview.style.display = 'none'; // 미리보기 이미지 숨기기
-                }
-            });
-        });
-    </script>
+        <!-- Import vendorJs Files -->
+        <script th:src="@{/assets/js/vendor.min.js}"></script>
 
-    <!-- 초기화 스크립트 -->
-    <script>
-        window.onload = function() {
-            const editor = new StartEditor({
-                el: '#start-editor',
-                toolbar: ['bold', 'italic', 'underline', 'strikethrough', 'link', 'image'],
-                placeholder: '내용을 작성하세요...'
-            });
-        };
-    </script>
+        <!-- JavaScript 파일 로딩 -->
+        <script th:src="@{/assets/js/vendor.min.js}"></script>
+        <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+        <script th:src="@{/assets/js/theme/app.init.js}"></script>
+        <script th:src="@{/assets/js/theme/theme.js}"></script>
+        <script th:src="@{/assets/js/theme/app.min.js}"></script>
+        <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
 
-    <!-- Start Editor JS -->
-    <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
+        <!-- solar icons -->
+        <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+        <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+        <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+        <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
 
-    <!-- Import vendorJs Files -->
-    <script th:src="@{/assets/js/vendor.min.js}"></script>
-
-    <!-- JavaScript 파일 로딩 -->
-    <script th:src="@{/assets/js/vendor.min.js}"></script>
-    <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-    <script th:src="@{/assets/js/theme/app.init.js}"></script>
-    <script th:src="@{/assets/js/theme/theme.js}"></script>
-    <script th:src="@{/assets/js/theme/app.min.js}"></script>
-    <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-
-    <!-- solar icons -->
-    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-    <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-    <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-    <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-
-</th:block>
+    </th:block>
 </html>
