@@ -64,26 +64,39 @@ public class NoticeService {
         return 1;
     }
 
-    // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능 + 페이징
+ // 게시글 목록 조회 + 게시글 검색 기능 추가 + 정렬 기능 + 페이징
     public Page<Notice> searchNotice(Integer searchType, String keyword, String sort, int page) {
-        Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-    	Sort sortObj = Sort.by(direction, "regDate");
-    	Pageable pageable = PageRequest.of(page, 10, sortObj);
-    	if (keyword == null || keyword.isBlank()) {
+        Sort sortObj;
+
+        // 정렬 조건 분기: views, asc, desc
+        if ("asc".equalsIgnoreCase(sort)) {
+            sortObj = Sort.by(Sort.Direction.ASC, "regDate");
+        } else if ("views".equalsIgnoreCase(sort)) {
+            sortObj = Sort.by(Sort.Direction.DESC, "views");
+        } else {
+            sortObj = Sort.by(Sort.Direction.DESC, "regDate"); // 기본값: 최신순
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, sortObj);
+
+        // 🔍 검색어가 없으면 전체 반환 (정렬만 적용됨)
+        if (keyword == null || keyword.isBlank()) {
             return repository.findAll(pageable);
         } 
-    	  Specification<Notice> spec = null;
 
-    	    if (searchType == null || searchType == 1) { // 제목
-    	        spec = NoticeSpecification.noticeTitleContains(keyword);
-    	    } else if (searchType == 2) { // 내용
-    	        spec = NoticeSpecification.noticeContentContains(keyword);
-    	    } else if (searchType == 3) { // 제목+내용
-    	        spec = Specification.where(NoticeSpecification.noticeTitleContains(keyword))
-    	                            .or(NoticeSpecification.noticeContentContains(keyword));
-    	    }
+        Specification<Notice> spec = null;
 
-    	    return repository.findAll(spec, pageable);
+        // 🔍 검색조건 분기
+        if (searchType == null || searchType == 1) { // 제목
+            spec = NoticeSpecification.noticeTitleContains(keyword);
+        } else if (searchType == 2) { // 내용
+            spec = NoticeSpecification.noticeContentContains(keyword);
+        } else if (searchType == 3) { // 제목+내용
+            spec = Specification.where(NoticeSpecification.noticeTitleContains(keyword))
+                                .or(NoticeSpecification.noticeContentContains(keyword));
+        }
+
+        return repository.findAll(spec, pageable);
     }
     
     // 게시글 상세 조회 (조회수 증가 포함)
@@ -106,17 +119,44 @@ public class NoticeService {
     }
     
     // 게시글 수정 1
-    public Notice getNoticeUpdate(Long noticeNo) {
+    public NoticeDto getNoticeUpdate(Long noticeNo) {
     	Notice notice = repository.findById(noticeNo).orElse(null);
-    	return notice;
+    	if (notice == null) return null;
+    	List<Attach> attachList = attachRepository.findByNotice(notice);
+
+        NoticeDto dto = NoticeDto.builder()
+            .notice_no(notice.getNoticeNo())
+            .notice_title(notice.getNoticeTitle())
+            .notice_content(notice.getNoticeContent())
+            .member_no(notice.getMember().getMemberNo())
+            .attachList(attachList) // 🔥 여기
+            .build();
+
+    	return dto;
     }
     
     
     // 게시글 수정 2
-	public int updateNotice(NoticeDto dto) {
+	public int updateNotice(NoticeDto dto, List<MultipartFile> files) {
 		Notice notice = repository.findById(dto.getNotice_no()).orElse(null);
+		if(notice == null) return 0;
+		
 		notice.update(dto.getNotice_title(), dto.getNotice_content(), LocalDateTime.now());
 		repository.save(notice);
+		
+		if (files != null && !files.isEmpty()) {
+	        for (MultipartFile file : files) {
+	            if (!file.isEmpty()) {
+	                try {
+	                    attachService.saveFile(file, notice);
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                    return 0;
+	                }
+	            }
+	        }
+	    }
+		
 		return 1;
 	}
 	
