@@ -1,5 +1,6 @@
 package com.mjc.groupware.company.controller;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.dto.FuncDetailResponseDto;
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.repository.CompanyRepository;
@@ -161,6 +164,33 @@ public class CompanyController {
 		}
 		
 		return resultMap;
+	}
+	
+	@GetMapping("/admin/company/func/{id}/detail")
+	@ResponseBody
+	public FuncDetailResponseDto selectSubFuncView(@PathVariable("id") Long funcNo) {
+        logger.info("funcNo: {}", funcNo);
+		
+		try {
+			FuncDto func = funcService.selectFuncByFuncNoWithRoles(funcNo);
+			List<FuncDto> children = funcService.selectSubFuncByFuncNoWithRoles(funcNo);
+			
+			return FuncDetailResponseDto.builder()
+					.res_code("200")
+					.res_msg("기능 조회가 정상적으로 완료되었습니다.")
+					.funcDto(func)
+					.funcDtoList(children)
+					.build();
+			
+		} catch(Exception e) {
+			logger.error("하위 기능 조회 중 오류 발생", e);
+			return FuncDetailResponseDto.builder()
+					.res_code("500")
+					.res_msg("기능 조회 중 알 수 없는 오류가 발생했습니다.")
+					.funcDto(null)
+					.funcDtoList(Collections.emptyList())
+					.build();
+		}
 	}
 	
 }

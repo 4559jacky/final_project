@@ -1,6 +1,9 @@
 package com.mjc.groupware.company.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.mjc.groupware.member.dto.RoleDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,5 +27,7 @@ public class FuncDto {
 	private Long parent_func_no;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
+	
+	private List<RoleDto> accessibleRoles;
 	
 }

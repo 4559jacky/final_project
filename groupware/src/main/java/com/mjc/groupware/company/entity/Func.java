@@ -1,6 +1,7 @@
 package com.mjc.groupware.company.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,6 +53,9 @@ public class Func {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
+	
+	@OneToMany(mappedBy = "func")
+    private List<FuncMapping> funcMappings;
 	
 	public void changeFuncStatus(int funcStatus) {
 		this.funcStatus = funcStatus;
