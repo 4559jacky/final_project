@@ -1,8 +1,9 @@
 package com.mjc.groupware.chat.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.mjc.groupware.member.entity.Member;
 
@@ -12,9 +13,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,28 +37,29 @@ public class ChatRoom {
 	private Long chatRoomNo;
 	
 	@Column(name="chat_room_title")
-	private String chatRoomtitle;
+	private String chatRoomTitle;
 
 	@ManyToOne
 	@JoinColumn(name="member_no")
-	private Member memberNo;	
+	private Member memberNo;	// 생성자 
 	
-	@Column(name="last_message")
-	private String lastMessage;
+	@Column(name="last_msg")
+	private String lastMsg;
 	
-	@Column(name="last_message_date")
-	private LocalDateTime lastMessageDate;
+	@Column(name="last_msg_date")
+	private LocalDateTime lastMsgDate;
 	
-	@Column(name="reg_date")
+	@CreationTimestamp
+	@Column(updatable=false, name="reg_date")
 	private LocalDateTime regDate;
 	
-	@ManyToMany
-    @JoinTable(
-        name = "chat_mapping",
-        joinColumns = @JoinColumn(name = "chat_room_no"),
-        inverseJoinColumns = @JoinColumn(name = "member_no")
-    )
-    private List<ChatMapping> mappings = new ArrayList<>(); 
+	@Builder.Default
+	@Column(name="chat_room_status")
+	private String chatRoomstatus = "Y";
+
+	@OneToMany(mappedBy = "chatRoomNo")
+    private List<ChatMapping> mappings; 
+
 	
 	
 }

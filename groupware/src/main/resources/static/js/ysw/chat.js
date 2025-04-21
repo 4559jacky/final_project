@@ -1,6 +1,7 @@
 $(function () {
   var chatarea = $("#chat");
 
+  // 유저 목록 누르면 해당 채팅창 띄워줌
   $("#chat .message-center a").on("click", function () {
     var name = $(this).find(".mail-contnet h5").text();
     var img = $(this).find(".user-img img").attr("src");
@@ -58,6 +59,7 @@ $(function () {
 // Chat Application
 // *******************************************************************
 
+// 채팅방 검색 기능
 $(".search-chat").on("keyup", function () {
   var value = $(this).val().toLowerCase();
   $(".chat-users li").filter(function () {
@@ -65,6 +67,7 @@ $(".search-chat").on("keyup", function () {
   });
 });
 
+// 채팅방 목록 클릭 시 해당 채팅창으로 이동
 $(".app-chat .chat-user ").on("click", function (event) {
   if ($(this).hasClass(".active")) {
     return false;
@@ -103,7 +106,14 @@ $(".app-chat .chat-user ").on("click", function (event) {
   $(".chat-send-message-footer").addClass("chat-active");
 });
 
-// Send Messages
+
+//엔터 누르면 입력값을 메시지 박스로 만들어 .active-chat에 append
+
+// 시간은 현재 시각 기준으로 포맷팅해서 같이 출력
+
+// 입력창 비우는 것까지 포함
+
+
 $(".message-type-box").on("keydown", function (event) {
   if (event.key === "Enter") {
     // Start getting time
@@ -143,6 +153,7 @@ $(".message-type-box").on("keydown", function (event) {
 // Email Application
 // *******************************************************************
 
+//뒤로 가기 버튼 클릭 시 채팅 박스 닫기
 $(document).ready(function () {
   $(".back-btn").click(function () {
     $(".app-email-chatting-box").hide();
@@ -156,6 +167,7 @@ $(document).ready(function () {
 // chat Offcanvas
 // *******************************************************************
 
+// 사이드 오프캔버스(우측 사이드메뉴) 열기/닫기
 $("body").on("click", ".chat-menu", function () {
   $(".parent-chat-box").toggleClass("app-chat-right");
   $(this).toggleClass("app-chat-active");
