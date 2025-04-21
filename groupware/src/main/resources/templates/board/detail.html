@@ -67,11 +67,11 @@
 
     <hr>
 
-    <!-- 첨부파일 -->
-<!-- 첨부파일 영역 (첨부파일 있을 때만 출력) -->
-<div class="pt-3" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+<!-- 첨부파일 -->
+<div class="pt-3">
     <h5 class="fw-semibold">첨부파일</h5>
-    <ul>
+
+    <ul th:if="${attachList != null and not #lists.isEmpty(attachList)}">
         <li th:each="boardAttach : ${attachList}">
             <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" 
                th:text="${boardAttach.oriName}"
@@ -79,6 +79,8 @@
                th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">파일명</a>
         </li>
     </ul>
+
+    <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
 </div>
 
     <!-- 수정/삭제 버튼 -->
@@ -90,6 +92,8 @@
         </div>
     </th:block>
 </div>
+
+
 
     <!-- 댓글 작성 영역 -->
     <div class="p-4 bg-white rounded-4 shadow-sm mb-4">
@@ -116,7 +120,17 @@
                 <span th:text="${reply.memberName}"></span> :
                 <span th:text="${reply.reply_content}"></span>
             </div>
-
+            
+            
+            
+ <!-- 수정 및 삭제 신고하기 버튼 추가 -->
+ <!--     <th:block sec:authorize="isAuthenticated()">
+        <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="mt-4 text-end">
+            <a class="btn btn-primary px-3 py-1" th:href="@{/replies/{replyNo}/update(id=${reply.reply_no})}">수정</a>
+            <a class="btn btn-danger px-3 py-1" href="#" th:onclick="|replyDelete(${reply.reply_no})|">삭제</a>
+        </div>
+    </th:block> -->
+            
             <button type="button" class="btn btn-link" th:onclick="|showReplyForm(${reply.reply_no})|">댓글 달기</button>
 
             <!-- 대댓글 입력 폼 -->

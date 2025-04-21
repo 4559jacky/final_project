@@ -58,7 +58,7 @@ public class ReplyController {
     // 댓글 수정
     @PostMapping("/replies/{replyNo}/update")
     public String updateReply(@ModelAttribute ReplyDto replyDto,
-                              @PathVariable Long replyNo) {
+                              @PathVariable("replyNo") Long replyNo) {
         Member member = getLoginMember();
         replyService.updateReply(replyNo, member.getMemberNo(), replyDto.getReply_content());
         return redirectToBoardDetail(replyDto.getBoard_no());
