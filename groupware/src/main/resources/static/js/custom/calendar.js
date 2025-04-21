@@ -452,7 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			        shouldShow = eventType === "부서" || eventType === "회사";
 			      } else {
 			        shouldShow = eventType === selectedType;
-			      }
+			      } 
 			      event.setProp("display", shouldShow ? "block" : "none");
   		});
   	});
