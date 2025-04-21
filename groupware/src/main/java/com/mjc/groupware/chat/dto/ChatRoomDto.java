@@ -29,9 +29,9 @@ public class ChatRoomDto {
 	
 	private String member_dept_name;
 	
-	private String last_message;
+	private String last_msg;
 	
-	private LocalDateTime last_message_date;
+	private LocalDateTime last_msg_date;
 	
 	private LocalDateTime reg_date;
 }
