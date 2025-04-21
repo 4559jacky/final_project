@@ -68,20 +68,16 @@ public class BoardService {
     }
 
 
-    // 게시글 상세 조회
+    // 게시글 상세 조회 (읽기 전용)
+    @Transactional(readOnly = true)
     public Optional<Board> selectBoardOne(Long boardNo) {
-        return repository.findById(boardNo);  // Optional로 반환
+        return repository.findById(boardNo);
     }
 
-    // 게시글 조회수 증가
-    public void viewCount(Long boardNo) {
-        Optional<Board> optionalBoard = repository.findById(boardNo);
-
-        if (optionalBoard.isPresent()) {
-            Board board = optionalBoard.get();
-            board.setViews(board.getViews() + 1);  // 조회수 1 증가
-            repository.save(board);  // 변경된 조회수 저장
-        }
+    // 조회수 증가 + 수정일 유지
+    @Transactional
+    public void updateViews(Long boardNo) {
+        repository.updateViews(boardNo);  // native 쿼리로 조회수만 증가시킴
     }
 
     // 게시글 목록 검색, 정렬, 페이징

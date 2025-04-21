@@ -19,48 +19,49 @@
     </nav>
     <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 작성</h2>
   </div>
-<br><br><br><br><br>
 
-<div class="p-5 bg-white rounded-4 shadow-sm mb-5">
-  <!-- 게시글 작성 폼 -->
-  <form id="create_board_form" name="create_board_form" class="mt-4" th:action="@{/board}" th:method="post" enctype="multipart/form-data">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}">
+  <!-- 페이지 제목과 작성 카드 사이에 여백 추가 -->
+  <div class="mt-5"></div>
 
-    <!-- 투표 추가 버튼 -->
-    <div class="mb-3 text-end">
-      <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
-    </div>
+  <div class="p-5 bg-white rounded-4 shadow-sm mb-5">
+    <!-- 게시글 작성 폼 -->
+    <form id="create_board_form" name="create_board_form" class="mt-4" th:action="@{/board}" th:method="post" enctype="multipart/form-data">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}">
 
-    <!-- 제목 -->
-    <div class="row mb-3 align-items-center">
-      <div class="mb-3">
-        <label for="board_title" class="form-label"><strong>제목</strong></label>
-        <input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
+      <!-- 투표 추가 버튼 -->
+      <div class="mb-3 text-end">
+        <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
       </div>
-    </div>
 
-    <!-- 내용 -->
-    <div class="mb-3">
-      <label for="board_content" class="form-label"><strong>내용</strong></label>
-      <div id="editor" style="margin-top: 10px;"></div>
-      <textarea id="board_content" name="board_content" hidden></textarea>
-    </div>
-    <br>
+      <!-- 제목 -->
+      <div class="row mb-3 align-items-center">
+        <div class="mb-3">
+          <label for="board_title" class="form-label"><strong>제목</strong></label>
+          <input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
+        </div>
+      </div>
 
-    <!-- 파일 첨부 -->
-	<div class="mb-3">
-  		<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
-  		<input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
-	</div>
+      <!-- 내용 -->
+      <div class="mb-3">
+        <label for="board_content" class="form-label"><strong>내용</strong></label>
+        <div id="editor" style="margin-top: 10px;"></div>
+        <textarea id="board_content" name="board_content" hidden></textarea>
+      </div>
 
-    <!-- 버튼 -->
-    <div class="d-flex justify-content-end gap-2 mt-4">
-      <button type="submit" class="btn btn-primary">작성 완료</button>
-      <button type="button" class="btn btn-danger" onclick="window.location.href='/board/list'">취소</button>
-    </div>
-  </form>
-</div>
+      <!-- 파일 첨부 -->
+      <div class="mb-3">
+        <label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
+        <input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">작성 완료</button>
+        <button type="button" class="btn btn-danger" onclick="window.location.href='/board/list'">취소</button>
+      </div>
+    </form>
+  </div>
 
   <!-- Start Editor 스타일 및 스크립트 CDN -->
   <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
@@ -118,25 +119,20 @@
   </script>
 
   <!-- Bootstrap Common JS Files Start -->
-  
   <!-- Import vendorJs Files -->
-	<script th:src="@{/assets/js/vendor.min.js}"></script>
-	
-  	<!-- Import Js Files -->
-  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
-  	<script th:src="@{/assets/js/theme/theme.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-
-  	<!-- solar icons -->
-  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-  	
-  	<!-- Bootstrap Common JS Files End -->
+  <script th:src="@{/assets/js/vendor.min.js}"></script>
+  <!-- Import Js Files -->
+  <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  <script th:src="@{/assets/js/theme/app.init.js}"></script>
+  <script th:src="@{/assets/js/theme/theme.js}"></script>
+  <script th:src="@{/assets/js/theme/app.min.js}"></script>
+  <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+  <!-- solar icons -->
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
 
 </th:block>
 </html>

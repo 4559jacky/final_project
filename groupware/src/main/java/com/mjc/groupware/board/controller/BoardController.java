@@ -27,7 +27,8 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
-
+import com.mjc.groupware.reply.dto.ReplyDto;
+import com.mjc.groupware.reply.service.ReplyService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,9 +37,9 @@ import lombok.RequiredArgsConstructor;
 public class BoardController {
 
     private Logger logger = LoggerFactory.getLogger(BoardController.class);
-    // 생성자 주입
     private final BoardService boardService;
     private final BoardAttachService boardAttachService;
+    private final ReplyService replyService;
 
     // 게시글 등록 페이지
     @GetMapping("/board/create")
@@ -65,15 +66,11 @@ public class BoardController {
         return resultMap;
     }
 
-    
-    
-    
     // 게시글 목록 조회 (API)
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
-       
-    	if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
-    	if (pageDto.getNumPerPage() == 0) pageDto.setNumPerPage(10); // 기본값 설정
+        if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+        if (pageDto.getNumPerPage() == 0) pageDto.setNumPerPage(10); // 기본값 설정
         
         // 페이징, 검색을 고려한 게시글 리스트 조회
         Page<Board> boardList = boardService.selectBoardAll(searchDto, pageDto);
@@ -89,52 +86,44 @@ public class BoardController {
         // 게시글 목록을 위한 list.html로 이동
         return "board/list";
     }
-    
-    
+
     // 게시글 상세보기
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
-    	
-    	// 코드 추가
-    	List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
-    	model.addAttribute("attachList", attachList);
-    	
-    	
-        Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
+        List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
+        model.addAttribute("attachList", attachList);
 
+        Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
         if (optionalBoard.isPresent()) {
             // 조회수 증가
-            boardService.viewCount(boardNo); // 조회수 증가 메소드 호출
-
+            boardService.updateViews(boardNo);
             model.addAttribute("board", optionalBoard.get());
+
+            // 댓글 및 대댓글 계층형 리스트 조회 후 모델에 담기
+            List<ReplyDto> replyList = replyService.getHierarchicalRepliesByBoardNo(boardNo);
+            model.addAttribute("replyList", replyList);
+
             return "board/detail";
         } else {
             model.addAttribute("error", "해당 게시글을 찾을 수 없습니다.");
-            return "error";  // 에러 페이지로 이동
+            return "error";
         }
     }
-    
-    
-    
+
     // 게시글 수정 페이지 (수정 화면 띄우기)
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
         Optional<Board> optionalBoard = boardService.selectBoardOne(id);
-
         if (optionalBoard.isPresent()) {
-            model.addAttribute("board", optionalBoard.get());  // 게시글 객체 전달
-
-            // 첨부파일 목록 조회
+            model.addAttribute("board", optionalBoard.get());
             List<BoardAttach> attachList = boardAttachService.selectAttachList(id);
             model.addAttribute("attachList", attachList);
-
-            return "board/update";  // 수정 페이지로 이동
+            return "board/update";
         } else {
             model.addAttribute("error", "해당 게시글을 찾을 수 없습니다.");
-            return "error";  // 에러 페이지로 이동
+            return "error";
         }
     }
-    
 
     // 게시글 수정 처리 (API)
     @PostMapping("/board/{boardNo}/update")
@@ -143,15 +132,12 @@ public class BoardController {
             @PathVariable("boardNo") Long boardNo,
             @ModelAttribute BoardDto boardDto,
             @RequestParam(value = "files", required = false) List<MultipartFile> files,
-            @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {  // 삭제할 파일 ID 리스트 추가
-
+            @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {
+        
         try {
             boardDto.setBoard_no(boardNo);
-
-            // 삭제할 파일 리스트를 BoardDto에 세팅
             boardDto.setDelete_files(deleteFiles);
-
-            boardService.updateBoard(boardDto, files);  // 파일 리스트와 삭제 파일 리스트 함께 전달
+            boardService.updateBoard(boardDto, files);
 
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "200");
@@ -164,7 +150,6 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
-    
 
     // 게시글 삭제 처리
     @PostMapping("/board/delete/{boardNo}")
@@ -175,7 +160,7 @@ public class BoardController {
         resultMap.put("res_msg", "게시글 삭제 중 알 수 없는 오류가 발생했습니다.");
 
         try {
-            boardService.deleteBoard(boardNo); // 서비스 호출
+            boardService.deleteBoard(boardNo); // Soft Delete 처리
             resultMap.put("res_code", "200");
             resultMap.put("res_msg", "게시글이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
@@ -184,5 +169,4 @@ public class BoardController {
 
         return resultMap;
     }
-    
 }
