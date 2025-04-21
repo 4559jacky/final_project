@@ -90,7 +90,8 @@ public class BoardController {
     // 게시글 상세보기
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
-        List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
+    	logger.debug("boardNo received: "+boardNo); // 로그 추가
+    	List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
         model.addAttribute("attachList", attachList);
 
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
@@ -125,7 +126,7 @@ public class BoardController {
         }
     }
 
-    // 게시글 수정 처리 (API)
+ // 게시글 수정 처리 (API)
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateBoard(
@@ -142,6 +143,7 @@ public class BoardController {
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "200");
             result.put("res_msg", "수정 성공");
+            result.put("boardNo", String.valueOf(boardNo)); // 상세 페이지로 이동할 boardNo 추가
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             Map<String, String> result = new HashMap<>();

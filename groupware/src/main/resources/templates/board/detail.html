@@ -117,19 +117,15 @@
     <div id="reply_list">
         <div th:each="reply : ${replyList}" class="reply-item">
             <div class="reply-content">
+            
+            <!-- 기본 프로필 왼쪽,닉네임 아이디 그 옆에 몇초,분,시간전도 가능할수있게 만들어야함
+            댓글을 입력하세요(예시:안녕하세요)
+            댓글 달기(대댓글)
+            수정 및 삭제 오른쪽에 배치(신고 버튼)은 수정 및 삭제 버튼 위에 배치 - 수정 및 삭제 위에 신고 버튼 만들기
+            댓글 달고 - 대댓글 = 지그재그 방식으로 만들거나 ㄴ 처럼 붙여서 내려갈수있게 만들어야함 -->
                 <span th:text="${reply.memberName}"></span> :
                 <span th:text="${reply.reply_content}"></span>
             </div>
-            
-            
-            
- <!-- 수정 및 삭제 신고하기 버튼 추가 -->
- <!--     <th:block sec:authorize="isAuthenticated()">
-        <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="mt-4 text-end">
-            <a class="btn btn-primary px-3 py-1" th:href="@{/replies/{replyNo}/update(id=${reply.reply_no})}">수정</a>
-            <a class="btn btn-danger px-3 py-1" href="#" th:onclick="|replyDelete(${reply.reply_no})|">삭제</a>
-        </div>
-    </th:block> -->
             
             <button type="button" class="btn btn-link" th:onclick="|showReplyForm(${reply.reply_no})|">댓글 달기</button>
 

@@ -4,191 +4,184 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/include/layout}">
 
-<th:block layout:fragment="content">
-
 <head>
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
-	<link rel="stylesheet" th:href="@{/css/kdy.css}">
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>자유게시판 수정</title>
+
+    <!-- Toast UI Editor -->
+    <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/kdy.css}">
 </head>
 
-  <!-- 페이지 제목 -->
-  <div class="col-lg-8 col-md-6 col-12 align-self-center">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb align-items-center">
-        <li class="breadcrumb-item">
-          <a class="text-muted text-decoration-none" th:href="@{/home}">
-            <i class="ti ti-home fs-5"></i>
-          </a>
-        </li>
-        <li class="breadcrumb-item" aria-current="page">자유게시판 수정</li>
-      </ol>
-    </nav>
-    <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 수정</h2>
-  </div>
+<th:block layout:fragment="content">
+    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center">
+                <li class="breadcrumb-item">
+                    <a class="text-muted text-decoration-none" th:href="@{/home}">
+                        <i class="ti ti-home fs-5"></i>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">자유게시판 수정</li>
+            </ol>
+        </nav>
 
-  <!-- 제목과 폼 사이 여백 -->
-  <div class="mt-5"></div>
-
-  <div class="p-5 bg-white rounded-4 shadow-sm mb-5">
-    <!-- 투표 추가 버튼 -->
-    <div class="mb-3 text-end">
-      <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
+        <h2 class="mb-0 fw-bolder fs-8 mt-4">자유 게시판 수정</h2>
     </div>
 
-    <form method="post" enctype="multipart/form-data" id="board_form">
-      <input type="hidden" name="board_no" id="board_no" th:value="${board.boardNo}">
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-      <!-- 제목 -->
-      <div class="row mb-3 align-items-center">
-        <div class="mb-3">
-          <label for="board_title" class="form-label"><strong>제목</strong></label>
-          <input type="text"
-                 class="form-control bg-white text-dark"
-                 id="board_title"
-                 name="board_title"
-                 th:value="${board.boardTitle}"
-                 maxlength="100"
-                 placeholder="제목을 입력하세요"
-                 required>
+    <div class="mt-4 p-5 bg-white rounded-4 shadow-sm mb-5">
+        <!-- 투표 버튼 -->
+        <div class="mb-3 text-end">
+            <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
         </div>
-      </div>
 
-      <!-- 내용 입력 -->
-      <div class="mb-3">
-        <label for="board_content" class="form-label"><strong>내용</strong></label>
-        <div id="editor" style="margin-top: 10px;"></div>
-        <textarea id="board_content"
-                  name="board_content"
-                  hidden
-                  th:text="${board.boardContent}"></textarea>
-      </div>
+        <form method="post" enctype="multipart/form-data" id="board_form">
+            <!-- Hidden Fields -->
+            <input type="hidden" name="board_no" id="board_no" th:value="${board.boardNo}">
+            <input type="hidden" name="board_content" id="board_content"/>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-      <!-- 1) 기존 첨부파일 삭제 토글 -->
-      <div id="existing-files" class="mb-3">
-        <label class="form-label"><strong>기존 첨부파일</strong></label>
-        <div th:each="attach : ${attachList}"
-             class="file-item d-flex align-items-center mb-1"
-             th:attr="data-id=${attach.attachNo}">
-          <!-- 삭제 대상 ID 전송용 hidden -->
-          <input type="hidden"
-                 name="deleteFiles"
-                 th:value="${attach.attachNo}"
-                 disabled/>
-          <span class="flex-grow-1" th:text="${attach.oriName}">파일명.jpg</span>
-          <button type="button"
-                  class="btn btn-sm btn-danger ms-2"
-                  onclick="toggleDelete(this)">×</button>
-        </div>
-      </div>
+            <!-- 제목 -->
+            <div class="mb-3">
+                <label for="board_title" class="form-label fw-semibold">제목</label>
+                <input type="text" class="form-control bg-white text-dark"
+                       id="board_title" name="board_title"
+                       th:value="${board.boardTitle}" maxlength="100"
+                       placeholder="제목을 입력하세요" required>
+            </div>
 
-      <!-- 2) 새 파일 동적 추가 -->
-      <div id="new-files" class="mb-3">
-        <label class="form-label"><strong>새 파일 첨부</strong></label>
-        <!-- addFileInput()로 input이 추가됩니다 -->
-      </div>
-      <button type="button"
-              class="btn btn-sm btn-outline-primary mb-4"
-              onclick="addFileInput()">+ 파일 추가</button>
+            <!-- 내용 -->
+            <div class="mb-3">
+                <label for="editor" class="form-label fw-semibold">내용</label>
+                <div id="editor" style="margin-top: 10px;"></div>
+            </div>
 
-      <!-- 수정 완료 버튼 -->
-      <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="submit" class="btn btn-primary">수정 완료</button>
-        <button type="button" class="btn btn-danger" onclick="window.location.href='/board/list'">취소</button>
-      </div>
-    </form>
-  </div>
+            <!-- 기존 첨부파일 -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">기존 첨부파일</label>
+                <div th:each="file : ${attachList}" class="file-item d-flex align-items-center gap-2 mb-1" th:attr="data-id=${file.attachNo}">
+                    <input type="hidden" name="deleteFiles" th:value="${file.attachNo}" disabled/>
+                    <input type="checkbox" class="form-check-input mt-0" checked onchange="toggleDeleteCheckbox(this)">
+                    <span class="file-name flex-grow-1 mb-0" th:text="${file.oriName}"></span>
+                </div>
+                <div th:if="${#lists.isEmpty(attachList)}">첨부파일이 없습니다.</div>
+            </div>
 
-  <!-- Start Editor CDN -->
-  <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css"
-        rel="stylesheet" />
-  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+            <!-- 새 파일 첨부 -->
+            <div class="mb-3">
+                <label for="board_file" class="form-label fw-semibold">파일 추가</label>
+                <input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
+            </div>
 
-  <script>
-    // 1) 에디터 초기화
-    const editor = new toastui.Editor({
-      el: document.querySelector('#editor'),
-      height: '400px',
-      initialEditType: 'wysiwyg',
-      previewStyle: 'vertical',
-      initialValue: document.getElementById('board_content').textContent.trim()
+            <!-- 버튼 -->
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary px-4">수정 완료</button>
+                <a th:href="@{/board/detail(boardNo=${board.boardNo})}" class="btn btn-danger px-4 ms-2">취소</a>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<th:block layout:fragment="scripts">
+    <!-- Toast UI Editor -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
+<script th:inline="javascript">
+    const initialContent = /*[[${board.boardContent}]]*/ '';
+    const boardNo = /*[[${board.boardNo}]]*/ 0;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const editor = new toastui.Editor({
+            el: document.querySelector('#editor'),
+            height: '400px',
+            initialEditType: 'wysiwyg',
+            previewStyle: 'vertical',
+            initialValue: initialContent
+        });
+
+        const form = document.getElementById("board_form");
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const title = form.board_title.value.trim();
+            const content = editor.getHTML();
+            document.getElementById("board_content").value = content;
+
+            let msg = "";
+            if (!title) msg += "제목을 입력하세요.\n";
+            if (!content || content === '<p><br></p>') msg += "내용을 입력하세요.\n";
+
+            if (msg) {
+                alert(msg);
+                return;
+            }
+
+            const payload = new FormData(form);
+
+            // CSRF 처리
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+            // 삭제할 파일 정보 추가
+            document.querySelectorAll("input[name='deleteFiles']").forEach(hidden => {
+                if (!hidden.disabled) {
+                    payload.append("deleteFiles", hidden.value);
+                }
+            });
+
+            // fetch 요청 (게시글 수정 처리)
+            fetch("/board/" + boardNo + "/update", {
+                method: "POST",
+                headers: {
+                    [csrfHeader]: csrfToken
+                },
+                body: payload
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("서버 응답 오류");
+                }
+                return res.json();
+            })
+            .then(data => {
+                alert(data.res_msg);
+                if (data.res_code === "200") {
+                    // 상세페이지 이동
+                    location.href = "/board/detail/" + data.boardNo;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("수정 중 오류가 발생했습니다.");
+            });
+        });
+
+        // 체크박스 누르면 삭제 표시
+        window.toggleDeleteCheckbox = function (checkbox) {
+            const item = checkbox.closest('.file-item');
+            const hidden = item.querySelector('input[type=hidden]');
+            const filename = item.querySelector('.file-name');
+
+            if (!checkbox.checked) {
+                hidden.disabled = false;
+                filename.classList.add('text-decoration-line-through');
+            } else {
+                hidden.disabled = true;
+                filename.classList.remove('text-decoration-line-through');
+            }
+        };
+
+        // 투표 모달 (임시)
+        window.openVoteModal = function () {
+            alert("투표 모달 띄우기 기능은 구현 예정입니다.");
+        };
     });
-
-    // 2) 기존 파일 삭제/복원 토글
-    function toggleDelete(btn) {
-      const item   = btn.closest('.file-item');
-      const hidden = item.querySelector('input[type=hidden]');
-      if (hidden.disabled) {
-        hidden.disabled = false;                       // 삭제 대상으로 활성화
-        item.classList.add('text-decoration-line-through');
-        btn.textContent = '↺';                         // 복원 아이콘
-        btn.classList.replace('btn-danger', 'btn-secondary');
-      } else {
-        hidden.disabled = true;                        // 삭제 취소
-        item.classList.remove('text-decoration-line-through');
-        btn.textContent = '×';
-        btn.classList.replace('btn-secondary', 'btn-danger');
-      }
-    }
-
-    // 3) 새 파일 input 동적 추가/삭제
-    function addFileInput() {
-      const container = document.getElementById('new-files');
-      const div = document.createElement('div');
-      div.className = 'd-flex align-items-center mb-1';
-
-      const input = document.createElement('input');
-      input.type  = 'file';
-      input.name  = 'files';
-      input.className = 'form-control form-control-sm';
-
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn btn-sm btn-danger ms-2';
-      btn.textContent = '×';
-      btn.onclick = () => div.remove();
-
-      div.append(input, btn);
-      container.append(div);
-    }
-
-    // 4) 폼 제출 시 에디터 내용, 삭제 대상, 새 파일 반영
-    document.getElementById("board_form").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const title   = document.getElementById("board_title").value.trim();
-      const content = editor.getHTML();
-      const boardNo = document.getElementById("board_no").value;
-
-      if (!title) { alert("제목을 입력하세요."); return; }
-      if (!content){ alert("내용을 입력하세요."); return; }
-
-      // FormData에 기존 폼 항목 포함
-      const formData = new FormData(this);
-      formData.set("board_content", content);
-
-      // 활성화된 deleteFiles(hidden)의 값만 전송
-      document.querySelectorAll("input[name='deleteFiles']").forEach(hidden => {
-        if (!hidden.disabled) {
-          formData.append("deleteFiles", hidden.value);
-        }
-      });
-
-      // Fetch로 전송
-      fetch(`/board/${boardNo}/update`, {
-        method: "POST",
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.res_msg);
-        if (data.res_code === '200') location.href = "/board/list";
-      })
-      .catch(err => alert("에러 발생: " + err));
-    });
-  </script>
+</script>
 
 
   	<script th:src="@{/assets/js/vendor.min.js}"></script>

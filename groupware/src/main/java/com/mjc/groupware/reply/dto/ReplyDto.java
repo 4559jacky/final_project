@@ -27,7 +27,7 @@ public class ReplyDto {
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
     
-    private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 목록
+    private List<ReplyDto> subReplies;  // 대댓글 목록
     
     
 
