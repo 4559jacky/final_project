@@ -1,10 +1,8 @@
 package com.mjc.groupware.notice.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
@@ -100,22 +99,10 @@ public class NoticeService {
     }
     
     // 게시글 상세 조회 (조회수 증가 포함)
+    @Transactional
     public Notice getNoticeDetail(Long noticeNo) {
-        Notice notice = repository.findById(noticeNo).orElse(null);
-        if (notice != null) {
-            // 조회수 증가
-        	notice = Notice.builder()
-                    .noticeNo(notice.getNoticeNo())
-                    .noticeTitle(notice.getNoticeTitle())
-                    .noticeContent(notice.getNoticeContent())
-                    .views(notice.getViews() + 1) // 조회수 1 증가
-                    .member(notice.getMember())
-                    .regDate(notice.getRegDate())
-                    .modDate(notice.getModDate())
-                    .build();
-            repository.save(notice); // 업데이트된 조회수 저장
-        }
-        return notice;
+        repository.increaseViews(noticeNo); // ✅ DB에서 직접 조회수 +1
+        return repository.findById(noticeNo).orElse(null); // ✅ 최신값 다시 조회
     }
     
     // 게시글 수정 1
@@ -137,12 +124,37 @@ public class NoticeService {
     
     
     // 게시글 수정 2
-	public int updateNotice(NoticeDto dto, List<MultipartFile> files) {
+	public int updateNotice(NoticeDto dto, List<MultipartFile> files, List<Long> deleteFiles) {
 		Notice notice = repository.findById(dto.getNotice_no()).orElse(null);
 		if(notice == null) return 0;
 		
-		notice.update(dto.getNotice_title(), dto.getNotice_content(), LocalDateTime.now());
+		boolean isContentChanged =
+			 !notice.getNoticeTitle().equals(dto.getNotice_title()) ||
+			 !notice.getNoticeContent().equals(dto.getNotice_content());
+		
+		boolean isFileChanged = 
+			     (files != null && !files.isEmpty()) || 
+			     (deleteFiles != null && !deleteFiles.isEmpty());
+		 
+		boolean shouldUpdateModDate = isContentChanged || isFileChanged; 
+		 
+		if (shouldUpdateModDate) {
+	        notice.update(dto.getNotice_title(), dto.getNotice_content(), LocalDateTime.now());
+	    } else {
+	        notice.update(dto.getNotice_title(), dto.getNotice_content(), notice.getModDate());
+	    }
+		
 		repository.save(notice);
+
+	    if (deleteFiles != null) {
+	        for (Long id : deleteFiles) {
+	            try {
+	                attachService.deleteAttachById(id);  // 실제 삭제
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }
 		
 		if (files != null && !files.isEmpty()) {
 	        for (MultipartFile file : files) {

@@ -19,11 +19,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="notice_board")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notice {
@@ -57,5 +59,10 @@ public class Notice {
 		this.noticeTitle = title;
 		this.noticeContent = content;
 		this.modDate = modDate;
+	}
+
+	public void setViews(int i) {
+		// TODO Auto-generated method stub
+		
 	}
 }

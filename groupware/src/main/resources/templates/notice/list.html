@@ -83,8 +83,8 @@
     		  <td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
     		  <td th:text="${notice.noticeTitle}">제목</td>
     		  <td th:text="${notice.member.memberName}">작성자</td>
-    		  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">등록일</td>
-    		  <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd')}">수정일</td>
+    		  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
+    		  <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd HH:mm')}">수정일</td>
     		  <td th:text="${notice.views}">조회수</td>
   			</tr>
 		  </tbody>
