@@ -78,7 +78,7 @@
             <!-- 버튼 -->
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" class="btn btn-primary px-4">수정 완료</button>
-                <a th:href="@{/board/detail(boardNo=${board.boardNo})}" class="btn btn-danger px-4 ms-2">취소</a>
+                <a th:href="@{'/board/detail/' + ${board.boardNo}}" class="btn btn-danger px-4 ms-2">취소</a>
             </div>
         </form>
     </div>

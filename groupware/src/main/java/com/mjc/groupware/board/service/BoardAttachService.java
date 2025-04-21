@@ -84,7 +84,8 @@ public class BoardAttachService {
             String filePath = fileDir + "/" + newName;
 
             try {
-                file.transferTo(new File(filePath));
+                File destinationFile = new File(filePath);
+                file.transferTo(destinationFile);
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;
@@ -93,7 +94,7 @@ public class BoardAttachService {
             BoardAttach boardAttach = BoardAttach.builder()
                 .oriName(oriName)
                 .newName(newName)
-                .attachPath(filePath)
+                .attachPath(fileDir + "/" + newName)  // 경로를 상대경로로 변경
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
                 .board(Board.builder().boardNo(boardNo).build())
@@ -104,16 +105,26 @@ public class BoardAttachService {
 
         return savedAttachments;
     }
+
     // 파일 형식 검증 (이미지 파일만 허용)
     private boolean isValidFileType(String fileName) {
         String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp", "txt" };
-        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        String fileExtension = getFileExtension(fileName);
+        
         for (String ext : validExtensions) {
             if (fileExtension.equals(ext)) {
                 return true;
             }
         }
         return false;
+    }
+
+    // 파일 확장자 추출 (안전하게 처리)
+    private String getFileExtension(String fileName) {
+        if (fileName != null && fileName.lastIndexOf(".") > 0) {
+            return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        }
+        return "";
     }
 
     // 파일 삭제 (여러 개의 파일을 처리)
