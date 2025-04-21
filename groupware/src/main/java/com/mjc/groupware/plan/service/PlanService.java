@@ -1,12 +1,10 @@
 package com.mjc.groupware.plan.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
@@ -82,9 +80,6 @@ public class PlanService {
 		}
 		return result;
 	}
-
-
-
 
 
 }

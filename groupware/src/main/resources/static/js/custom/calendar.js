@@ -77,7 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const local = new Date(date.getTime() - offset * 60 * 1000);
     return local.toISOString().slice(0, 16);
     };
-
     getModalStartDateEl.value = formatToLocalDatetime(startDate);
     getModalEndDateEl.value = formatToLocalDatetime(rawEndDate);
   };
@@ -140,14 +139,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // Active Calender
   /*=====================*/
   let getEvent = null;
+  var selectedType = ""; // 현재 선택된 타입
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
 	locale:'ko',
-	dayMaxEvents:true,
+	dayMaxEventRows: true,
 	eventDisplay: 'block',
 	editable:true,
-	expandRows: true,
+	/*expandRows: true,*/
 	allDaySlot: false,
+	displayEventTime: false, //일정바 앞 시간
 	slotDuration: '00:30:00',
 	initialView: 'dayGridMonth',
 	navLinks: true,
@@ -166,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		            return response.json();
 		        })
 		        .then(data => {
-					/*console.log("이벤트데이터:"+data);*/
+					console.log("이벤트데이터:"+data);
 		            successCallback(data); // FullCalendar에 이벤트 전달
 		        })
 		        .catch(error => {
@@ -174,7 +175,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		            failureCallback(); // 오류 처리
 		        });
 	},
-
 	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
 		const eventId = info.event.id;
@@ -265,11 +265,23 @@ document.addEventListener("DOMContentLoaded", function () {
         click: calendarAddEvent,
       },
     },
-    eventClassNames: function ({ event: calendarEvent }) {
-      const getColorValue =
-        calendarsEvents[calendarEvent._def.extendedProps.calendar];
-      return ["event-fc-color fc-bg-" + getColorValue];
-    },
+    /*eventClassNames: function ({ event: calendarEvent }) {
+		const planType = calendarEvent._def.extendedProps.planType;
+
+		 // 일정 타입에 따라 클래스 반환
+		 switch (planType) {
+		   case "휴가":
+		     return ["event-vacation-bg"];         // 배경 스타일용 클래스
+		   case "부서":
+		     return ["event-department-bg"];
+		   case "개인":
+		     return ["event-personal-bg"];
+		   case "회사":
+		     return ["event-company-bg"];
+		   default:
+		     return ["event-default-bg"];          // 혹시 모를 기본값
+		 }
+    },*/
     windowResize: function (arg) {
       if (checkWidowWidth()) {
         calendar.changeView("listWeek");
@@ -287,47 +299,10 @@ document.addEventListener("DOMContentLoaded", function () {
 		  start.setHours(0, 0, 0, 0); // 선택한 날짜도 자정 기준
 		  return start >= now; // 오늘 날짜는 OK, 과거는 막힘
 	}
-
   });
   /*=====================*/
   // Update Calender Event
   /*=====================*/
-	  /*상세모달창 삭제버튼 클릭시 동작*/
-	 /* getModalDeleteBtnEl.addEventListener("click", function () {
-	    const planId = document.getElementById("detail-event-id").value;
-		
-	    if (!planId) {
-	      alert("삭제할 일정이 없습니다.");
-	      return;
-	    }
-	
-	    fetch("/plan/"+planId, {
-	      method: "DELETE",
-	      headers: {
-	        'header': document.querySelector('meta[name="_csrf_header"]').content,
-	        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-	      }
-	    })
-	      .then(res => res.json())
-	      .then(data => {
-	        alert(data.res_msg);
-	        if (data.res_code === "200") {
-				if (getEvent) {
-				  getEvent.remove(); // 달력에서 해당 이벤트 제거
-				} else {
-				  // 대안: 달력 전체 새로고침
-				  calendar.refetchEvents();
-				}
-	          // 모달 닫기
-	          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
-	        }
-	      })
-	      .catch(err => {
-	        console.error("서버 삭제 실패", err);
-	        alert("삭제 중 오류가 발생했습니다.");
-	      });
-	  });*/
-
 	////*상세모달창 수정버튼 클릭시 동작*////
 	  getModalUpdateBtnEl.addEventListener("click", function () {
 		  var planId = document.getElementById("detail-event-id").value;
@@ -458,6 +433,31 @@ document.addEventListener("DOMContentLoaded", function () {
   /*=====================*/
   window.calendar = calendar;
   calendar.render();
+  
+  // 각 타입별 일정 화면에 출력
+  document.querySelectorAll('.legend-item').forEach(item => {
+  		item.addEventListener('click', function () {
+  		const selectedType = this.getAttribute('data-type'); // 예: "회사"
+			console.log("selectedType확인:",selectedType);
+			
+  		calendar.getEvents().forEach(event => {
+  			const eventType = event.extendedProps.planType;
+			console.log("eventType확인용:",eventType);
+		
+			let shouldShow = false;
+
+			      if (!selectedType || selectedType === "개인") {
+			        shouldShow = true;
+			      } else if (selectedType === "부서") {
+			        shouldShow = eventType === "부서" || eventType === "회사";
+			      } else {
+			        shouldShow = eventType === selectedType;
+			      }
+			      event.setProp("display", shouldShow ? "block" : "none");
+  		});
+  	});
+  });
+  
   var myModal = new bootstrap.Modal(document.getElementById("eventModal"));
   var modalToggle = document.querySelector(".fc-addEventButton-button ");
   document

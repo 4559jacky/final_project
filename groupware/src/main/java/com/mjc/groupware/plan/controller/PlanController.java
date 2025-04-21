@@ -59,23 +59,23 @@ public class PlanController {
 	    event.put("color", getColorByType(plan.getPlanType()));
 	    
 	    Map<String, Object> extendedProps = new HashMap<>();
-	    extendedProps.put("calendar", plan.getPlanType());
+	    extendedProps.put("planType", plan.getPlanType());
 	    extendedProps.put("description", plan.getPlanContent());
 
 	    event.put("extendedProps", extendedProps);
 
 	    events.add(event);
+
 		}
 	    return events;
 	}
 
-
 	private String getColorByType(String planType) {
 	    switch (planType) {
-	        case "회사": return "rgba(92, 100, 242, 0.7)";
-	        case "부서": return "rgba(242, 75, 120, 0.7)";
-	        case "개인": return "rgba(63, 191, 155, 0.7)";
-	        case "휴가": return "rgba(242, 146, 29, 0.7)";
+	        case "회사": return "rgba(92, 100, 242, 1.0)";
+	        case "부서": return "rgba(242, 75, 120, 1.0)";
+	        case "개인": return "rgba(63, 191, 155, 1.0)";
+	        case "휴가": return "rgba(242, 146, 29, 1.0)";
 	        default: return "rgba(108, 117, 125, 0.5)"; // 기본 회색 투명
 	    }
 	}
@@ -101,11 +101,8 @@ public class PlanController {
 	@GetMapping("/plan/detail/{id}")
 	@ResponseBody
 	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
-//		System.out.println("planId"+planId);
 	    Plan plan = planService.selectPlanById(planId);
-//	    System.out.println(plan);
 	    PlanDto dto = new PlanDto().toDto(plan);
-//	    System.out.println(dto);
 	    return dto;
 	}
 
@@ -116,7 +113,6 @@ public class PlanController {
 		System.out.println("id값:"+id);
 		System.out.println("받은 title: " + dto.getPlan_title());
 		System.out.println("받은 start_date: " + dto.getStart_date());
-
 
 	    Map<String,String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "500");
@@ -146,17 +142,6 @@ public class PlanController {
 	    
 	    return resultMap;
 	}
-	
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }
