@@ -1,11 +1,10 @@
 package com.mjc.groupware.plan.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
@@ -46,40 +45,41 @@ public class PlanService {
 	}
 
 	// 상세모달창 수정
-//	@Transactional
-//	public Plan updatePlanOne(Long id, String title, String content, String startDate, String endDate) {
-//		Plan plan = planRepository.findById(id).orElse(null);
-//		if(plan != null) {
-//			plan.setPlanTitle(title);
-//			plan.setPlanContent(content);
-//	        plan.setModDate(LocalDateTime.now());
-//	        
-//	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-//	        LocalDateTime startDateStr = LocalDateTime.parse(startDate, formatter);
-//	        LocalDateTime endDateStr = LocalDateTime.parse(endDate, formatter);
-//	        
-//	        plan.setStartDate(startDateStr);
-//	        plan.setEndDate(endDateStr);
-//	        
-//		}
-//	    return plan;
-//	    
-//	}
-
 	public Plan updatePlanOne(Long id, PlanDto dto) {
 	    Plan plan = planRepository.findById(id).orElse(null);
 	    if (plan == null) return null;
 
 	    plan.setPlanTitle(dto.getPlan_title());
 	    plan.setPlanContent(dto.getPlan_content());
-	    plan.setModDate(LocalDateTime.now());
-	    plan.setStartDate(dto.getStart_date());
-	    plan.setEndDate(dto.getEnd_date());
 	    plan.setPlanType(dto.getPlan_type());
+	    plan.setModDate(LocalDateTime.now()); // 수정일은 현재 시간으로 설정
+
+	    // 파싱 없이 바로 세팅
+	    if (dto.getStart_date() != null) {
+	        plan.setStartDate(dto.getStart_date());
+	    }
+
+	    if (dto.getEnd_date() != null) {
+	        plan.setEndDate(dto.getEnd_date());
+	    }
 
 	    return planRepository.save(plan);
 	}
 
+	// 상세모달창 삭제
+	public int deletePlan(Long id) {
+		int result = 0;
+		try {
+			Plan target = planRepository.findById(id).orElse(null);
+			if(target != null) {
+				planRepository.deleteById(id);
+			}
+			result = 1;
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 
 }

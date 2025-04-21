@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var getModalEndDateEl = document.querySelector("#event-end-date");
   var getModalAddBtnEl = document.querySelector(".btn-add-event");
   var getModalUpdateBtnEl = document.querySelector(".btn-update-event");
+  var getModalDeleteBtnEl = document.querySelector(".btn-delete-event");
   var calendarsEvents = {
     Danger: "danger",
     Success: "success",
@@ -63,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 시작일시: 현재 시간
 	const startDate = new Date(info.start); // 드래그한 날짜
     const now = new Date();
-	startDate.setHours(now.getHours(), now.getMinutes(), 0, 0); // 현재 시간만 적용
+	startDate.setHours(0, 0, 0, 0); // 현재 시간만 적용
 
     // 종료일시: 드래그 끝 날짜의 오후 11:59
     const rawEndDate = new Date(info.end);
@@ -76,7 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const local = new Date(date.getTime() - offset * 60 * 1000);
     return local.toISOString().slice(0, 16);
     };
-
     getModalStartDateEl.value = formatToLocalDatetime(startDate);
     getModalEndDateEl.value = formatToLocalDatetime(rawEndDate);
   };
@@ -139,14 +139,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // Active Calender
   /*=====================*/
   let getEvent = null;
+  var selectedType = ""; // 현재 선택된 타입
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
 	locale:'ko',
-	dayMaxEvents:3,
+	dayMaxEventRows: true,
 	eventDisplay: 'block',
 	editable:true,
-	expandRows: true,
+	/*expandRows: true,*/
 	allDaySlot: false,
+	displayEventTime: false, //일정바 앞 시간
 	slotDuration: '00:30:00',
 	initialView: 'dayGridMonth',
 	navLinks: true,
@@ -165,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		            return response.json();
 		        })
 		        .then(data => {
-					/*console.log("이벤트데이터:"+data);*/
+					console.log("이벤트데이터:"+data);
 		            successCallback(data); // FullCalendar에 이벤트 전달
 		        })
 		        .catch(error => {
@@ -173,12 +175,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		            failureCallback(); // 오류 처리
 		        });
 	},
-
 	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
-		/*console.log("클릭이벤트 작동 확인",info);*/
 		const eventId = info.event.id;
-		/*console.log("eventId체크",eventId);*/
 		getEvent = info.event;
 		
 		fetch('/plan/detail/'+eventId, {
@@ -192,10 +191,10 @@ document.addEventListener("DOMContentLoaded", function () {
 			new bootstrap.Modal(document.getElementById("eventModaldetail")).show();
 			
 			document.querySelector("#eventModaldetail .btn-update-event").dataset.id = data.plan_no;
-			
 			console.log("가져온 데이터:", data);
+			
 			// 고정값
-			document.getElementById("detail-event-id").value = data.reg_member_no;
+			document.getElementById("detail-event-id").value = data.plan_id;
 			document.getElementById("detail-event-writer").value = data.member_name;
 		    document.getElementById("detail-event-department").value = data.dept_name;
 			document.getElementById("detail-event-created-date").value = data.reg_date;
@@ -266,11 +265,23 @@ document.addEventListener("DOMContentLoaded", function () {
         click: calendarAddEvent,
       },
     },
-    eventClassNames: function ({ event: calendarEvent }) {
-      const getColorValue =
-        calendarsEvents[calendarEvent._def.extendedProps.calendar];
-      return ["event-fc-color fc-bg-" + getColorValue];
-    },
+    /*eventClassNames: function ({ event: calendarEvent }) {
+		const planType = calendarEvent._def.extendedProps.planType;
+
+		 // 일정 타입에 따라 클래스 반환
+		 switch (planType) {
+		   case "휴가":
+		     return ["event-vacation-bg"];         // 배경 스타일용 클래스
+		   case "부서":
+		     return ["event-department-bg"];
+		   case "개인":
+		     return ["event-personal-bg"];
+		   case "회사":
+		     return ["event-company-bg"];
+		   default:
+		     return ["event-default-bg"];          // 혹시 모를 기본값
+		 }
+    },*/
     windowResize: function (arg) {
       if (checkWidowWidth()) {
         calendar.changeView("listWeek");
@@ -280,85 +291,76 @@ document.addEventListener("DOMContentLoaded", function () {
         calendar.setOption("height", 1052);
       }
     },
+	// now Date를 기준으로 이전날짜 클릭 불가능하게 하는 코드
+	selectAllow: function(selectInfo) {
+		const now = new Date();
+		  now.setHours(0, 0, 0, 0); // 오늘 자정 기준으로 시간 초기화
+		const start = new Date(selectInfo.start);
+		  start.setHours(0, 0, 0, 0); // 선택한 날짜도 자정 기준
+		  return start >= now; // 오늘 날짜는 OK, 과거는 막힘
+	}
   });
   /*=====================*/
   // Update Calender Event
   /*=====================*/
-  /*상세모달창 수정버튼 클릭시 동작*/
-  getModalUpdateBtnEl.addEventListener("click", function () {
-	  var planId = document.getElementById("detail-event-id").value;
-	  var newTitle = document.getElementById("detail-event-title").value;
-	  var newDescription = document.getElementById("detail-event-description").value;
-	  var newStartDate = document.getElementById("detail-event-start-date").value;
-	  var newEndDate = document.getElementById("detail-event-end-date").value;
-	  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
-	  console.log("value값 확인:",newCalendarType);
+	////*상세모달창 수정버튼 클릭시 동작*////
+	  getModalUpdateBtnEl.addEventListener("click", function () {
+		  var planId = document.getElementById("detail-event-id").value;
+		  var newTitle = document.getElementById("detail-event-title").value;
+		  var newDescription = document.getElementById("detail-event-description").value;
+		  var newStartDate = document.getElementById("detail-event-start-date").value;
+		  var newEndDate = document.getElementById("detail-event-end-date").value;
+		  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
+		  console.log("value값 확인:",newCalendarType);
 
-	  // 수정일 자동 반영
-	  var now = new Date();
-	  var formattedDateTime =
-	    now.getFullYear() + "-" +
-	    String(now.getMonth() + 1).padStart(2, '0') + "-" +
-	    String(now.getDate()).padStart(2, '0') + " " +
-	    String(now.getHours()).padStart(2, '0') + ":" +
-	    String(now.getMinutes()).padStart(2, '0');
-	  document.getElementById("detail-event-modified-date").value = formattedDateTime;
-	  console.log("수정일 자동 반영:", formattedDateTime);
+	  // 날짜 포맷 수정
+	      const toISOFormat = (dateStr) => {
+	          // 예: '2025-04-21 21:12' => '2025-04-21T21:12'
+	          return dateStr.replace('T', ' ');
+	      };
+	      const formattedStartDate = toISOFormat(newStartDate);
+	      const formattedEndDate = toISOFormat(newEndDate);
 	  
-	  console.log("수정할 이벤트 객체:", getEvent); // 수정 버튼 이벤트 안에서!
-	  // 풀캘린더 상의 이벤트 수정
-	  // setProp => FullCalendar의 이벤트 객체에서만 가능한 함수
-	  getEvent.setProp("title", newTitle);
-	  getEvent.setExtendedProp("description", newDescription);
-	  getEvent.setExtendedProp("calendar", newCalendarType);
-	  getEvent.setDates(new Date(newStartDate),new Date(newEndDate));
+	  // 수정일 자동 반영
+		  var now = new Date();
+		  var formattedDateTime =
+		    now.getFullYear() + "-" +
+		    String(now.getMonth() + 1).padStart(2, '0') + "-" +
+		    String(now.getDate()).padStart(2, '0') + " " +
+		    String(now.getHours()).padStart(2, '0') + ":" +
+		    String(now.getMinutes()).padStart(2, '0');
+		  document.getElementById("detail-event-modified-date").value = formattedDateTime;
 	  
 	  // 서버에 수정된 값 전달..
-	    fetch("/plan/"+planId+"/update", {
-	      method: "POST",
-	      headers: {
-			'Content-Type': 'application/json',
-			'header': document.querySelector('meta[name="_csrf_header"]').content,
-			'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-	      },
-	      body: JSON.stringify({
-	        id: planId,
-	        title: newTitle,
-	        content: newDescription,
-			calendarType: newCalendarType,
-	        startDate: newStartDate,
-	        endDate: newEndDate		
-	      })
-	    })
-	      .then(res => res.json())
-	      .then(data => {
-	        alert(data.res_msg);
-	        if (data.res_code === "200") {
-	          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
-	        }
-	      })
-	      .catch(err => {
-	        console.error("서버 수정 실패", err);
-	      });
+		  const payload = {
+			plan_title: newTitle,
+			        plan_content: newDescription,
+			        plan_type: newCalendarType,
+			        start_date: formattedStartDate,
+			        end_date: formattedEndDate,
+			        mod_date: formattedDateTime
+		          };
 	
-	/*var getPublicID = this.dataset.fcEventPublicId;
-    var getTitleUpdatedValue = getModalTitleEl.value;
-    var setModalStartDateValue = getModalStartDateEl.value;
-    var setModalEndDateValue = getModalEndDateEl.value;
-    var getEvent = calendar.getEventById(getPublicID);
-    var getModalUpdatedCheckedRadioBtnEl = document.querySelector(
-      'input[name="event-level"]:checked'
-    );
-
-    var getModalUpdatedCheckedRadioBtnValue =
-      getModalUpdatedCheckedRadioBtnEl !== null
-        ? getModalUpdatedCheckedRadioBtnEl.value
-        : "";
-
-    getEvent.setProp("title", getTitleUpdatedValue);
-    getEvent.setDates(setModalStartDateValue, setModalEndDateValue);
-    getEvent.setExtendedProp("calendar", getModalUpdatedCheckedRadioBtnValue);
-    myModal.hide();*/
+		    fetch("/plan/"+planId+"/update", {
+		      method: "POST",
+		      headers: {
+				'Content-Type': 'application/json',
+				'header': document.querySelector('meta[name="_csrf_header"]').content,
+				'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		      },
+		      body: JSON.stringify(payload)
+		    })
+		      .then(res => res.json())
+		      .then(data => {
+		        alert(data.res_msg);
+		        if (data.res_code === "200") {
+		          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
+				  location.reload();
+		        }
+		      })
+		      .catch(err => {
+		        console.error("서버 수정 실패", err);
+		      });
   });
   /*=====================*/
   // Add Calender Event
@@ -374,35 +376,88 @@ document.addEventListener("DOMContentLoaded", function () {
     var writer = document.getElementById("event-writer").value;
     var department = document.getElementById("event-department").value;
 
-    var requestData = {
-      planName: getTitleValue,
-      planContent: description,
-      startDate: setModalStartDateValue,
-      endDate: setModalEndDateValue,
-      color: getModalCheckedRadioBtnValue,
-      regMemberNo: 1
-    };
-	calendar.addEvent({
-	      id: 12,
-	      title: getTitleValue,
-	      start: setModalStartDateValue,
-	      end: setModalEndDateValue,
-	      allDay: true,
-		  extendedProps: {
-		      calendar: getModalCheckedRadioBtnValue,
-		      description: description,
-			  writer: writer,
-			  department: department
-		    },
-	    });
+	// 서버에 보낼 데이터
+	 var requestData = {
+	   plan_title: getTitleValue,
+	   plan_content: description,
+	   plan_type: getModalCheckedRadioBtnValue,
+	   start_date: setModalStartDateValue,
+	   end_date: setModalEndDateValue,
+	   reg_member_no: 1 // 로그인된 사용자 번호 (임시)
+	 };
+
+	 // 서버로 저장 요청 보내기
+	 fetch("/plan/create", {
+	   method: "POST",
+	   headers: {
+	     'Content-Type': 'application/json',
+	     'header': document.querySelector('meta[name="_csrf_header"]').content,
+	     'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	   },
+	   body: JSON.stringify(requestData)
+	 })
+	   .then(res => res.json())
+	   .then(data => {
+	     if (data.res_code === "200") {
+	       const savedPlan = data.saved_plan; // 서버에서 받은 저장된 plan 정보
+
+	       // FullCalendar에 추가 (plan_no를 id로 사용!)
+	       calendar.addEvent({
+	         id: savedPlan.plan_no,
+	         title: savedPlan.plan_title,
+	         start: savedPlan.start_date,
+	         end: savedPlan.end_date,
+	         allDay: true,
+	         extendedProps: {
+	           calendar: savedPlan.plan_type,
+	           description: savedPlan.plan_content,
+	           writer: savedPlan.member_name,
+	           department: savedPlan.dept_name
+	         }
+	       });
+
+	       alert("일정이 등록되었습니다.");
+	       bootstrap.Modal.getInstance(document.getElementById("eventModal")).hide();
+	     } else {
+	       alert("일정 등록 실패: " + data.res_msg);
+	     }
+	   })
+	   .catch(err => {
+	     console.error("일정 등록 중 오류", err);
+	     alert("서버 오류로 등록 실패");
+	   });
   });
 
-    /*myModal.hide();*/
   /*=====================*/
   // Calendar Initd
   /*=====================*/
   window.calendar = calendar;
   calendar.render();
+  
+  // 각 타입별 일정 화면에 출력
+  document.querySelectorAll('.legend-item').forEach(item => {
+  		item.addEventListener('click', function () {
+  		const selectedType = this.getAttribute('data-type'); // 예: "회사"
+			console.log("selectedType확인:",selectedType);
+			
+  		calendar.getEvents().forEach(event => {
+  			const eventType = event.extendedProps.planType;
+			console.log("eventType확인용:",eventType);
+		
+			let shouldShow = false;
+
+			      if (!selectedType || selectedType === "개인") {
+			        shouldShow = true;
+			      } else if (selectedType === "부서") {
+			        shouldShow = eventType === "부서" || eventType === "회사";
+			      } else {
+			        shouldShow = eventType === selectedType;
+			      }
+			      event.setProp("display", shouldShow ? "block" : "none");
+  		});
+  	});
+  });
+  
   var myModal = new bootstrap.Modal(document.getElementById("eventModal"));
   var modalToggle = document.querySelector(".fc-addEventButton-button ");
   document
