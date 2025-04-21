@@ -21,13 +21,13 @@ public class ReplyDto {
     private Long member_no;
     private String memberName;  // 작성자 이름 추가
     private Long board_no;
-    private Long parent_reply_no;
+    private Long parent_reply_no; // 대댓글
     private String reply_content;
     private String reply_status;
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
     
-    private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 리스트
+    private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 목록
     
     
 

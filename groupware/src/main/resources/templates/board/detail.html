@@ -40,11 +40,11 @@
             display: block;
         }
 
-		.reply-list {
-   			 margin-left: 20px; /* 대댓글 들여쓰기 */
-    		 border-left: 2px solid #eee; /* 경계선 */
-    		 padding-left: 15px; /* 패딩 추가 */
-		}
+        .reply-list {
+            margin-left: 20px;
+            border-left: 2px solid #eee;
+            padding-left: 15px;
+        }
 
         .reply-item {
             margin-top: 15px;
@@ -53,17 +53,32 @@
         .reply-form {
             display: none;
             margin-top: 10px;
-            padding-left: 20px;
-            border-left: 2px solid #ddd;
+            padding: 10px;
+            background-color: #fdfdfd;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
         }
 
         .reply-content {
             margin-top: 5px;
         }
+
+        .reply-form textarea {
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 10px;
+        }
+
+        .reply-form button {
+            margin-left: 10px;
+        }
+
     </style>
 </head>
 
 <th:block layout:fragment="content">
+
 
     <!-- 페이지 제목 -->
     <div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -112,10 +127,6 @@
                th:text="${boardAttach.oriName}"
                class="file-link"
                th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">파일명</a>
-
-            <div class="file-preview">
-                <img th:src="@{/upload/path/{filename}(filename=${boardAttach.oriName})}" alt="파일 미리보기"/>
-            </div>
         </div>
 
         <hr>
@@ -128,59 +139,59 @@
             </div>
         </th:block>
     </div>
-    
-    
-   <!-- 댓글 작성 영역 -->
-<div class="p-4 bg-white rounded-4 shadow-sm mb-4">
-    <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
-    <th:block sec:authorize="isAuthenticated()">
-        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST"
-              style="display: flex; gap: 10px; align-items: stretch;">
-            <textarea name="reply_content" placeholder="댓글을 입력하세요" required
-                      style="resize: none; flex-grow: 1; height: 60px;" class="form-control"></textarea>
-            <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px; padding: 6px 16px;">등록</button>
-            <input type="hidden" name="board_no" th:value="${board.boardNo}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-        </form>
-    </th:block>
-    <th:block sec:authorize="isAnonymous()">
-        <p>로그인 후 댓글을 작성할 수 있습니다.</p>
-    </th:block>
-</div>
-<!-- 댓글 리스트 출력 영역 -->
-<div id="reply_list">
-    <div th:each="reply : ${replyList}" class="reply-item" style="margin-bottom:15px;">
-        <div class="reply-content">
-            <span th:text="${reply.memberName}"></span> :
-            <span th:text="${reply.reply_content}"></span>
-        </div>
 
-        <!-- 대댓글 달기 버튼 -->
-        <button type="button" class="btn btn-link" th:onclick="|showReplyForm(${reply.reply_no})|">대댓글 달기</button>
-
-        <!-- 대댓글 입력 폼 -->
-        <div class="reply-form" th:id="'reply-form-' + ${reply.reply_no}" style="display:none; margin-top:10px;">
-            <form th:action="@{/replies/{parentReplyNo}/createSubReply(parentReplyNo=${reply.reply_no})}" method="POST"
+    <!-- 댓글 작성 영역 -->
+    <div class="p-4 bg-white rounded-4 shadow-sm mb-4">
+        <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
+        <th:block sec:authorize="isAuthenticated()">
+            <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST"
                   style="display: flex; gap: 10px; align-items: stretch;">
-                <textarea name="reply_content" placeholder="대댓글을 입력하세요" required
-                          class="form-control" style="resize: none; flex-grow: 1; height: 60px;"></textarea>
+                <textarea name="reply_content" placeholder="댓글을 입력하세요" required
+                          style="resize: none; flex-grow: 1; height: 60px;" class="form-control"></textarea>
                 <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
                 <input type="hidden" name="board_no" th:value="${board.boardNo}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             </form>
-        </div>
+        </th:block>
+        <th:block sec:authorize="isAnonymous()">
+            <p>로그인 후 댓글을 작성할 수 있습니다.</p>
+        </th:block>
+    </div>
 
-        <!-- 대댓글 리스트 -->
-        <div class="reply-list">
-            <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item" style="margin-bottom:10px;">
-                <div class="reply-content">
-                    <span th:text="${subReply.memberName}"></span> :
-                    <span th:text="${subReply.reply_content}"></span>
+    <!-- 댓글 리스트 출력 영역 -->
+    <div id="reply_list">
+        <div th:each="reply : ${replyList}" class="reply-item">
+            <div class="reply-content">
+                <span th:text="${reply.memberName}"></span> :
+                <span th:text="${reply.reply_content}"></span>
+            </div>
+
+            <button type="button" class="btn btn-link" th:onclick="|showReplyForm(${reply.reply_no})|">댓글 달기</button>
+
+            <!-- 대댓글 입력 폼 -->
+            <div class="reply-form" th:id="'reply-form-' + ${reply.reply_no}">
+                <form th:action="@{/replies/{parentReplyNo}/createSubReply(parentReplyNo=${reply.reply_no})}" method="POST"
+                      style="display: flex; gap: 10px; align-items: stretch;">
+                    <textarea name="reply_content" placeholder="댓글을 입력하세요" required
+                              class="form-control" style="resize: none; flex-grow: 1; height: 60px;"></textarea>
+                    <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
+                    <input type="hidden" name="board_no" th:value="${board.boardNo}">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                </form>
+            </div>
+
+            <!-- 대댓글 리스트 -->
+            <div class="reply-list">
+                <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item">
+                    <div class="reply-content">
+                        <span th:text="${subReply.memberName}"></span> :
+                        <span th:text="${subReply.reply_content}"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
     <!-- 삭제 JS -->
     <script>
         const boardNo = /*[[${board.boardNo}]]*/ null;

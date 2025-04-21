@@ -46,9 +46,6 @@ public class WebSecurityConfig {
 			// 
 			.authorizeHttpRequests(requests -> requests
 					.requestMatchers("/login","/logout").permitAll()
-					.requestMatchers("/reply/list/**").permitAll() // 댓글 목록은 누구나 볼 수 있음(2025-04-20 댓글 관련 코드 추가)
-		            .requestMatchers("/reply/create", "/reply/delete/**").authenticated() // 댓글 생성 및 삭제는 인증 필요(2025-04-20 댓글 관련 코드 추가)
-		            .requestMatchers("/reply/createSubReply", "/reply/deleteSubReply/**").authenticated() // 대댓글 생성 및 삭제는 인증 필요(2025-04-20 댓글 관련 코드 추가)
 					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated())
 			.formLogin(login -> login

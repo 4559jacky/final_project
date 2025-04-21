@@ -19,8 +19,8 @@ public class ReplyController {
     // 현재 로그인한 사용자 정보 가져오기
     private Member getLoginMember() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof com.mjc.groupware.member.security.MemberDetails)) {
-            throw new IllegalStateException("로그인한 사용자 정보가 없습니다.");
+        if (principal instanceof com.mjc.groupware.member.security.MemberDetails) {
+            return ((com.mjc.groupware.member.security.MemberDetails) principal).getMember();
         }
         throw new IllegalStateException("로그인한 사용자 정보가 없습니다.");
     }
@@ -42,10 +42,10 @@ public class ReplyController {
     }
 
     // 대댓글 작성
-    @PostMapping("/replies/{parentReplyNo}/createSubReply")
+    @PostMapping("/replies/{boardNo}/{parentReplyNo}/create-sub")
     public String createSubReply(@ModelAttribute ReplyDto replyDto,
-                                 @PathVariable("parentReplyNo") Long parentReplyNo,
-                                 @RequestParam("board_no") Long boardNo) {
+                                 @PathVariable Long boardNo,
+                                 @PathVariable Long parentReplyNo) {
         Member member = getLoginMember();
         replyDto.setMember_no(member.getMemberNo());
         replyDto.setParent_reply_no(parentReplyNo);
@@ -58,7 +58,7 @@ public class ReplyController {
     // 댓글 수정
     @PostMapping("/replies/{replyNo}/update")
     public String updateReply(@ModelAttribute ReplyDto replyDto,
-                              @PathVariable("replyNo") Long replyNo) {
+                              @PathVariable Long replyNo) {
         Member member = getLoginMember();
         replyService.updateReply(replyNo, member.getMemberNo(), replyDto.getReply_content());
         return redirectToBoardDetail(replyDto.getBoard_no());
@@ -66,7 +66,7 @@ public class ReplyController {
 
     // 댓글 삭제
     @PostMapping("/replies/{replyNo}/delete")
-    public String deleteReply(@PathVariable("replyNo") Long replyNo,
+    public String deleteReply(@PathVariable Long replyNo,
                               @RequestParam("board_no") Long boardNo) {
         Member member = getLoginMember();
         replyService.deleteReply(replyNo, member.getMemberNo());
