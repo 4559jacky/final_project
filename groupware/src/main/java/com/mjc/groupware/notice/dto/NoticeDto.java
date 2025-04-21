@@ -25,7 +25,8 @@ public class NoticeDto {
 	private Long notice_no;
 	private String notice_title;
 	private String notice_content;
-	private char notice_status;
+	private String notice_status;
+	private String notice_fix;
 	private int views;
 	private Long member_no;
 	private LocalDateTime reg_date;
@@ -39,6 +40,8 @@ public class NoticeDto {
 				.noticeNo(notice_no)
 				.noticeTitle(notice_title)
 				.noticeContent(notice_content)
+				.noticeFix(notice_fix != null ? notice_fix : "N")
+	            .noticeStatus(notice_status) 
 				.views(views)
 				.build();
 	}
@@ -48,6 +51,7 @@ public class NoticeDto {
 				.notice_no(notice.getNoticeNo())
 				.notice_title(notice.getNoticeTitle())
 				.notice_content(notice.getNoticeContent())
+				.notice_fix(notice.getNoticeFix())
 				.views(notice.getViews())
 				.build();
 	}
