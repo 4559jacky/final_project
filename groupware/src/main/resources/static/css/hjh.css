@@ -17,7 +17,12 @@
 
 .toastui-editor-contents{
 	 color: black !important;
+	 font-size: 1.1rem;
 }
+.title{
+	color: black !important;
+}
+
 
 .file-link {
             display: inline-block;

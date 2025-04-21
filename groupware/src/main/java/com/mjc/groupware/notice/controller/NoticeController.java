@@ -102,7 +102,9 @@ public class NoticeController {
  // 게시글 상세 화면
     @GetMapping("/notice/detail")
     public String detailView(@RequestParam("noticeNo") Long noticeNo, Model model) {
-        Notice notice = service.getNoticeDetail(noticeNo);
+    	System.out.println("🔍 notice/detail 요청 들어옴: " + noticeNo);
+    	
+    	Notice notice = service.getNoticeDetail(noticeNo);
         if (notice == null) {
             // 게시글이 없는 경우 처리 (예: 목록으로 리다이렉트)
             return "redirect:/notice";
@@ -117,7 +119,8 @@ public class NoticeController {
     @PostMapping("/notice/update")
     @ResponseBody
     public Map<String, String> updateNoticeApi(@ModelAttribute NoticeDto dto,
-    										   @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+    										   @RequestParam(value = "files", required = false) List<MultipartFile> files,
+    										   @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {
     	Map<String, String> result = new HashMap<>();
     	result.put("res_code", "500");
     	result.put("res_msg", "수정 실패");
@@ -129,7 +132,7 @@ public class NoticeController {
 		 */
     	
     	try {
-    		int updateResult = service.updateNotice(dto, files);
+    		int updateResult = service.updateNotice(dto, files, deleteFiles);
     		if(updateResult > 0) {
     			result.put("res_code", "200");
     			result.put("res_msg", "수정 성공");

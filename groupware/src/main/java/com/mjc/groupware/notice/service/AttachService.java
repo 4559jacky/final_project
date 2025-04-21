@@ -46,14 +46,12 @@ public class AttachService {
     }
     
     public void deleteAttachById(Long id) {
-        Attach attach = attachRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
-
-        File file = new File(attach.getAttachPath());
-        if (file.exists()) {
-            file.delete();
-        }
-
-        attachRepository.deleteById(id);
+        attachRepository.findById(id).ifPresent(attach -> {
+            File file = new File(attach.getAttachPath());
+            if (file.exists()) {
+                file.delete();
+            }
+            attachRepository.deleteById(id);
+        });
     }
 }
