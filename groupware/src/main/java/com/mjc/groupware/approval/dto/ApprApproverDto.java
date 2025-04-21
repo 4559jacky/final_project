@@ -30,13 +30,13 @@ public class ApprApproverDto {
 	private Long appr_no;
 	
 	// 여러 명의 결재자
-	private List<Long> approver_no;
+	private List<Long> approvers;
 	
 	public List<ApprApprover> toEntityList() {
 	    List<ApprApprover> entityList = new ArrayList<>();
 
-	    for (int i = 0; i < approver_no.size(); i++) {
-	        Long no = approver_no.get(i);
+	    for (int i = 0; i < approvers.size(); i++) {
+	        Long no = approvers.get(i);
 
 	        ApprApprover approver = ApprApprover.builder()
 	            .approverOrder(i + 1) // 1부터 시작하는 결재 순서
@@ -52,4 +52,20 @@ public class ApprApproverDto {
 
 	    return entityList;
 	}
+	
+	public ApprovalDto toDto(Approval approval) {
+		return ApprovalDto.builder()
+				.appr_reg_date(approval.getApprRegDate())
+				.appr_res_date(approval.getApprResDate())
+				.appr_title(approval.getApprTitle())
+				.appr_text(approval.getApprText())
+				.appr_status(approval.getApprStatus())
+				.appr_order_status(approval.getApprOrderStatus())
+				.appr_reason(approval.getApprReason())
+				.start_date(approval.getStartDate())
+				.end_date(approval.getEndDate())
+				.approval_type_no(approval.getApprovalForm().getApprovalFormNo())
+				.build();
+	}
+	
 }

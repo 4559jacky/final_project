@@ -7,6 +7,7 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
@@ -118,7 +119,8 @@
 							th:each="approvalVo, approvalStatus : ${approvalVoList}"
 							th:attr="data-approver-no=${approvalVo.appr_no}">
 							<td th:text="${approvalVoList.size() - approvalStatus.index}">번호</td>
-							<td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td>
+							<td th:text="${approvalVo.appr_title}">제목</td>
+							<!-- <td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td> -->
 							<td th:text="${approvalVo.member_name}">작성자</td>
 							<th:block th:if="${approvalVo.appr_status == 'A'}">
 								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
@@ -135,12 +137,15 @@
 							<!-- 결재 관련자 종류 구분 -->
 							<th:block th:if="${approvalVo.relationship == 'P'}">
 								<td><span class="mb-1 badge text-bg-light">결재자</span></td>
+								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'A'}">
 								<td><span class="mb-1 badge text-bg-light">합의자</span></td>
+								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'R'}">
 								<td><span class="mb-1 badge text-bg-light">참조자</span></td>
+								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
 							</th:block>
 							<td th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approvalVo.approval_form_name}">양식
@@ -170,6 +175,13 @@
 		const createApproval = function() {
 			location.href = '/approval/create';
 		}
+		
+		$(function(){
+			$('.table-responsive tbody tr').on('click',function(){
+				const approvalNo = $(this).data('approver-no');
+				location.href= '/approval/receive/detail/' + approvalNo;
+			})
+		})
 	</script>
 	
 	

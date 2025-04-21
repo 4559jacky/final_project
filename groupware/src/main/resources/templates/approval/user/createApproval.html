@@ -708,7 +708,7 @@
                     
                     if(referencerList.length != index2) {
                     	referencerDiv.appendChild(span);
-                    	referencerDiv.append('/');
+                    	referencerDiv.append(' / ');
                     } else {
                     	referencerDiv.appendChild(span);
                     }
@@ -722,7 +722,6 @@
         bootstrap.Modal.getInstance(document.getElementById("approvalLineModal")).hide();
     };
     
-    
 		
 		// 승인요청 버튼 클릭 시 결재 생성
 		const createApprovalForm = document.create_approval_form;
@@ -731,6 +730,7 @@
 			let valid = false;
 			let valid_msg = '';
 			
+			const approverThList = document.querySelectorAll('#approver th');
 			const hasApprover = Array.from(approverThList).some(th => th.textContent.trim() !== '');
 			
 			if(!createApprovalForm.appr_title.value) {
@@ -739,7 +739,7 @@
 				valid_msg += '시작일을 입력해주세요.';
 			} else if(!createApprovalForm.end_date.value) {
 				valid_msg += '종료일 입력해주세요.';
-			} else if(!hasApprover) {
+			} else if(!hasApprover) {		
 				valid_msg += '결재자는 한명이상 등록되어야합니다.';
 			} else {
 				valid = true;

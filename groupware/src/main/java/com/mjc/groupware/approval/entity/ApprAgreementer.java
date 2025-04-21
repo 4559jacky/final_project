@@ -2,6 +2,8 @@ package com.mjc.groupware.approval.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.mjc.groupware.member.entity.Member;
 
 import groovy.transform.ToString;
@@ -17,10 +19,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="appr_agreementer")
 @Getter
+@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,6 +39,7 @@ public class ApprAgreementer {
 	@Column(name="agreementer_agree_status")
 	private String agreementerAgreeStatus;
 	
+	@UpdateTimestamp
 	@Column(name="agreementer_agree_status_time")
 	private LocalDateTime agreementerAgreeStatusTime;
 	

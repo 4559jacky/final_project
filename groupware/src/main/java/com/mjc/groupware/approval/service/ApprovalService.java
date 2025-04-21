@@ -1,5 +1,6 @@
 package com.mjc.groupware.approval.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import com.mjc.groupware.approval.repository.ApprApproverRepository;
 import com.mjc.groupware.approval.repository.ApprReferencerRepository;
 import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
+import com.mjc.groupware.approval.vo.ApprApproverVo;
 import com.mjc.groupware.member.dto.MemberDto;
 
 import lombok.RequiredArgsConstructor;
@@ -117,7 +119,7 @@ public class ApprovalService {
 			
 			// 결재자
 			approverDto.setAppr_no(apprNo);
-			approverDto.setApprover_no(approvalDto.getApprover_no());
+			approverDto.setApprovers(approvalDto.getApprover_no());
 			if(approvalDto.getApprover_no().size() < 1) {
 				// 예외처리 발생
 				
@@ -208,6 +210,105 @@ public class ApprovalService {
 	public List<ApprReferencer> selectApprReferencerAllByApprovalNo(Long id) {
 		List<ApprReferencer> referencerList = apprReferencerRepository.findAllByApproval_ApprNo(id);
 		return referencerList;
+	}
+	
+	// 결재자 - 결재 승인
+	@Transactional(rollbackFor = Exception.class)
+	public int approvalSuccessApi(Long id, MemberDto member) {
+		
+		int result = 0;
+		
+		try {
+			Approval approval = approvalRepository.findById(id).orElse(null);
+			ApprApprover approver = apprApproverRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
+			
+			if(approval.getApprOrderStatus() == approver.getApproverOrder()) {
+				ApprovalDto approverDto = new ApprovalDto().toDto(approval);
+				approverDto.setAppr_order_status(approval.getApprOrderStatus()+1);
+				ApprApproverVo apprApproverVo = new ApprApproverVo().toVo(approver);
+				apprApproverVo.setApprover_decision_status("C");
+				ApprApprover entity = apprApproverVo.toEntity();
+				apprApproverRepository.save(entity);
+			}
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+
+	
+	// 합의자 - 결재 수락
+	@Transactional(rollbackFor = Exception.class)
+	public int approvalAgreeApi(Long id, MemberDto member) {
+		
+		int result = 0;
+		
+		try {
+			
+			// 합의자맵핑 데이터를 찾아서 상태변경
+			ApprAgreementer agreementer = apprAgreementerRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
+			
+			agreementer.setAgreementerAgreeStatus("C");
+			apprAgreementerRepository.save(agreementer);
+			
+			// 모든 합의자맵핑 데이터 찾기
+			List<ApprAgreementer> agreementerList = apprAgreementerRepository.findAllByApproval_ApprNo(id);
+			
+			int checkAgreeStatus = 0;
+			
+			if(agreementerList != null) {
+				
+				// 모든 합의자가 동의("C")일 시 결재 상태변경
+				for(ApprAgreementer a : agreementerList) {
+					if("W".equals(a.getAgreementerAgreeStatus())) {
+						checkAgreeStatus = 1;
+					}
+				}
+				
+				// checkAgreeStatus가 0이면 모든 합의자가 동의 -> 결재 순서상태 1로 변환
+				if(checkAgreeStatus == 0) {
+					Approval approval = approvalRepository.findById(id).orElse(null);
+					approval.setApprOrderStatus(1);
+					approval.setApprStatus("D");
+					approvalRepository.save(approval);
+				}
+			}
+			result = 1;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return result;
+	}
+
+	public int approvalRejectApi(Long id, String reason, MemberDto member) {
+		
+		int result = 0;
+		
+		try {
+			
+			// 합의자맵핑 데이터를 찾아서 상태변경
+			ApprAgreementer agreementer = apprAgreementerRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
+			agreementer.setAgreementerAgreeStatus("R");
+			agreementer.setAgreeReason(reason);
+			ApprAgreementer entity = apprAgreementerRepository.save(agreementer);
+			
+			Approval approval = approvalRepository.findById(id).orElse(null);
+			approval.setApprStatus("R");
+			approval.setApprResDate(entity.getAgreementerAgreeStatusTime());
+			approval.setApprReason(entity.getAgreeReason());
+			approvalRepository.save(approval);
+			
+			result = 1;
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 }
