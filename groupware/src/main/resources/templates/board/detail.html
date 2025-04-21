@@ -47,15 +47,15 @@
             style="font-size: 2rem; margin-bottom: 0;"></h2><br>
 
         <!-- 작성 정보 (제목 아래, 한 줄 정렬) -->
-        <div class="text-muted mt-1" style="font-size: 1rem;">
-            <span>작성자: </span>
-            <span th:text="${board.member?.memberName ?: '익명'}"></span>
-            <span> | 작성일: </span>
-            <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
-            <span> | 조회수: </span>
-            <span th:text="${board.views}">0</span>
-        </div>
-    </div>
+    <div class="text-dark mt-1" style="font-size: 1rem;">
+    	<span>작성자: </span>
+    	<span th:text="${board.member?.memberName ?: '익명'}"></span>
+    	<span> | 작성일: </span>
+    	<span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
+    	<span> | 조회수: </span>
+    	<span th:text="${board.views}">0</span>
+	</div>
+   </div>
 
     <hr>
 

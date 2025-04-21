@@ -37,8 +37,8 @@ public class BoardService {
     // 게시글 등록
     @Transactional(rollbackFor = Exception.class)
     public Board createBoard(BoardDto dto, List<MultipartFile> files) {
-        Member member = memberRepository.findById(dto.getMember_no()).orElse(null);
-        if (member == null) throw new RuntimeException("회원 정보를 찾을 수 없습니다.");
+        Member member = memberRepository.findById(dto.getMember_no())
+                                       .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
 
         Board board = Board.builder()
                 .boardTitle(dto.getBoard_title())
@@ -47,26 +47,19 @@ public class BoardService {
                 .member(member)
                 .build();
 
-        // 이 부분에 추가
         if (board.getAttachList() == null) {
             board.setAttachList(new ArrayList<>());
         }
 
         Board savedBoard = repository.save(board);
 
-        if (files != null) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    BoardAttach attach = boardAttachService.uploadFile(file, savedBoard.getBoardNo());
-                    if (attach != null) {
-                        savedBoard.getAttachList().add(attach);
-                    }
-                }
-            }
+        if (files != null && !files.isEmpty()) {
+            List<BoardAttach> attaches = boardAttachService.uploadFiles(files, savedBoard.getBoardNo());
+            savedBoard.getAttachList().addAll(attaches);
         }
+
         return savedBoard;
     }
-
 
     // 게시글 상세 조회 (읽기 전용)
     @Transactional(readOnly = true)
@@ -131,15 +124,9 @@ public class BoardService {
         }
 
         // 새 파일 업로드 처리
-        if (files != null) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    BoardAttach attach = boardAttachService.uploadFile(file, board.getBoardNo());
-                    if (attach != null) {
-                        board.getAttachList().add(attach);
-                    }
-                }
-            }
+        if (files != null && !files.isEmpty()) {
+            List<BoardAttach> attaches = boardAttachService.uploadFiles(files, board.getBoardNo());
+            board.getAttachList().addAll(attaches);
         }
 
         return repository.save(board);

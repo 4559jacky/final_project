@@ -2,6 +2,7 @@ package com.mjc.groupware.board.service;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,27 +67,30 @@ public class BoardAttachService {
     }
 
     // 파일 업로드 처리
-    public BoardAttach uploadFile(MultipartFile file, Long boardNo) {
-        if (file.isEmpty()) {
-            return null;
-        }
+    public List<BoardAttach> uploadFiles(List<MultipartFile> files, Long boardNo) {
+        List<BoardAttach> savedAttachments = new ArrayList<>();
+        
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
 
-        String oriName = file.getOriginalFilename();
-        String newName = UUID.randomUUID().toString() + "-" + oriName;
-        String filePath = fileDir + "/" + newName;
+            String oriName = file.getOriginalFilename();
+            if (!isValidFileType(oriName)) {
+                continue;
+            }
 
-        if (!isValidFileType(oriName)) {
-            return null;
-        }
+            String newName = UUID.randomUUID().toString() + "-" + oriName;
+            String filePath = fileDir + "/" + newName;
 
-        try {
-            file.transferTo(new File(filePath));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+            try {
+                file.transferTo(new File(filePath));
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
 
-        BoardAttach boardAttach = BoardAttach.builder()
+            BoardAttach boardAttach = BoardAttach.builder()
                 .oriName(oriName)
                 .newName(newName)
                 .attachPath(filePath)
@@ -95,12 +99,14 @@ public class BoardAttachService {
                 .board(Board.builder().boardNo(boardNo).build())
                 .build();
 
-        return attachRepository.save(boardAttach);
-    }
+            savedAttachments.add(attachRepository.save(boardAttach));
+        }
 
+        return savedAttachments;
+    }
     // 파일 형식 검증 (이미지 파일만 허용)
     private boolean isValidFileType(String fileName) {
-        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp" };
+        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp", "txt" };
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         for (String ext : validExtensions) {
             if (fileExtension.equals(ext)) {

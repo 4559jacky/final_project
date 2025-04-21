@@ -63,3 +63,14 @@
         .reply-form button {
             margin-left: 10px;
         }
+        
+        .toastui-editor-contents img {
+    		max-width: 100%;
+    		height: auto;
+    		display: block;
+ 
+		}
+
+		.toastui-editor-contents{
+	 		color: black !important;
+		}
