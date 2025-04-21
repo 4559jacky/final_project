@@ -1,6 +1,7 @@
 package com.mjc.groupware.company.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.repository.CompanyRepository;
 import com.mjc.groupware.company.service.CompanyService;
+import com.mjc.groupware.company.service.FuncService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +31,7 @@ public class CompanyController {
 	
 	private final CompanyService service;
 	private final CompanyRepository repository;
+	private final FuncService funcService;
 	
 	@GetMapping("/admin/company")
 	public String companySettingsView(Model model) {
@@ -51,6 +55,12 @@ public class CompanyController {
 	        }
 			
 			model.addAttribute("companyDto", companyDto);
+		}
+		
+		List<FuncDto> funcList = service.selectPrimaryFuncAll();
+		
+		if(funcList != null) {
+			model.addAttribute("funcList", funcList);			
 		}
 		
 		return "/company/settings";
@@ -105,8 +115,6 @@ public class CompanyController {
 	public Map<String, String> updateThemeColor(@RequestBody Map<String, String> requestData) {
 		Map<String, String> resultMap = new HashMap<>();
 		
-		logger.info("CompanyDto: {}", "");
-		
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "테마 색상 변경 중 알 수 없는 오류가 발생했습니다.");
 		
@@ -126,4 +134,33 @@ public class CompanyController {
 		
 		return resultMap;
 	}
+	
+	@PostMapping("/admin/company/func/update")
+	@ResponseBody
+	public Map<String, String> updateAvailableFuncApi(@RequestBody FuncDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "사용할 기능 변경 중 알 수 없는 오류가 발생했습니다.");
+		
+        logger.info("FuncDto: {}", dto);
+        
+		try {
+			funcService.updateAvailableFunc(dto);
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "사용할 기능 변경이 정상적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			logger.error("사용할 기능 변경 중 오류 발생", e);
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "사용할 기능 변경 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
+	}
+	
 }

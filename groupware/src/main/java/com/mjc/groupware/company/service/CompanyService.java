@@ -1,6 +1,8 @@
 package com.mjc.groupware.company.service;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -11,8 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.entity.Company;
+import com.mjc.groupware.company.entity.Func;
 import com.mjc.groupware.company.repository.CompanyRepository;
+import com.mjc.groupware.company.repository.FuncRepository;
+import com.mjc.groupware.company.specification.FuncSpecification;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +32,7 @@ public class CompanyService {
 	private Logger logger = LoggerFactory.getLogger(CompanyService.class);
 	
 	private final CompanyRepository repository;
+	private final FuncRepository funcRepository;
 	
 	public CompanyDto uploadFile(MultipartFile file) throws Exception {
 		CompanyDto dto = new CompanyDto();
@@ -129,4 +136,27 @@ public class CompanyService {
 				.theme_color(latest.getThemeColor())
 				.build();
 	}
+	
+	public List<FuncDto> selectPrimaryFuncAll() {
+		List<Func> paramList = funcRepository.findAll(FuncSpecification.parentFuncIsNull());
+		
+		List<FuncDto> resultList = new ArrayList<>();
+		
+		for (Func func : paramList) {
+	        FuncDto dto = FuncDto.builder()
+	                .func_no(func.getFuncNo())
+	                .func_name(func.getFuncName())
+	                .func_url(func.getFuncUrl())
+	                .func_status(func.getFuncStatus())
+	                .parent_func_no(func.getParentFunc() != null ? func.getParentFunc().getFuncNo() : null)
+	                .reg_date(func.getRegDate())
+	                .mod_date(func.getModDate())
+	                .build();
+
+	        resultList.add(dto);
+	    }
+		
+		return resultList;
+	}
+	
 }

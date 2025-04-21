@@ -123,146 +123,67 @@ layout:decorate="~{/include/layout}">
 		      
 		      <!-- 두 번째 탭 -->
                 <div class="tab-pane fade" id="pills-notifications" role="tabpanel" aria-labelledby="pills-notifications-tab" tabindex="0">
-                  <div class="row justify-content-center">
-                    <div class="col-lg-9">
-                      <div class="card border shadow-none">
-                        <div class="card-body p-4">
-                          <h4 class="card-title">Notification Preferences</h4>
-                          <p class="card-subtitle mb-4">
-                            Select the notificaitons ou would like to receive via email. Please note that you cannot opt
-                            out of receving service
-                            messages, such as payment, security or legal notifications.
-                          </p>
-                          <form class="mb-7">
-                            <label for="exampleInputtext5" class="form-label">Email Address*</label>
-                            <input type="text" class="form-control" id="exampleInputtext5" placeholder="" required>
-                            <p class="mb-0">Required for notificaitons.</p>
-                          </form>
-                          <div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-article text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Our newsletter</h5>
-                                  <p class="mb-0">We'll always let you know about important changes</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked">
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-checkbox text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Order Confirmation</h5>
-                                  <p class="mb-0">You will be notified when customer order any product</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked1" checked>
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-clock-hour-4 text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Order Status Changed</h5>
-                                  <p class="mb-0">You will be notified when customer make changes to the order</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked2" checked>
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-truck-delivery text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Order Delivered</h5>
-                                  <p class="mb-0">You will be notified once the order is delivered</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked3">
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-mail text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Email Notification</h5>
-                                  <p class="mb-0">Turn on email notificaiton to get updates through email</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked4" checked>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-9">
-                      <div class="card border shadow-none">
-                        <div class="card-body p-4">
-                          <h4 class="card-title">Date & Time</h4>
-                          <p class="card-subtitle">Time zones and calendar display settings.</p>
-                          <div class="d-flex align-items-center justify-content-between mt-7">
-                            <div class="d-flex align-items-center gap-3">
-                              <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                <i class="ti ti-clock-hour-4 text-dark d-block fs-7" width="22" height="22"></i>
-                              </div>
-                              <div>
-                                <p class="mb-0">Time zone</p>
-                                <h5 class="fs-4 fw-semibold">(UTC + 02:00) Athens, Bucharet</h5>
-                              </div>
-                            </div>
-                            <a class="text-dark fs-6 d-flex align-items-center justify-content-center bg-transparent p-2 fs-4 rounded-circle" href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download">
-                              <i class="ti ti-download"></i>
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-9">
-                      <div class="card border shadow-none">
-                        <div class="card-body p-4">
-                          <h4 class="card-title">Ignore Tracking</h4>
-                          <div class="d-flex align-items-center justify-content-between mt-7">
-                            <div class="d-flex align-items-center gap-3">
-                              <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                <i class="ti ti-player-pause text-dark d-block fs-7" width="22" height="22"></i>
-                              </div>
-                              <div>
-                                <h5 class="fs-4 fw-semibold">Ignore Browser Tracking</h5>
-                                <p class="mb-0">Browser Cookie</p>
-                              </div>
-                            </div>
-                            <div class="form-check form-switch mb-0">
-                              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked5">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="d-flex align-items-center justify-content-end gap-6">
-                        <button class="btn btn-primary">Save</button>
-                        <button class="btn bg-danger-subtle text-danger">Cancel</button>
-                      </div>
-                    </div>
-                  </div>
+                  <div class="row">
+		          
+		            <!-- 사용할 기능 목록 -->
+					<div class="col-lg-6 d-flex align-items-stretch">
+					  <div class="card w-100 border position-relative overflow-hidden">
+					    <div class="card-body p-4">
+					      <h4 class="card-title">기능 선택</h4>
+					      <p class="card-subtitle mb-4">Choose the functions to be activated for your groupware.</p>
+						  
+					      <div class="text-center">
+					        
+					        <div class="text-start">
+					        	<th:block th:if="${funcList != null and !#lists.isEmpty(funcList)}">
+								  <form id="func_form" name="func_form">
+								    <div class="form-group">
+								      <ul class="list-unstyled">
+								      	<li class="mb-2" th:each="func : ${funcList}">
+								        	<label class="form-check-label">
+								            	<input type="checkbox" name="func_no"
+								                	th:value="${func.func_no}"
+								                	th:checked="${func.func_status == 1}"
+								                	th:disabled="${func.func_no == 1}"
+								                	class="form-check-input me-2"
+								                	onchange="changeFuncToggle(this)">
+								         		<span class="fw-medium" th:text="${func.func_name}">기능 이름</span>
+								            </label>
+										</li>
+								      </ul>
+								    </div>
+								  </form>
+								</th:block>
+								<th:block th:if="${funcList == null or #lists.isEmpty(funcList)}"> 
+								  <div class="text-start text-muted small py-3">
+								    사용 가능한 기능이 없습니다.
+								  </div>
+								</th:block>
+							</div>
+							
+					      </div>
+					      
+					    </div>
+					  </div>
+					</div>
+					
+					<div class="col-lg-6 d-flex align-items-stretch">
+					  <div class="card w-100 border position-relative overflow-hidden">
+					    <div class="card-body p-4">
+					      <h4 class="card-title">기능 상세</h4>
+					      <p class="card-subtitle mb-4">Check the selected function to see more information.</p>
+						  
+					      <div class="text-center">
+					        
+							
+							
+					      </div>
+					    </div>
+					  </div>
+					</div>
+					
+		          </div>
+                  
                 </div>
                 
                 
@@ -476,6 +397,45 @@ layout:decorate="~{/include/layout}">
 	</script>
 	
 	<script>
+		function changeFuncToggle(checkbox) {
+			const checked = checkbox.checked;
+		    const funcNo = checkbox.value;
+		    
+		    const confirmMsg = checked 
+		      ? "해당 기능을 활성화하시겠습니까?" 
+		      : "해당 기능을 비활성화하시겠습니까?";
+		    
+		    if (!confirm(confirmMsg)) {
+				checkbox.checked = !checked;
+				return;
+		    } else {
+		    	fetch('/admin/company/func/update', {
+					method: "post",
+					headers: {
+						'Content-Type': 'application/json',
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+	        		body: JSON.stringify({
+	        			func_no: funcNo,
+	        	        func_status: checked ? 1 : 0
+					})
+		    	})
+		    	.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if (data.res_code === '200') {
+						location.reload();
+					}
+				})
+				.catch(error => {
+	        		console.log(error);
+	        	});
+		    }
+		}
+	</script>
+	
+	<script>
 		// 컬러 칩을 선택하면 동작하는 로직 :: 색상이 테마 색상이 변경되며 <p>태그 문구가 바뀜
 		document.querySelectorAll('.theme-option').forEach(option => {
 			option.addEventListener('click', function () {
@@ -564,5 +524,4 @@ layout:decorate="~{/include/layout}">
   	
   	
 </th:block>
->>>>>>> refs/heads/dev
 </html>
