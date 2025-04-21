@@ -58,7 +58,7 @@
 					</form>
 				</div>
 				<!-- 채팅방 목록 -->
-				<div class="app-chat">
+				<div class="app-chat" >
 					<ul th:if="${!#lists.isEmpty(chatRoomList)}" 
 						th:each="chatRoom : ${chatRoomList}"
 						th:attr="data-room-no=${chatRoom.chatRoomNo}"
@@ -91,6 +91,11 @@
 						</li>
 					</ul>
 				</div>
+				 <div class="px-9 py-6 border-top text-center">
+				    <button class="btn btn-primary px-4" type="button">
+				      + 새로운 채팅 추가 
+				    </button>
+				  </div>
 			</div>
 			<div class="w-70 w-xs-100 chat-container">
 				<div class="chat-box-inner-part h-100">
