@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.repository.ChatRoomRepository;
 import com.mjc.groupware.chat.specification.ChatRoomSpecification;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -28,23 +29,16 @@ public class ChatRoomService {
 
 		// 인증된 사용자의 상세 정보를 담아줌
 		MemberDetails md = (MemberDetails)authentication.getPrincipal();
-		
-		// JPA 동적 쿼리 만드는 인터페이스 - 처음에는 null로 시작 
-		Specification<ChatRoom> spec = (root, query, criteriaBuilder) -> null;
-		
-		// 채팅 시작자가 로그인 사용자랑 같은가 
-		spec = spec.and(ChatRoomSpecification.fromMemberEquals(md.getMember()));
-		// 내가 시작한 채팅방과 상대가 시작한 채팅방 모두 가져오기 
-		spec = spec.or(ChatRoomSpecification.toMemberEquals(md.getMember()));
+
+		// 참여 중인 채팅방만 필터링 (memberStatus = "Y")
+		Specification<ChatRoom> spec = ChatRoomSpecification.participatedBy(md.getMember());
 		
 		// 정렬 조건 - lastDate 내림차순
-	    Sort sort = Sort.by(Sort.Direction.DESC, "lastMessageDate");
-	    
-	    
+	    Sort sort = Sort.by(Sort.Direction.DESC, "lastMsgDate");
 
 	    // 조회하고 조회결과 return 
 	    List<ChatRoom> list = chatRoomRepository.findAll(spec, sort);
-		
+		System.out.println(list);
 		return list;
 		
 	}

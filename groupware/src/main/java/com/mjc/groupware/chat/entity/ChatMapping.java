@@ -1,8 +1,5 @@
 package com.mjc.groupware.chat.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -11,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -42,6 +38,7 @@ public class ChatMapping {
 	@JoinColumn(name="member_no")
 	private Member memberNo;	
 	
-	@ManyToMany(mappedBy = "mappings")
-	private List<ChatRoom> chatRooms = new ArrayList<>();
+	@Builder.Default
+	@Column(name="member_status")
+	private String memberStatus = "Y";
 }
