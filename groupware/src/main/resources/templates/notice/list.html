@@ -29,6 +29,7 @@
       <!-- 왼쪽: 검색 조건 + 검색창 -->
       <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
         <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+          <option th:value="''" th:selected="${search_type == null}">선택</option>
           <option th:value="1" th:selected="${search_type == 1}">제목</option>
           <option th:value="2" th:selected="${search_type == 2}">내용</option>
           <option th:value="3" th:selected="${search_type == 3}">제목+내용</option>
@@ -56,6 +57,7 @@
                 aria-label="정렬 선택">
           <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
           <option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+          <option th:value="views" th:selected="${sort == 'views'}">조회순</option>
         </select>
       </form>
     </div>

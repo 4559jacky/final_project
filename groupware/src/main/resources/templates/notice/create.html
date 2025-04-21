@@ -8,6 +8,7 @@
 <head>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" content="X-CSRF-TOKEN"/>
+    <link rel="stylesheet" th:href="@{/css/hjh.css}">
 </head>
 
 <th:block layout:fragment="content">
@@ -42,12 +43,12 @@
                     <div id="editor" style="margin-top: 10px;"></div>
                     <textarea id="notice_content" name="notice_content" hidden></textarea>
                 </div>
-
+				<br>
                 <div class="mb-3">
                     <label for="notice_file" class="form-label"><strong>파일 첨부</strong></label>
                     <input type="file" class="form-control bg-white text-dark" id="notice_file" name="files" multiple>
                 </div>
-                <div class="col-md-3 col-sm-12 text-md-end text-start mt-3">
+                <div class="d-flex justify-content-end mt-3">
                     <label class="d-none d-md-block invisible">제출</label>
                     <input type="submit" class="btn btn-primary px-3 py-1" value="작성 완료">
                 </div>

@@ -58,15 +58,14 @@ public class NoticeController {
         return "/notice/create";
     }
 
-    // 게시글 수정 화면
     @GetMapping("/notice/update")
     public String updateNoticeAdminView(@RequestParam("noticeNo") Long noticeNo, Model model) {
-    	Notice notice = service.getNoticeUpdate(noticeNo);
-    	if(notice == null) {
-    		return "redirect:/shared";
-    	}
-    	model.addAttribute("notice",notice);
-    	return "/notice/update";
+        NoticeDto noticeDto = service.getNoticeUpdate(noticeNo);
+        if (noticeDto == null) {
+            return "redirect:/notice";
+        }
+        model.addAttribute("notice", noticeDto);
+        return "/notice/update";
     }
     
     // 게시글 등록 처리 (fetch용)
@@ -117,20 +116,20 @@ public class NoticeController {
 // 게시글 수정 화면
     @PostMapping("/notice/update")
     @ResponseBody
-    public Map<String, String> updateNoticeApi(@ModelAttribute NoticeDto dto) {
+    public Map<String, String> updateNoticeApi(@ModelAttribute NoticeDto dto,
+    										   @RequestParam(value = "files", required = false) List<MultipartFile> files) {
     	Map<String, String> result = new HashMap<>();
     	result.put("res_code", "500");
     	result.put("res_msg", "수정 실패");
     	
-    	String content = dto.getNotice_content()
-    			.replaceAll(",<p>","" )
-    			.replaceAll("</p>", "")
-    			.replaceAll("<p>", "")
-    			.trim();
-    	dto.setNotice_content(content);
+		/*
+		 * String content = dto.getNotice_content() .replaceAll(",<p>","" )
+		 * .replaceAll("</p>", "") .replaceAll("<p>", "") .trim();
+		 * dto.setNotice_content(content);
+		 */
     	
     	try {
-    		int updateResult = service.updateNotice(dto);
+    		int updateResult = service.updateNotice(dto, files);
     		if(updateResult > 0) {
     			result.put("res_code", "200");
     			result.put("res_msg", "수정 성공");

@@ -7,3 +7,9 @@
 .table td {
 		color: black !important;
 	}
+.toastui-editor-contents img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+	

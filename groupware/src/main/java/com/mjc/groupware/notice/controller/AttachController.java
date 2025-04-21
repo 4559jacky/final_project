@@ -5,18 +5,24 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mjc.groupware.notice.entity.Attach;
 import com.mjc.groupware.notice.repository.AttachRepository;
+import com.mjc.groupware.notice.service.AttachService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class AttachController {
 
     private final AttachRepository attachRepository;
+    private final AttachService attachService;
 
     @GetMapping("/notice/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam("fileNo") Long fileNo) throws IOException {
@@ -48,4 +55,24 @@ public class AttachController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
     }
+    
+    @DeleteMapping("/notice/attach/delete/{id}")
+    @ResponseBody
+    public Map<String, String> deleteAttach(@PathVariable("id") Long id) {
+        Map<String, String> result = new HashMap<>();
+        result.put("res_code", "500");
+        result.put("res_msg", "삭제 실패");
+
+        try {
+            attachService.deleteAttachById(id);
+            result.put("res_code", "200");
+            result.put("res_msg", "삭제 성공");
+        } catch (Exception e) {
+            result.put("res_msg", "오류: " + e.getMessage());
+        }
+
+        return result;
+    }
+    
+    
 }
