@@ -18,7 +18,7 @@ import lombok.ToString;
 public class ApprovalVo {
 	
 	private Long appr_no;
-	private LocalDateTime appr_req_date;
+	private LocalDateTime appr_reg_date;
 	private String appr_title;
 	private String appr_status;
 	private int appr_order_status;

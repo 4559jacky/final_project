@@ -5,6 +5,7 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+  <link rel="stylesheet" th:href="@{/css/hjh.css}">
   <script th:src="@{/js/jquery-3.7.1.js}"></script>
 
   <div class="container-fluid px-4">
@@ -28,6 +29,7 @@
       <!-- 왼쪽: 검색 조건 + 검색창 -->
       <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
         <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+          <option th:value="''" th:selected="${search_type == null}">선택</option>
           <option th:value="1" th:selected="${search_type == 1}">제목</option>
           <option th:value="2" th:selected="${search_type == 2}">내용</option>
           <option th:value="3" th:selected="${search_type == 3}">제목+내용</option>
@@ -55,6 +57,7 @@
                 aria-label="정렬 선택">
           <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
           <option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+          <option th:value="views" th:selected="${sort == 'views'}">조회순</option>
         </select>
       </form>
     </div>
@@ -63,7 +66,7 @@
     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
       <div class="table-responsive">
         <table class="table align-middle text-center">
-          <thead class="table-light">
+          <thead class="bg-light">
             <tr>
               <th>번호</th>
               <th>제목</th>
@@ -73,74 +76,69 @@
               <th>조회수</th>
             </tr>
           </thead>
-          <tbody>
-            <tr th:each="notice, iterStat : ${noticeList.content}">
-              <td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
-              <td>
-                <a th:href="@{/notice/detail(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
-              </td>
-              <td th:text="${notice.member.memberName}">작성자</td>
-              <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">등록일</td>
-              <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd')}">수정일</td>
-              <td th:text="${notice.views}">조회수</td>
-            </tr>
-          </tbody>
+         <tbody>
+  			<tr th:each="notice, iterStat : ${noticeList.content}"
+      			th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
+      			style="cursor: pointer;">
+    		  <td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
+    		  <td th:text="${notice.noticeTitle}">제목</td>
+    		  <td th:text="${notice.member.memberName}">작성자</td>
+    		  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
+    		  <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd HH:mm')}">수정일</td>
+    		  <td th:text="${notice.views}">조회수</td>
+  			</tr>
+		  </tbody>
         </table>
       </div>
     </div>
 
-    <!-- ⏬ 페이징바 중앙 + 작성 버튼 오른쪽 -->
-    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
-      
-      <!-- 페이징바: 중앙 정렬 -->
-      <div class="flex-grow-1 d-flex justify-content-center">
-        <nav th:if="${noticeList.totalPages > 0}">
-          <ul class="pagination mb-0">
-            <th:block th:with="currentBlock=${(noticeList.number / 5).intValue()}, totalPages=${noticeList.totalPages}">
-              <li class="page-item" th:if="${currentBlock > 0}">
-                <a class="page-link"
-                   th:href="@{/notice(page=${(currentBlock - 1) * 5}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
-                   aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
+    <!-- ✍ 게시글 작성 버튼: 오른쪽 위 -->
+    <div class="d-flex justify-content-end mt-4">
+      <button type="button"
+              class="btn btn-primary"
+              onclick="location.href='/notice/create'">
+        게시글 작성
+      </button>
+    </div>
 
-              <th:block th:with="startPage=${currentBlock * 5},
-                                 endPage=${T(java.lang.Math).min(startPage + 4, totalPages - 1)}">
-                <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
-                  <li class="page-item" th:classappend="${i == noticeList.number} ? 'active'">
-                    <a class="page-link"
-                       th:classappend="${i == noticeList.number} ? ' text-bg-primary border-primary text-white'"
-                       th:href="@{/notice(page=${i}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
-                       th:text="${i + 1}">페이지</a>
-                  </li>
-                </th:block>
-              </th:block>
+    <!-- ⏬ 페이징바: 한 줄 아래 중앙 정렬 -->
+    <div class="d-flex justify-content-center mt-2">
+      <nav th:if="${noticeList.totalPages > 0}">
+        <ul class="pagination mb-0">
+          <th:block th:with="currentBlock=${(noticeList.number / 5).intValue()}, totalPages=${noticeList.totalPages}">
+            <li class="page-item" th:if="${currentBlock > 0}">
+              <a class="page-link"
+                 th:href="@{/notice(page=${(currentBlock - 1) * 5}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
+                 aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
 
-              <th:block th:with="nextBlockStart=${(currentBlock + 1) * 5}">
-                <li class="page-item" th:if="${nextBlockStart < totalPages}">
+            <th:block th:with="startPage=${currentBlock * 5},
+                               endPage=${T(java.lang.Math).min(startPage + 4, totalPages - 1)}">
+              <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                <li class="page-item" th:classappend="${i == noticeList.number} ? 'active'">
                   <a class="page-link"
-                     th:href="@{/notice(page=${nextBlockStart}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
-                     aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
+                     th:classappend="${i == noticeList.number} ? ' text-bg-primary border-primary text-white'"
+                     th:href="@{/notice(page=${i}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
+                     th:text="${i + 1}">페이지</a>
                 </li>
               </th:block>
             </th:block>
-          </ul>
-        </nav>
-      </div>
 
-      <!-- 게시글 작성 버튼: 오른쪽 끝 -->
-      <div>
-        <button type="button"
-                class="btn btn-primary rounded-pill"
-                onclick="location.href='/notice/create'">
-          게시글 작성
-        </button>
-      </div>
+            <th:block th:with="nextBlockStart=${(currentBlock + 1) * 5}">
+              <li class="page-item" th:if="${nextBlockStart < totalPages}">
+                <a class="page-link"
+                   th:href="@{/notice(page=${nextBlockStart}, sort=${sort}, search_type=${search_type}, keyword=${keyword})}"
+                   aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </th:block>
+          </th:block>
+        </ul>
+      </nav>
     </div>
-
   </div>
 
   <!-- Scripts -->

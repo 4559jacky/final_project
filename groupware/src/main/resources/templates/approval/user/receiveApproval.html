@@ -7,6 +7,7 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
 		<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -85,20 +86,11 @@
 
 		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="/approval/search" method="get">
-				<div
-					class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-					style="background-color: white; max-width: 350px; height: 40px; border: 1px solid #ced4da;">
-					<button type="submit" class="btn border-0 bg-transparent p-0">
-						<i class="ti ti-search fs-5 text-primary"></i>
-					</button>
-					<input type="text" name="keyword"
-						class="form-control border-0 bg-transparent ms-2"
-						placeholder="검색어를 입력하세요."
-						style="box-shadow: none; background-color: transparent;">
-				</div>
-			</form>
-			<button class="btn btn-primary rounded-pill" onclick="createApproval();">결재 작성</button>
+			<form class="position-relative" action="/approval/search" method="get">
+                    <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Product">
+                    <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+            </form>
+			<button class="btn btn-primary" onclick="createApproval();">결재 작성</button>
 		</div>
 
 		<!-- Table -->
@@ -106,7 +98,7 @@
 			<div class="table-responsive">
 				<table class="table align-middle text-center">
 					<!-- 테이블 헤더 -->
-					<thead class="table-light">
+					<thead class="bg-light">
 						<tr>
 							<th>번호</th>
 							<th>제목</th>
@@ -129,28 +121,28 @@
 							<td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td>
 							<td th:text="${approvalVo.member_name}">작성자</td>
 							<th:block th:if="${approvalVo.appr_status == 'A'}">
-								<td><span class="badge bg-warning-subtle text-dark">합의 대기중</span></td>
+								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'D'}">
-								<td><span class="badge bg-warning-subtle text-dark">결재 대기중</span></td>
+								<td><span class="mb-1 badge  bg-info-subtle text-info">결재 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'C'}">
-								<td><span class="badge bg-warning-subtle text-dark">승인</span></td>
+								<td><span class="mb-1 badge  bg-success-subtle text-success">승인	</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'R'}">
-								<td><span class="badge bg-warning-subtle text-dark">반려</span></td>
+								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
 							</th:block>
 							<!-- 결재 관련자 종류 구분 -->
 							<th:block th:if="${approvalVo.relationship == 'P'}">
-								<td><span class="badge bg-warning-subtle text-dark">결재자</span></td>
+								<td><span class="mb-1 badge text-bg-light">결재자</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'A'}">
-								<td><span class="badge bg-warning-subtle text-dark">합의자</span></td>
+								<td><span class="mb-1 badge text-bg-light">합의자</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'R'}">
-								<td><span class="badge bg-warning-subtle text-dark">참조자</span></td>
+								<td><span class="mb-1 badge text-bg-light">참조자</span></td>
 							</th:block>
-							<td th:text="${#temporals.format(approvalVo.appr_req_date,'yyyy-MM-dd HH:mm')}">요청일</td>
+							<td th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approvalVo.approval_form_name}">양식
 								종류</td>
 						</tr>

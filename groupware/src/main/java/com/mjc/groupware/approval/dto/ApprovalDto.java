@@ -23,8 +23,7 @@ import lombok.ToString;
 @Builder
 public class ApprovalDto {
 	private Long appr_no;
-	private LocalDate appr_reg_date;
-	private LocalDateTime appr_req_date;
+	private LocalDateTime appr_reg_date;
 	private LocalDateTime appr_res_date;
 	private String appr_title;
 	private String appr_text;
@@ -44,7 +43,6 @@ public class ApprovalDto {
 	public Approval toEntity() {
 		return Approval.builder()
 				.apprRegDate(appr_reg_date)
-				.apprReqDate(appr_req_date)
 				.apprResDate(appr_res_date)
 				.apprTitle(appr_title)
 				.apprText(appr_text)
@@ -61,7 +59,6 @@ public class ApprovalDto {
 	public ApprovalDto toDto(Approval approval) {
 		return ApprovalDto.builder()
 				.appr_reg_date(approval.getApprRegDate())
-				.appr_req_date(approval.getApprReqDate())
 				.appr_res_date(approval.getApprResDate())
 				.appr_title(approval.getApprTitle())
 				.appr_text(approval.getApprText())

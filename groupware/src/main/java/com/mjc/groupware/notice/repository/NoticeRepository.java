@@ -8,6 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.mjc.groupware.notice.entity.Notice;
 
@@ -18,4 +21,8 @@ public interface NoticeRepository extends JpaRepository<Notice, Long>,JpaSpecifi
 	List<Notice> findByNoticeTitleContaining(String keyword);
 	List<Notice> findByNoticeContentContaining(String keyword);
 	List<Notice> findByNoticeTitleContainingIgnoreCaseOrNoticeContentContainingIgnoreCase(String title, String content, Sort sort);
+
+	@Modifying
+	@Query("UPDATE Notice n SET n.views = n.views + 1 WHERE n.noticeNo = :noticeNo")
+	void increaseViews(@Param("noticeNo") Long noticeNo);
 }

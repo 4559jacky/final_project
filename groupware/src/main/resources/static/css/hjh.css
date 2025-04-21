@@ -1,0 +1,39 @@
+@charset "UTF-8";
+.selected-button {
+    background-color: #e7f1ff !important;
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+  }
+
+.table td {
+		color: black !important;
+	}
+.toastui-editor-contents img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+ 
+}
+
+.toastui-editor-contents{
+	 color: black !important;
+	 font-size: 1.1rem;
+}
+.title{
+	color: black !important;
+}
+
+
+.file-link {
+            display: inline-block;
+            color: #007bff;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+.file-link:hover {
+            color: #000;
+            text-decoration: underline;
+        }	

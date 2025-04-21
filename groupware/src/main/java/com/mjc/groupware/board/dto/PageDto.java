@@ -32,6 +32,13 @@ public class PageDto {
     }
 
     public void calcPaging() {
+    	if (totalPage == 0) {
+			pageBarStart = 1;
+			pageBarEnd = 1;
+			prev = false;
+			next = false;
+			return;
+		}
         pageBarStart = ((nowPage - 1) / pageBarSize) * pageBarSize + 1;
         pageBarEnd = pageBarStart + pageBarSize - 1;
         if (pageBarEnd > totalPage) pageBarEnd = totalPage;

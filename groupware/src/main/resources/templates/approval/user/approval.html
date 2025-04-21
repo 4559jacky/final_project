@@ -80,38 +80,26 @@
 		</div>
 
 
-		<!-- Search + Button -->
+		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="/approval/search" method="get">
-				<div
-					class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-					style="background-color: white; max-width: 350px; height: 40px; border: 1px solid #ced4da;">
-					<button type="submit" class="btn border-0 bg-transparent p-0">
-						<i class="ti ti-search fs-5 text-primary"></i>
-					</button>
-					<input type="text" name="keyword"
-						class="form-control border-0 bg-transparent ms-2"
-						placeholder="검색어를 입력하세요."
-						style="box-shadow: none; background-color: transparent;">
-				</div>
-			</form>
-
-			<!-- 버튼 그룹 -->
-
+			<form class="position-relative" action="/approval/search" method="get">
+                    <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Product">
+                    <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+            </form>
 			<div class="d-flex gap-2">
 				<th:block th:if="${#strings.isEmpty(member.signature)}">
-					<button class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+					<button class="btn btn-primary" data-bs-toggle="modal"
 						id="signature_btn" data-bs-target="#signatureModal"
 						th:value="${#authentication.principal.member.memberNo}">전자서명
 						등록</button>
 				</th:block>
 				<th:block th:if="${!#strings.isEmpty(member.signature)}">
-					<button class="btn btn-primary rounded-pill" data-bs-toggle="modal"
+					<button class="btn btn-primary" data-bs-toggle="modal"
 						id="saveSignature_btn" data-bs-target="#saveSignatureModal"
 						th:value="${#authentication.principal.member.memberNo}">전자서명
 						보기</button>
 				</th:block>
-				<button class="btn btn-primary rounded-pill"
+				<button class="btn btn-primary"
 					onclick='createApproval();'>결재 작성</button>
 			</div>
 		</div>
@@ -121,7 +109,7 @@
 			<div class="table-responsive">
 				<table class="table align-middle text-center">
 					<!-- 테이블 헤더 -->
-					<thead class="table-light">
+					<thead class="bg-light">
 						<tr>
 							<th>번호</th>
 							<th>제목</th>
@@ -143,19 +131,19 @@
 							<td th:text="${approval.apprTitle}">제목</td>
 							<td th:text="${approval.member.memberName}">작성자</td>
 							<th:block th:if="${approval.apprStatus == 'A'}">
-								<td><span class="badge bg-warning-subtle text-dark">합의 대기중</span></td>
+								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'D'}">
-								<td><span class="badge bg-warning-subtle text-dark">결재 대기중</span></td>
+								<td><span class="mb-1 badge  bg-info-subtle text-info">결재 대기중</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'C'}">
-								<td><span class="badge bg-warning-subtle text-dark">승인</span></td>
+								<td><span class="mb-1 badge  bg-success-subtle text-success">승인	</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'R'}">
-								<td><span class="badge bg-warning-subtle text-dark">반려</span></td>
+								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
 							</th:block>
 							<td
-								th:text="${#temporals.format(approval.apprReqDate,'yyyy-MM-dd HH:mm')}">요청일</td>
+								th:text="${#temporals.format(approval.apprRegDate,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approval.approvalForm.approvalFormName}">양식
 								종류</td>
 						</tr>

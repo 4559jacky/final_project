@@ -1,5 +1,7 @@
 package com.mjc.groupware.notice.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,4 +40,10 @@ public class Attach {
 	@ManyToOne
 	@JoinColumn(name="notice_no")
 	private Notice notice;
+	
+	@Column(name = "reg_date")
+	private LocalDateTime regDate;
+
+	@Column(name = "mod_date")
+	private LocalDateTime modDate;
 }
