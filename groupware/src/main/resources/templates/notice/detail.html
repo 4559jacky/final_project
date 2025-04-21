@@ -35,7 +35,7 @@
         <div class="card shadow-sm p-4">
             <div class="mb-3">
                 <h3 th:text="${notice.noticeTitle}" class="fw-semibold"></h3>
-                <div class="text-muted">
+                <div class="text-muted toastui-editor-contents" >
                     <span>작성자: </span>
                     <span th:text="${notice.member.memberName}"></span>
                     <span> | 작성일: </span>
@@ -46,16 +46,13 @@
             </div>
 
             <div class="border-top pt-3">
-                <h5 class="fw-semibold">첨부파일</h5>
-                <ul th:if="${attachList != null and not #lists.isEmpty(attachList)}">
-                    <li th:each="attach : ${attachList}">
-                        <a th:href="@{/notice/download(fileNo=${attach.attachNo})}" th:text="${attach.oriName}"></a>
-                    </li>
-                </ul>
-                <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
-
                 <!-- 🔧 이미지 스타일이 적용될 수 있도록 클래스명 수정 -->
                 <div th:utext="${notice.noticeContent}" class="toastui-editor-contents"></div>
+                <ul th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+                    <li th:each="attach : ${attachList}">
+                        <a th:href="@{/notice/download(fileNo=${attach.attachNo})}" th:text="${attach.oriName}" class="file-link"></a>
+                    </li>
+                </ul>
             </div>
 
             <div class="mt-4 text-end">

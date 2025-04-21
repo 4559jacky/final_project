@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html
-    xmlns:th="http://www.thymeleaf.org"
-    xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{/include/layout}">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/include/layout}">
 
 <head>
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
-	<link rel="stylesheet" th:href="@{/css/hjh.css}">
+    <link rel="stylesheet" th:href="@{/css/hjh.css}">
 </head>
 
 <th:block layout:fragment="content">
-    <script th:src="@{/js/jquery-3.7.1.js}"></script>
     <div class="col-lg-8 col-md-6 col-12 align-self-center">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb align-items-center">
@@ -39,27 +37,27 @@
                 <div class="row align-items-center mb-3">
                     <div class="col-md-9 col-sm-12 mb-2 mb-md-0">
                         <label for="notice_title" class="form-label fw-semibold">제목</label>
-                        <input type="text" name="notice_title" class="form-control" th:value="${notice.notice_title}">
+                        <input type="text" name="notice_title" class="form-control title" th:value="${notice.notice_title}">
                     </div>
                 </div>
-
+                
                 <!-- 에디터 영역 -->
-                <div class="post-form">
+				<div class="post-form">
                     <div id="editor" style="margin-top: 10px;"></div>
                 </div>
-
-                <!-- 기존 첨부파일 -->
+                
+                <!-- 기존 첨부파일 영역: 초기 체크된 상태에서 해제 시 삭제 처리 -->
                 <div class="mb-3 mt-3">
                     <label class="form-label fw-semibold">기존 첨부파일</label>
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center"
-                            th:each="file : ${notice.attachList}"
-                            th:id="'file-' + ${file.attachNo}">
-                            <a th:href="@{/notice/download(fileNo=${file.attachNo})}" th:text="${file.oriName}"></a>
-                            <button type="button" class="btn btn-sm btn-danger" th:onclick="|removeFile(${file.attachNo})|">삭제</button>
-                        </li>
-                        <li th:if="${#lists.isEmpty(notice.attachList)}" class="list-group-item">첨부파일이 없습니다.</li>
-                    </ul>
+                    <div th:each="file : ${notice.attachList}"
+                         class="file-item d-flex align-items-center gap-2 mb-1"
+                         th:attr="data-id=${file.attachNo}">
+
+                        <input type="hidden" name="deleteFiles" th:value="${file.attachNo}" disabled />
+                        <input type="checkbox" class="form-check-input mt-0" checked onchange="toggleDeleteCheckbox(this)">
+                        <span class="file-name flex-grow-1 mb-0" th:text="${file.oriName}"></span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(notice.attachList)}">첨부파일이 없습니다.</div>
                 </div>
 
                 <!-- 새 파일 추가 -->
@@ -71,6 +69,7 @@
                 <!-- 제출 버튼 -->
                 <div class="d-flex justify-content-end mt-3">
                     <input type="submit" class="btn btn-primary px-3 py-1" value="수정 완료">
+                    <a th:href="@{/notice/detail(noticeNo=${notice.notice_no})}" class="btn btn-danger px-3 py-1 ms-2">취소</a>
                 </div>
             </div>
         </div>
@@ -104,12 +103,8 @@
                 document.getElementById("notice_content").value = content;
 
                 let vali_text = "";
-                if (!title) {
-                    vali_text += "제목을 입력하세요.\n";
-                }
-                if (!content || content === '<p><br></p>') {
-                    vali_text += "내용을 입력하세요.\n";
-                }
+                if (!title) vali_text += "제목을 입력하세요.\n";
+                if (!content || content === '<p><br></p>') vali_text += "내용을 입력하세요.\n";
 
                 if (vali_text) {
                     alert(vali_text);
@@ -119,6 +114,12 @@
                 const payload = new FormData(form);
                 const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                 const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                document.querySelectorAll("input[name='deleteFiles']").forEach(hidden => {
+                    if (!hidden.disabled) {
+                        payload.append("deleteFiles", hidden.value);
+                    }
+                });
 
                 fetch("/notice/update", {
                     method: "POST",
@@ -131,7 +132,7 @@
                 .then(data => {
                     alert(data.res_msg);
                     if (data.res_code === "200") {
-                        location.href = "/notice";
+                        location.href = "/notice/detail?noticeNo=" + form.notice_no.value;  // 상세페이지로 이동
                     }
                 })
                 .catch(err => {
@@ -141,34 +142,23 @@
             });
         });
 
-        function removeFile(fileId) {
-            if (!confirm("정말 삭제하시겠습니까?")) return;
+        // 체크가 해제될 때 삭제 처리
+        function toggleDeleteCheckbox(checkbox) {
+            const item = checkbox.closest('.file-item');
+            const hidden = item.querySelector('input[type=hidden]');
+            const filename = item.querySelector('.file-name');
 
-            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-
-            fetch(`/notice/attach/delete/${fileId}`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRF-TOKEN": csrfToken
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.res_code === '200') {
-                    alert("파일이 삭제되었습니다.");
-                    document.getElementById(`file-${fileId}`).remove();
-                } else {
-                    alert(data.res_msg);
-                }
-            })
-            .catch(err => {
-                alert("파일 삭제 중 오류 발생");
-                console.error(err);
-            });
+            if (!checkbox.checked) {
+                hidden.disabled = false;
+                filename.classList.add('text-decoration-line-through');
+            } else {
+                hidden.disabled = true;
+                filename.classList.remove('text-decoration-line-through');
+            }
         }
     </script>
 
-    <!-- 기본 스크립트들 -->
+    <!-- 기존 공통 JS 스크립트 유지 -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>
     <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
