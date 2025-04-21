@@ -42,6 +42,7 @@ public class NoticeService {
         Notice entity = Notice.builder()
                 .noticeTitle(dto.getNotice_title())
                 .noticeContent(dto.getNotice_content())
+                .noticeFix(dto.getNotice_fix() != null ? dto.getNotice_fix() : "N")
                 .views(0)
                 .member(member)
                 .build();
@@ -69,7 +70,7 @@ public class NoticeService {
 
         // 정렬 조건 분기: views, asc, desc
         if ("asc".equalsIgnoreCase(sort)) {
-            sortObj = Sort.by(Sort.Direction.ASC, "regDate");
+        	sortObj = Sort.by(Sort.Order.desc("noticeFix"), Sort.Order.desc("regDate"));
         } else if ("views".equalsIgnoreCase(sort)) {
             sortObj = Sort.by(Sort.Direction.DESC, "views");
         } else {
@@ -80,10 +81,11 @@ public class NoticeService {
 
         // 🔍 검색어가 없으면 전체 반환 (정렬만 적용됨)
         if (keyword == null || keyword.isBlank()) {
-            return repository.findAll(pageable);
+        	Specification<Notice> spec = NoticeSpecification.isNotFixed();  // ⬅ 고정글 제외
+            return repository.findAll(spec, pageable);
         } 
 
-        Specification<Notice> spec = null;
+        Specification<Notice> spec = NoticeSpecification.isNotFixed();
 
         // 🔍 검색조건 분기
         if (searchType == null || searchType == 1) { // 제목
@@ -116,7 +118,8 @@ public class NoticeService {
             .notice_title(notice.getNoticeTitle())
             .notice_content(notice.getNoticeContent())
             .member_no(notice.getMember().getMemberNo())
-            .attachList(attachList) // 🔥 여기
+            .attachList(attachList) // 여기
+            .notice_fix(notice.getNoticeFix())
             .build();
 
     	return dto;
@@ -143,6 +146,8 @@ public class NoticeService {
 	    } else {
 	        notice.update(dto.getNotice_title(), dto.getNotice_content(), notice.getModDate());
 	    }
+		
+		notice.setNoticeFix(dto.getNotice_fix() != null ? dto.getNotice_fix() : "N");
 		
 		repository.save(notice);
 
@@ -179,8 +184,15 @@ public class NoticeService {
 	public void deleteNotice(Long noticeNo) {
 		repository.deleteById(noticeNo);
 	}
-
 	
+	// 일반글, 고정글 따로 가져옴.
+	public List<Notice> getFixedNotices() {
+	    return repository.findByNoticeFixOrderByNoticeNoDesc("Y");
+	}
+
+	public Page<Notice> getNormalNotices(Pageable pageable) {
+	    return repository.findByNoticeFix("N", pageable);
+	}
 
 
 }

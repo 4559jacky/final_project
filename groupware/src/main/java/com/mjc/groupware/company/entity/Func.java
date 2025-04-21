@@ -1,11 +1,10 @@
-package com.mjc.groupware.notice.entity;
+package com.mjc.groupware.company.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,44 +13,38 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name="notice_board")
-@Builder
-@Getter
-@Setter
+@Table(name="func")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notice {
+@Getter
+@Builder
+public class Func {
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="notice_no")
-	private Long noticeNo;
+	@Column(name="func_no")
+	private Long funcNo;
 	
-	@Column(name="notice_title")
-	private String noticeTitle;
+	@Column(name="func_name")
+	private String funcName;
 	
-	@Column(name="notice_content")
-	private String noticeContent;
+	@Column(name="func_url")
+	private String funcUrl;
 	
-	@Column(name="notice_status")
-	private String noticeStatus;
-	
-	@Column(name="notice_fix")
-	private String noticeFix;
-	
-	@Column(name="views")
-	private int views;
+	@Column(name="func_status")
+	private int funcStatus;
 	
 	@ManyToOne
-	@JoinColumn(name="member_no", nullable = false)
-	private Member member;
+	@JoinColumn(name="parent_func_no")
+	private Func parentFunc;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -60,10 +53,12 @@ public class Notice {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
-
-	public void update(String title, String content, LocalDateTime modDate) {
-		this.noticeTitle = title;
-		this.noticeContent = content;
-		this.modDate = modDate;
+	
+	@OneToMany(mappedBy = "func")
+    private List<FuncMapping> funcMappings;
+	
+	public void changeFuncStatus(int funcStatus) {
+		this.funcStatus = funcStatus;
 	}
+	
 }

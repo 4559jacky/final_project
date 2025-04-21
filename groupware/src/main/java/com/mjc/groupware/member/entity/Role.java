@@ -2,6 +2,8 @@ package com.mjc.groupware.member.entity;
 
 import java.util.List;
 
+import com.mjc.groupware.company.entity.FuncMapping;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,5 +37,8 @@ public class Role {
 	
 	@OneToMany(mappedBy = "role")
 	private List<Member> members;
+	
+	@OneToMany(mappedBy = "role")
+	private List<FuncMapping> funcMappings;
 	
 }

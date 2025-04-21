@@ -24,7 +24,7 @@
       <h2 class="mb-0 fw-bolder fs-8">공지사항 게시판</h2>
     </div><br>
 
-    <!-- 🔍 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
+    <!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
       <!-- 왼쪽: 검색 조건 + 검색창 -->
       <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
@@ -62,7 +62,7 @@
       </form>
     </div>
 
-    <!-- 📋 테이블 -->
+    <!-- 테이블 -->
     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
       <div class="table-responsive">
         <table class="table align-middle text-center">
@@ -76,18 +76,34 @@
               <th>조회수</th>
             </tr>
           </thead>
-         <tbody>
-  			<tr th:each="notice, iterStat : ${noticeList.content}"
-      			th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
-      			style="cursor: pointer;">
-    		  <td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
-    		  <td th:text="${notice.noticeTitle}">제목</td>
-    		  <td th:text="${notice.member.memberName}">작성자</td>
-    		  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
-    		  <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd HH:mm')}">수정일</td>
-    		  <td th:text="${notice.views}">조회수</td>
-  			</tr>
-		  </tbody>
+         	<tbody>
+  				<!-- ✅ 고정글 먼저 표시 -->
+  				<tr th:each="notice : ${fixedList}"
+    				th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
+    				class ="fixed-row"
+    				style="cursor: pointer;">
+    				<td>
+        				<span style="margin-left: 4px;">📌</span> <!-- 이모티콘 추가 -->
+    				</td>
+    				<td class="text-start" th:text="${notice.noticeTitle}">제목</td>
+    				<td th:text="${notice.member.memberName}">작성자</td>
+    				<td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
+    				<td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd HH:mm')}">수정일</td>
+    				<td th:text="${notice.views}">조회수</td>
+				</tr>
+
+  				<!-- ✅ 일반글 1번부터 번호 시작 -->
+  				<tr th:each="notice, iterStat : ${noticeList.content}"
+      				th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
+      				style="cursor: pointer;">
+    				<td th:text="${noticeList.number * noticeList.size + iterStat.index + 1}">번호</td>
+    				<td class="text-start" th:text="${notice.noticeTitle}">제목</td>
+    				<td th:text="${notice.member.memberName}">작성자</td>
+    				<td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
+    				<td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd HH:mm')}">수정일</td>
+   					<td th:text="${notice.views}">조회수</td>
+  				</tr>
+			</tbody>
         </table>
       </div>
     </div>

@@ -45,7 +45,12 @@ public class NoticeController {
     					   @RequestParam(value = "page", defaultValue = "0") int page,
     					   Model model) {    	
     	Page<Notice> noticeList = service.searchNotice(searchType, keyword, sort, page);
-        model.addAttribute("search_type", searchType);
+        
+    	// ✅ 고정글은 항상 상단 고정
+    	   List<Notice> fixedList = service.getFixedNotices();
+    	   model.addAttribute("fixedList", fixedList);
+    	   
+    	model.addAttribute("search_type", searchType);
     	model.addAttribute("noticeList", noticeList);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);

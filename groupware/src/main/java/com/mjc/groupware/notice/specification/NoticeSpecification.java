@@ -15,4 +15,8 @@ public class NoticeSpecification {
 			criteriaBuilder.like(root.get("noticeContent"),"%"+keyword+"%");
 	}
 	
+	public static Specification<Notice> isNotFixed() {
+	    return (root, query, criteriaBuilder) ->
+	        criteriaBuilder.equal(root.get("noticeFix"), "N");
+	}
 }

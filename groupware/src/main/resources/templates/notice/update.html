@@ -34,7 +34,13 @@
 
         <div class="container mt-4">
             <div class="card shadow-sm p-4">
+                	<!-- 고정글 체크박스 -->
+                	<div class="form-check mb-3">
+  						<input class="form-check-input" type="checkbox" id="noticeFix" name="notice_fix" value="Y" th:checked="${notice.notice_fix == 'Y'}">
+  						<label class="form-label fw-semibold" for="noticeFix">게시판 상단 고정</label>
+				    </div>
                 <div class="row align-items-center mb-3">
+				    
                     <div class="col-md-9 col-sm-12 mb-2 mb-md-0">
                         <label for="notice_title" class="form-label fw-semibold">제목</label>
                         <input type="text" name="notice_title" class="form-control title" th:value="${notice.notice_title}">
@@ -46,6 +52,7 @@
                     <div id="editor" style="margin-top: 10px;"></div>
                 </div>
                 
+				    
                 <!-- 기존 첨부파일 영역: 초기 체크된 상태에서 해제 시 삭제 처리 -->
                 <div class="mb-3 mt-3">
                     <label class="form-label fw-semibold">기존 첨부파일</label>
@@ -59,7 +66,7 @@
                     </div>
                     <div th:if="${#lists.isEmpty(notice.attachList)}">첨부파일이 없습니다.</div>
                 </div>
-
+				    
                 <!-- 새 파일 추가 -->
                 <div class="mb-3">
                     <label for="notice_file" class="form-label fw-semibold">파일 추가</label>
