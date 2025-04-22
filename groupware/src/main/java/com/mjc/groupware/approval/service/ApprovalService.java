@@ -1,7 +1,9 @@
 package com.mjc.groupware.approval.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,7 @@ import com.mjc.groupware.approval.dto.ApprApproverDto;
 import com.mjc.groupware.approval.dto.ApprReferencerDto;
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
@@ -24,7 +27,7 @@ import com.mjc.groupware.approval.repository.ApprReferencerRepository;
 import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
 import com.mjc.groupware.member.dto.MemberDto;
-import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -183,13 +186,17 @@ public class ApprovalService {
 	}
 	
 	// 결재리스트 받아오기 - 받은 문서함 출력
-	public List<ApprovalVo> selectApprovalAllByApproverId(MemberDto member) {
+	public List<ApprovalVo> selectApprovalAllByApproverId(MemberDto member, SearchDto searchDto, PageDto pageDto) {
 		List<ApprovalVo> approvalVoList = new ArrayList<ApprovalVo>();
-		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(member.getMember_no());
-
-		// List<ApprApprover> approverMappingList = new ArrayList<ApprApprover>();
-		// approverMappingList = apprApproverRepository.findAllByMember_MemberNo(member.getMember_no());
 		
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		
+		paramMap.put("member_no", member.getMember_no());
+		paramMap.put("search_type", searchDto.getSearch_type());
+		paramMap.put("search_text", searchDto.getSearch_text());
+		
+		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(paramMap);
+
 		return approvalVoList;
 	}
 

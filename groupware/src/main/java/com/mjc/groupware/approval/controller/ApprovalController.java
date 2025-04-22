@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
@@ -26,6 +28,7 @@ import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
 
@@ -153,18 +156,23 @@ public class ApprovalController {
 	}
 	
 	@GetMapping("/approval/receive")
-	public String receiveApprovalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+	public String receiveApprovalView(Model model, SearchDto searchDto, PageDto pageDto, @AuthenticationPrincipal UserDetails userDetails) {
 		
 		String userId = userDetails.getUsername();
-
 	    MemberDto memberDto = new MemberDto();
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-	    List<ApprovalVo> approvalVoList = service.selectApprovalAllByApproverId(member);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    
+	    
+	    List<ApprovalVo> approvalVoList = service.selectApprovalAllByApproverId(member, searchDto, pageDto);
 	    
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalVoList", approvalVoList);
+	    
+	    
 	    
 		
 		return "/approval/user/receiveApproval";
