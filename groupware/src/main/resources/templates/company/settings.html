@@ -102,20 +102,20 @@ layout:decorate="~{/include/layout}">
 					    </div>
 					  </div>
 					</div>
-		
+					
 		            <!-- 기본 정보 등록 -->
 		            <div class="col-lg-6 d-flex align-items-stretch">
 		              <div class="card w-100 border position-relative overflow-hidden">
 		                <div class="card-body p-4">
 		                  <h4 class="card-title" style="font-weight: bold;">기본 정보 등록</h4>
 		                  <p class="card-subtitle mb-4">Please enter a basic profile info.</p>
-		
+							
 		                  <div class="mb-3">
 		                    <label for="company_name" class="form-label">회사명*</label>
 		                    <input type="text" class="form-control" id="company_name" name="company_name">
 		                  </div>
 		                </div>
-		
+						
 		                <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
 		                  <button type="submit" class="btn btn-primary px-4">등록</button>
 		                  <button type="reset" class="btn bg-danger-subtle text-danger px-4" onclick="location.href='/home'">취소</button>
@@ -183,7 +183,7 @@ layout:decorate="~{/include/layout}">
 					<div class="col-lg-6 d-flex align-items-stretch">
 					  <div class="card w-100 border position-relative overflow-hidden">
 					    <div class="card-body p-4">
-					      <h4 class="card-title">기능 상세 및 접근 권한</h4>
+					      <h4 class="card-title">기능 상세 및 접근 권한 부여</h4>
 					      <p class="card-subtitle mb-4">Check the selected function to see more information.</p>
 						  
 					      <div class="text-center">
@@ -723,7 +723,7 @@ layout:decorate="~{/include/layout}">
 	        	<!-- post 이므로 토큰 같이 실어보내줌 -->
 	        	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 	        	
-	      		<div class="modal-body">
+	      		<div class="modal-body py-2 px-3">
 			    	<div class="mb-3">
 			        	<label for="role_nickname" class="form-label fw-normal">권한 이름 (예: 재무담당자, 인사담당자)</label>
 			      		<input type="text" class="form-control" id="role_nickname" name="role_nickname" required>
@@ -764,7 +764,7 @@ layout:decorate="~{/include/layout}">
 	            <label for="edit_role_name" class="form-label fw-normal">권한 코드 (예: FINANCE, HUMANRESOURCE)</label>
 	            <input type="text" class="form-control" id="edit_role_name" name="role_name" required>
 	          </div>
-	          <div class="modal-footer py-2 px-3">
+	          <div class="modal-footer">
 	            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 	            <button type="submit" class="btn btn-primary">수정</button>
 	          </div>
@@ -811,7 +811,7 @@ layout:decorate="~{/include/layout}">
 	          해당 권한을 가진 사원은 일반사원(USER) 권한으로 전환됩니다.<br>
 			  정말 삭제하시겠습니까?
 	        </div>
-	        <div class="modal-footer py-2 px-3">
+	        <div class="modal-footer">
 	          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 	          <button type="submit" class="btn btn-danger">삭제</button>
 	        </div>
@@ -834,16 +834,16 @@ layout:decorate="~{/include/layout}">
 	<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
-	      <div class="modal-header">
+	      <div class="modal-header py-2 px-3">
 	        <h5 class="modal-title m-0 d-flex align-items-center" id="alertModalLabel">
 	        	<i class="fas fa-exclamation-triangle me-2"></i>처리 결과
 	        </h5>
 	        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="닫기"></button>
 	      </div>
-	      <div class="modal-body py-2 px-3">
+	      <div class="modal-body">
 	        <span th:text="${res_msg}">처리 메시지</span>
 	      </div>
-	      <div class="modal-footer py-2 px-3">
+	      <div class="modal-footer">
 	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
 	      </div>
 	    </div>
