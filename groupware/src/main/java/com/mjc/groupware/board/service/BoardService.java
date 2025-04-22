@@ -34,53 +34,43 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final BoardAttachService boardAttachService;
 
-    // 게시글 등록
-    @Transactional(rollbackFor = Exception.class)
     public Board createBoard(BoardDto dto, List<MultipartFile> files) {
-        Member member = memberRepository.findById(dto.getMember_no()).orElse(null);
-        if (member == null) throw new RuntimeException("회원 정보를 찾을 수 없습니다.");
+        Member member = memberRepository.findById(dto.getMember_no())
+                                       .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
 
         Board board = Board.builder()
                 .boardTitle(dto.getBoard_title())
                 .boardContent(dto.getBoard_content())
                 .boardStatus("N")
+                .isFixed(dto.getIs_fixed() != null ? dto.getIs_fixed() : false)  // null 체크 후 기본값 false 처리
                 .member(member)
                 .build();
 
-        // 이 부분에 추가
         if (board.getAttachList() == null) {
             board.setAttachList(new ArrayList<>());
         }
 
         Board savedBoard = repository.save(board);
 
-        if (files != null) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    BoardAttach attach = boardAttachService.uploadFile(file, savedBoard.getBoardNo());
-                    if (attach != null) {
-                        savedBoard.getAttachList().add(attach);
-                    }
-                }
-            }
+        if (files != null && !files.isEmpty()) {
+            List<BoardAttach> attaches = boardAttachService.uploadFiles(files, savedBoard.getBoardNo());
+            savedBoard.getAttachList().addAll(attaches);
         }
+
         return savedBoard;
     }
+    
 
-
-    // 게시글 상세 조회 (읽기 전용)
     @Transactional(readOnly = true)
     public Optional<Board> selectBoardOne(Long boardNo) {
         return repository.findById(boardNo);
     }
 
-    // 조회수 증가 + 수정일 유지
     @Transactional
     public void updateViews(Long boardNo) {
         repository.updateViews(boardNo);  // native 쿼리로 조회수만 증가시킴
     }
 
-    // 게시글 목록 검색, 정렬, 페이징
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
         Sort sort;
         if (searchDto.getOrder_type() == 1) { // 최신순
@@ -95,12 +85,10 @@ public class BoardService {
 
         Pageable pageable = PageRequest.of(pageDto.getNowPage() - 1, pageDto.getNumPerPage(), sort);
 
-        // 삭제되지 않은 게시글만 조회
         Specification<Board> spec = Specification.where(
             (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
         );
 
-        // 검색 조건 추가
         String keyword = searchDto.getSearch_text();
         int searchType = searchDto.getSearch_type();
 
@@ -115,8 +103,7 @@ public class BoardService {
         return repository.findAll(spec, pageable);
     }
 
-    // 게시글 수정 서비스
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Board updateBoard(BoardDto boardDto, List<MultipartFile> files) {
         Board board = repository.findById(boardDto.getBoard_no())
                 .orElseThrow(() -> new RuntimeException("해당 게시글을 찾을 수 없습니다."));
@@ -125,37 +112,30 @@ public class BoardService {
         board.setBoardContent(boardDto.getBoard_content());
         board.setModDate(LocalDateTime.now());
 
-        // 삭제할 파일 처리
         if (boardDto.getDelete_files() != null && !boardDto.getDelete_files().isEmpty()) {
             boardAttachService.deleteFiles(boardDto.getDelete_files());
         }
 
-        // 새 파일 업로드 처리
-        if (files != null) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    BoardAttach attach = boardAttachService.uploadFile(file, board.getBoardNo());
-                    if (attach != null) {
-                        board.getAttachList().add(attach);
-                    }
-                }
-            }
+        if (files != null && !files.isEmpty()) {
+            List<BoardAttach> attaches = boardAttachService.uploadFiles(files, board.getBoardNo());
+            board.getAttachList().addAll(attaches);
         }
 
         return repository.save(board);
     }
-    
 
-    // 게시글 삭제 ("N" -> "Y" 게시글 목록에서 삭제되면 데이터베이스 안에 삭제 여부가 "N" -> "Y"로 바뀜)
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteBoard(Long boardNo) {
         Board board = repository.findById(boardNo)
                 .orElseThrow(() -> new RuntimeException("해당 게시글을 찾을 수 없습니다."));
+
+        if ("Y".equals(board.getBoardStatus())) {
+            throw new RuntimeException("이미 삭제된 게시글입니다.");
+        }
 
         board.setBoardStatus("Y"); // 삭제 상태로 변경
         board.setModDate(LocalDateTime.now());
 
         repository.save(board);
     }
-
 }

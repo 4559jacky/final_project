@@ -47,15 +47,15 @@
             style="font-size: 2rem; margin-bottom: 0;"></h2><br>
 
         <!-- 작성 정보 (제목 아래, 한 줄 정렬) -->
-        <div class="text-muted mt-1" style="font-size: 1rem;">
-            <span>작성자: </span>
-            <span th:text="${board.member?.memberName ?: '익명'}"></span>
-            <span> | 작성일: </span>
-            <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
-            <span> | 조회수: </span>
-            <span th:text="${board.views}">0</span>
-        </div>
-    </div>
+    <div class="text-dark mt-1" style="font-size: 1rem;">
+    	<span>작성자: </span>
+    	<span th:text="${board.member?.memberName ?: '익명'}"></span>
+    	<span> | 작성일: </span>
+    	<span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
+    	<span> | 조회수: </span>
+    	<span th:text="${board.views}">0</span>
+	</div>
+   </div>
 
     <hr>
 
@@ -67,11 +67,11 @@
 
     <hr>
 
-    <!-- 첨부파일 -->
-<!-- 첨부파일 영역 (첨부파일 있을 때만 출력) -->
-<div class="pt-3" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+<!-- 첨부파일 -->
+<div class="pt-3">
     <h5 class="fw-semibold">첨부파일</h5>
-    <ul>
+
+    <ul th:if="${attachList != null and not #lists.isEmpty(attachList)}">
         <li th:each="boardAttach : ${attachList}">
             <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" 
                th:text="${boardAttach.oriName}"
@@ -79,6 +79,8 @@
                th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">파일명</a>
         </li>
     </ul>
+
+    <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
 </div>
 
     <!-- 수정/삭제 버튼 -->
@@ -91,61 +93,73 @@
     </th:block>
 </div>
 
-    <!-- 댓글 작성 영역 -->
-    <div class="p-4 bg-white rounded-4 shadow-sm mb-4">
-        <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
-        <th:block sec:authorize="isAuthenticated()">
-            <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST"
-                  style="display: flex; gap: 10px; align-items: stretch;">
-                <textarea name="reply_content" placeholder="댓글을 입력하세요" required
-                          style="resize: none; flex-grow: 1; height: 60px;" class="form-control"></textarea>
-                <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
-                <input type="hidden" name="board_no" th:value="${board.boardNo}">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            </form>
-        </th:block>
-        <th:block sec:authorize="isAnonymous()">
-            <p>로그인 후 댓글을 작성할 수 있습니다.</p>
-        </th:block>
-    </div>
 
-    <!-- 댓글 리스트 출력 영역 -->
-    <div id="reply_list">
-        <div th:each="reply : ${replyList}" class="reply-item">
-            <div class="reply-content">
-                <span th:text="${reply.memberName}"></span> :
-                <span th:text="${reply.reply_content}"></span>
+
+   <!-- 댓글 작성 영역 -->
+<div class="p-4 bg-white rounded-4 shadow-sm mb-4">
+    <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
+    <th:block sec:authorize="isAuthenticated()">
+        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST"
+              style="display: flex; gap: 10px; align-items: stretch;">
+            <textarea name="reply_content" placeholder="댓글을 입력하세요" required
+                      style="resize: none; flex-grow: 1; height: 60px;" class="form-control"></textarea>
+            <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
+            <input type="hidden" name="board_no" th:value="${board.boardNo}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        </form>
+    </th:block>
+    <th:block sec:authorize="isAnonymous()">
+        <p>로그인 후 댓글을 작성할 수 있습니다.</p>
+    </th:block>
+</div>
+
+<!-- 댓글 + 대댓글 리스트 -->
+    <div th:each="reply : ${replyList}" class="reply-item mb-3 p-3 border rounded-3">
+    <div class="reply-container">
+        <div class="reply-info d-flex justify-content-between">
+            <div class="reply-author">
+                <span th:text="${reply.memberName}">작성자 이름</span>
+                <span th:text="${reply.timeAgo}">몇시간 전</span>
             </div>
-
-            <button type="button" class="btn btn-link" th:onclick="|showReplyForm(${reply.reply_no})|">댓글 달기</button>
-
-            <!-- 대댓글 입력 폼 -->
-            <div class="reply-form" th:id="'reply-form-' + ${reply.reply_no}">
-                <form th:action="@{/replies/{parentReplyNo}/createSubReply(parentReplyNo=${reply.reply_no})}" method="POST"
-                      style="display: flex; gap: 10px; align-items: stretch;">
-                    <textarea name="reply_content" placeholder="댓글을 입력하세요" required
-                              class="form-control" style="resize: none; flex-grow: 1; height: 60px;"></textarea>
-                    <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
-                    <input type="hidden" name="board_no" th:value="${board.boardNo}">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                </form>
+            <div class="reply-actions">
+                <button type="button" class="btn btn-sm btn-outline-warning" th:onclick="|reportReply(${reply.reply_no})|">신고</button>
             </div>
+        </div>
 
-            <!-- 대댓글 리스트 -->
-            <div class="reply-list">
-                <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item">
-                    <div class="reply-content">
-                        <span th:text="${subReply.memberName}"></span> :
-                        <span th:text="${subReply.reply_content}"></span>
-                    </div>
-                </div>
-            </div>
+        <div class="reply-content">
+            <p th:text="${reply.reply_content}">댓글 내용</p>
+        </div>
+
+        <!-- 답글 버튼 -->
+        <div class="d-flex align-items-center mb-2">
+            <button type="button" class="btn btn-sm btn-outline-primary" th:onclick="|showReplyForm(${reply.reply_no})|">댓글달기</button>
         </div>
     </div>
 
-    <!-- 삭제 JS -->
+    <!-- 대댓글 입력 폼 (기본 숨김) -->
+    <div th:id="'reply-form-' + ${reply.reply_no}" style="display: none;" class="mb-2">
+        <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}" method="POST"
+              style="display: flex; gap: 10px;">
+            <textarea name="reply_content" class="form-control" required style="resize: none; flex-grow: 1; height: 60px;"></textarea>
+            <button type="submit" class="btn btn-secondary">등록</button>
+            <input type="hidden" name="board_no" th:value="${board.boardNo}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        </form>
+    </div>
+
+    <!-- 대댓글 목록 -->
+    <div class="ps-4 border-start mt-2" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
+        <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-1">
+            <div class="reply-content">
+                <strong th:text="${subReply.memberName}">작성자</strong> :
+                <span th:text="${subReply.reply_content}">내용</span>
+            </div>
+        </div>
+    </div>
+</div>
+            
+<!-- 삭제 JS 및 대댓글 폼 표시 JS -->
     <script>
-        const boardNo = /*[[${board.boardNo}]]*/ null;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
@@ -170,9 +184,10 @@
 
         function showReplyForm(replyNo) {
             const form = document.getElementById('reply-form-' + replyNo);
-            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+            form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
         }
     </script>
+
 	
         <!-- Start Editor JS -->
         <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>

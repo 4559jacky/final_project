@@ -2,6 +2,7 @@ package com.mjc.groupware.board.service;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,48 +67,64 @@ public class BoardAttachService {
     }
 
     // 파일 업로드 처리
-    public BoardAttach uploadFile(MultipartFile file, Long boardNo) {
-        if (file.isEmpty()) {
-            return null;
-        }
+    public List<BoardAttach> uploadFiles(List<MultipartFile> files, Long boardNo) {
+        List<BoardAttach> savedAttachments = new ArrayList<>();
+        
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
 
-        String oriName = file.getOriginalFilename();
-        String newName = UUID.randomUUID().toString() + "-" + oriName;
-        String filePath = fileDir + "/" + newName;
+            String oriName = file.getOriginalFilename();
+            if (!isValidFileType(oriName)) {
+                continue;
+            }
 
-        if (!isValidFileType(oriName)) {
-            return null;
-        }
+            String newName = UUID.randomUUID().toString() + "-" + oriName;
+            String filePath = fileDir + "/" + newName;
 
-        try {
-            file.transferTo(new File(filePath));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+            try {
+                File destinationFile = new File(filePath);
+                file.transferTo(destinationFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
 
-        BoardAttach boardAttach = BoardAttach.builder()
+            BoardAttach boardAttach = BoardAttach.builder()
                 .oriName(oriName)
                 .newName(newName)
-                .attachPath(filePath)
+                .attachPath(fileDir + "/" + newName)  // 경로를 상대경로로 변경
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
                 .board(Board.builder().boardNo(boardNo).build())
                 .build();
 
-        return attachRepository.save(boardAttach);
+            savedAttachments.add(attachRepository.save(boardAttach));
+        }
+
+        return savedAttachments;
     }
 
     // 파일 형식 검증 (이미지 파일만 허용)
     private boolean isValidFileType(String fileName) {
-        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp" };
-        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp", "txt" };
+        String fileExtension = getFileExtension(fileName);
+        
         for (String ext : validExtensions) {
             if (fileExtension.equals(ext)) {
                 return true;
             }
         }
         return false;
+    }
+
+    // 파일 확장자 추출 (안전하게 처리)
+    private String getFileExtension(String fileName) {
+        if (fileName != null && fileName.lastIndexOf(".") > 0) {
+            return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        }
+        return "";
     }
 
     // 파일 삭제 (여러 개의 파일을 처리)
