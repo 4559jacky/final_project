@@ -27,9 +27,12 @@ public class ReplyDto {
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
     
+    private String timeAgo; // 댓글 등록(작성자 => 몇시간전 등록)
+    
     private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 목록
     
-    
+    // 새로 추가된 프로필 이미지 URL 필드
+    private String profileImageUrl;  // 작성자의 프로필 이미지 URL
 
     /**
      * DTO -> Entity 변환
@@ -44,7 +47,7 @@ public class ReplyDto {
                 .parentReply(parent_reply_no != null ? Reply.builder().replyNo(parent_reply_no).build() : null)
                 .build();
     }
-
+    
     /**
      * Entity -> DTO 변환
      */
@@ -52,7 +55,7 @@ public class ReplyDto {
         return ReplyDto.builder()
                 .reply_no(reply.getReplyNo())
                 .member_no(reply.getMember() != null ? reply.getMember().getMemberNo() : null)
-                .memberName(reply.getMember() != null ? reply.getMember().getMemberName() : null)  // 추가
+                .memberName(reply.getMember() != null ? reply.getMember().getMemberName() : null)  // 작성자 이름 추가
                 .board_no(reply.getBoard() != null ? reply.getBoard().getBoardNo() : null)
                 .parent_reply_no(reply.getParentReply() != null ? reply.getParentReply().getReplyNo() : null)
                 .reply_content(reply.getReplyContent())
@@ -61,4 +64,7 @@ public class ReplyDto {
                 .mod_date(reply.getModDate())
                 .build();
     }
+
+	public ReplyDto(Reply reply) {
+	}
 }

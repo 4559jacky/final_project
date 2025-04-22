@@ -33,6 +33,15 @@
       <div class="mb-3 text-end">
         <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
       </div>
+      
+<!-- 고정 게시글 체크박스 처리 (체크 안했을 때도 false 전달되도록) -->
+<input type="hidden" name="is_fixed" value="false">
+<div class="form-check mb-3">
+  <input class="form-check-input" type="checkbox" id="is_fixed" name="is_fixed" value="true">
+  <label class="form-check-label" for="is_fixed">
+    게시글 상단에 고정
+  </label>
+</div>
 
       <!-- 제목 -->
       <div class="row mb-3 align-items-center">

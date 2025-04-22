@@ -63,3 +63,86 @@
         .reply-form button {
             margin-left: 10px;
         }
+        
+        .toastui-editor-contents img {
+    		max-width: 100%;
+    		height: auto;
+    		display: block;
+ 
+		}
+
+		.toastui-editor-contents{
+	 		color: black !important;
+		}
+		
+		/* 고정된 게시글에 적용될 스타일 */
+		.fixed-post {
+    		background-color: #9b4dca; /* 보라색 배경 */
+    		color: white; /* 글자 색상은 하얀색 */
+    		font-weight: bold; /* 글자를 굵게 */
+    		border-radius: 8px; /* 테두리 둥글게 */
+    		padding: 5px 10px; /* 안쪽 여백 */
+		}
+		
+		/* 댓글 기본 스타일 */
+		.reply-item {
+    		margin-bottom: 15px;
+    		padding: 10px;
+    		border: 1px solid #ddd;
+    		border-radius: 5px;
+    		background-color: #f9f9f9;
+		}
+
+		/* 대댓글의 들여쓰기 */
+		.sub-reply-item {
+    		margin-left: 30px; /* 들여쓰기 */
+    		background-color: #f0f0f0; /* 대댓글 배경색 변경 */
+		}
+
+		/* 댓글의 작성자 및 내용 스타일 */
+		.reply-author {
+    		font-weight: bold;
+		}
+
+		.reply-content {
+    		margin-top: 5px;
+    		font-size: 1rem;
+		}
+
+		/* 대댓글의 작성자 및 내용 스타일 */
+		.sub-reply-item .reply-author {
+    		font-weight: bold;
+		}
+
+		.sub-reply-item .reply-content {
+    		margin-top: 5px;
+    		font-size: 1rem;
+		}
+		/* 댓글 기본 스타일 */
+		.reply-item {
+    		position: relative;
+    		padding-left: 10px; /* 기본 들여쓰기 */
+    		border-left: 3px solid #ddd; /* 왼쪽에 테두리 */
+		}
+
+		/* 대댓글은 더 많이 들여쓰기 */
+		.sub-reply-item {
+    		padding-left: 30px; /* 대댓글은 더 많은 들여쓰기 */
+    		border-left: 3px solid #bbb; /* 대댓글은 다른 색상의 테두리 */
+		}
+
+/* 댓글/대댓글 들여쓰기 효과를 위한 클래스 추가 */
+.reply-container {
+    margin-left: 20px;
+}
+
+/* 댓글/대댓글은 flex로 배치하여 지그재그 형태를 강조 */
+.reply-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.reply-actions {
+    margin-left: auto;
+}
+
