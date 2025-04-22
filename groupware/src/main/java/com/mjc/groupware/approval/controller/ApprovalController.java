@@ -267,6 +267,31 @@ public class ApprovalController {
 		return resultMap;
 	}
 	
+	// 결재자 - 반려버튼
+	@PostMapping("/approval/companion/{id}")
+	@ResponseBody
+	public Map<String,String> approvalFailApi(@PathVariable("id") Long id, @RequestParam("decision_reason") String reason, @AuthenticationPrincipal UserDetails userDetails) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 반려에 실패하였습니다.");
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+		
+		int result = service.approvalFailApi(id, reason, member);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 반려되었습니다.");
+		}
+		
+		return resultMap;
+	}
+	
 	// 합의자 - 수락버튼
 	@PostMapping("/approval/agree/{id}")
 	@ResponseBody
@@ -275,7 +300,7 @@ public class ApprovalController {
 		
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "결재 수락에 실패하였습니다.");
-		
+		System.out.println("test");
 		String userId = userDetails.getUsername();
 		
 

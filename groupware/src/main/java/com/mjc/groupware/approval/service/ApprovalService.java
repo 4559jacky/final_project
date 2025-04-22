@@ -1,6 +1,5 @@
 package com.mjc.groupware.approval.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +23,9 @@ import com.mjc.groupware.approval.repository.ApprApproverRepository;
 import com.mjc.groupware.approval.repository.ApprReferencerRepository;
 import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
-import com.mjc.groupware.approval.vo.ApprApproverVo;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +40,7 @@ public class ApprovalService {
 	private final ApprAgreementerRepository apprAgreementerRepository;
 	private final ApprReferencerRepository apprReferencerRepository;
 	private final ApprovalMapper approvalMapper;
+	private final MemberRepository memberRepository;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
@@ -136,7 +137,7 @@ public class ApprovalService {
 			// 합의자
 			agreementerDto.setAppr_no(apprNo);
 			if(approvalDto.getAgreementer_no() != null) {
-				agreementerDto.setAgreementer_no(approvalDto.getAgreementer_no());
+				agreementerDto.setAgreementers(approvalDto.getAgreementer_no());
 				List<ApprAgreementer> agreementerList = agreementerDto.toEntityList();
 				for(ApprAgreementer entity : agreementerList) {
 					try {
@@ -151,7 +152,7 @@ public class ApprovalService {
 			// 참조자
 			referencerDto.setAppr_no(apprNo);
 			if(approvalDto.getReferencer_no() != null) {
-				referencerDto.setReferencer_no(approvalDto.getReferencer_no());
+				referencerDto.setReferencers(approvalDto.getReferencer_no());
 				List<ApprReferencer> referencerList = referencerDto.toEntityList();
 				for(ApprReferencer entity : referencerList) {
 					try {
@@ -212,7 +213,7 @@ public class ApprovalService {
 		return referencerList;
 	}
 	
-	// 결재자 - 결재 승인
+	// 결재자 - 결재 승인(Dto에 Setter)
 	@Transactional(rollbackFor = Exception.class)
 	public int approvalSuccessApi(Long id, MemberDto member) {
 		
@@ -225,11 +226,17 @@ public class ApprovalService {
 			
 			// 결재의 순서와 결재자의 순서가 같을 때
 			if(approval.getApprOrderStatus() == approver.getApproverOrder()) {
-				approval.setApprOrderStatus(approval.getApprOrderStatus()+1);
-				approver.setApproverDecisionStatus("C");
 				
-				Approval approvalEntity = approvalRepository.save(approval);
-				apprApproverRepository.save(approver);
+				ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
+				ApprApproverDto approverDto = new ApprApproverDto().toDto(approver);
+				approvalDto.setAppr_order_status(approval.getApprOrderStatus()+1);
+				approverDto.setApprover_decision_status("C");
+				
+				Approval approvalParam = approvalDto.toEntity();
+				ApprApprover approverParam = approverDto.toEntity();
+				
+				Approval approvalEntity = approvalRepository.save(approvalParam);
+				ApprApprover approverEntity = apprApproverRepository.save(approverParam);
 				
 				
 				// 모든 합의자맵핑 데이터 찾기
@@ -249,8 +256,13 @@ public class ApprovalService {
 				}
 				
 				if(vali == false) {
-					approval.setApprStatus("C");
-					approvalRepository.save(approval);
+					ApprovalDto approvalDto2 = new ApprovalDto().toDto(approvalEntity);
+					approvalDto2.setAppr_status("C");
+					approvalDto2.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
+					
+					Approval approvalParam2 = approvalDto2.toEntity();
+					
+					approvalRepository.save(approvalParam2);
 				}
 				
 			}
@@ -261,9 +273,48 @@ public class ApprovalService {
 		
 		return result;
 	}
+	
+	
+	// 결재자 - 결재 반려(Dto에 Setter)
+	public int approvalFailApi(Long id, String reason, MemberDto member) {
+		int result = 0;
+		
+		try {
+			// 결재자맵핑 데이터를 찾아서 상태변경
+			ApprApprover approver = apprApproverRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
+			
+			ApprApproverDto approverDto = new ApprApproverDto().toDto(approver);
+			
+			approverDto.setApprover_decision_status("R");
+			approverDto.setDecision_reason(reason);
+			
+			ApprApprover approvalParam = approverDto.toEntity();
+			
+			ApprApprover approverEntity = apprApproverRepository.save(approvalParam);
+			
+			Approval approval = approvalRepository.findById(id).orElse(null);
+			
+			ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
+			
+			approvalDto.setAppr_status("R");
+			approvalDto.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
+			approvalDto.setAppr_reason(approverEntity.getDecisionReason());
+			
+			Approval approvalEntity = approvalDto.toEntity();
+			
+			approvalRepository.save(approvalEntity);
+			
+			result = 1;
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
 
 	
-	// 합의자 - 결재 수락
+	// 합의자 - 결재 수락(Dto에 setter)
 	@Transactional(rollbackFor = Exception.class)
 	public int approvalAgreeApi(Long id, MemberDto member) {
 		
@@ -273,9 +324,12 @@ public class ApprovalService {
 			
 			// 합의자맵핑 데이터를 찾아서 상태변경
 			ApprAgreementer agreementer = apprAgreementerRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
+			ApprAgreementerDto agreementerDto = new ApprAgreementerDto().toDto(agreementer);
+			agreementerDto.setAgreementer_agree_status("C");
 			
-			agreementer.setAgreementerAgreeStatus("C");
-			apprAgreementerRepository.save(agreementer);
+			ApprAgreementer agreementerParam = agreementerDto.toEntity();
+			
+			apprAgreementerRepository.save(agreementerParam);
 			
 			// 모든 합의자맵핑 데이터 찾기
 			List<ApprAgreementer> agreementerList = apprAgreementerRepository.findAllByApproval_ApprNo(id);
@@ -294,9 +348,13 @@ public class ApprovalService {
 				// checkAgreeStatus가 0이면 모든 합의자가 동의 -> 결재 순서상태 1로 변환
 				if(checkAgreeStatus == 0) {
 					Approval approval = approvalRepository.findById(id).orElse(null);
-					approval.setApprOrderStatus(1);
-					approval.setApprStatus("D");
-					approvalRepository.save(approval);
+					ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
+					approvalDto.setAppr_order_status(1);
+					approvalDto.setAppr_status("D");
+					
+					Approval approvalParam = approvalDto.toEntity();
+					
+					approvalRepository.save(approvalParam);
 				}
 			}
 			result = 1;
@@ -304,10 +362,12 @@ public class ApprovalService {
 			e.printStackTrace();
 		}
 		
-		
 		return result;
+		
 	}
 
+	
+	// 합의자 - 결재 거절(Dto에 Setter)
 	public int approvalRejectApi(Long id, String reason, MemberDto member) {
 		
 		int result = 0;
@@ -316,15 +376,24 @@ public class ApprovalService {
 			
 			// 합의자맵핑 데이터를 찾아서 상태변경
 			ApprAgreementer agreementer = apprAgreementerRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
-			agreementer.setAgreementerAgreeStatus("R");
-			agreementer.setAgreeReason(reason);
-			ApprAgreementer entity = apprAgreementerRepository.save(agreementer);
+			ApprAgreementerDto agreementerDto = new ApprAgreementerDto().toDto(agreementer);
+			
+			agreementerDto.setAgreementer_agree_status("R");
+			agreementerDto.setAgree_reason(reason);
+			
+			ApprAgreementer agreementerParam = agreementerDto.toEntity();
+			
+			ApprAgreementer entity = apprAgreementerRepository.save(agreementerParam);
 			
 			Approval approval = approvalRepository.findById(id).orElse(null);
-			approval.setApprStatus("R");
-			approval.setApprResDate(entity.getAgreementerAgreeStatusTime());
-			approval.setApprReason(entity.getAgreeReason());
-			approvalRepository.save(approval);
+			ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
+			approvalDto.setAppr_status("R");
+			approvalDto.setAppr_res_date(entity.getAgreementerAgreeStatusTime());
+			approvalDto.setAppr_reason(entity.getAgreeReason());
+			
+			Approval approvalParam = approvalDto.toEntity();
+			
+			approvalRepository.save(approvalParam);
 			
 			result = 1;
 			

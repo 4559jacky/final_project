@@ -28,12 +28,13 @@ public class ApprAgreementerDto {
 	private LocalDateTime agreementer_agree_status_time;
 	private String agree_reason;
 	private Long appr_no;
-	private List<Long> agreementer_no;
+	private List<Long> agreementers;
+	private Long agreementer;
 	
 	public List<ApprAgreementer> toEntityList() {
 		List<ApprAgreementer> entityList = new ArrayList<>();
 		
-		for(Long no : agreementer_no) {
+		for(Long no : agreementers) {
 			ApprAgreementer agreementer = ApprAgreementer.builder()
 					.agreementerAgreeStatus("W")
 					.agreementerAgreeStatusTime(agreementer_agree_status_time)
@@ -46,5 +47,26 @@ public class ApprAgreementerDto {
 		}
 		
 		return entityList;
+	}
+	
+	public ApprAgreementer toEntity() {
+		return ApprAgreementer.builder()
+				.apprAgreementerNo(appr_agreementer_no)
+				.agreementerAgreeStatus(agreementer_agree_status)
+				.agreeReason(agree_reason)
+				.approval(Approval.builder().apprNo(appr_no).build())
+				.member(Member.builder().memberNo(agreementer).build())
+					.build();
+		}
+	
+	public ApprAgreementerDto toDto(ApprAgreementer agreementer) {
+		return ApprAgreementerDto.builder()
+				.appr_agreementer_no(agreementer.getApprAgreementerNo())
+				.agreementer_agree_status(agreementer.getAgreementerAgreeStatus())
+				.agreementer_agree_status_time(agreementer.getAgreementerAgreeStatusTime())
+				.agree_reason(agreementer.getAgreeReason())
+				.appr_no(agreementer.getApproval().getApprNo())
+				.agreementer(agreementer.getMember().getMemberNo())
+				.build();
 	}
 }

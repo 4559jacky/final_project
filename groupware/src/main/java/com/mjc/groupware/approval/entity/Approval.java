@@ -27,7 +27,6 @@ import lombok.Setter;
 @Entity
 @Table(name="approval")
 @Getter
-@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor

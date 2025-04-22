@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.member.entity.Member;
@@ -31,6 +32,7 @@ public class ApprApproverDto {
 	
 	// 여러 명의 결재자
 	private List<Long> approvers;
+	private Long approver;
 	
 	public List<ApprApprover> toEntityList() {
 	    List<ApprApprover> entityList = new ArrayList<>();
@@ -53,18 +55,27 @@ public class ApprApproverDto {
 	    return entityList;
 	}
 	
-	public ApprovalDto toDto(Approval approval) {
-		return ApprovalDto.builder()
-				.appr_reg_date(approval.getApprRegDate())
-				.appr_res_date(approval.getApprResDate())
-				.appr_title(approval.getApprTitle())
-				.appr_text(approval.getApprText())
-				.appr_status(approval.getApprStatus())
-				.appr_order_status(approval.getApprOrderStatus())
-				.appr_reason(approval.getApprReason())
-				.start_date(approval.getStartDate())
-				.end_date(approval.getEndDate())
-				.approval_type_no(approval.getApprovalForm().getApprovalFormNo())
+	public ApprApprover toEntity() {
+		return ApprApprover.builder()
+				.apprApproverNo(appr_approver_no)
+				.approverOrder(approver_order)
+				.approverDecisionStatus(approver_decision_status)
+				.approverDecisionStatusTime(approver_decision_status_time)
+				.decisionReason(decision_reason)
+				.approval(Approval.builder().apprNo(appr_no).build())
+				.member(Member.builder().memberNo(approver).build())
+				.build();
+	}
+	
+	public ApprApproverDto toDto(ApprApprover approver) {
+		return ApprApproverDto.builder()
+				.appr_approver_no(approver.getApprApproverNo())
+				.approver_order(approver.getApproverOrder())
+				.approver_decision_status(approver.getApproverDecisionStatus())
+				.approver_decision_status_time(approver.getApproverDecisionStatusTime())
+				.decision_reason(approver.getDecisionReason())
+				.appr_no(approver.getApproval().getApprNo())
+				.approver(approver.getMember().getMemberNo())
 				.build();
 	}
 	

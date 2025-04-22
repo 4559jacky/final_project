@@ -239,7 +239,6 @@
 
 				<!-- 결재자 합의자 버튼 - 반려상태가 아닐때 -->
 				<th:block th:if="${approval.apprStatus != 'R'}">
-					
 					<!-- 결재자 - 결재를 안했을 때 -->
 					<th:block th:each="approver : ${approverList}">
 						<th:block
@@ -247,7 +246,8 @@
 							<th:block th:if="${approver.approverDecisionStatus == 'W'}">
 								<div class="d-flex justify-content-end gap-2">
 									<button class="btn btn-primary px-4" onclick="approval();">승인</button>
-									<button class="btn btn-danger px-4" onclick="companion();">반려</button>
+									<button class="btn btn-danger px-4" data-bs-toggle="modal"
+										data-bs-target="#decisionReasonModal">반려</button>
 								</div>
 							</th:block>
 						</th:block>
@@ -271,8 +271,36 @@
 			</div>
 		</div>
 	</div>
+	
+	<!-- 결재자 결재 반려 모달창 -->
+	<div class="modal fade" id="decisionReasonModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 반려 사유</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<form name="companion_form" method="post" th:action="@{'/approval/companion/' + ${approval.apprNo}}">
+					<div class="modal-body">
+						<div class="row mb-4">
+							<textarea class="form-control shadow-sm rounded-3" rows="8"
+								placeholder="결재 반려 사유를 입력해주세요.(1000자 이내)" name="decision_reason"
+								style="resize: none; font-size: 1rem;" id="approvalCompanionReason"></textarea>
+						</div>
+					</div>
+					<BR>
+					<div class="modal-footer justify-content-end">
+						<button type="submit" class="btn btn-danger px-4">반려</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
-	<!-- 결재 거절 모달창 -->
+	<!-- 합의자 결재 거절 모달창 -->
 	<div class="modal fade" id="approvalReasonModal" tabindex="-1"
 		aria-hidden="true">
 		<div class="modal-dialog" style="max-width: 1000px;">
@@ -372,44 +400,6 @@
 		    }
 		});
 		
-		// 합의자 거절 버튼
-		/* const reject = function(e) {
-			apprNo = document.getElementById('approvalNo').value;
-			rejectReason = document.getElementById('approvalRejectReason').value;
-			const data = new URLSearchParams();
-			data.append('rejectReason', rejectReason);
-			console.log(rejectReason);
-			if(rejectReason) {
-				if(confirm('결재를 거절하시겠습니까?')) {
-					const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
-				    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-					fetch('/approval/reject/'+apprNo, {
-						method:'post',
-						headers: {
-						      'Content-Type': 'application/json',
-						      [csrfHeaderName]: csrfToken
-						},
-						body:data
-					})
-					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
-						if(data.res_code =='200') {
-							console.log('성공');
-							location.href = '/approval/receive/detail/'+apprNo;
-						}
-					})
-					.catch(error => {
-					    console.error("에러 발생:", error);
-					    alert("에러 발생: " + error.message);
-					});
-				}
-			} else {
-				alert('사유를 입력해주세요.');
-			}
-			
-		} */
-		
 		
 		const approval = function(){
 			apprNo = document.getElementById('approvalNo').value;
@@ -432,6 +422,45 @@
 				})
 			}
 		}
+		
+		const companionForm = document.companion_form;
+		
+		companionForm.addEventListener('submit', (e) => {
+		    e.preventDefault();
+
+		    const apprNo = document.getElementById('approvalNo').value;
+		    const companionReason = document.getElementById('approvalCompanionReason').value;
+
+		    if (companionReason) {
+		        if (confirm('결재를 반려하시겠습니까?')) {
+		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		            const payload = new FormData(companionForm);
+
+		            fetch('/approval/companion/' + apprNo, {
+		                method: 'post',
+		                headers: {
+		                    [csrfHeaderName]: csrfToken
+		                },
+		                body: payload
+		            })
+		                .then(response => response.json())
+		                .then(data => {
+		                    alert(data.res_msg);
+		                    if (data.res_code == '200') {
+		                        console.log('성공');
+		                        location.href = '/approval/receive/detail/' + apprNo;
+		                    }
+		                })
+		                .catch(error => {
+		                    console.error("에러 발생:", error);
+		                    alert("에러 발생: " + error.message);
+		                });
+		        }
+		    } else {
+		        alert('사유를 입력해주세요.');
+		    }
+		});
 
 	</script>
 
