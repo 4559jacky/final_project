@@ -34,15 +34,19 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final BoardAttachService boardAttachService;
 
+    /**
+     * 게시글 생성 - 고정글 여부 포함
+     */
+    @Transactional
     public Board createBoard(BoardDto dto, List<MultipartFile> files) {
         Member member = memberRepository.findById(dto.getMember_no())
-                                       .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
 
         Board board = Board.builder()
                 .boardTitle(dto.getBoard_title())
                 .boardContent(dto.getBoard_content())
-                .boardStatus("N")
-                .isFixed(dto.getIs_fixed() != null ? dto.getIs_fixed() : false)  // null 체크 후 기본값 false 처리
+                .boardStatus("N") // 기본 상태 'N'
+                .isFixed(dto.getIs_fixed() != null ? dto.getIs_fixed() : false)
                 .member(member)
                 .build();
 
@@ -52,6 +56,7 @@ public class BoardService {
 
         Board savedBoard = repository.save(board);
 
+        // 첨부파일이 있으면 저장
         if (files != null && !files.isEmpty()) {
             List<BoardAttach> attaches = boardAttachService.uploadFiles(files, savedBoard.getBoardNo());
             savedBoard.getAttachList().addAll(attaches);
@@ -59,20 +64,29 @@ public class BoardService {
 
         return savedBoard;
     }
-    
 
+    /**
+     * 단일 게시글 조회
+     */
     @Transactional(readOnly = true)
     public Optional<Board> selectBoardOne(Long boardNo) {
         return repository.findById(boardNo);
     }
 
+    /**
+     * 조회수 증가
+     */
     @Transactional
     public void updateViews(Long boardNo) {
-        repository.updateViews(boardNo);  // native 쿼리로 조회수만 증가시킴
+        repository.updateViews(boardNo);
     }
 
+    /**
+     * 게시글 목록 조회 (검색 및 페이징 포함)
+     */
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
         Sort sort;
+
         if (searchDto.getOrder_type() == 1) { // 최신순
             sort = Sort.by(Sort.Direction.DESC, "regDate");
         } else if (searchDto.getOrder_type() == 2) { // 오래된순
@@ -80,13 +94,13 @@ public class BoardService {
         } else if (searchDto.getOrder_type() == 3) { // 조회순
             sort = Sort.by(Sort.Direction.DESC, "views");
         } else {
-            sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본값: 최신순
+            sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본 최신순
         }
 
         Pageable pageable = PageRequest.of(pageDto.getNowPage() - 1, pageDto.getNumPerPage(), sort);
 
         Specification<Board> spec = Specification.where(
-            (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
+                (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
         );
 
         String keyword = searchDto.getSearch_text();
@@ -94,36 +108,59 @@ public class BoardService {
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             switch (searchType) {
-                case 1: spec = spec.and(BoardSpecification.boardTitleContains(keyword)); break;
-                case 2: spec = spec.and(BoardSpecification.boardContentContains(keyword)); break;
-                case 3: spec = spec.and(BoardSpecification.boardTitleContains(keyword)
-                        .or(BoardSpecification.boardContentContains(keyword))); break;
+                case 1:
+                    spec = spec.and(BoardSpecification.boardTitleContains(keyword));
+                    break;
+                case 2:
+                    spec = spec.and(BoardSpecification.boardContentContains(keyword));
+                    break;
+                case 3:
+                    spec = spec.and(BoardSpecification.boardTitleContains(keyword)
+                            .or(BoardSpecification.boardContentContains(keyword)));
+                    break;
             }
         }
         return repository.findAll(spec, pageable);
     }
 
+    /**
+     * 고정글 목록 조회
+     */
+    public List<Board> selectFixedBoardList() {
+        return repository.findByBoardStatusAndIsFixed("N", true);
+    }
+
+    /**
+     * 게시글 수정
+     */
     @Transactional(rollbackFor = Exception.class)
     public Board updateBoard(BoardDto boardDto, List<MultipartFile> files) {
         Board board = repository.findById(boardDto.getBoard_no())
-                .orElseThrow(() -> new RuntimeException("해당 게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
         board.setBoardTitle(boardDto.getBoard_title());
         board.setBoardContent(boardDto.getBoard_content());
+        board.setIsFixed(boardDto.getIs_fixed() != null ? boardDto.getIs_fixed() : false);
         board.setModDate(LocalDateTime.now());
 
-        if (boardDto.getDelete_files() != null && !boardDto.getDelete_files().isEmpty()) {
-            boardAttachService.deleteFiles(boardDto.getDelete_files());
+        // 삭제할 파일 처리
+        List<Long> deleteFiles = boardDto.getDelete_files();
+        if (deleteFiles != null && !deleteFiles.isEmpty()) {
+            boardAttachService.deleteFiles(deleteFiles);
         }
 
+        // 새로 업로드된 파일 처리
         if (files != null && !files.isEmpty()) {
-            List<BoardAttach> attaches = boardAttachService.uploadFiles(files, board.getBoardNo());
-            board.getAttachList().addAll(attaches);
+            List<BoardAttach> newAttaches = boardAttachService.uploadFiles(files, board.getBoardNo());
+            board.getAttachList().addAll(newAttaches);
         }
 
         return repository.save(board);
     }
 
+    /**
+     * 게시글 삭제 (논리 삭제)
+     */
     @Transactional(rollbackFor = Exception.class)
     public void deleteBoard(Long boardNo) {
         Board board = repository.findById(boardNo)

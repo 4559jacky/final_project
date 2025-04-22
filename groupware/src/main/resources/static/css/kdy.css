@@ -145,4 +145,9 @@
 .reply-actions {
     margin-left: auto;
 }
+.fixed-row {
+  background-color: #e8d9ff !important;
+  color: black !important;
+}
 
+  

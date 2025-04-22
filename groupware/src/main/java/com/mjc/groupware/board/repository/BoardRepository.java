@@ -14,16 +14,19 @@ import org.springframework.data.repository.query.Param;
 
 import com.mjc.groupware.board.entity.Board;
 
-public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecificationExecutor<Board>{
-	Optional<Board> findByBoardNo(Long boardNo);  // board_no 필드 기준
-	 // 회원 번호와 게시판 상태(TEMP)로 게시글을 조회하는 쿼리 메소드
+public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecificationExecutor<Board> {
+    
+    Optional<Board> findByBoardNo(Long boardNo);
+
     List<Board> findByMemberMemberNoAndBoardStatus(Long memberNo, String boardStatus);
-	Page<Board> findAll(Specification<Board> spec, Pageable pageable);
-	// 목록 조회시 필터링
-	List<Board> findByBoardStatus(String boardStatus);
-	
-	@Modifying
-	@Query(value = "UPDATE board SET views = views + 1 WHERE board_no = :boardNo", nativeQuery = true)
-	void updateViews(@Param("boardNo") Long boardNo);
-	
+
+    Page<Board> findAll(Specification<Board> spec, Pageable pageable);
+
+    List<Board> findByBoardStatus(String boardStatus);
+
+    @Modifying
+    @Query(value = "UPDATE board SET views = views + 1 WHERE board_no = :boardNo", nativeQuery = true)
+    void updateViews(@Param("boardNo") Long boardNo);
+
+    List<Board> findByBoardStatusAndIsFixed(String boardStatus, boolean isFixed);
 }
