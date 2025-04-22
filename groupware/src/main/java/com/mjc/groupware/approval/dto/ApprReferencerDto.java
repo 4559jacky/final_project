@@ -23,12 +23,12 @@ import lombok.ToString;
 public class ApprReferencerDto {
 	private Long appr_referencer_no;
 	private Long appr_no;
-	private List<Long> referencer_no;
+	private List<Long> referencers;
 	
 	public List<ApprReferencer> toEntityList() {
 		List<ApprReferencer> entityList = new ArrayList<>();
 		
-		for(Long no : referencer_no) {
+		for(Long no : referencers) {
 			ApprReferencer referencer = ApprReferencer.builder()
 					.approval(Approval.builder().apprNo(appr_no).build())
 					.member(Member.builder().memberNo(no).build())

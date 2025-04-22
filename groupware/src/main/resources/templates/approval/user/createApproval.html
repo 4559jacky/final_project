@@ -93,9 +93,9 @@
 											<th class="text-center bg-light">일시</th>
 											<td colspan="5">
 												<div class="d-flex align-items-center" style="gap: 8px;">
-													<input type="date" name="start_date" class="form-control"
+													<input type="date" id="start_date" name="start_date" class="form-control"
 														style="width: 200px; height: 36px;"> <span>
-														~ </span> <input type="date" name="end_date" class="form-control"
+														~ </span> <input type="date" id="end_date" name="end_date" class="form-control"
 														style="width: 200px; height: 36px;">
 												</div>
 											</td>
@@ -273,6 +273,21 @@
 			</div>
 		</div>
 	</div>
+	
+	<script>
+		let end_date = document.getElementById('end_date');
+		end_date.addEventListener('change', function(e) {
+			e.preventDefault();
+			let start_date = document.getElementById('start_date').value;
+			if(!start_date) {
+				alert('시작일을 먼저 입력해주세요.');
+				end_date.value = '';
+			} else if(start_date > end_date.value) {
+				alert('종료일은 시작일보다 같거나 늦어져야합니다.');
+				end_date.value = '';
+			}
+		})
+	</script>
 
 
 	<script>
@@ -304,8 +319,6 @@
 		    	  
 		    	  const approvalForm = data.approvalForm;
 		    	  const member = data.member;
-		    	  
-		    	  console.log(approvalForm);
 		    	  
 		    	  const form_div = document.getElementById('form_div');
 		    	  let form_no = document.createElement('input');
@@ -386,7 +399,6 @@
 		    let agreementerList = document.querySelectorAll("th[name='agreementer']");
 
 		    agreementerList.forEach(function(member) {
-		    	console.log(member)
 		    	let text = member.innerText;
 		    	let input = member.querySelector("input[name='agreementer_no']");
 		    	if(input) {
@@ -423,7 +435,30 @@
 	    });
 		
 	})
-		
+	
+	
+	document.getElementById('memberList').addEventListener('click', function(e) {
+	    // 체크박스를 클릭했는지 확인
+	    if (e.target && e.target.classList.contains('member-checkbox')) {
+	        const checkbox = e.target;
+	        const memberValue = checkbox.value;
+	        const isChecked = checkbox.checked;
+	
+	        console.log(`체크박스 클릭됨! value: ${memberValue}, 체크 상태: ${isChecked}`);
+	
+	        // 필요하다면 여기서 추가 작업 가능
+	        // 예: 체크되었을 때 특정 요소에 스타일을 주거나, 리스트에 추가 등
+	        // 이미 추가된 결재자인지 확인
+	        let isAlreadyAddedApprover = Array.from(document.querySelectorAll('.selected_approver')).some(el => el.value === `${memberValue}`);
+	        let isAlreadyAddedReferencer = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === `${memberValue}`);
+	        let isAlreadyAddedAgreementer = Array.from(document.querySelectorAll('.selected_agreementer')).some(el => el.value === `${memberValue}`);
+
+	        if (!(!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer)) { // 중복이 아닐 때만 추가
+	        	alert('이미 등록된 사원입니다. 이동하려면 먼저 해제해주세요.');
+	        	checkbox.checked = false;
+	        }
+	    }
+	});
 		
 	
 	// 결재자 등록
@@ -432,8 +467,6 @@
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
 	        checkedMember.push(checkbox.value);
 	    });
-
-	    console.log(checkedMember);
 
 	    checkedMember.forEach(function(member) {
 	        // 이미 추가된 결재자인지 확인
@@ -454,6 +487,9 @@
 	                li.innerHTML = `<button class="selected_approver btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
 	                
 	                list.appendChild(li);
+	                
+	             	// 해당 checkbox 찾아서 체크 해제
+	                document.querySelector(`.member-checkbox[value="${member}"]`).checked = false;
 	            })
 	            .catch(err => {
 	                console.error("사원 목록 불러오기 실패:", err);
@@ -470,7 +506,6 @@
         // 클릭된 요소가 .selected_approver 버튼인지 확인
         if (event.target && event.target.classList.contains('selected_approver')) {
             let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-            console.log(approverId);
 
             // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
             let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
@@ -488,8 +523,6 @@
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
 	        checkedMember.push(checkbox.value);
 	    });
-
-	    console.log(checkedMember);
 
 	    checkedMember.forEach(function(member) {
 	        // 이미 추가된 합의자인지 확인
@@ -510,6 +543,9 @@
 	                li.innerHTML = `<button class="selected_agreementer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
 	                
 	                list.appendChild(li);
+	                
+	            	// 해당 checkbox 찾아서 체크 해제
+	                document.querySelector(`.member-checkbox[value="${member}"]`).checked = false;
 	            })
 	            .catch(err => {
 	                console.error("사원 목록 불러오기 실패:", err);
@@ -526,7 +562,6 @@
         // 클릭된 요소가 .selected_approver 버튼인지 확인
         if (event.target && event.target.classList.contains('selected_agreementer')) {
             let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-            console.log(approverId);
 
             // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
             let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
@@ -543,8 +578,6 @@
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
 	        checkedMember.push(checkbox.value);
 	    });
-
-	    console.log(checkedMember);
 
 	    checkedMember.forEach(function(member) {
 	        // 이미 추가된 결재자인지 확인
@@ -566,6 +599,9 @@
 	                li.innerHTML = `<button class="selected_referencer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
 	                
 	                list.appendChild(li);
+	                
+	             	// 해당 checkbox 찾아서 체크 해제
+	                document.querySelector(`.member-checkbox[value="${member}"]`).checked = false;
 	            })
 	            .catch(err => {
 	                console.error("사원 목록 불러오기 실패:", err);
@@ -581,7 +617,6 @@
     document.getElementById('referencerList').addEventListener('click', function(event) {
         if (event.target && event.target.classList.contains('selected_referencer')) {
             let referencerId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-            console.log(referencerId);
 
             // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
             let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
@@ -708,7 +743,7 @@
                     
                     if(referencerList.length != index2) {
                     	referencerDiv.appendChild(span);
-                    	referencerDiv.append('/');
+                    	referencerDiv.append(' / ');
                     } else {
                     	referencerDiv.appendChild(span);
                     }
@@ -722,7 +757,6 @@
         bootstrap.Modal.getInstance(document.getElementById("approvalLineModal")).hide();
     };
     
-    
 		
 		// 승인요청 버튼 클릭 시 결재 생성
 		const createApprovalForm = document.create_approval_form;
@@ -731,6 +765,7 @@
 			let valid = false;
 			let valid_msg = '';
 			
+			const approverThList = document.querySelectorAll('#approver th');
 			const hasApprover = Array.from(approverThList).some(th => th.textContent.trim() !== '');
 			
 			if(!createApprovalForm.appr_title.value) {
@@ -739,7 +774,7 @@
 				valid_msg += '시작일을 입력해주세요.';
 			} else if(!createApprovalForm.end_date.value) {
 				valid_msg += '종료일 입력해주세요.';
-			} else if(!hasApprover) {
+			} else if(!hasApprover) {		
 				valid_msg += '결재자는 한명이상 등록되어야합니다.';
 			} else {
 				valid = true;
@@ -748,8 +783,6 @@
 			if(valid == false) {
 				alert(valid_msg);
 			} else {
-				console.log(valid);
-				console.log('test');
 				console.log(document.querySelector("div[name='appr_content']").innerHTML);
 				document.querySelector("input[name='appr_text']").value = 
 					document.querySelector("div[name='appr_content']").innerHTML;
@@ -769,7 +802,6 @@
 				.then(data => {
 					alert(data.res_msg);
 					if(data.res_code =='200') {
-						console.log('성공');
 						location.href = '/approval';
 					}
 				})

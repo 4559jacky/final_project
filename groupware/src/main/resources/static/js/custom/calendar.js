@@ -51,7 +51,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		day : '일',
   };
   var calendarEventsList = "";
-
   /*=====================*/
   // Calendar Select fn.
   /*=====================*/
@@ -80,7 +79,6 @@ document.addEventListener("DOMContentLoaded", function () {
     getModalStartDateEl.value = formatToLocalDatetime(startDate);
     getModalEndDateEl.value = formatToLocalDatetime(rawEndDate);
   };
-
   /*=====================*/
   // Calendar AddEvent fn.
   /*=====================*/
@@ -96,46 +94,6 @@ document.addEventListener("DOMContentLoaded", function () {
     getModalStartDateEl.value = combineDate;
   };
   /*=====================*/
-  // Calender Event Function
-  /*=====================*/
- /* 	var calendarEventClick = function (info) {
-		console.log("이벤트 클릭됨:", info.event);
-    var eventObj = info.event;
-
-	document.getElementById("event-writer").value = eventObj.extendedProps.writer || "";
-	 document.getElementById("event-department").value = eventObj.extendedProps.department || "";
-	 document.getElementById("event-title").value = eventObj.title || "";
-	 document.getElementById("event-start-date").value = eventObj.startStr.slice(0, 10);
-	 document.getElementById("event-end-date").value = eventObj.endStr ? eventObj.endStr.slice(0, 10) : "";
-	 document.getElementById("event-description").value = eventObj.extendedProps.description || "";
-	 
-	 const detailModal = new bootstrap.Modal(document.getElementById("eventModaldetail"));
-	 detailModal.show();
-	 
-    if (eventObj.url) {
-      window.open(eventObj.url);
-
-      info.jsEvent.preventDefault();
-    } else {
-      var getModalEventId = eventObj._def.publicId;
-      var getModalEventLevel = eventObj._def.extendedProps["calendar"];
-      var getModalCheckedRadioBtnEl = document.querySelector(
-        `input[value="${getModalEventLevel}"]`
-      );
-
-      getModalTitleEl.value = eventObj.title;
-      getModalStartDateEl.value = eventObj.startStr.slice(0, 10);
-      getModalEndDateEl.value = eventObj.endStr.slice(0, 10);
-      getModalCheckedRadioBtnEl.checked = true;
-      getModalUpdateBtnEl.setAttribute(
-        "data-fc-event-public-id",
-        getModalEventId
-      );
-      getModalAddBtnEl.style.display = "none";
-      getModalUpdateBtnEl.style.display = "block";
-    }
-  };*/
-  /*=====================*/
   // Active Calender
   /*=====================*/
   let getEvent = null;
@@ -143,38 +101,74 @@ document.addEventListener("DOMContentLoaded", function () {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     selectable: true,
 	locale:'ko',
-	dayMaxEventRows: true,
+	dayMaxEvents: 5,
 	eventDisplay: 'block',
 	editable:true,
-	/*expandRows: true,*/
 	allDaySlot: false,
 	displayEventTime: false, //일정바 앞 시간
 	slotDuration: '00:30:00',
 	initialView: 'dayGridMonth',
 	navLinks: true,
 	nowIndicator:true,
-	googleCalendarApiKey:'',
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,buttonText,
-    events: function(fetchInfo, successCallback,failureCallback){
-		fetch(`/calendar/events?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`)
-		        .then(response => {
-		            if (!response.ok) {
-		                throw new Error("Network response was not ok");
-		            }
-		            return response.json();
-		        })
-		        .then(data => {
-					console.log("이벤트데이터:"+data);
-		            successCallback(data); // FullCalendar에 이벤트 전달
-		        })
-		        .catch(error => {
-		            console.error("Error fetching calendar events:", error);
-		            failureCallback(); // 오류 처리
-		        });
-	},
+	eventSources:[
+		// DB 이벤트 API 호출
+		{
+	    events: function(fetchInfo, successCallback,failureCallback){
+			fetch(`/calendar/events?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}&type=all`)
+			        .then(response => {
+			            if (!response.ok) {
+			                throw new Error("Network response was not ok");
+			            }
+			            return response.json();
+			        })
+			        .then(data => {
+						console.log("이벤트데이터:"+data);
+			            successCallback(data); // FullCalendar에 이벤트 전달
+			        })
+			        .catch(error => {
+			            console.error("Error fetching calendar events:", error);
+			            failureCallback(); // 오류 처리
+			        });
+			}
+		},
+		{
+		// 구글 공휴일 API 호출
+		events: function(fetchInfo, successCallback, failureCallback){
+			const apiKey = 'AIzaSyDMSm14t7HAsnm6mKP_PxZ-O65c_077ZtQ';
+			const calendarId = 'ko.south_korea%23holiday@group.v.calendar.google.com';
+			const timeMin = new Date(fetchInfo.start).toISOString();
+			const timeMax = new Date(fetchInfo.end).toISOString();
+			const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true`;
+
+			fetch(url)
+				.then(response => response.json())
+				.then(data => {
+					if (!data.items) {
+					   console.warn("공휴일 데이터 없음", data);
+					   return successCallback([]);
+					}
+					const holidays = data.items.map(item => ({
+					    title: item.summary,
+					    start: item.start.date,
+					    allDay: true,
+						color: '#ffcccc',
+					    extendedProps: {
+					    	type: 'holiday'
+					    }
+					}));
+					 successCallback(holidays);
+					})
+					 .catch(error => {
+					    console.error("공휴일 불러오기 실패", error);
+					    failureCallback(error);
+					 });
+		}
+	  }
+	],
 	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
 		const eventId = info.event.id;
@@ -265,23 +259,6 @@ document.addEventListener("DOMContentLoaded", function () {
         click: calendarAddEvent,
       },
     },
-    /*eventClassNames: function ({ event: calendarEvent }) {
-		const planType = calendarEvent._def.extendedProps.planType;
-
-		 // 일정 타입에 따라 클래스 반환
-		 switch (planType) {
-		   case "휴가":
-		     return ["event-vacation-bg"];         // 배경 스타일용 클래스
-		   case "부서":
-		     return ["event-department-bg"];
-		   case "개인":
-		     return ["event-personal-bg"];
-		   case "회사":
-		     return ["event-company-bg"];
-		   default:
-		     return ["event-default-bg"];          // 혹시 모를 기본값
-		 }
-    },*/
     windowResize: function (arg) {
       if (checkWidowWidth()) {
         calendar.changeView("listWeek");
@@ -427,33 +404,46 @@ document.addEventListener("DOMContentLoaded", function () {
 	     alert("서버 오류로 등록 실패");
 	   });
   });
-
   /*=====================*/
   // Calendar Initd
   /*=====================*/
   window.calendar = calendar;
   calendar.render();
   
-  // 각 타입별 일정 화면에 출력
+  // 선택된 타입에 따라 달력 이벤트 필터링
   document.querySelectorAll('.legend-item').forEach(item => {
   		item.addEventListener('click', function () {
-  		const selectedType = this.getAttribute('data-type'); // 예: "회사"
-			console.log("selectedType확인:",selectedType);
+  		const selectedType = this.getAttribute('data-type');
 			
   		calendar.getEvents().forEach(event => {
   			const eventType = event.extendedProps.planType;
-			console.log("eventType확인용:",eventType);
-		
 			let shouldShow = false;
 
-			      if (!selectedType || selectedType === "개인") {
-			        shouldShow = true;
-			      } else if (selectedType === "부서") {
-			        shouldShow = eventType === "부서" || eventType === "회사";
-			      } else {
-			        shouldShow = eventType === selectedType;
-			      } 
-			      event.setProp("display", shouldShow ? "block" : "none");
+				switch (selectedType) {
+			          // 전체 선택 시 모든 이벤트 보이기
+			        case '개인':
+			          shouldShow = true;
+			          break;
+
+			        case '부서':
+			          // 부서를 선택하면 부서 + 회사 일정 같이 보기
+			          shouldShow = eventType === '부서' || eventType === '회사';
+			          break;
+
+			        case '회사':
+			          shouldShow = eventType === '회사';
+			          break;
+
+			        case '휴가':
+			          shouldShow = eventType === '휴가';
+			          break;
+
+			        default:
+			          shouldShow = false;
+			          break;
+			      }
+				 
+			      event.setProp('display', shouldShow ? 'block' : 'none');
   		});
   	});
   });

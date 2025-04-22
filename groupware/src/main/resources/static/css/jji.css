@@ -75,3 +75,7 @@
 .table td {
 		color: black !important;
 	}
+	
+.table-responsive tbody tr {
+	cursor: pointer;
+}

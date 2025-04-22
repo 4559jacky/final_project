@@ -40,8 +40,8 @@ public class ChatRoom {
 	private String chatRoomTitle;
 
 	@ManyToOne
-	@JoinColumn(name="member_no")
-	private Member memberNo;	// 생성자 
+	@JoinColumn(name="create_member_no")
+	private Member createMemberNo;	// 생성자 
 	
 	@Column(name="last_msg")
 	private String lastMsg;

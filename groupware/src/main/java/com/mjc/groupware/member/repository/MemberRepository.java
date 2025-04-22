@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.Role;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecificationExecutor<Member> {
 	
@@ -25,6 +26,10 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
 	@Query("SELECT m FROM Member m JOIN m.pos p WHERE m.dept.deptNo = :deptNo ORDER BY p.posOrder ASC")
     List<Member> findAllByDeptNoSortedByPosOrder(@Param("deptNo") Long deptNo);
 
-	List<Member> findByDept(Dept dept);	
+	List<Member> findByDept(Dept dept);
+	
+	List<Member> findByRole_RoleNo(Long roleNo);
+	
+	int countByRole(Role role);
 	
 }

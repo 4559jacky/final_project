@@ -7,8 +7,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.entity.ChatRoom;
+import com.mjc.groupware.chat.entity.ChatMapping;
+import com.mjc.groupware.chat.repository.ChatMappingrepository;
 import com.mjc.groupware.chat.repository.ChatRoomRepository;
 import com.mjc.groupware.chat.specification.ChatRoomSpecification;
 import com.mjc.groupware.member.entity.Member;
@@ -21,7 +25,10 @@ import lombok.RequiredArgsConstructor;
 public class ChatRoomService {
 	
 	private final ChatRoomRepository chatRoomRepository;
+	private final ChatMappingrepository mappingRepository;
 	
+	
+	// 채팅 화면 전환
 	public List<ChatRoom> selectChatRoomAll(){
 		
 		// 현재 로그인한 사용자의 인증정보를 SecurityContextHolder에서 꺼내옴
@@ -38,9 +45,45 @@ public class ChatRoomService {
 
 	    // 조회하고 조회결과 return 
 	    List<ChatRoom> list = chatRoomRepository.findAll(spec, sort);
-		System.out.println(list);
-		return list;
-		
+	    
+	    return list;
+	}
+	
+	// 채팅방 생성
+	@Transactional(rollbackFor = Exception.class)
+	public int createChatRoom(ChatRoomDto dto) {
+		int result = 0;
+		try {
+			
+			ChatRoom chatroom = ChatRoom.builder()
+					.chatRoomTitle(dto.getChat_room_title())
+					.createMemberNo(Member.builder().memberNo(dto.getCreate_member_no()).build())
+					.build();
+			
+			ChatRoom saved = chatRoomRepository.save(chatroom);
+			
+			/*
+			 * // 채팅방 번호 받아오기 Long chatRoomNo = saved.getChatRoomNo();
+			 */
+			
+			//  채팅 매핑 저장
+			for (Long memberNo : dto.getMember_no()) {
+				ChatMapping mappings= ChatMapping.builder()
+						.chatRoomNo(saved)
+						.memberNo(Member.builder().memberNo(memberNo).build())
+						.build();
+				
+				mappingRepository.save(mappings);
+			}
+			
+			result++;
+			
+		}catch(Exception e ) {
+			e.printStackTrace();
+		}
+
+		return result;
+
 	}
 	
 }

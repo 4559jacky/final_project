@@ -7,6 +7,7 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
@@ -86,9 +87,19 @@
 
 		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form class="position-relative" action="/approval/search" method="get">
-                    <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Product">
-                    <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+			<form class="d-flex align-items-center gap-2 flex-wrap" action="/approval/receive" method="get">
+				<select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+		          <option value="" selected="selected">선택</option>
+		          <option value="appr_title">제목</option>
+		          <option value="member_name">작성자</option>
+		          <option value="approval_form_name">양식 종류</option>
+		        </select>
+                   <div class="position-relative" style="max-width: 350px;">
+		          <input type="text" name="search_text" value="" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Contact">
+		          <button type="submit" class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+		            <i class="ti ti-search fs-6 text-dark"></i>
+		          </button>
+		        </div>
             </form>
 			<button class="btn btn-primary" onclick="createApproval();">결재 작성</button>
 		</div>
@@ -118,7 +129,8 @@
 							th:each="approvalVo, approvalStatus : ${approvalVoList}"
 							th:attr="data-approver-no=${approvalVo.appr_no}">
 							<td th:text="${approvalVoList.size() - approvalStatus.index}">번호</td>
-							<td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td>
+							<td th:text="${approvalVo.appr_title}">제목</td>
+							<!-- <td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td> -->
 							<td th:text="${approvalVo.member_name}">작성자</td>
 							<th:block th:if="${approvalVo.appr_status == 'A'}">
 								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
@@ -135,12 +147,15 @@
 							<!-- 결재 관련자 종류 구분 -->
 							<th:block th:if="${approvalVo.relationship == 'P'}">
 								<td><span class="mb-1 badge text-bg-light">결재자</span></td>
+								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'A'}">
 								<td><span class="mb-1 badge text-bg-light">합의자</span></td>
+								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'R'}">
 								<td><span class="mb-1 badge text-bg-light">참조자</span></td>
+								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
 							</th:block>
 							<td th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
 							<td th:text="${approvalVo.approval_form_name}">양식
@@ -153,14 +168,32 @@
 
 		<!-- Pagination -->
 		<nav class="d-flex justify-content-center mt-4">
-			<ul class="pagination">
-				<li class="page-item disabled"><a class="page-link">‹</a></li>
+			<ul class="pagination mb-0">
+				<li class="page-item">
+			      <a class="page-link"
+			         
+			         aria-label="Previous">
+			        <span aria-hidden="true">&laquo;</span>
+			      </a>
+			    </li>
+			    
+			    <th:block>
+			    
+			    </th:block>
+				
 				<li class="page-item active"><a class="page-link" href="#">1</a></li>
 				<li class="page-item"><a class="page-link" href="#">2</a></li>
 				<li class="page-item"><a class="page-link" href="#">3</a></li>
 				<li class="page-item"><a class="page-link" href="#">...</a></li>
 				<li class="page-item"><a class="page-link" href="#">10</a></li>
-				<li class="page-item"><a class="page-link" href="#">›</a></li>
+				
+				<li class="page-item">
+			      <a class="page-link"
+			         
+			         aria-label="Next">
+			        <span aria-hidden="true">&raquo;</span>
+			      </a>
+			    </li>
 			</ul>
 		</nav>
 	</div>
@@ -170,6 +203,13 @@
 		const createApproval = function() {
 			location.href = '/approval/create';
 		}
+		
+		$(function(){
+			$('.table-responsive tbody tr').on('click',function(){
+				const approvalNo = $(this).data('approver-no');
+				location.href= '/approval/receive/detail/' + approvalNo;
+			})
+		})
 	</script>
 	
 	

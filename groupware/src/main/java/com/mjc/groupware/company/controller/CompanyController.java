@@ -1,5 +1,6 @@
 package com.mjc.groupware.company.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +20,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mjc.groupware.company.dto.CompanyDto;
 import com.mjc.groupware.company.dto.FuncDetailResponseDto;
 import com.mjc.groupware.company.dto.FuncDto;
+import com.mjc.groupware.company.dto.FuncMappingRequestDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.repository.CompanyRepository;
 import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.company.service.FuncService;
+import com.mjc.groupware.member.dto.RoleDto;
+import com.mjc.groupware.member.entity.Role;
+import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.member.service.RoleService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,9 +41,12 @@ public class CompanyController {
 	private final CompanyService service;
 	private final CompanyRepository repository;
 	private final FuncService funcService;
+	private final RoleService roleService;
+	private final MemberRepository memberRepository;
 	
 	@GetMapping("/admin/company")
 	public String companySettingsView(Model model) {
+		// 이미지 보내주기
 		Company latest = repository.findTop1ByOrderByRegDateDesc();
 		
 		if(latest != null) {
@@ -60,10 +69,33 @@ public class CompanyController {
 			model.addAttribute("companyDto", companyDto);
 		}
 		
+		// 기능 리스트 보내주기
 		List<FuncDto> funcList = service.selectPrimaryFuncAll();
 		
 		if(funcList != null) {
 			model.addAttribute("funcList", funcList);			
+		}
+		
+		// 역할 리스트 보내주기
+		List<Role> roleParam = roleService.selectRoleAll();
+		
+		List<RoleDto> roleList = new ArrayList<>();
+				
+		for(Role role : roleParam) {
+			int count = memberRepository.countByRole(role);
+			
+			RoleDto dto = RoleDto.builder()
+					.role_no(role.getRoleNo())
+					.role_name(role.getRoleName())
+					.role_nickname(role.getRoleNickname())
+					.member_count(count)
+					.build();
+			
+			roleList.add(dto);
+		}
+		
+		if(roleList != null && !roleList.isEmpty()) {
+			model.addAttribute("roleList", roleList);
 		}
 		
 		return "/company/settings";
@@ -175,11 +207,14 @@ public class CompanyController {
 			FuncDto func = funcService.selectFuncByFuncNoWithRoles(funcNo);
 			List<FuncDto> children = funcService.selectSubFuncByFuncNoWithRoles(funcNo);
 			
+			List<RoleDto> roleList = roleService.selectRoleDtoAll();
+			
 			return FuncDetailResponseDto.builder()
 					.res_code("200")
 					.res_msg("기능 조회가 정상적으로 완료되었습니다.")
 					.funcDto(func)
 					.funcDtoList(children)
+					.roleDtoList(roleList)
 					.build();
 			
 		} catch(Exception e) {
@@ -189,8 +224,33 @@ public class CompanyController {
 					.res_msg("기능 조회 중 알 수 없는 오류가 발생했습니다.")
 					.funcDto(null)
 					.funcDtoList(Collections.emptyList())
+					.roleDtoList(Collections.emptyList())
 					.build();
 		}
+	}
+	
+	@PostMapping("/admin/company/funcMapping/update")
+	@ResponseBody
+	public Map<String, String> updateFuncMapping(@RequestBody FuncMappingRequestDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "접근 권한 설정 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("FuncMappingRequestDto: {}", dto);
+		
+		try {
+			funcService.updateFuncMapping(dto);
+			
+			resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "접근 권한 설정이 성공적으로 반영되었습니다.");
+		} catch(Exception e) {
+			logger.error("접근 권한 설정 중 예외 발생", e);
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "접근 권한 설정 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
 	}
 	
 }
