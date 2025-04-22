@@ -227,31 +227,52 @@
 				<!-- 동적 양식 영역 -->
 				<div id="approval-content" class="mb-4"
 					th:utext="${approval.apprText}"></div>
-
-				<th:block th:each="approver : ${approverList}">
-					<th:block
-						th:if="${approver.member.memberNo == #authentication.principal.member.memberNo}">
-						<div class="d-flex justify-content-end gap-2">
-							<button class="btn btn-primary px-4" onclick="approval();">승인</button>
-							<button class="btn btn-danger px-4" onclick="companion();">반려</button>
-						</div>
-					</th:block>
+					
+				<th:block th:if="${approval.apprStatus == 'R'}">
+					<div class="mb-4">
+						<h5>반려 사유</h5>
+					</div>
+					<div class="mb-4" id="appr_reason">
+						<span th:text="${approval.apprReason}">반려 사유</span>
+					</div>
 				</th:block>
-				<th:block th:each="agreementer : ${agreementerList}">
-					<th:block
-						th:if="${agreementer.member.memberNo == #authentication.principal.member.memberNo}">
-						<div class="d-flex justify-content-end gap-2">
-							<button class="btn btn-primary px-4" onclick="agree();">수락</button>
-							<button class="btn btn-danger px-4" data-bs-toggle="modal"
-								data-bs-target="#approvalReasonModal">거절</button>
-						</div>
+
+				<!-- 결재자 합의자 버튼 - 반려상태가 아닐때 -->
+				<th:block th:if="${approval.apprStatus != 'R'}">
+					
+					<!-- 결재자 - 결재를 안했을 때 -->
+					<th:block th:each="approver : ${approverList}">
+						<th:block
+							th:if="${approver.member.memberNo == #authentication.principal.member.memberNo}">
+							<th:block th:if="${approver.approverDecisionStatus == 'W'}">
+								<div class="d-flex justify-content-end gap-2">
+									<button class="btn btn-primary px-4" onclick="approval();">승인</button>
+									<button class="btn btn-danger px-4" onclick="companion();">반려</button>
+								</div>
+							</th:block>
+						</th:block>
 					</th:block>
+					
+					<!-- 합의자 - 합의를 안했을 때 -->
+					<th:block th:each="agreementer : ${agreementerList}">
+						<th:block
+									th:if="${agreementer.member.memberNo == #authentication.principal.member.memberNo}">
+						<th:block th:if="${agreementer.agreementerAgreeStatus == 'W'}">
+								<div class="d-flex justify-content-end gap-2">
+									<button class="btn btn-primary px-4" onclick="agree();">수락</button>
+									<button class="btn btn-danger px-4" data-bs-toggle="modal"
+										data-bs-target="#approvalReasonModal">거절</button>
+								</div>
+							</th:block>
+						</th:block>
+					</th:block>
+					
 				</th:block>
 			</div>
 		</div>
 	</div>
 
-	<!-- 결재라인 모달창 -->
+	<!-- 결재 거절 모달창 -->
 	<div class="modal fade" id="approvalReasonModal" tabindex="-1"
 		aria-hidden="true">
 		<div class="modal-dialog" style="max-width: 1000px;">
@@ -390,25 +411,27 @@
 		} */
 		
 		
-		/* function approval(){
-			memberNo = document.getElementById('memberNo').value;
+		const approval = function(){
 			apprNo = document.getElementById('approvalNo').value;
-			
-			fetch('/approval/success/'+memberNo, {
-				method:'post',
-				headers: {
-					[csrfHeader]: csrfToken
-				}
-			})
-			.then(response => response.json())
-			.then(data => {
-				alert(data.res_msg);
-				if(data.res_code =='200') {
-					console.log('성공');
-					location.href = '/approval/receive/detail/'+apprNo;
-				}
-			})
-		} */
+			if(confirm('결재를 승인하시겠습니까?')) {
+				const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+			    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+				fetch('/approval/success/'+apprNo, {
+					method:'post',
+					headers: {
+						[csrfHeaderName]: csrfToken
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code =='200') {
+						console.log('성공');
+						location.href = '/approval/receive/detail/'+apprNo;
+					}
+				})
+			}
+		}
 
 	</script>
 

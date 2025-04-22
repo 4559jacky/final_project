@@ -219,18 +219,42 @@ public class ApprovalService {
 		int result = 0;
 		
 		try {
+			// 결재와 결재자를 찾음
 			Approval approval = approvalRepository.findById(id).orElse(null);
 			ApprApprover approver = apprApproverRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
 			
+			// 결재의 순서와 결재자의 순서가 같을 때
 			if(approval.getApprOrderStatus() == approver.getApproverOrder()) {
-				ApprovalDto approverDto = new ApprovalDto().toDto(approval);
-				approverDto.setAppr_order_status(approval.getApprOrderStatus()+1);
-				ApprApproverVo apprApproverVo = new ApprApproverVo().toVo(approver);
-				apprApproverVo.setApprover_decision_status("C");
-				ApprApprover entity = apprApproverVo.toEntity();
-				apprApproverRepository.save(entity);
+				approval.setApprOrderStatus(approval.getApprOrderStatus()+1);
+				approver.setApproverDecisionStatus("C");
+				
+				Approval approvalEntity = approvalRepository.save(approval);
+				apprApproverRepository.save(approver);
+				
+				
+				// 모든 합의자맵핑 데이터 찾기
+				List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(id);
+				
+				boolean vali = true;
+				int max = 0;
+				
+				for(ApprApprover a : approverList) {
+					if(max < a.getApproverOrder()) {
+						max = a.getApproverOrder();
+					}
+				}
+				
+				if(max < approvalEntity.getApprOrderStatus()) {
+					vali = false;
+				}
+				
+				if(vali == false) {
+					approval.setApprStatus("C");
+					approvalRepository.save(approval);
+				}
+				
 			}
-			
+			result = 1;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

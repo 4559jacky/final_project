@@ -303,7 +303,7 @@ public class ApprovalController {
 	@PostMapping("/approval/reject/{id}")
 	@ResponseBody
 	public Map<String,String> approvalRejectApi(@PathVariable("id") Long id, @RequestParam("agree_reason") String reason, @AuthenticationPrincipal UserDetails userDetails) {
-Map<String,String> resultMap = new HashMap<String,String>();
+		Map<String,String> resultMap = new HashMap<String,String>();
 		
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "결재 거절에 실패하였습니다.");
