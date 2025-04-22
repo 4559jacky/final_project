@@ -92,7 +92,7 @@
 					</ul>
 				</div>
 				 <div class="px-9 py-6 border-top text-center">
-				    <button class="btn btn-primary px-4" type="button">
+				    <button class="btn btn-primary px-4" id="create_btn" type="button">
 				      + 새로운 채팅 추가 
 				    </button>
 				  </div>
@@ -323,8 +323,57 @@
 		</div>
 	</div>
 	
-	
-	
+	<!-- 채팅방 추가 모달 -->
+	<div class="modal fade" id="selectMemberModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered"
+			style="max-width: 800px; width: auto; max-height: none;">
+			<div class="modal-content p-3" style="max-height: none;">
+				<div class="modal-header">
+					<h5 class="modal-title fw-bold fs-4"> 채팅방 추가 </h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<!-- 상단: 조직도 + 사원 목록 -->
+					<div class="row mb-4" style="height: 280px;">
+						<p style="color: gray;">채팅에 추가할 인원을 선택해주세요.</p>
+						<!-- 조직도 -->
+						<div class="col-6 pe-3 border-end d-flex flex-column">
+							<h6 class="fw-semibold mb-2">조직도</h6>
+							<div id="ysw_jstree"
+								class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
+								<!-- JSTree 영역 -->
+							</div>
+						</div>
+
+						<!-- 사원 목록 -->
+						<div class="col-6 ps-3 d-flex flex-column">
+							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
+							<div id="memberListBox"
+								class="h-100 overflow-auto border rounded bg-light p-2" style="max-height: 280px;">
+								<!-- ✅ 스크롤 영역 고정 높이 설정 -->
+								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+					</div><br><br>
+		
+					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
+					<form name="chatRoom_create_form">
+						<input type="hidden" id="chatRoomTitle" name="chat_room_title">
+						<br><br>
+						<div id="selectedUsersInputs"></div>
+						<div class="row gx-3 text-center" style="height: 200px;">
+							<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
+								<ul id="selectMemberList" class="list-group fs-6"></ul>	
+							</div>
+						</div>
+						<div class="modal-footer justify-content-end">
+							<button type="submit" class="btn btn-primary px-4">채팅방 추가</button>
+						</div><bR>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 	
 	
 	
@@ -333,6 +382,79 @@
 	<input type="button" value="전송" onclick="sendMsg();">
 	<div id="output"></div>
 	<script>
+		
+		// 채팅방 추가
+		document.getElementById('create_btn').onclick = function () {
+			const nextModal = new bootstrap.Modal(document.getElementById("selectMemberModal"));
+		    nextModal.show();
+		}
+		
+		// 채팅 인원 선택
+		document.addEventListener("DOMContentLoaded",function(){
+			const selectBtn = document.querySelectorAll(".selectBtn");
+			const selectUserList = document.getElementById("selectMemberList");
+			const selectedUsersInputs = document.getElementById("selectedUsersInputs");
+
+			
+			document.addEventListener("click", function (e) {
+			    if (e.target.classList.contains("selectBtn")) {
+			        const memberNo = e.target.getAttribute("data-id");
+			        const memberName = e.target.getAttribute("data-name");
+			        const memberPos = e.target.getAttribute("data-pos");
+			        
+			        // 중복 방지 
+			        const result = Array.from(selectUserList.querySelectorAll("input[data-id]"))
+		                .some(input => input.getAttribute("data-id") === memberNo);
+	
+		            if (result) {
+		                return;
+		            }
+			        
+			        const li = document.createElement("li");
+			        li.className = "list-group-item";
+			        li.innerHTML = `
+					    <input 
+					        type="button" 
+					        value="-"  
+					        data-id="${memberNo}" 
+					        class="deleteBtn btn-sm btn btn-rounded btn-light">
+					    ${memberName} (${memberPos})
+					`;
+
+					    
+			     // 함께 숨은 input 생성
+			        const hiddenInput = document.createElement("input");
+			        hiddenInput.type = "hidden";
+			        hiddenInput.name = "member_no"; // 백엔드에서 이 name으로 받아요!
+			        hiddenInput.value = memberNo;
+			        hiddenInput.setAttribute("data-id", memberNo);
+
+			        // 리스트와 숨은 input 추가
+			        selectUserList.appendChild(li);
+			        selectedUsersInputs.appendChild(hiddenInput);
+			        
+			    }
+			});
+			
+		});
+		
+		// 회의실 예약 인원 삭제 
+		document.addEventListener("DOMContentLoaded",function(){
+			document.addEventListener("click", function (e) {
+			    if (e.target.classList.contains("deleteBtn")) {
+			    	  const memberNo = e.target.getAttribute("data-id"); // 👈 삭제 대상 ID
+			            const li = e.target.closest("li");
+			            if (li) li.remove();
+
+			            // 해당 memberNo를 가진 hidden input 삭제
+			            const hiddenInput = document.querySelector(`#selectedUsersInputs input[data-id='${memberNo}']`);
+			            if (hiddenInput) hiddenInput.remove();
+			    }
+			});
+			
+		});
+	
+		// 웹소켓 연결 test
 		let socket = new WebSocket("ws://localhost:8080/ws/basic");
 		socket.onopen = function(){
 			// 클라이언트 -> 서버 연결합시다!! 
