@@ -30,4 +30,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long>,JpaSpecifi
 	@Modifying
 	@Query("UPDATE Notice n SET n.views = n.views + 1 WHERE n.noticeNo = :noticeNo")
 	void increaseViews(@Param("noticeNo") Long noticeNo);
+	
+	List<Notice> findByNoticeFixAndNoticeStatusOrderByNoticeNoDesc(String string, String string2);
 }
