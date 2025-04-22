@@ -24,29 +24,43 @@ layout:decorate="~{/include/layout}">
           </div>
           <!-- 검색어 창 -->
          <div class="d-flex justify-content-between align-items-center mb-3">
-			<form action="/approval/search" method="get">
-				<div
-					class="d-flex align-items-center rounded-pill shadow-sm px-3 py-2"
-					style="background-color: white; max-width: 350px; height:40px; border: 1px solid #ced4da;">
-					<button type="submit" class="btn border-0 bg-transparent p-0">
-						<i class="ti ti-search fs-5 text-primary"></i>
-					</button>
-					<input type="text" name="keyword"
-						class="form-control border-0 bg-transparent ms-2"
-						placeholder="검색어를 입력하세요."
-						style="box-shadow: none; background-color: transparent;">
-				</div>
-			</form>
-			<!-- 여기에 색상 안내넣어야함 -->
+
+			<!-- 캘린더 우측 상단에 표시될 색상 안내 -->
+				<style>
+				  .calendar-legend {
+				    display: flex;
+				    gap: 25px;	/* 항목 사이 간격 */
+				    margin-top: 10px;
+				    position: absolute;
+				    top: 0;
+				    right: 0;
+				  }
+				  .legend-item {
+				    display: flex;
+				    align-items: left;
+				    font-size: 15px;
+				    white-space: nowrap; /* 글자가 줄 바뀌지 않도록 */
+				  }
+				  .legend-color {
+				    width: 18px;
+				    height: 18px;
+				    border-radius: 2px;
+				    margin-right: 10px; /* 색 박스와 글자 사이 간격 */
+				  }
+				  .legend-color.company { background-color: rgba(92, 100, 242, 1.0); }    /* 보라색 */
+				  .legend-color.department { background-color: rgba(242, 75, 120, 1.0); } /* 분홍색 */
+				  .legend-color.personal { background-color: rgba(63, 191, 155, 1.0); }   /* 연두색 */
+				  .legend-color.vacation { background-color: rgba(242, 146, 29, 1.0); }   /* 노란색 */
+				</style>
+				<br><br><br><br>
 				<div id="calendar-container" style="position: relative;">
-				    <!-- 캘린더 우측 상단에 표시될 전설(legend) -->
-				    <div class="calendar-legend">
-				      <div class="legend-item"><div class="legend-color company"></div>회사</div>
-				      <div class="legend-item"><div class="legend-color department"></div>부서</div>
-				      <div class="legend-item"><div class="legend-color personal"></div>개인</div>
-				      <div class="legend-item"><div class="legend-color vacation"></div>휴가</div>
-				    </div>
-			    </div>
+				  <div class="calendar-legend">
+				    <div class="legend-item" data-type="회사"><div class="legend-color company"></div>회사</div>
+				    <div class="legend-item" data-type="부서"><div class="legend-color department"></div>부서</div>
+				    <div class="legend-item" data-type="개인"><div class="legend-color personal"></div>개인</div>
+				    <div class="legend-item" data-type="휴가"><div class="legend-color vacation"></div>휴가</div>
+				  </div>
+				</div>
 		</div>
 		<style type="text/css">
 			.fc-day-sun .fc-daygrid-day-number {
@@ -79,7 +93,7 @@ layout:decorate="~{/include/layout}">
                       <div>
                       	<input type="hidden" name="reg_member_no" th:value="${#authentication.principal.member.memberNo}">
                         <label class="form-label">일정명</label>
-                        <input id="event-title" type="text" class="form-control" name="plan_title"/>
+                        <input id="event-title" type="text" class="form-control" name="plan_title" placeholder="일정 제목을 입력하세요."/>
                       </div>
                     </div>
                    <div class="col-md-12 mt-3">
@@ -143,7 +157,7 @@ layout:decorate="~{/include/layout}">
                     수정
                   </button> -->
                   <button type="submit" class="btn btn-primary btn-add-event">
-                    일정등록
+                    등록
                   </button>
                 </div>
               </div>
@@ -203,7 +217,7 @@ layout:decorate="~{/include/layout}">
 
           </script>
           <!-- 상세 MODAL -->
-          <form name="detail_form">
+          <form name="updateForm">
 			<div class="modal fade" id="eventModaldetail" tabindex="-1">
 			  <div class="modal-dialog modal-dialog-centered">
 			    <div class="modal-content p-4">
@@ -216,7 +230,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 고정 -->
 			        <div class="row g-3 mb-3">
 			          <div class="col">
-			          <input type="hidden" name="plan_no" id="detail-event-id" />
+			          <input type="hidden" name="id" id="detail-event-id" />
 			            <label class="form-label">작성자</label>
 			            <input type="text" class="form-control" id="detail-event-writer" readonly style="background-color: #f8f9fa;"/>
 			          </div>
@@ -273,7 +287,7 @@ layout:decorate="~{/include/layout}">
 			        <div class="row g-3 mb-3">
 			          <div class="col">
 			            <label class="form-label">시작일시</label>
-			            <input type="datetime-local" class="form-control" id="detail-event-start-date" name="start_date"/>
+			            <input type="datetime-local" class="form-control" id="detail-event-start-date" name="start_date" />
 			          </div>
 			          <div class="col">
 			            <label class="form-label">종료일시</label>
@@ -294,32 +308,99 @@ layout:decorate="~{/include/layout}">
 	  function handleColorTheme(e) {
 	    document.documentElement.setAttribute("data-color-theme", e);
 	  };
+	// 일정추가 및 상세모달창 시작일시,종료일시 과거 선택안되게 
+	  // 현재 시간 기준 datetime-local 형식 반환 (한국 시간 기준)
+	  function getCurrentDateTimeLocal() {
+	    const now = new Date();
+	    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+	    return now.toISOString().slice(0, 16);
+	  }
+	
+	  // 등록 모달 input
+	  function setupDateValidation(startId,endId){
+		  const startInput = document.getElementById(startId);
+		  const endInput = document.getElementById(endId);
+		  
+		  const nowString = getCurrentDateTimeLocal();
+		// HTML input 태그에 직접 min 설정
+		  if (startInput) {
+		    startInput.min = nowString;
+		    if (!startInput.value) startInput.value = nowString; // 초기값도 설정 가능
+		  }
+		  if (endInput) {
+		    endInput.min = nowString;
+		  }
+	
+	  // 시작일 변경 시 종료일 최소값 설정
+	  if (startInput && endInput) {
+		  startInput.addEventListener("change", () => {
+			 endInput.min = startInput.value;
+	      if (endInput.value && endInput.value < startInput.value) {
+	    	  endInput.value = "";
+	      }
+	    });
+	
+		endInput.addEventListener("change", () => {
+			if (endInput.value <= startInput.value) {
+				  const startTime = new Date(startInput.value);
+				  const formatted = startTime.toLocaleString("ko-KR", {
+				    year: "numeric", month: "2-digit", day: "2-digit",
+				    hour: "2-digit", minute: "2-digit", hour12: true
+				  });
 
-	  // 수정 버튼 클릭
-		/* document.getElementById('btn-update-event').addEventListener('click', function () {
-
-		const planNo = this.dataset.id;
-			
-		  fetch("/plan/"+planNo+"/update/", {
-			    method: "POST",
-			    headers : {
-      	      		'header': document.querySelector('meta[name="_csrf_header"]').content,
-  	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-  				}
-			  })
-			.then(response => response.json())
-      		.then(data => {
-        		   alert(data.res_msg);
-        		   if (data.res_code == 200) {
-                    location.reload();
-        			}
-      		});
-		 }) */
-
+				 endInput.setCustomValidity(`값은 ${formatted} 이후여야 합니다.`);
+				 endInput.reportValidity(); // 툴팁으로 표시
+				 endInput.value = ""; // 잘못된 값 초기화
+			} else {
+				 endInput.setCustomValidity(""); // 정상일 때는 에러 제거
+			}
+	    });
+	  }
+	 }
+	  setupDateValidation("event-start-date", "event-end-date");
+	  setupDateValidation("detail-event-start-date", "detail-event-end-date");
 	  
-	</script>
-	<script>
-		
+	  // 삭제 버튼 클릭
+	  document.addEventListener("DOMContentLoaded", function () {
+	    const deleteBtn = document.getElementById("btn-delete-event");
+	
+	    if (deleteBtn) {
+	      deleteBtn.addEventListener("click", function () {
+	        const planId = document.getElementById("detail-event-id").value;
+	
+	        if (!planId || planId === "undefined") {
+	          alert("삭제할 일정을 찾을 수 없습니다.");
+	          return;
+	        }
+	
+	        fetch("/plan/" + planId, {
+	          method: "DELETE",
+	          headers: {
+	            'Content-Type': 'application/json',
+	            'header': document.querySelector('meta[name="_csrf_header"]').content,
+	            'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	          }
+	        })
+	          .then(res => res.json())
+	          .then(data => {
+	            alert(data.res_msg);
+	            if (data.res_code === "200") {
+	              // 달력 이벤트 새로고침
+	              if (window.calendar) {
+	                window.calendar.refetchEvents();
+	              }
+	              // 모달 닫기
+	              const modal = bootstrap.Modal.getInstance(document.getElementById("eventModaldetail"));
+	              if (modal) modal.hide();
+	            }
+	          })
+	          .catch(err => {
+	            console.error("서버 삭제 실패", err);
+	            alert("삭제 중 오류가 발생했습니다.");
+	          });
+	      });
+	    } 
+	  });
 	</script>
 
   <!-- Import Js Files -->

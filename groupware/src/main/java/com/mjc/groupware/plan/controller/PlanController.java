@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,23 +59,23 @@ public class PlanController {
 	    event.put("color", getColorByType(plan.getPlanType()));
 	    
 	    Map<String, Object> extendedProps = new HashMap<>();
-	    extendedProps.put("calendar", plan.getPlanType());
+	    extendedProps.put("planType", plan.getPlanType());
 	    extendedProps.put("description", plan.getPlanContent());
 
 	    event.put("extendedProps", extendedProps);
 
 	    events.add(event);
+
 		}
 	    return events;
 	}
 
-
 	private String getColorByType(String planType) {
 	    switch (planType) {
-	        case "회사": return "rgba(92, 100, 242, 0.7)";
-	        case "부서": return "rgba(242, 75, 120, 0.7)";
-	        case "개인": return "rgba(63, 191, 155, 0.7)";
-	        case "휴가": return "rgba(242, 146, 29, 0.7)";
+	        case "회사": return "rgba(92, 100, 242, 1.0)";
+	        case "부서": return "rgba(242, 75, 120, 1.0)";
+	        case "개인": return "rgba(63, 191, 155, 1.0)";
+	        case "휴가": return "rgba(242, 146, 29, 1.0)";
 	        default: return "rgba(108, 117, 125, 0.5)"; // 기본 회색 투명
 	    }
 	}
@@ -100,56 +101,18 @@ public class PlanController {
 	@GetMapping("/plan/detail/{id}")
 	@ResponseBody
 	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
-//		System.out.println("planId"+planId);
 	    Plan plan = planService.selectPlanById(planId);
-//	    System.out.println(plan);
 	    PlanDto dto = new PlanDto().toDto(plan);
-//	    System.out.println(dto);
 	    return dto;
 	}
 
 	// 상세모달창 수정
-//	@PostMapping("/plan/update/{id}")
-//	@ResponseBody
-//	public Map<String, String> updatePlanApi(
-//	    @PathVariable Long id,
-//	    @RequestParam String title,
-//	    @RequestParam String content,
-//	    @RequestParam LocalDateTime startDate,
-//	    @RequestParam LocalDateTime endDate,
-//	    @RequestParam String planType) {
-//	    
-//	    Map<String, String> resultMap = new HashMap<>();
-//	    resultMap.put("res_code", "500");
-//	    resultMap.put("res_msg", "일정 수정 중 오류가 발생했습니다.");
-//
-//	    try {
-//	        Plan updated = planService.updatePlanOne(
-//	            id,  
-//	            title,  // 각 필드를 @RequestParam으로 받아서 처리
-//	            content,
-//	            startDate,
-//	            endDate,
-//	            planType
-//	        );
-//	        
-//	        if (updated != null) {
-//	            resultMap.put("res_code", "200");
-//	            resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
-//	        }
-//	    } catch (Exception e) {
-//	        e.printStackTrace();
-//	    }
-//
-//	    return resultMap;
-//	}
 	@PostMapping("/plan/{id}/update")
 	@ResponseBody
 	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto){
 		System.out.println("id값:"+id);
 		System.out.println("받은 title: " + dto.getPlan_title());
 		System.out.println("받은 start_date: " + dto.getStart_date());
-
 
 	    Map<String,String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "500");
@@ -160,20 +123,25 @@ public class PlanController {
 	        resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
 	    }
-
 	    return resultMap;
 	}
 
+	// 상세모달창 삭제
+	@DeleteMapping("plan/{id}")
+	@ResponseBody
+	public Map<String,String> deletePlanApi(@PathVariable("id") Long id){
+		Map<String,String> resultMap = new HashMap<>();
+	    resultMap.put("res_code", "500");
+	    resultMap.put("res_msg", "일정 삭제중 오류가 발생했습니다.");
+	    
+	    int result = planService.deletePlan(id);
+	    if(result > 0) {
+	    	 resultMap.put("res_code", "200");
+		     resultMap.put("res_msg", "일정이 정상적으로 삭제되었습니다.");
+	    }
+	    
+	    return resultMap;
+	}
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }
