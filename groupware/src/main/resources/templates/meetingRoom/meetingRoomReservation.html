@@ -5,6 +5,10 @@
 	layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
 	<link th:href="@{/css/ysw.css}" rel="stylesheet">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	<script th:src="@{/js/ysw/jstree.js}"></script>
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb align-items-center">
@@ -152,31 +156,33 @@
 			style="max-width: 800px; width: auto; max-height: none;">
 			<div class="modal-content p-3" style="max-height: none;">
 				<div class="modal-header">
-					<h5 class="modal-title" style="font-weight: bold; color: black;"> 회의실 예약 </h5>
+					<h5 class="modal-title fw-bold fs-4"> 회의실 예약 </h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
 					<!-- 상단: 조직도 + 사원 목록 -->
 					<div class="row mb-4" style="height: 280px;">
-					<p style="color: gray;">회의에 참석할 인원을 선택해주세요.</p>
+						<p style="color: gray;">회의에 참석할 인원을 선택해주세요.</p>
 						<!-- 조직도 -->
-						<div class="col-6 pe-3 border-end">
+						<div class="col-6 pe-3 border-end d-flex flex-column">
 							<h6 class="fw-semibold mb-2">조직도</h6>
-							<div id="reserve_jstree"
+							<div id="ysw_jstree"
 								class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
 								<!-- JSTree 영역 -->
 							</div>
 						</div>
 
 						<!-- 사원 목록 -->
-						<div class="col-6 ps-3">
+						<div class="col-6 ps-3 d-flex flex-column">
 							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
 							<div id="memberListBox"
-								class="h-100 overflow-auto border rounded bg-light p-2">
-								<ul id="memberList" class="list-group fs-6"></ul>
+								class="h-100 overflow-auto border rounded bg-light p-2" style="max-height: 280px;">
+								<!-- ✅ 스크롤 영역 고정 높이 설정 -->
+								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
-					</div><BR><bR>
+					</div><br><br>
+		
 					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
 					<form name="meetingRoom_reservation_form">
 						<input type="hidden" id="meetingTitle" name="meeting_title">
@@ -184,7 +190,7 @@
 						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
 						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
 						<input type="hidden" id="reservationStatus" name="reservation_status" value="Y">
-						
+						<br><br>
 						<div id="selectedUsersInputs"></div>
 						<div class="row gx-3 text-center" style="height: 200px;">
 							<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
