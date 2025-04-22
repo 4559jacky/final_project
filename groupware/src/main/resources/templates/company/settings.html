@@ -239,7 +239,7 @@ layout:decorate="~{/include/layout}">
 								        	
 										      <span class="fw-medium"
 										        style="cursor: pointer;"
-										        th:text="|${role.role_nickname} (${#strings.substring(role.role_name, 5)})|"
+										        th:text="|${role.role_nickname} (${#strings.substring(role.role_name, 5)}) - ${role.member_count}명|"
 										        th:attr="data-role-no=${role.role_no}">권한 이름</span>
 										    </div>
 										

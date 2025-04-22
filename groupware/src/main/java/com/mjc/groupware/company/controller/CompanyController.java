@@ -26,6 +26,7 @@ import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.company.service.FuncService;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.entity.Role;
+import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.service.RoleService;
 
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class CompanyController {
 	private final CompanyRepository repository;
 	private final FuncService funcService;
 	private final RoleService roleService;
+	private final MemberRepository memberRepository;
 	
 	@GetMapping("/admin/company")
 	public String companySettingsView(Model model) {
@@ -79,10 +81,13 @@ public class CompanyController {
 		List<RoleDto> roleList = new ArrayList<>();
 				
 		for(Role role : roleParam) {
+			int count = memberRepository.countByRole(role);
+			
 			RoleDto dto = RoleDto.builder()
 					.role_no(role.getRoleNo())
 					.role_name(role.getRoleName())
 					.role_nickname(role.getRoleNickname())
+					.member_count(count)
 					.build();
 			
 			roleList.add(dto);
