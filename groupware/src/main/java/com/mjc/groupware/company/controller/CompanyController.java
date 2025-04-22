@@ -235,7 +235,7 @@ public class CompanyController {
 		Map<String, String> resultMap = new HashMap<>();
 		
 		resultMap.put("res_code", "500");
-        resultMap.put("res_msg", "기능-권한 맵핑 중 알 수 없는 오류가 발생했습니다.");
+        resultMap.put("res_msg", "접근 권한 설정 중 알 수 없는 오류가 발생했습니다.");
 		
 		logger.info("FuncMappingRequestDto: {}", dto);
 		
@@ -243,11 +243,11 @@ public class CompanyController {
 			funcService.updateFuncMapping(dto);
 			
 			resultMap.put("res_code", "200");
-	        resultMap.put("res_msg", "기능-권한 맵핑이 성공적으로 반영되었습니다.");
+	        resultMap.put("res_msg", "접근 권한 설정이 성공적으로 반영되었습니다.");
 		} catch(Exception e) {
-			logger.error("기능-권한 맵핑 처리 중 예외 발생", e);
+			logger.error("접근 권한 설정 중 예외 발생", e);
 			resultMap.put("res_code", "500");
-	        resultMap.put("res_msg", "기능-권한 맵핑 중 알 수 없는 오류가 발생했습니다.");
+	        resultMap.put("res_msg", "접근 권한 설정 중 알 수 없는 오류가 발생했습니다.");
 		}
 		
 		return resultMap;
