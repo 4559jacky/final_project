@@ -8,4 +8,6 @@ import com.mjc.groupware.approval.entity.ApprAgreementer;
 
 public interface ApprAgreementerRepository extends JpaRepository<ApprAgreementer, Long> {
 	List<ApprAgreementer> findAllByApproval_ApprNo(Long id);
+	
+	ApprAgreementer findByMember_MemberNoAndApproval_ApprNo(Long memberNo, Long apprNo);
 }

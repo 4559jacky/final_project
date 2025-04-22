@@ -42,6 +42,7 @@ public class ApprovalDto {
 	
 	public Approval toEntity() {
 		return Approval.builder()
+				.apprNo(appr_no)
 				.apprRegDate(appr_reg_date)
 				.apprResDate(appr_res_date)
 				.apprTitle(appr_title)
@@ -58,6 +59,7 @@ public class ApprovalDto {
 	
 	public ApprovalDto toDto(Approval approval) {
 		return ApprovalDto.builder()
+				.appr_no(approval.getApprNo())
 				.appr_reg_date(approval.getApprRegDate())
 				.appr_res_date(approval.getApprResDate())
 				.appr_title(approval.getApprTitle())
@@ -67,6 +69,7 @@ public class ApprovalDto {
 				.appr_reason(approval.getApprReason())
 				.start_date(approval.getStartDate())
 				.end_date(approval.getEndDate())
+				.appr_sender(approval.getMember().getMemberNo())
 				.approval_type_no(approval.getApprovalForm().getApprovalFormNo())
 				.build();
 	}

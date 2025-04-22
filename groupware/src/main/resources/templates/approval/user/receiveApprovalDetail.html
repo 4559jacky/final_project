@@ -7,6 +7,7 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
 		<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -37,12 +38,16 @@
 
 		<div class="container-fluid px-4">
 			<div class="card p-4 shadow-sm border-0 rounded-4 mb-4">
-				<input type="hidden" name="appr_sender"
-					th:value="${#authentication.principal.member.memberNo}">
-
+				<input type="hidden" name="memberNo" id="memberNo"
+					th:value="${#authentication.principal.member.memberNo}"> <input
+					type="hidden" name="approvalNo" id="approvalNo"
+					th:value="${approval.apprNo}">
 				<h4 id="approval_form_name" class="fw-bold text-center mb-4"
 					th:text="${approval.approvalForm.approvalFormName}">양식 제목</h4>
-
+				<div class="text-end" style="min-width: 180px;">
+					작성일 : <span id="reg_date"
+						th:text="${#temporals.format(approval.apprRegDate,'yyyy.MM.dd HH:mm')}"></span>
+				</div>
 				<table class="table table-bordered align-middle">
 					<tbody>
 						<tr>
@@ -61,35 +66,155 @@
 							</td>
 						</tr>
 						<tr>
-							<th class="text-center bg-light">작성일</th>
-							<td colspan="2"><div th:text="${approval.apprRegDate}"></div></td>
 							<th class="text-center bg-light">일시</th>
-							<td><div th:text="${approval.startDate}"></div></td>
-							<td><div th:text="${approval.endDate}"></div></td>
+							<td colspan="5">
+								<div class="d-flex align-items-center" style="gap: 8px;">
+									<div th:text="${approval.startDate}"></div>
+									<span> ~ </span>
+									<div th:text="${approval.endDate}"></div>
+								</div>
+							</td>
 						</tr>
 						<tr>
 							<th class="text-center bg-light">결재자</th>
-							<td colspan="5"><th:block
-									th:if="${!#lists.isEmpty(approverList)}"
-									th:each="approver : ${approverList}">
-									<span
-										th:text="|${approver.member.memberName} ${approver.member.pos.posName} (${approver.member.dept.deptName}) |"></span>
-								</th:block></td>
+							<td colspan="5"><table
+									class="table table-bordered text-center w-100">
+									<thead class="table-light">
+										<tr id="approver">
+											<th:block th:if="${approverList.size() > 0}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${approverList[0].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() <= 0}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() > 1}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${approverList[1].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() <= 1}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() > 2}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${approverList[2].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() <= 2}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() > 3}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${approverList[3].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() <= 3}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() > 4}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${approverList[4].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${approverList.size() <= 4}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+										</tr>
+									</thead>
+									<tbody>
+										<tr id="approver_signature">
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+										</tr>
+									</tbody>
+								</table></td>
+						</tr>
+						<tr>
+							<th class="text-center bg-light">합의자</th>
+							<td colspan="5">
+								<table class="table table-bordered text-center w-100">
+									<thead class="table-light">
+										<tr id="agreementer">
+											<th:block th:if="${agreementerList.size() > 0}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${agreementerList[0].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() <= 0}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() > 1}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${agreementerList[1].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() <= 1}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() > 2}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${agreementerList[2].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() <= 2}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() > 3}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${agreementerList[3].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() <= 3}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() > 4}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"
+													th:text="${agreementerList[4].member.memberName}"></th>
+											</th:block>
+											<th:block th:if="${agreementerList.size() <= 4}">
+												<th class="text-center bg-light" style="width: 20%;"
+													name="approver"></th>
+											</th:block>
+										</tr>
+									</thead>
+									<tbody>
+										<tr id="agreementer_signature">
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+											<td class="text-center" style="height: 80px;"></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
 						</tr>
 						<tr>
 							<th class="text-center bg-light">참조자</th>
-							<td colspan="2"><th:block
+							<td colspan="5"><th:block
 									th:if="${!#lists.isEmpty(referencerList)}"
-									th:each="referencer : ${referencerList}">
-									<span
-										th:text="|${referencer.member.memberName} ${referencer.member.pos.posName} (${referencer.member.dept.deptName}) |"></span>
-								</th:block></td>
-							<th class="text-center bg-light">합의자</th>
-							<td colspan="2"><th:block
-									th:if="${!#lists.isEmpty(agreementerList)}"
-									th:each="agreementer : ${agreementerList}">
-									<span
-										th:text="|${agreementer.member.memberName} ${agreementer.member.pos.posName} (${agreementer.member.dept.deptName}) |"></span>
+									th:each="referencer, status : ${referencerList}">
+									<th:block th:if="${referencerList.size() != status.count}">
+										<span th:text="|${referencer.member.memberName} /|"></span>
+									</th:block>
+									<th:block th:if="${referencerList.size() == status.count}">
+										<span th:text="${referencer.member.memberName}"></span>
+									</th:block>
 								</th:block></td>
 						</tr>
 						<tr>
@@ -102,94 +227,241 @@
 				<!-- 동적 양식 영역 -->
 				<div id="approval-content" class="mb-4"
 					th:utext="${approval.apprText}"></div>
+					
+				<th:block th:if="${approval.apprStatus == 'R'}">
+					<div class="mb-4">
+						<h5>반려 사유</h5>
+					</div>
+					<div class="mb-4" id="appr_reason">
+						<span th:text="${approval.apprReason}">반려 사유</span>
+					</div>
+				</th:block>
 
-				<!-- 전자결재 테이블 -->
-				<h5 class="fw-bold mb-3">결재 상태</h5>
-				<div class="table-responsive">
-					<p th:if="${!#lists.isEmpty(approverList)}">결재자</p>
-					<table class="table table-bordered text-center align-middle">
-						<thead class="table-light">
-							<tr>
-								<th:block th:if="${!#lists.isEmpty(approverList)}"
-									th:each="approver : ${approverList}">
-									<th><span class="fw-normal text-muted"
-										th:text="|${approver.member.memberName} ${approver.member.pos.posName} (${approver.member.dept.deptName})|">홍길동</span></th>
-								</th:block>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th:block th:if="${!#lists.isEmpty(approverList)}"
-									th:each="approver : ${approverList}">
-									<td th:if="${approver.approverDecisionStatus == 'C'}"><img
-										src="" alt="결재자 서명" class="img-fluid border rounded"
-										style="max-height: 80px;"></td>
-									<td th:if="${approver.approverDecisionStatus != 'C'}"></td>
-								</th:block>
-							</tr>
-							<tr></tr>
-							<tr></tr>
-							<tr></tr>
-						</tbody>
-					</table>
+				<!-- 결재자 합의자 버튼 - 반려상태가 아닐때 -->
+				<th:block th:if="${approval.apprStatus != 'R'}">
+					<!-- 결재자 - 결재를 안했을 때 -->
+					<th:block th:each="approver : ${approverList}">
+						<th:block
+							th:if="${approver.member.memberNo == #authentication.principal.member.memberNo}">
+							<th:block th:if="${approver.approverDecisionStatus == 'W'}">
+								<div class="d-flex justify-content-end gap-2">
+									<button class="btn btn-primary px-4" onclick="approval();">승인</button>
+									<button class="btn btn-danger px-4" data-bs-toggle="modal"
+										data-bs-target="#decisionReasonModal">반려</button>
+								</div>
+							</th:block>
+						</th:block>
+					</th:block>
+					
+					<!-- 합의자 - 합의를 안했을 때 -->
+					<th:block th:each="agreementer : ${agreementerList}">
+						<th:block
+									th:if="${agreementer.member.memberNo == #authentication.principal.member.memberNo}">
+						<th:block th:if="${agreementer.agreementerAgreeStatus == 'W'}">
+								<div class="d-flex justify-content-end gap-2">
+									<button class="btn btn-primary px-4" onclick="agree();">수락</button>
+									<button class="btn btn-danger px-4" data-bs-toggle="modal"
+										data-bs-target="#approvalReasonModal">거절</button>
+								</div>
+							</th:block>
+						</th:block>
+					</th:block>
+					
+				</th:block>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 결재자 결재 반려 모달창 -->
+	<div class="modal fade" id="decisionReasonModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 반려 사유</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
 				</div>
-				<div class="table-responsive">
-					<p th:if="${!#lists.isEmpty(agreementerList)}">합의자</p>
-					<table class="table table-bordered text-center align-middle">
-						<thead class="table-light">
-							<tr>
-								<th:block th:if="${!#lists.isEmpty(agreementerList)}"
-									th:each="agreementer : ${agreementerList}">
-									<th><span class="fw-normal text-muted"
-										th:text="|${agreementer.member.memberName} ${agreementer.member.pos.posName} (${agreementer.member.dept.deptName})|">홍길동</span></th>
-								</th:block>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th:block th:if="${!#lists.isEmpty(agreementerList)}"
-									th:each="agreementer : ${agreementerList}">
-									<td th:if="${agreementer.agreementerAgreeStatus == 'C'}"><img
-										src="" alt="결재자 서명" class="img-fluid border rounded"
-										style="max-height: 80px;"></td>
-									<td th:if="${agreementer.agreementerAgreeStatus != 'C'}"></td>
-								</th:block>
-							</tr>
-						</tbody>
-					</table>
+				<form name="companion_form" method="post" th:action="@{'/approval/companion/' + ${approval.apprNo}}">
+					<div class="modal-body">
+						<div class="row mb-4">
+							<textarea class="form-control shadow-sm rounded-3" rows="8"
+								placeholder="결재 반려 사유를 입력해주세요.(1000자 이내)" name="decision_reason"
+								style="resize: none; font-size: 1rem;" id="approvalCompanionReason"></textarea>
+						</div>
+					</div>
+					<BR>
+					<div class="modal-footer justify-content-end">
+						<button type="submit" class="btn btn-danger px-4">반려</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- 합의자 결재 거절 모달창 -->
+	<div class="modal fade" id="approvalReasonModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 거절 사유</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
 				</div>
-				<div class="table-responsive">
-					<p th:if="${!#lists.isEmpty(referencerList)}">참조자</p>
-					<table class="table table-bordered text-center align-middle">
-						<thead class="table-light">
-							<tr>
-								<th:block th:if="${!#lists.isEmpty(referencerList)}"
-									th:each="referencer : ${referencerList}">
-									<th>참조자</th>
-								</th:block>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th:block th:if="${!#lists.isEmpty(referencerList)}"
-									th:each="referencer : ${referencerList}">
-									<td><span class="fw-normal text-muted"
-										th:text="|${referencer.member.memberName} ${referencer.member.pos.posName} (${referencer.member.dept.deptName})|">홍길동</span></td>
-								</th:block>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div class="d-flex justify-content-end gap-2">
-					<button class="btn btn-primary px-4">승인</button>
-					<button class="btn btn-danger px-4">반려</button>
-				</div>
+				<form name="reject_form" method="post" th:action="@{'/approval/reject/' + ${approval.apprNo}}">
+					<div class="modal-body">
+						<div class="row mb-4">
+							<textarea class="form-control shadow-sm rounded-3" rows="8"
+								placeholder="결재 거절 사유를 입력해주세요.(1000자 이내)" name="agree_reason"
+								style="resize: none; font-size: 1rem;" id="approvalRejectReason"></textarea>
+						</div>
+					</div>
+					<BR>
+					<div class="modal-footer justify-content-end">
+						<button type="submit" class="btn btn-danger">거절</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
 
 	<script>
+	
+		// 합의자 수락버튼
+		const agree = function() {
+			memberNo = document.getElementById('memberNo').value;
+			apprNo = document.getElementById('approvalNo').value;
+			
+			if(confirm('결재를 수락하시겠습니까?')) {
+				const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+			    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+				fetch('/approval/agree/'+apprNo, {
+					method:'post',
+					headers: {
+						'Content-Type': 'application/json',
+					    [csrfHeaderName]: csrfToken
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code =='200') {
+						console.log('성공');
+						location.href = '/approval/receive/detail/'+apprNo;
+					}
+				})
+				.catch(error => {
+				    console.error("에러 발생:", error);
+				    alert("에러 발생: " + error.message);
+				});
+			}
+		}
 		
+		const rejectForm = document.reject_form;
+
+		// 합의자 거절
+		rejectForm.addEventListener('submit', (e) => {
+		    e.preventDefault();
+
+		    const apprNo = document.getElementById('approvalNo').value;
+		    const rejectReason = document.getElementById('approvalRejectReason').value;
+
+		    if (rejectReason) {
+		        if (confirm('결재를 거절하시겠습니까?')) {
+		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		            const payload = new FormData(rejectForm);
+
+		            fetch('/approval/reject/' + apprNo, {
+		                method: 'post',
+		                headers: {
+		                    [csrfHeaderName]: csrfToken
+		                },
+		                body: payload
+		            })
+		                .then(response => response.json())
+		                .then(data => {
+		                    alert(data.res_msg);
+		                    if (data.res_code == '200') {
+		                        console.log('성공');
+		                        location.href = '/approval/receive/detail/' + apprNo;
+		                    }
+		                })
+		                .catch(error => {
+		                    console.error("에러 발생:", error);
+		                    alert("에러 발생: " + error.message);
+		                });
+		        }
+		    } else {
+		        alert('사유를 입력해주세요.');
+		    }
+		});
+		
+		
+		const approval = function(){
+			apprNo = document.getElementById('approvalNo').value;
+			if(confirm('결재를 승인하시겠습니까?')) {
+				const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+			    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+				fetch('/approval/success/'+apprNo, {
+					method:'post',
+					headers: {
+						[csrfHeaderName]: csrfToken
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code =='200') {
+						console.log('성공');
+						location.href = '/approval/receive/detail/'+apprNo;
+					}
+				})
+			}
+		}
+		
+		const companionForm = document.companion_form;
+		
+		companionForm.addEventListener('submit', (e) => {
+		    e.preventDefault();
+
+		    const apprNo = document.getElementById('approvalNo').value;
+		    const companionReason = document.getElementById('approvalCompanionReason').value;
+
+		    if (companionReason) {
+		        if (confirm('결재를 반려하시겠습니까?')) {
+		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		            const payload = new FormData(companionForm);
+
+		            fetch('/approval/companion/' + apprNo, {
+		                method: 'post',
+		                headers: {
+		                    [csrfHeaderName]: csrfToken
+		                },
+		                body: payload
+		            })
+		                .then(response => response.json())
+		                .then(data => {
+		                    alert(data.res_msg);
+		                    if (data.res_code == '200') {
+		                        console.log('성공');
+		                        location.href = '/approval/receive/detail/' + apprNo;
+		                    }
+		                })
+		                .catch(error => {
+		                    console.error("에러 발생:", error);
+		                    alert("에러 발생: " + error.message);
+		                });
+		        }
+		    } else {
+		        alert('사유를 입력해주세요.');
+		    }
+		});
+
 	</script>
 
 
