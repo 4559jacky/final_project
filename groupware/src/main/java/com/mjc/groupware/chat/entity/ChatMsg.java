@@ -1,7 +1,5 @@
 package com.mjc.groupware.chat.entity;
 
-import java.time.LocalTime;
-
 import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -11,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +44,7 @@ public class ChatMsg {
 	@JoinColumn(name="chat_room_no")
 	private ChatRoom chatRoomNo;
 	
-	@ManyToOne
+	@OneToOne
 	@JoinColumn(name="member_no")
 	private Member memberNo;
 	

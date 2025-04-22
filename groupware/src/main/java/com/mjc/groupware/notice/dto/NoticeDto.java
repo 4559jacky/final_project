@@ -25,12 +25,14 @@ public class NoticeDto {
 	private Long notice_no;
 	private String notice_title;
 	private String notice_content;
-	private char notice_status;
+	private String notice_status;
+	private String notice_fix;
+	private String notice_emergency;
 	private int views;
 	private Long member_no;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
-	
+
 	private List<Attach> attachList;
 	private List<MultipartFile> files;
 	
@@ -39,6 +41,9 @@ public class NoticeDto {
 				.noticeNo(notice_no)
 				.noticeTitle(notice_title)
 				.noticeContent(notice_content)
+				.noticeFix(notice_fix != null ? notice_fix : "N")
+				.noticeEmergency(notice_emergency)
+	            .noticeStatus(notice_status) 
 				.views(views)
 				.build();
 	}
@@ -48,6 +53,9 @@ public class NoticeDto {
 				.notice_no(notice.getNoticeNo())
 				.notice_title(notice.getNoticeTitle())
 				.notice_content(notice.getNoticeContent())
+				.notice_status(notice.getNoticeStatus())
+				.notice_fix(notice.getNoticeFix())
+				.notice_emergency(notice.getNoticeEmergency())
 				.views(notice.getViews())
 				.build();
 	}

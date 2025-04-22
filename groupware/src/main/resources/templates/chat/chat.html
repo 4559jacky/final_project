@@ -32,15 +32,11 @@
 				aria-controls="chat-sidebar">
 				<i class="ti ti-menu-2 fs-5"></i>
 			</button>
-			<form class="position-relative w-100">
-				<input type="text" class="form-control search-chat py-2 ps-5"
-					id="text-srh" placeholder="Search Contact" /> <i
-					class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
-			</form>
 		</div>
 		<div class="d-flex">
 			<div class="w-30 d-none d-lg-block border-end user-chat-box">
 				<div class="px-4 pt-9 pb-6">
+					<!-- 현재 로그인한 사원 정보  -->
 					<div class="d-flex align-items-center justify-content-between mb-3">
 						<div class="d-flex align-items-center">
 							<div class="position-relative">
@@ -48,43 +44,64 @@
 									width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
-								<h6 class="fw-semibold mb-2">Johnathan Doe</h6>
-								<p class="mb-0 fs-2">Administrator</p>
+								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
+								<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
 							</div>
 						</div>
 
 					</div>
+					<!-- 채팅 목록 검색 -->
 					<form class="position-relative mb-4">
 						<input type="text" class="form-control search-chat py-2 ps-5"
-							id="text-srh" placeholder="Search Contact" /> <i
+							id="text-srh" placeholder="채팅방 이름을 검색하세요." /> <i
 							class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
 					</form>
-
 				</div>
 				<!-- 채팅방 목록 -->
-				<div class="app-chat">
-					<ul class="chat-users mb-0 mh-n100" data-simplebar>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_3" data-user-id="3">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-8.jpg" alt="user-8"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-warning">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Andrew Johnson</h6>
-										<span class="fs-3 text-truncate text-body-color d-block">Sent
-											a photo</span>
+				<div class="app-chat" style="max-height: 572px; height: 572px;">
+					<div data-simplebar style="height: 100%;">
+						<ul th:if="${!#lists.isEmpty(chatRoomList)}"
+							th:each="chatRoom : ${chatRoomList}"
+							th:attr="data-room-no=${chatRoom.chatRoomNo}"
+							class="chat-users mb-0">
+							
+							<li>
+								<a href="javascript:void(0)"
+									class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
+									id="chat_user_3"
+									th:attr="data-room-id=${chatRoom.chatRoomNo}">
+									
+									<div class="d-flex align-items-center">
+										<span class="position-relative">
+											<img src="../assets/images/profile/user-8.jpg" alt="user-8"
+												width="48" height="48" class="rounded-circle" />
+											<span class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-warning">
+												<span class="visually-hidden">New alerts</span>
+											</span>
+										</span>
+										<div class="ms-3 d-inline-block w-75">
+											<h6 th:text="${chatRoom.chatRoomTitle}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
+											<span th:text="${chatRoom.lastMsg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
+										</div>
 									</div>
+									<p th:text="${#temporals.format(chatRoom.lastMsgDate, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
+								</a>
+							</li>
+						</ul>
+						<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0">
+							<li>
+								<div class="ms-3 d-inline-block w-75 text-center">
+									<h6 class="mb-1 fw-semibold chat-title">채팅 중인 방이 없습니다.</h6>
 								</div>
-								<p class="fs-2 mb-0 text-muted">2 hours</p>
-						</a></li>
-					</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="px-9 py-6 border-top text-center">
+				    <button class="btn btn-primary px-4" id="create_btn" type="button">
+				      + 새로운 채팅 추가 
+				    </button>
 				</div>
 			</div>
 			<div class="w-70 w-xs-100 chat-container">
@@ -100,6 +117,7 @@
 							</div>
 						</div>
 					</div>
+					<!-- 채팅 박스  -->
 					<div class="chatting-box d-block">
 						<div
 							class="p-9 border-bottom chat-meta-user d-flex align-items-center justify-content-between">
@@ -111,7 +129,7 @@
 								</div>
 								<div>
 									<h6 class="mb-1 name fw-semibold"></h6>
-									<p class="mb-0">Away</p>
+									<p class="mb-0 dept"></p>
 								</div>
 							</div>
 							<ul class="list-unstyled mb-0 d-flex align-items-center">
@@ -133,26 +151,6 @@
 												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
 												<div
 													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
 													I want more detailed information.</div>
 											</div>
 										</div>
@@ -167,77 +165,8 @@
 													They got there early, and they got really good seats.</div>
 											</div>
 										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div class="rounded-2 overflow-hidden">
-													<img src="../assets/images/products/product-1.jpg"
-														alt="flexy-img" class="w-100" />
-												</div>
-											</div>
-										</div>
 									</div>
-									<!-- 2 -->
-									<div class="chat-list chat" data-user-id="2">
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													I want more detailed information.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-												<div class="p-2 bg-info-subtle text-dark rounded-1 fs-3">
-													They got there early, and they got really good seats.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div class="rounded-2 overflow-hidden">
-													<img src="../assets/images/products/product-1.jpg"
-														alt="flexy-img" class="w-100" />
-												</div>
-											</div>
-										</div>
-									</div>
-									<!-- 3 -->
+									
 									<div class="chat-list chat" data-user-id="3">
 										<div
 											class="hstack gap-3 align-items-start mb-7 justify-content-start">
@@ -247,26 +176,6 @@
 												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
 												<div
 													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
 													I want more detailed information.</div>
 											</div>
 										</div>
@@ -281,132 +190,7 @@
 													They got there early, and they got really good seats.</div>
 											</div>
 										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div class="rounded-2 overflow-hidden">
-													<img src="../assets/images/products/product-1.jpg"
-														alt="flexy-img" class="w-100" />
-												</div>
-											</div>
-										</div>
-									</div>
-									<!-- 4 -->
-									<div class="chat-list chat" data-user-id="4">
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													I want more detailed information.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-												<div class="p-2 bg-info-subtle text-dark rounded-1 fs-3">
-													They got there early, and they got really good seats.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div class="rounded-2 overflow-hidden">
-													<img src="../assets/images/products/product-1.jpg"
-														alt="flexy-img" class="w-100" />
-												</div>
-											</div>
-										</div>
-									</div>
-									<!-- 5 -->
-									<div class="chat-list chat" data-user-id="5">
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													I want more detailed information.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-												<div class="p-2 bg-info-subtle text-dark rounded-1 fs-3">
-													They got there early, and they got really good seats.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div class="rounded-2 overflow-hidden">
-													<img src="../assets/images/products/product-1.jpg"
-														alt="flexy-img" class="w-100" />
-												</div>
-											</div>
-										</div>
+										
 									</div>
 								</div>
 								<div class="px-9 py-6 border-top chat-send-message-footer">
@@ -424,6 +208,10 @@
 											<li><a
 												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
 												href="javascript:void(0)"> <i class="ti ti-paperclip"></i>
+											</a></li>
+											<li><a
+												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
+												href="javascript:void(0)"> <i class="ti ti-brand-telegram"></i>
 											</a></li>
 										</ul>
 									</div>
@@ -486,7 +274,7 @@
 				tabindex="-1" id="chat-sidebar"
 				aria-labelledby="offcanvasExampleLabel">
 				<div class="offcanvas-header">
-					<h5 class="offcanvas-title" id="offcanvasExampleLabel">Chats</h5>
+					<h5 class="offcanvas-title" id="offcanvasExampleLabel">채팅목록</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="offcanvas"
 						aria-label="Close"></button>
 				</div>
@@ -495,119 +283,26 @@
 						<div class="d-flex align-items-center">
 							<div class="position-relative">
 								<img src="../assets/images/profile/user-1.jpg" alt="user1"
-									width="54" height="54" class="rounded-circle" /> <span
-									class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-success">
-									<span class="visually-hidden">New alerts</span>
-								</span>
+									width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
-								<h6 class="fw-semibold mb-2">Johnathan Doe</h6>
-								<p class="mb-0 fs-2">Administrator</p>
+								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
+								<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
 							</div>
 						</div>
-						<div class="dropdown">
-							<a class="text-dark fs-6 nav-icon-hover"
-								href="javascript:void(0)" role="button"
-								data-bs-toggle="dropdown" aria-expanded="false"> <i
-								class="ti ti-dots-vertical"></i>
-							</a>
-							<ul class="dropdown-menu">
-								<li><a
-									class="dropdown-item d-flex align-items-center gap-2 border-bottom"
-									href="javascript:void(0)"> <span> <i
-											class="ti ti-settings fs-4"></i>
-									</span>Setting
-								</a></li>
-								<li><a
-									class="dropdown-item d-flex align-items-center gap-2"
-									href="javascript:void(0)"> <span> <i
-											class="ti ti-help fs-4"></i>
-									</span>Help and feedback
-								</a></li>
-								<li><a
-									class="dropdown-item d-flex align-items-center gap-2"
-									href="javascript:void(0)"> <span> <i
-											class="ti ti-layout-board-split fs-4"></i>
-									</span>Enable split View mode
-								</a></li>
-								<li><a
-									class="dropdown-item d-flex align-items-center gap-2 border-bottom"
-									href="javascript:void(0)"> <span> <i
-											class="ti ti-table-shortcut fs-4"></i>
-									</span>Keyboard shortcut
-								</a></li>
-								<li><a
-									class="dropdown-item d-flex align-items-center gap-2"
-									href="javascript:void(0)"> <span> <i
-											class="ti ti-login fs-4"></i>
-									</span>Sign Out
-								</a></li>
-							</ul>
-						</div>
+
 					</div>
 					<form class="position-relative mb-4">
 						<input type="text" class="form-control search-chat py-2 ps-5"
-							id="text-srh" placeholder="Search Contact" /> <i
+							id="text-srh" placeholder="채팅방 이름을 검색하세요." /> <i
 							class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
 					</form>
-					<div class="dropdown">
-						<a class="text-muted fw-semibold d-flex align-items-center"
-							href="javascript:void(0)" role="button" data-bs-toggle="dropdown"
-							aria-expanded="false"> Recent Chats<i
-							class="ti ti-chevron-down ms-1 fs-5"></i>
-						</a>
-						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" href="javascript:void(0)">Sort
-									by time</a></li>
-							<li><a class="dropdown-item border-bottom"
-								href="javascript:void(0)">Sort by Unread</a></li>
-							<li><a class="dropdown-item" href="javascript:void(0)">Hide
-									favourites</a></li>
-						</ul>
-					</div>
 				</div>
 				<div class="app-chat">
-					<ul class="chat-users mh-n100" data-simplebar>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user bg-light-subtle"
-							id="chat_user_1" data-user-id="1">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-2.jpg" alt="user1"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-success">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Michell Flintoff</h6>
-										<span class="fs-3 text-truncate text-body-color d-block">You:
-											Yesterdy was great...</span>
-									</div>
-								</div>
-								<p class="fs-2 mb-0 text-muted">15 mins</p>
-						</a></li>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_2" data-user-id="2">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-2.jpg" alt="user-2"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-danger">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Bianca Anderson</h6>
-										<span class="fs-3 text-truncate text-dark fw-semibold d-block">Nice
-											looking dress you...</span>
-									</div>
-								</div>
-								<p class="fs-2 mb-0 text-muted">30 mins</p>
-						</a></li>
+					<ul th:if="${!#lists.isEmpty(chatRoomList)}" 
+						th:each="chatRoom : ${chatRoomList}"
+						th:attr="data-room-no=${chatRoom.chatRoomNo}"
+						class="class="chat-users p-0 m-0" style="padding-top: 0; padding-bottom: 0;"" data-simplebar>
 						<li><a href="javascript:void(0)"
 							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
 							id="chat_user_3" data-user-id="3">
@@ -620,105 +315,373 @@
 									</span>
 									</span>
 									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Andrew Johnson</h6>
-										<span class="fs-3 text-truncate text-body-color d-block">Sent
-											a photo</span>
+										<h6 th:text="${chatRoom.chatRoomTitle}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
+										<span th:text="${chatRoom.lastMsg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
 									</div>
 								</div>
-								<p class="fs-2 mb-0 text-muted">2 hrs</p>
+								<p th:text="${#temporals.format(chatRoom.lastMsgDate, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
 						</a></li>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_4" data-user-id="4">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-4.jpg" alt="user-4"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-success">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Daisy Wilson</h6>
-										<span class="fs-3 text-truncate text-body-color d-block">Lorem
-											ispusm text sud...</span>
-									</div>
-								</div>
-								<p class="fs-2 mb-0 text-muted">5 days</p>
-						</a></li>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_5" data-user-id="5">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-7.jpg" alt="user1"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-success">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Mark, Stoinus & Rishvi..
-										</h6>
-										<span class="fs-3 text-truncate text-dark fw-semibold d-block">Lorem
-											ispusm text ...</span>
-									</div>
-								</div>
-								<p class="fs-2 mb-0 text-muted">5 days</p>
-						</a></li>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_2" data-user-id="2">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-2.jpg" alt="user-2"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-danger">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Bianca Anderson</h6>
-										<span class="fs-3 text-truncate text-dark fw-semibold d-block">Nice
-											looking dress you...</span>
-									</div>
-								</div>
-								<p class="fs-2 mb-0 text-muted">30 mins</p>
-						</a></li>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_3" data-user-id="3">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-8.jpg" alt="user-8"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-warning">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 class="mb-1 fw-semibold chat-title"
-											data-username="James Anderson">Andrew Johnson</h6>
-										<span class="fs-3 text-truncate text-body-color d-block">Sent
-											a photo</span>
-									</div>
-								</div>
-								<p class="fs-2 mb-0 text-muted">2 hrs</p>
-						</a></li>
+					</ul>
+					<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0 mh-n100" data-simplebar>
+						<li>
+							<div class="ms-3 d-inline-block w-75 text-center">
+								<h6 class="mb-1 fw-semibold chat-title">채팅 중인 방이 없습니다.</h6>
+							</div>
+						</li>
 					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
+	
+	<!-- 채팅방 추가 모달 -->
+	<div class="modal fade" id="selectMemberModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered"
+			style="max-width: 800px; width: auto; max-height: none;">
+			<div class="modal-content p-3" style="max-height: none;">
+				<div class="modal-header">
+					<h5 class="modal-title fw-bold fs-4"> 채팅방 추가 </h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+				    <!-- 채팅방 제목 입력 -->
+				    <label for="title" class="form-label">등록할 채팅방명</label> 
+					<input type="text" class="form-control" id="title" name="title"
+							style="color: black;" placeholder="등록하실 채팅방명을 입력해주세요."><br>
+					<!-- 상단: 조직도 + 사원 목록 -->
+					<div class="row mb-4" style="height: 280px;">
+						<p style="color: gray;">채팅에 추가할 인원을 선택해주세요.</p>
+						<!-- 조직도 -->
+						<div class="col-6 pe-3 border-end d-flex flex-column">
+							<h6 class="fw-semibold mb-2">조직도</h6>
+							<div id="ysw_jstree"
+								class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
+								<!-- JSTree 영역 -->
+							</div>
+						</div>
+
+						<!-- 사원 목록 -->
+						<div class="col-6 ps-3 d-flex flex-column">
+							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
+							<div id="memberListBox"
+								class="h-100 overflow-auto border rounded bg-light p-2" style="max-height: 280px;">
+								<!-- ✅ 스크롤 영역 고정 높이 설정 -->
+								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
+							</div>
+						</div>
+					</div><br><br>
+		
+					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
+					<form name="chatRoom_create_form">
+						<input type="hidden" id="chatRoomTitle" name="chat_room_title">
+						<input type="hidden" id="createMemverNo" name="create_member_no"
+                            th:value="${#authentication.principal.member.memberNo}">
+						<br><br>
+						<div id="selectedUsersInputs">
+							<input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}"  th:attr="data-id=${#authentication.principal.member.memberNo}" >
+						</div>
+						<div class="row gx-3 text-center" style="height: 200px;">
+							<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
+								<ul id="selectMemberList" class="list-group fs-6"></ul>	
+							</div>
+						</div>
+						<div class="modal-footer justify-content-end">
+							<button type="submit" class="btn btn-primary px-4">채팅방 추가</button>
+						</div><bR>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
 	<h1>WebSocket 테스트</h1>
 	<input type="text" id="msg">
 	<input type="button" value="전송" onclick="sendMsg();">
 	<div id="output"></div>
 	<script>
+		
+		// 채팅방 추가
+		document.getElementById('create_btn').onclick = function () {
+			const nextModal = new bootstrap.Modal(document.getElementById("selectMemberModal"));
+		    nextModal.show();
+		}
+		
+		// 채팅 인원 선택
+		document.addEventListener("DOMContentLoaded",function(){
+			const selectBtn = document.querySelectorAll(".selectBtn");
+			const selectUserList = document.getElementById("selectMemberList");
+			const selectedUsersInputs = document.getElementById("selectedUsersInputs");
+
+			
+			document.addEventListener("click", function (e) {
+			    if (e.target.classList.contains("selectBtn")) {
+			        const memberNo = e.target.getAttribute("data-id");
+			        const memberName = e.target.getAttribute("data-name");
+			        const memberPos = e.target.getAttribute("data-pos");
+			        
+			        // 중복 방지 
+			        const result = Array.from(selectUserList.querySelectorAll("input[data-id]"))
+		                .some(input => input.getAttribute("data-id") === memberNo);
+	
+		            if (result) {
+		                return;
+		            }
+			        
+			        const li = document.createElement("li");
+			        li.className = "list-group-item";
+			        li.innerHTML = `
+					    <input 
+					        type="button" 
+					        value="-"  
+					        data-id="${memberNo}" 
+					        class="deleteBtn btn-sm btn btn-rounded btn-light">
+					    ${memberName} (${memberPos})
+					`;
+
+					    
+			     // 함께 숨은 input 생성
+			        const hiddenInput = document.createElement("input");
+			        hiddenInput.type = "hidden";
+			        hiddenInput.name = "member_no"; // 백엔드에서 이 name으로 받아요!
+			        hiddenInput.value = memberNo;
+			        hiddenInput.setAttribute("data-id", memberNo);
+			        hiddenInput.setAttribute("data-pos", memberPos);
+			        hiddenInput.setAttribute("data-name", memberName);
+
+			        // 리스트와 숨은 input 추가
+			        selectUserList.appendChild(li);
+			        selectedUsersInputs.appendChild(hiddenInput);
+			        
+			    }
+			});
+			
+		});
+		
+		// 채팅방 추가 인원 삭제 
+		document.addEventListener("DOMContentLoaded",function(){
+			document.addEventListener("click", function (e) {
+			    if (e.target.classList.contains("deleteBtn")) {
+			    	  const memberNo = e.target.getAttribute("data-id"); // 👈 삭제 대상 ID
+			            const li = e.target.closest("li");
+			            if (li) li.remove();
+
+			            // 해당 memberNo를 가진 hidden input 삭제
+			            const hiddenInput = document.querySelector(`#selectedUsersInputs input[data-id='${memberNo}']`);
+			            if (hiddenInput) hiddenInput.remove();
+			    }
+			});
+			
+		});
+		
+		// 채팅방 추가  버튼 클릭 시 정보 저장 
+		const createForm = document.chatRoom_create_form;
+		
+		createForm.addEventListener('submit',(e) => {
+			e.preventDefault()
+			
+			const selectedInputs = document.querySelectorAll("#selectedUsersInputs input[name='member_no']");
+			const chatRoomTitle = document.getElementById("title").value;
+			const chatRoomTitleInput = document.getElementById("chatRoomTitle"); // 실제 서버로 전송될 제목 hidden input
+			const createMemverNo = document.getElementById("createMemverNo").value; // 현재 로그인한 사원 번호
+			
+			// 유효성 검사 (본인 외에 최소 1명 이상 있어야 함)
+			const validSelectList = Array.from(selectedInputs).filter(input => input.value !== createMemverNo);
+			
+			// 유효성 검사
+			if (validSelectList.length === 0) {
+			    alert("채팅에 추가할 인원을 1명 이상 선택해주세요.");
+			    return;
+			}
+	
+			 let finalTitle = "";// 최종 제목 변수
+
+			  if (!chatRoomTitle) {
+			    // 제목이 비어있다면 참여자 이름+직급 조합으로 설정
+			    finalTitle = validSelectList
+			      .map(input => {
+			        const name = input.getAttribute("data-name");
+			        const position = input.getAttribute("data-pos");
+			        return `${name} ${position}`;
+			      })
+			      .join(", ");
+			  }else if(chatRoomTitle){
+				  // 제목이 비어있지 않다면 입력한 제목으로 설정
+				  finalTitle = chatRoomTitle;
+			  }
+
+			  chatRoomTitleInput.value = finalTitle;
+
+
+			const payload = new FormData(createForm);
+			
+			
+			fetch("/create",{
+				method:'post',
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body:payload,
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if (data.res_code == "200") {
+					location.reload();
+				}
+			});
+			
+		})
+		
+		// 채팅 인원 선택 모달창 리셋
+		document.getElementById("selectMemberModal").addEventListener("hidden.bs.modal", () => {
+			document.getElementById("title").value = ""; // 채팅방 제목 초기화
+			document.getElementById("chatRoomTitle").value = ""; 
+			document.getElementById("selectMemberList").innerHTML = "";
+
+		    // 숨겨진 input 리스트 초기화
+		    selectedUsersInputs.innerHTML = "";
+		});
+	
+		
+		
+		 document.addEventListener("DOMContentLoaded", function () {
+			 // 채팅방 검색 
+			 $(".search-chat").on("keyup", function () {
+				  var value = $(this).val().toLowerCase();
+				  $(".chat-users li").filter(function () {
+				    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+				  });
+				});
+			 
+			 
+			// 채팅방 목록 클릭 시 해당 채팅창으로 이동
+			$(".app-chat .chat-user").on("click", function () {
+			  // 이미 열려 있는 채팅이면 return (optional)
+			  if ($(this).hasClass("active")) {
+			    return;
+			  }
+			
+			  // 유저 정보 추출
+			  var roomNo = $(this).attr("data-room-id");
+			  var memberName = $(this).find(".chat-title").text();
+			  var memberDept = $(this).find(".dept").text();
+			  var memberImage = $(this).find("img").attr("src");
+			
+			  // 상단 이름/이미지 설정
+			  if (window.innerWidth <= 767) {
+			    $(".chat-container .current-chat-user-name .name").html(
+			      personName.split(" ")[0]
+			    );
+			  } else {
+			    $(".chat-container .current-chat-user-name .name").html(memberName);
+			  }
+			  $(".chat-container .current-chat-user-name img").attr("src", memberImage); dept
+			  $(".chat-container .current-chat-user-name .dept").html();
+			
+			  // 채팅창 보여주기
+			  $(".chat").removeClass("active-chat");
+			  $(".user-chat-box .chat-user").removeClass("bg-light-subtle");
+			  $(this).addClass("bg-light-subtle");
+			  $(".chat[data-user-id='" + roomNo + "']").addClass("active-chat");
+			
+			  // 채팅 영역 보이도록 설정
+			  $(this)
+			    .parents(".chat-application")
+			    .find(".chat-not-selected")
+			    .hide()
+			    .siblings(".chatting-box")
+			    .show();
+			  $(this)
+			    .parents(".chat-application")
+			    .find(".chat-container .chat-box-inner-part")
+			    .show();
+			
+			  // 모바일용 메뉴 닫기 처리
+			  if ($(this).parents(".user-chat-box").hasClass("user-list-box-show")) {
+			    $(this).parents(".user-chat-box").removeClass("user-list-box-show");
+			  }
+			
+			  // 하단 입력창 보이기
+			  $(".chat-meta-user").addClass("chat-active");
+			  $(".chat-send-message-footer").addClass("chat-active");
+			});
+
+
+
+			 //엔터 누르면 입력값을 메시지 박스로 만들어 .active-chat에 append
+
+			 // 시간은 현재 시각 기준으로 포맷팅해서 같이 출력
+
+			 // 입력창 비우는 것까지 포함
+
+
+			 $(".message-type-box").on("keydown", function (event) {
+			   if (event.key === "Enter") {
+			     // Start getting time
+			     var now = new Date();
+			     var hh = now.getHours();
+			     var min = now.getMinutes();
+
+			     var ampm = hh >= 12 ? "pm" : "am";
+			     hh = hh % 12;
+			     hh = hh ? hh : 12;
+			     hh = hh < 10 ? "0" + hh : hh;
+			     min = min < 10 ? "0" + min : min;
+
+			     var time = hh + ":" + min + " " + ampm;
+			     // End
+
+			     var chatInput = $(this);
+			     var chatMessageValue = chatInput.val();
+			     if (chatMessageValue === "") {
+			       return;
+			     }
+			     $messageHtml =
+			       '<div class="text-end mb-3"> <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">' +
+			       chatMessageValue +
+			       '</div> <div class="d-block fs-2">' +
+			       time +
+			       "</div>  </div>";
+			     var appendMessage = $(this)
+			       .parents(".chat-application")
+			       .find(".active-chat")
+			       .append($messageHtml);
+			     var clearChatInput = chatInput.val("");
+			   }
+			 });
+
+			 // *******************************************************************
+			 // Email Application
+			 // *******************************************************************
+
+			 //뒤로 가기 버튼 클릭 시 채팅 박스 닫기
+			 $(document).ready(function () {
+			   $(".back-btn").click(function () {
+			     $(".app-email-chatting-box").hide();
+			   });
+			   $(".chat-user").click(function () {
+			     $(".app-email-chatting-box").show();
+			   });
+			 });
+
+			 // *******************************************************************
+			 // chat Offcanvas
+			 // *******************************************************************
+
+			 // 사이드 오프캔버스(우측 사이드메뉴) 열기/닫기
+			 $("body").on("click", ".chat-menu", function () {
+			   $(".parent-chat-box").toggleClass("app-chat-right");
+			   $(this).toggleClass("app-chat-active");
+			 });
+
+	        });
+		
+		
+		
+		// 웹소켓 연결 test
 		let socket = new WebSocket("ws://localhost:8080/ws/basic");
 		socket.onopen = function(){
 			// 클라이언트 -> 서버 연결합시다!! 
@@ -759,6 +722,6 @@
 	<!-- Bootstrap Common JS Files End -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-	<script src="../js/ysw/chat.js"></script>
+	
 </th:block>
 </html>

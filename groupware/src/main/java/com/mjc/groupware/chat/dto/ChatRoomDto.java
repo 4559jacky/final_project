@@ -1,6 +1,7 @@
 package com.mjc.groupware.chat.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,7 @@ public class ChatRoomDto {
 
 	private String chat_room_title;
 	
-	private Long member_no;
+	private Long create_member_no;
 	
 	private String member_name;
 	
@@ -29,9 +30,11 @@ public class ChatRoomDto {
 	
 	private String member_dept_name;
 	
-	private String last_message;
+	private String last_msg;
 	
-	private LocalDateTime last_message_date;
+	private LocalDateTime last_msg_date;
 	
 	private LocalDateTime reg_date;
+	
+	private List<Long> member_no;
 }

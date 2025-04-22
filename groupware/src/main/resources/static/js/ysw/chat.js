@@ -1,63 +1,4 @@
-$(function () {
-  var chatarea = $("#chat");
-
-  $("#chat .message-center a").on("click", function () {
-    var name = $(this).find(".mail-contnet h5").text();
-    var img = $(this).find(".user-img img").attr("src");
-    var id = $(this).attr("data-user-id");
-    var status = $(this).find(".profile-status").attr("data-status");
-
-    if ($(this).hasClass("active")) {
-      $(this).toggleClass("active");
-      $(".chat-windows #user-chat" + id).hide();
-    } else {
-      $(this).toggleClass("active");
-      if ($(".chat-windows #user-chat" + id).length) {
-        $(".chat-windows #user-chat" + id)
-          .removeClass("mini-chat")
-          .show();
-      } else {
-        var msg = msg_receive(
-          "I watched the storm, so beautiful yet terrific."
-        );
-        msg += msg_sent("That is very deep indeed!");
-        var html =
-          "<div class='user-chat' id='user-chat" +
-          id +
-          "' data-user-id='" +
-          id +
-          "'>";
-        html +=
-          "<div class='chat-head'><img src='" +
-          img +
-          "' data-user-id='" +
-          id +
-          "'><span class='status " +
-          status +
-          "'></span><span class='name'>" +
-          name +
-          "</span><span class='opts'><i class='material-icons closeit' data-user-id='" +
-          id +
-          "'>clear</i><i class='material-icons mini-chat' data-user-id='" +
-          id +
-          "'>remove</i></span></div>";
-        html +=
-          "<div class='chat-body'><ul class='chat-list'>" + msg + "</ul></div>";
-        html +=
-          "<div class='chat-footer'><input type='text' data-user-id='" +
-          id +
-          "' placeholder='Type & Enter' class='form-control'></div>";
-        html += "</div>";
-        $(".chat-windows").append(html);
-      }
-    }
-  });
-});
-
-// *******************************************************************
-// Chat Application
-// *******************************************************************
-
+// 채팅방 검색 기능
 $(".search-chat").on("keyup", function () {
   var value = $(this).val().toLowerCase();
   $(".chat-users li").filter(function () {
@@ -65,6 +6,7 @@ $(".search-chat").on("keyup", function () {
   });
 });
 
+// 채팅방 목록 클릭 시 해당 채팅창으로 이동
 $(".app-chat .chat-user ").on("click", function (event) {
   if ($(this).hasClass(".active")) {
     return false;
@@ -103,7 +45,14 @@ $(".app-chat .chat-user ").on("click", function (event) {
   $(".chat-send-message-footer").addClass("chat-active");
 });
 
-// Send Messages
+
+//엔터 누르면 입력값을 메시지 박스로 만들어 .active-chat에 append
+
+// 시간은 현재 시각 기준으로 포맷팅해서 같이 출력
+
+// 입력창 비우는 것까지 포함
+
+
 $(".message-type-box").on("keydown", function (event) {
   if (event.key === "Enter") {
     // Start getting time
@@ -143,6 +92,7 @@ $(".message-type-box").on("keydown", function (event) {
 // Email Application
 // *******************************************************************
 
+//뒤로 가기 버튼 클릭 시 채팅 박스 닫기
 $(document).ready(function () {
   $(".back-btn").click(function () {
     $(".app-email-chatting-box").hide();
@@ -156,6 +106,7 @@ $(document).ready(function () {
 // chat Offcanvas
 // *******************************************************************
 
+// 사이드 오프캔버스(우측 사이드메뉴) 열기/닫기
 $("body").on("click", ".chat-menu", function () {
   $(".parent-chat-box").toggleClass("app-chat-right");
   $(this).toggleClass("app-chat-active");

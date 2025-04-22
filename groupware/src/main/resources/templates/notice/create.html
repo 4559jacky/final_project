@@ -31,10 +31,25 @@
         <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
         <div class="container mt-4">
             <div class="card shadow-sm p-4">
+            		
+            	<div class="d-flex align-items-center gap-4 mb-3">
+    				<!-- 고정글 체크박스 -->
+    				<div class="form-check">
+        				<input class="form-check-input" type="checkbox" id="noticeFix" name="notice_fix" value="Y">
+        				<label class="form-label fw-semibold" for="noticeFix">게시판 고정 글 여부</label>
+   					 </div>
+   				 	<!-- 긴급 공지 체크박스 -->
+    				<div class="form-check">
+        				<input class="form-check-input" type="checkbox" id="noticeEmergency" name="notice_emergency" value="Y">
+        				<label class="form-label fw-semibold" for="noticeEmergency">게시판 긴급 알림 여부</label>
+    				</div>
+				</div>
+					
+					
                 <div class="row align-items-center mb-3">
                     <div class="col-md-9 col-sm-12 mb-2 mb-md-0">
                         <label for="notice_title" class="form-label fw-semibold">제목</label>
-                        <input type="text" class="form-control" id="notice_title" name="notice_title" placeholder="게시글 제목을 입력하세요">
+                        <input type="text" class="form-control title" id="notice_title" name="notice_title" placeholder="게시글 제목을 입력하세요">
                         <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}"/>
                     </div>
                 </div>

@@ -18,6 +18,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,7 +51,7 @@ public class Board {
     private int views = 0;
 
     @Column(name = "board_status", nullable = false)
-    private String boardStatus = "Y"; // 삭제 되지 않는 상태
+    private String boardStatus = "Y"; // 삭제되지 않은 상태
 
     @CreationTimestamp
     @Column(updatable=false, name = "reg_date")
@@ -63,7 +65,23 @@ public class Board {
     @JoinColumn(name = "member_no")
     private Member member;
     
-    // 파일 첨부
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardAttach> attachList = new ArrayList<>();
+    
+    @Column(name = "is_fixed", nullable = false)
+    private Boolean isFixed = false;  // 기본값 false 설정
+
+    @PrePersist
+    public void prePersist() {
+        if (isFixed == null) {
+            isFixed = false;  // 저장 전 null 값을 false로 설정
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        if (isFixed == null) {
+            isFixed = false;  // 업데이트 전 null 값을 false로 설정
+        }
+    }
 }

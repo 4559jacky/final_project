@@ -40,6 +40,15 @@ public class Notice {
 	@Column(name="notice_content")
 	private String noticeContent;
 	
+	@Column(name="notice_status")
+	private String noticeStatus;
+	
+	@Column(name="notice_fix")
+	private String noticeFix;
+	
+	@Column(name="notice_emergency")
+	private String noticeEmergency;
+	
 	@Column(name="views")
 	private int views;
 	
@@ -59,10 +68,5 @@ public class Notice {
 		this.noticeTitle = title;
 		this.noticeContent = content;
 		this.modDate = modDate;
-	}
-
-	public void setViews(int i) {
-		// TODO Auto-generated method stub
-		
 	}
 }

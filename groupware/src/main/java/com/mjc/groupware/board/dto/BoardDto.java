@@ -33,28 +33,35 @@ public class BoardDto {
     private LocalDateTime reg_date;  
     private LocalDateTime mod_date; 
     
+    private Boolean is_fixed = false;
+    
     // 파일 첨부
     private List<BoardAttach> attachList;
     // 삭제할 파일 ID 리스트 변수 추가
     private List<Long> delete_files;
     
     public Board toEntity() {
-    	return Board.builder()
-    			.boardTitle(board_title)
-    			.boardContent(board_content)
-    			.boardNo(board_no)
-    			.member(Member.builder().memberNo(member_no).build())
-    			.build();
+        return Board.builder()
+                .boardTitle(board_title)
+                .boardContent(board_content)
+                .boardNo(board_no)
+                .member(Member.builder().memberNo(member_no).build())
+                .isFixed(is_fixed != null ? is_fixed : false)  // null이 아닌 경우 true, null인 경우 false
+                .build();
     }
-    
+    	
     public BoardDto toDto(Board board) {
-    	return BoardDto.builder()
-    			.board_title(board.getBoardTitle())
-    			.board_content(board.getBoardContent())
-    			.board_no(board.getBoardNo())
-    			.reg_date(board.getRegDate())
-    			.mod_date(board.getModDate())
-    			.build();
+        return BoardDto.builder()
+                .board_no(board.getBoardNo())
+                .board_title(board.getBoardTitle())
+                .board_content(board.getBoardContent())
+                .board_status(board.getBoardStatus())
+                .is_fixed(board.getIsFixed())
+                .reg_date(board.getRegDate())
+                .mod_date(board.getModDate())
+                .views(board.getViews())
+                .member_no(board.getMember().getMemberNo()) // 작성자 정보 추가
+                .attachList(board.getAttachList()) // 첨부파일 리스트 추가
+                .build();
     }
-    
 }

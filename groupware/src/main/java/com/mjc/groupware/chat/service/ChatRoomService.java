@@ -7,10 +7,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.entity.ChatRoom;
+import com.mjc.groupware.chat.entity.ChatMapping;
+import com.mjc.groupware.chat.repository.ChatMappingrepository;
 import com.mjc.groupware.chat.repository.ChatRoomRepository;
 import com.mjc.groupware.chat.specification.ChatRoomSpecification;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +25,10 @@ import lombok.RequiredArgsConstructor;
 public class ChatRoomService {
 	
 	private final ChatRoomRepository chatRoomRepository;
+	private final ChatMappingrepository mappingRepository;
 	
+	
+	// 채팅 화면 전환
 	public List<ChatRoom> selectChatRoomAll(){
 		
 		// 현재 로그인한 사용자의 인증정보를 SecurityContextHolder에서 꺼내옴
@@ -28,25 +36,54 @@ public class ChatRoomService {
 
 		// 인증된 사용자의 상세 정보를 담아줌
 		MemberDetails md = (MemberDetails)authentication.getPrincipal();
-		
-		// JPA 동적 쿼리 만드는 인터페이스 - 처음에는 null로 시작 
-		Specification<ChatRoom> spec = (root, query, criteriaBuilder) -> null;
-		
-		// 채팅 시작자가 로그인 사용자랑 같은가 
-		spec = spec.and(ChatRoomSpecification.fromMemberEquals(md.getMember()));
-		// 내가 시작한 채팅방과 상대가 시작한 채팅방 모두 가져오기 
-		spec = spec.or(ChatRoomSpecification.toMemberEquals(md.getMember()));
+
+		// 참여 중인 채팅방만 필터링 (memberStatus = "Y")
+		Specification<ChatRoom> spec = ChatRoomSpecification.participatedBy(md.getMember());
 		
 		// 정렬 조건 - lastDate 내림차순
-	    Sort sort = Sort.by(Sort.Direction.DESC, "lastMessageDate");
-	    
-	    
+	    Sort sort = Sort.by(Sort.Direction.DESC, "lastMsgDate");
 
 	    // 조회하고 조회결과 return 
 	    List<ChatRoom> list = chatRoomRepository.findAll(spec, sort);
-		
-		return list;
-		
+	    
+	    return list;
+	}
+	
+	// 채팅방 생성
+	@Transactional(rollbackFor = Exception.class)
+	public int createChatRoom(ChatRoomDto dto) {
+		int result = 0;
+		try {
+			
+			ChatRoom chatroom = ChatRoom.builder()
+					.chatRoomTitle(dto.getChat_room_title())
+					.createMemberNo(Member.builder().memberNo(dto.getCreate_member_no()).build())
+					.build();
+			
+			ChatRoom saved = chatRoomRepository.save(chatroom);
+			
+			/*
+			 * // 채팅방 번호 받아오기 Long chatRoomNo = saved.getChatRoomNo();
+			 */
+			
+			//  채팅 매핑 저장
+			for (Long memberNo : dto.getMember_no()) {
+				ChatMapping mappings= ChatMapping.builder()
+						.chatRoomNo(saved)
+						.memberNo(Member.builder().memberNo(memberNo).build())
+						.build();
+				
+				mappingRepository.save(mappings);
+			}
+			
+			result++;
+			
+		}catch(Exception e ) {
+			e.printStackTrace();
+		}
+
+		return result;
+
 	}
 	
 }

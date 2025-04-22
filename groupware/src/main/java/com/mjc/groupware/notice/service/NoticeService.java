@@ -42,6 +42,9 @@ public class NoticeService {
         Notice entity = Notice.builder()
                 .noticeTitle(dto.getNotice_title())
                 .noticeContent(dto.getNotice_content())
+                .noticeFix(dto.getNotice_fix() != null ? dto.getNotice_fix() : "N")
+                .noticeEmergency(dto.getNotice_emergency() != null ? dto.getNotice_emergency() : "N") // ✅ 추가
+                .noticeStatus("N")
                 .views(0)
                 .member(member)
                 .build();
@@ -69,30 +72,32 @@ public class NoticeService {
 
         // 정렬 조건 분기: views, asc, desc
         if ("asc".equalsIgnoreCase(sort)) {
-            sortObj = Sort.by(Sort.Direction.ASC, "regDate");
+            sortObj = Sort.by(Sort.Order.desc("noticeFix"), Sort.Order.asc("regDate")); // 오래된순
         } else if ("views".equalsIgnoreCase(sort)) {
-            sortObj = Sort.by(Sort.Direction.DESC, "views");
+            sortObj = Sort.by(Sort.Order.desc("noticeFix"), Sort.Order.desc("views"));  // 조회순
         } else {
-            sortObj = Sort.by(Sort.Direction.DESC, "regDate"); // 기본값: 최신순
+            sortObj = Sort.by(Sort.Order.desc("noticeFix"), Sort.Order.desc("regDate")); // 최신순
         }
 
         Pageable pageable = PageRequest.of(page, 10, sortObj);
 
         // 🔍 검색어가 없으면 전체 반환 (정렬만 적용됨)
         if (keyword == null || keyword.isBlank()) {
-            return repository.findAll(pageable);
+        	Specification<Notice> spec = NoticeSpecification.isNotFixed().and((root, query, cb) -> cb.equal(root.get("noticeStatus"), "N"));  // ⬅ 고정글 제외
+            return repository.findAll(spec, pageable);
         } 
 
-        Specification<Notice> spec = null;
+        Specification<Notice> spec = NoticeSpecification.isNotFixed();
 
-        // 🔍 검색조건 분기
         if (searchType == null || searchType == 1) { // 제목
-            spec = NoticeSpecification.noticeTitleContains(keyword);
+            spec = spec.and(NoticeSpecification.noticeTitleContains(keyword));
         } else if (searchType == 2) { // 내용
-            spec = NoticeSpecification.noticeContentContains(keyword);
+            spec = spec.and(NoticeSpecification.noticeContentContains(keyword));
         } else if (searchType == 3) { // 제목+내용
-            spec = Specification.where(NoticeSpecification.noticeTitleContains(keyword))
-                                .or(NoticeSpecification.noticeContentContains(keyword));
+            spec = spec.and(
+                Specification.where(NoticeSpecification.noticeTitleContains(keyword))
+                             .or(NoticeSpecification.noticeContentContains(keyword))
+            );
         }
 
         return repository.findAll(spec, pageable);
@@ -116,7 +121,9 @@ public class NoticeService {
             .notice_title(notice.getNoticeTitle())
             .notice_content(notice.getNoticeContent())
             .member_no(notice.getMember().getMemberNo())
-            .attachList(attachList) // 🔥 여기
+            .attachList(attachList) // 여기
+            .notice_fix(notice.getNoticeFix())
+            .notice_emergency(notice.getNoticeEmergency())
             .build();
 
     	return dto;
@@ -143,6 +150,9 @@ public class NoticeService {
 	    } else {
 	        notice.update(dto.getNotice_title(), dto.getNotice_content(), notice.getModDate());
 	    }
+		
+		notice.setNoticeFix(dto.getNotice_fix() != null ? dto.getNotice_fix() : "N");
+		notice.setNoticeEmergency(dto.getNotice_emergency() != null ? dto.getNotice_emergency() : "N");
 		
 		repository.save(notice);
 
@@ -177,10 +187,21 @@ public class NoticeService {
 	// db에는 저장이 되있는데, 여부에따라 화면에 보이고 안보이고의 차이일뿐.
 	// delete가 아니라 update로 해야함.
 	public void deleteNotice(Long noticeNo) {
-		repository.deleteById(noticeNo);
+	    Notice notice = repository.findById(noticeNo).orElse(null);
+	    if (notice != null) {
+	        notice.setNoticeStatus("Y");  // ✅ 삭제 상태로 변경
+	        repository.save(notice);
+	    }
+	}
+	
+	// 일반글, 고정글 따로 가져옴.
+	public List<Notice> getFixedNotices() {
+		return repository.findByNoticeFixAndNoticeStatusOrderByNoticeNoDesc("Y", "N"); // ✅ 조건 추가
 	}
 
-	
+	public Page<Notice> getNormalNotices(Pageable pageable) {
+	    return repository.findByNoticeFix("N", pageable);
+	}
 
 
 }

@@ -6,9 +6,9 @@ $(document).ready(function() {
 		method: 'GET',
 		success: function(data) {
 			// 받은 데이터를 jsTree에 적용
-			$('#reserve_jstree').on('loaded.jstree', function () {
+			$('#ysw_jstree').on('loaded.jstree', function () {
 				// 모든 노드를 펼침
-				$('#reserve_jstree').jstree('open_all');
+				$('#ysw_jstree').jstree('open_all');
 			})
 			.jstree({
 				'core': {
@@ -24,24 +24,24 @@ $(document).ready(function() {
   	});
 
   	// jsTree에서 선택된 노드 정보 출력
-  	$('#reserve_jstree').on("changed.jstree", function (e, data) {
+  	$('#ysw_jstree').on("changed.jstree", function (e, data) {
     	// console.log(data.selected);
   	});
 
   	// 버튼 클릭 시 선택된 노드 출력
   	$('#jstree-btn').on('click', function () {
-    	var selectedNodes = $('#reserve_jstree').jstree('get_selected');
+    	var selectedNodes = $('#ysw_jstree').jstree('get_selected');
     	alert('선택된 노드: ' + selectedNodes);
   	});
 	
 	// 펼치기 버튼 (+)
 	$('#expand_all').on('click', function () {
-		$('#reserve_jstree').jstree('open_all');
+		$('#ysw_jstree').jstree('open_all');
 	});
 
 	// 접기 버튼 (-)
 	$('#collapse_all').on('click', function () {
-		$('#reserve_jstree').jstree('close_all');
+		$('#ysw_jstree').jstree('close_all');
 	});
 	
 	$('.jstree-icon').on('click', function() {
@@ -49,7 +49,7 @@ $(document).ready(function() {
 	});
 	
 	
-	$('#reserve_jstree').on("changed.jstree", function (e, data) {
+	$('#ysw_jstree').on("changed.jstree", function (e, data) {
 	    if (data && data.selected && data.selected.length > 0) {
 	        const selectedNodeId = data.selected[0]; // 예: '2'
 	        console.log("선택된 노드 ID:", selectedNodeId);

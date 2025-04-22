@@ -47,13 +47,32 @@ public class BoardController {
         return "board/create";
     }
 
-    // 게시글 등록 처리 (API)
+    // 게시글 등록 처리
     @PostMapping("/board")
     @ResponseBody
-    public Map<String, String> createBoard(BoardDto dto, @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+    public Map<String, String> createBoard(BoardDto dto, 
+        @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("res_code", "500");
         resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
+
+        // 유효성 검사: 제목과 내용 필수 확인
+        if (dto.getBoard_title() == null || dto.getBoard_title().trim().isEmpty()) {
+            resultMap.put("res_msg", "제목은 필수 입력 항목입니다.");
+            return resultMap;
+        }
+
+        if (dto.getBoard_content() == null || dto.getBoard_content().trim().isEmpty() 
+            || dto.getBoard_content().trim().equals("<p><br></p>")) {
+            resultMap.put("res_msg", "내용은 필수 입력 항목입니다.");
+            return resultMap;
+        }
+
+        // 기본값 설정
+        if (dto.getIs_fixed() == null) {
+            dto.setIs_fixed(false);
+        }
 
         Board board = boardService.createBoard(dto, files); // 파일 리스트 함께 전달
 
@@ -90,7 +109,8 @@ public class BoardController {
     // 게시글 상세보기
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
-        List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
+    	logger.debug("boardNo received: "+boardNo); // 로그 추가
+    	List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
         model.addAttribute("attachList", attachList);
 
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
@@ -110,7 +130,7 @@ public class BoardController {
         }
     }
 
-    // 게시글 수정 페이지 (수정 화면 띄우기)
+    // 게시글 수정 페이지
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
         Optional<Board> optionalBoard = boardService.selectBoardOne(id);
@@ -125,7 +145,7 @@ public class BoardController {
         }
     }
 
-    // 게시글 수정 처리 (API)
+    // 게시글 수정 처리
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateBoard(
@@ -142,6 +162,7 @@ public class BoardController {
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "200");
             result.put("res_msg", "수정 성공");
+            result.put("boardNo", String.valueOf(boardNo)); // 상세 페이지로 이동할 boardNo 추가
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             Map<String, String> result = new HashMap<>();
