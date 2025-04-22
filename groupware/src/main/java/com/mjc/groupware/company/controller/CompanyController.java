@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mjc.groupware.company.dto.CompanyDto;
 import com.mjc.groupware.company.dto.FuncDetailResponseDto;
 import com.mjc.groupware.company.dto.FuncDto;
+import com.mjc.groupware.company.dto.FuncMappingRequestDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.repository.CompanyRepository;
 import com.mjc.groupware.company.service.CompanyService;
@@ -206,11 +207,14 @@ public class CompanyController {
 			FuncDto func = funcService.selectFuncByFuncNoWithRoles(funcNo);
 			List<FuncDto> children = funcService.selectSubFuncByFuncNoWithRoles(funcNo);
 			
+			List<RoleDto> roleList = roleService.selectRoleDtoAll();
+			
 			return FuncDetailResponseDto.builder()
 					.res_code("200")
 					.res_msg("기능 조회가 정상적으로 완료되었습니다.")
 					.funcDto(func)
 					.funcDtoList(children)
+					.roleDtoList(roleList)
 					.build();
 			
 		} catch(Exception e) {
@@ -220,8 +224,33 @@ public class CompanyController {
 					.res_msg("기능 조회 중 알 수 없는 오류가 발생했습니다.")
 					.funcDto(null)
 					.funcDtoList(Collections.emptyList())
+					.roleDtoList(Collections.emptyList())
 					.build();
 		}
+	}
+	
+	@PostMapping("/admin/company/funcMapping/update")
+	@ResponseBody
+	public Map<String, String> updateFuncMapping(@RequestBody FuncMappingRequestDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "기능-권한 맵핑 중 알 수 없는 오류가 발생했습니다.");
+		
+		logger.info("FuncMappingRequestDto: {}", dto);
+		
+		try {
+			funcService.updateFuncMapping(dto);
+			
+			resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "기능-권한 맵핑이 성공적으로 반영되었습니다.");
+		} catch(Exception e) {
+			logger.error("기능-권한 맵핑 처리 중 예외 발생", e);
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "기능-권한 맵핑 중 알 수 없는 오류가 발생했습니다.");
+		}
+		
+		return resultMap;
 	}
 	
 }

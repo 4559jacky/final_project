@@ -1,5 +1,7 @@
 package com.mjc.groupware.member.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,7 +10,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mjc.groupware.member.controller.RoleController;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
@@ -86,6 +87,28 @@ public class RoleService {
 		} catch(Exception e) {
 			logger.error("권한 삭제 중 오류 발생", e);
 	        throw e;
+		}
+	}
+	
+	public List<RoleDto> selectRoleDtoAll() {
+		try {
+			List<Role> roleList = repository.findAll();
+			
+			List<RoleDto> roleDtoList = new ArrayList<>();
+			
+			for (Role role : roleList) {
+	            RoleDto dto = RoleDto.builder()
+	                    .role_no(role.getRoleNo())
+	                    .role_name(role.getRoleName())
+	                    .role_nickname(role.getRoleNickname())
+	                    .build();
+	            roleDtoList.add(dto);
+	        }
+			
+			return roleDtoList;
+		} catch(Exception e) {
+			logger.error("역할 목록 조회 중 오류 발생", e);
+			return Collections.emptyList();
 		}
 	}
 	

@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.company.dto.FuncDto;
+import com.mjc.groupware.company.dto.FuncMappingRequestDto;
 import com.mjc.groupware.company.entity.Func;
 import com.mjc.groupware.company.entity.FuncMapping;
 import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.company.repository.FuncRepository;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.entity.Role;
+import com.mjc.groupware.member.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,7 @@ public class FuncService {
 	
 	private final FuncRepository repository;
 	private final FuncMappingRepository funcMappingRepository;
+	private final RoleRepository roleRepository;
 	
 	@Transactional(rollbackFor = Exception.class)
 	public FuncDto updateAvailableFunc(FuncDto dto) {
@@ -116,6 +119,44 @@ public class FuncService {
 				.build();
 		
 		return funcDto;
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateFuncMapping(FuncMappingRequestDto dto) {
+		Long funcNo = dto.getFunc_no();
+		Long roleNo = dto.getRole_no();
+		boolean isChecked = dto.is_checked();
+		
+		// validation 체크
+		Func func = repository.findById(funcNo)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기능입니다: " + funcNo));
+
+		Role role = roleRepository.findById(roleNo)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할입니다: " + roleNo));
+		
+		// func, role 기반으로 검색해서 뭔가가 존재하면? -> 수정
+		FuncMapping exists = funcMappingRepository.findByFuncAndRole(func, role);
+		
+		if(isChecked) {
+			// 추가를 원하는 경우
+			if(exists == null) {
+				funcMappingRepository.save(FuncMapping.builder()
+						.func(func)
+						.role(role)
+						.build());
+			} else {
+				funcMappingRepository.save(FuncMapping.builder()
+						.funcMappingNo(exists.getFuncMappingNo())
+						.func(func)
+						.role(role)
+						.build());
+			}
+		} else {
+			// 제거를 원하는 경우
+			if(exists != null) {
+				funcMappingRepository.delete(exists);
+			}
+		}
 	}
 	
 }

@@ -184,7 +184,7 @@ layout:decorate="~{/include/layout}">
 					  <div class="card w-100 border position-relative overflow-hidden">
 					    <div class="card-body p-4">
 					      <h4 class="card-title">기능 상세 및 접근 권한 부여</h4>
-					      <p class="card-subtitle mb-4">Check the selected function to see more information.</p>
+					      <p class="card-subtitle mb-4">Click to modify the accessible permissions for this function.</p>
 						  
 					      <div class="text-center">
 					      
@@ -563,63 +563,118 @@ layout:decorate="~{/include/layout}">
 	<script>
 		// 사용할 기능 이름을 클릭하면 오른쪽에 상세 정보가 보여지는 로직
 		function loadFuncDetail(event, element) {
-			event.stopPropagation();	// 체크박스 input태그에 걸려있는 함수는 작동하지 않도록 버블링 차단 
-			
-			const funcNo = element.getAttribute("data-func-no");
-			
-			fetch(`/admin/company/func/${funcNo}/detail`, {
-				method: "get"
-	    	})
-	    	.then(response => response.json())
-			.then(data => {
-				const subList = document.getElementById("func_sub_list");
-				subList.innerHTML = "";
-				
-				if (data.funcDto) {
-					const parentLi = document.createElement("li");
-					
-					let html = `<strong>${data.funcDto.func_name}</strong>`;
-					
-					// 접근 가능한 권한이 있다면 표기 - 굳이 상위 기능의 접근권한을 관리할 필요가 없는 것으로 판단
-					/* if (data.funcDto.accessibleRoles && data.funcDto.accessibleRoles.length > 0) {
-						const roleNames = data.funcDto.accessibleRoles.map(role => role.role_nickname).join(", ");
-						html += ` <span class="text-muted">[권한: ${roleNames}]</span>`;
-					} else {
-						html += ` <span class="text-muted">[권한 없음]</span>`;
-					} */
-
-					parentLi.innerHTML = html;
-					subList.appendChild(parentLi);
-				}
-				
-				if (data.funcDtoList && data.funcDtoList.length > 0) {
-			        data.funcDtoList.forEach(child => {
-			            const li = document.createElement("li");
-
-			            let html = `&nbsp;&nbsp;└ <strong>${child.func_name}</strong>`;
-						
-			            // 접근 가능한 권한이 있다면 표기
-			            if (child.accessibleRoles && child.accessibleRoles.length > 0) {
-			                const roleNames = child.accessibleRoles.map(role => role.role_nickname).join(", ");
-			                html += ` <span class="text-muted">[권한: ${roleNames}]</span>`;
-			            } else {
-			                html += ` <span class="text-muted">[권한 없음]</span>`;
-			            }
-
-			            li.innerHTML = html;
-			            subList.appendChild(li);
-			        });
-			    } else {
-					const noneLi = document.createElement("li");
-					noneLi.classList.add("text-muted");
-					noneLi.innerHTML = `&nbsp;&nbsp;└ 하위 기능이 없습니다`;
-					subList.appendChild(noneLi);
+		    event.stopPropagation();  // 체크박스 input태그에 걸려있는 함수는 작동하지 않도록 버블링 차단 
+		
+		    const funcNo = element.getAttribute("data-func-no");
+		
+		    fetch(`/admin/company/func/${funcNo}/detail`, {
+		        method: "get"
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+		        const subList = document.getElementById("func_sub_list");
+		        subList.innerHTML = "";
+		
+		        if (data.funcDto) {
+		            const parentLi = document.createElement("li");
+		            let html = `<strong>${data.funcDto.func_name}</strong>`;
+		            parentLi.innerHTML = html;
+		            subList.appendChild(parentLi);
+		        }
+		
+		        if (data.funcDtoList && data.funcDtoList.length > 0) {
+		            data.funcDtoList.forEach(child => {
+		                const li = document.createElement("li");
+		                let html = `&nbsp;&nbsp;└ <strong class="func-item" data-func-no="${child.func_no}">${child.func_name}</strong><br/>`;
+		
+		                // 하위 항목 클릭했을 때만 체크박스를 보이게 하기 위해 숨기기
+		                html += `<div class="ms-4" id="checkbox-container-${child.func_no}" style="display:none;">`;
+		
+		                if (data.roleDtoList && data.roleDtoList.length > 0) {
+		                    data.roleDtoList.forEach(role => {
+		                        const isDisabled = (role.role_no === 1 || role.role_no === 2);
+		                        const isChecked = child.accessibleRoles.some(ar => ar.role_no === role.role_no);
+		                        html += `
+		                            <div class="form-check form-check-inline">
+		                                <input class="form-check-input"
+		                                       type="checkbox"
+		                                       name="role_no"
+		                                       value="${role.role_no}"
+		                                       data-func-no="${child.func_no}"
+		                                       onchange="toggleFuncRole(this)"
+		                                       ${isChecked ? 'checked' : ''}
+		                                       ${isDisabled ? 'disabled' : ''}>
+		                                <label class="form-check-label">${role.role_nickname}</label>
+		                            </div>
+		                        `;
+		                    });
+		                }
+		
+		                html += `</div>`;
+		
+		                li.innerHTML = html;
+		                subList.appendChild(li);
+		            });
+		
+		            // 각 항목에 클릭 이벤트를 추가하여 체크박스를 보이거나 숨김
+		            const funcItems = document.querySelectorAll(".func-item");
+		            funcItems.forEach(item => {
+		                item.addEventListener("click", function() {
+		                    const funcNo = this.getAttribute("data-func-no");
+		                    toggleCheckboxVisibility(funcNo);
+		                });
+		            });
+		
+		        } else {
+		            const noneLi = document.createElement("li");
+		            noneLi.classList.add("text-muted");
+		            noneLi.innerHTML = `&nbsp;&nbsp;└ 하위 기능이 없습니다`;
+		            subList.appendChild(noneLi);
+		        }
+		    })
+		    .catch(error => {
+		        console.log(error);
+		    });
+		}
+		
+		function toggleCheckboxVisibility(funcNo) {
+		    const checkboxContainer = document.getElementById(`checkbox-container-${funcNo}`);
+		    if (checkboxContainer) {
+		        checkboxContainer.style.display = checkboxContainer.style.display === 'none' ? 'block' : 'none';
+		    }
+		}
+	</script>
+	
+	<script>
+		// 체크박스를 변경함에 따라 func_mapping 테이블에 인서트 or 딜리트 하는 로직
+		function toggleFuncRole(checkbox) {
+		    const roleNo = checkbox.value;
+		    const funcNo = checkbox.getAttribute("data-func-no");
+		    const isChecked = checkbox.checked;
+		   	
+		    fetch(`/admin/company/funcMapping/update`, {
+		        method: 'post',
+		        headers: {
+					'Content-Type': 'application/json',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+		        body: JSON.stringify({
+		            func_no: funcNo,
+		            role_no: roleNo,
+		            is_checked: isChecked
+		        })
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+				alert(data.res_msg);
+				if (data.res_code === '200') {
+					location.reload();
 				}
 			})
-			.catch(error => {
-        		console.log(error);
-        	});
-			
+		    .catch(error => {
+		        console.log(error);
+		    });
 		}
 	</script>
 	
