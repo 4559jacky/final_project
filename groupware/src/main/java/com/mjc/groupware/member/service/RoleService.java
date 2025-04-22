@@ -40,4 +40,24 @@ public class RoleService {
 	    }
 	}
 	
+	public RoleDto updateRole(RoleDto dto) {
+		try {
+			dto.setRole_name("ROLE_"+dto.getRole_name().toUpperCase());
+			
+			Role result = repository.save(Role.builder()
+					.roleNo(dto.getRole_no())
+					.roleNickname(dto.getRole_nickname())
+					.roleName(dto.getRole_name())
+					.build());
+			
+			return RoleDto.builder()
+					.role_no(result.getRoleNo())
+					.role_nickname(result.getRoleNickname())
+					.role_name(result.getRoleName().replace("ROLE_", ""))
+					.build();
+		} catch (DataIntegrityViolationException e) {
+	        throw new IllegalArgumentException("이미 사용 중인 권한 코드입니다.");
+	    }
+	}
+	
 }

@@ -40,6 +40,28 @@ public class RoleController {
 		}
 		
 		return "redirect:/admin/company";
-	}	
+	}
+	
+	@PostMapping("/admin/role/update")
+	public String updateRole(@ModelAttribute RoleDto roleDto, RedirectAttributes redirectAttributes) {
+		logger.info("RoleDto: {}", roleDto);
+		
+		try {
+			service.updateRole(roleDto);
+			
+			redirectAttributes.addFlashAttribute("res_code", "200");
+			redirectAttributes.addFlashAttribute("res_msg", "권한 수정이 성공적으로 완료되었습니다.");
+		} catch(IllegalArgumentException e) {
+			logger.error("권한 생성 실패", e);
+			redirectAttributes.addFlashAttribute("res_code", "400");
+		    redirectAttributes.addFlashAttribute("res_msg", "이미 사용 중인 권한 코드입니다.");
+		} catch(Exception e) {
+			logger.error("권한 생성 실패", e);
+			redirectAttributes.addFlashAttribute("res_code", "500");
+		    redirectAttributes.addFlashAttribute("res_msg", "권한 수정 중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return "redirect:/admin/company";
+	}
 	
 }
