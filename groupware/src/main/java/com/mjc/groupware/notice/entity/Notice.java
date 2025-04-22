@@ -46,6 +46,9 @@ public class Notice {
 	@Column(name="notice_fix")
 	private String noticeFix;
 	
+	@Column(name="notice_emergency")
+	private String noticeEmergency;
+	
 	@Column(name="views")
 	private int views;
 	
