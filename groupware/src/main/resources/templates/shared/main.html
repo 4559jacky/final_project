@@ -6,9 +6,51 @@
 <th:block layout:fragment="content">
   <script th:src="@{/js/jquery-3.7.1.js}"></script>
   <div class="container-fluid">
+  	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb align-items-center">
+          <li class="breadcrumb-item">
+            <a class="text-muted text-decoration-none" th:href="@{/home}">
+              <i class="ti ti-home fs-5"></i>
+            </a>
+          </li>
+          <li class="breadcrumb-item" aria-current="page">공유문서함</li>
+        </ol>
+      </nav><br>
+      <h2 class="mb-0 fw-bolder fs-8">공유문서함</h2>
+    </div><br>
     <div class="row">
-      <!-- ✅ 오른쪽 콘텐츠 영역만 카드로 감싸기 -->
-      <div class="col-9 p-4">
+
+      <!-- ✅ 왼쪽 사이드바 -->
+      <div class="col-md-3 mb-4">
+        <div class="bg-white p-3 rounded-3 shadow-sm">
+          <h5 class="fw-bold mb-3">업무문서함</h5>
+          <ul class="list-unstyled ps-2">
+            <li class="mb-2">
+              <span class="fw-semibold">📁 폴더 목록</span>
+              <ul class="list-unstyled ps-3">
+                <li>📂 <span class="text-danger fw-bold">개인업무 폴더</span></li>
+                <li>📂 개인문서</li>
+                <li>📂 공유문서</li>
+              </ul>
+            </li>
+            <li class="mb-2 fw-semibold">📁 공유함 폴더</li>
+            <li class="mb-2 fw-semibold">📄 공유함 파일</li>
+            <li class="mb-2 fw-semibold">⭐ 즐겨찾기</li>
+            <li class="mb-2 fw-semibold">🏖️ 휴지통</li>
+          </ul>
+          <div class="mt-4">
+            <span class="d-block mb-1">1.32GB / 13GB</span>
+            <div class="progress mb-2" style="height: 6px;">
+              <div class="progress-bar bg-danger" style="width: 10%;"></div>
+            </div>
+            <button class="btn btn-sm btn-danger w-100">업무 용량 구매</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ 오른쪽 메인 콘텐츠 -->
+      <div class="col-md-9">
         <div class="bg-white p-4 rounded-4 shadow-sm">
           <h5 class="fw-bold mb-4">개인업무 폴더함</h5>
 
