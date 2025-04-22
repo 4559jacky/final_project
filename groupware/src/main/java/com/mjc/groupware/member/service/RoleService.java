@@ -2,11 +2,17 @@ package com.mjc.groupware.member.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.member.controller.RoleController;
 import com.mjc.groupware.member.dto.RoleDto;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
+import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -15,7 +21,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoleService {
 	
+	private Logger logger = LoggerFactory.getLogger(RoleService.class);
+	
 	private final RoleRepository repository;
+	private final MemberRepository memberRepository;
 	
 	public List<Role> selectRoleAll() {
 		return repository.findAll();
@@ -58,6 +67,26 @@ public class RoleService {
 		} catch (DataIntegrityViolationException e) {
 	        throw new IllegalArgumentException("이미 사용 중인 권한 코드입니다.");
 	    }
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void deleteRole(RoleDto dto) {
+		try {
+			Long deleteRoleNo = dto.getRole_no();
+			
+			List<Member> target = memberRepository.findByRole_RoleNo(deleteRoleNo);
+			
+			Role defaultRole = repository.getReferenceById(2L);	// 다시 조회해서 넣어주는 식으로 구성할 것 - JPA :: 영속성 예외 방지
+			
+			for (Member member : target) {
+	            member.changeRoleNo(defaultRole);
+	        }
+			
+			repository.deleteById(deleteRoleNo);
+		} catch(Exception e) {
+			logger.error("권한 삭제 중 오류 발생", e);
+	        throw e;
+		}
 	}
 	
 }

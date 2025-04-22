@@ -64,4 +64,22 @@ public class RoleController {
 		return "redirect:/admin/company";
 	}
 	
+	@PostMapping("/admin/role/delete")
+	public String deleteRole(@ModelAttribute RoleDto roleDto, RedirectAttributes redirectAttributes) {
+		logger.info("RoleDto: {}", roleDto);
+		
+		try {
+			service.deleteRole(roleDto);
+			
+			redirectAttributes.addFlashAttribute("res_code", "200");
+			redirectAttributes.addFlashAttribute("res_msg", "권한 삭제가 성공적으로 완료되었습니다.");
+		} catch(Exception e) {
+			logger.error("권한 삭제 실패", e);
+			redirectAttributes.addFlashAttribute("res_code", "500");
+		    redirectAttributes.addFlashAttribute("res_msg", "권한 삭제 중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return "redirect:/admin/company";
+	}
+	
 }
