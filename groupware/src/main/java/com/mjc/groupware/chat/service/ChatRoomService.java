@@ -62,10 +62,6 @@ public class ChatRoomService {
 			
 			ChatRoom saved = chatRoomRepository.save(chatroom);
 			
-			/*
-			 * // 채팅방 번호 받아오기 Long chatRoomNo = saved.getChatRoomNo();
-			 */
-			
 			//  채팅 매핑 저장
 			for (Long memberNo : dto.getMember_no()) {
 				ChatMapping mappings= ChatMapping.builder()
@@ -83,7 +79,10 @@ public class ChatRoomService {
 		}
 
 		return result;
-
 	}
-	
+
+	// 채팅방 상세 조회
+	public ChatRoom selectChatRoomOne(Long chatRoomNo) {
+		return chatRoomRepository.findById(chatRoomNo).orElse(null);
+	}
 }

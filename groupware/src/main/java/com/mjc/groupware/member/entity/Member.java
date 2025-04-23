@@ -6,7 +6,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.mjc.groupware.board.entity.Board;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.pos.entity.Pos;
 
