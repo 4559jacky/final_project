@@ -17,6 +17,7 @@
             cursor: pointer;
             transition: all 0.2s ease-in-out;
         }
+        
 
         .file-link:hover {
             color: #000;
@@ -145,4 +146,11 @@
 .reply-actions {
     margin-left: auto;
 }
+.fixed-row {
+  background-color: #e8d9ff !important;
+  color: black !important;
+}
 
+
+
+  

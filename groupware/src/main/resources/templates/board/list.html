@@ -81,88 +81,97 @@
                 </tr>
             </thead>
           <tbody>
-    		<!-- ✅ 고정글 먼저 표시 -->
-                <tr th:each="notice : ${fixedList}" th:onclick="|location.href='/board/detail/' + [[${notice.boardNo}]]|" class="fixed-row" style="cursor: pointer;">
-                    <td>
-                        <span style="margin-left: 4px;">📌</span> <!-- 고정글 아이콘 추가 -->
-                    </td>
-                    <td class="text-start" th:text="${notice.boardTitle}">제목</td>
-                    <td th:text="${notice.member.memberName}">작성자</td>
-                    <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd HH:mm')}">등록일</td>
-                    <td th:text="${#temporals.format(notice.modDate, 'yyyy-MM-dd HH:mm')}">수정일</td>
-                    <td th:text="${notice.views}">조회수</td>
-                </tr>
+          
+          <!-- 게시글 목록에서 게시글이 없을경우 게시글이 없습니다라는 글을 달아줌 -->
+    <th:block th:if="${#lists.isEmpty(boardList)}">
+    	<tr>
+      		<td colspan="6" class="text-center text-muted">게시글이 없습니다.</td>
+    	</tr>
+  	</th:block>
+          
+<!-- 고정글 목록 출력 -->
+<tr th:each="board : ${fixedList}" 
+    th:data-board-no="${board.boardNo}"
+    th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
+    style="cursor:pointer; font-weight:bold; background-color:#e8d9ff;">
+    <td>
+        <span>📌</span>
+    </td>
+    <td class="text-start">
+        <span class="badge bg-warning text-dark me-1">공지</span>
+        <span th:text="${board.boardTitle}">제목</span>
+    </td>
+    <td th:text="${board.member.memberName}">작성자</td>
+    <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
+    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+    <td th:text="${board.views}">조회수</td>
+</tr>
 
-                <!-- 일반 게시글 -->
-                <tr th:each="board, stat : ${boardList}" th:data-board-no="${board.boardNo}" 
-                    th:onclick="window.location.href='/board/detail/' + [[${board.boardNo}]]" style="cursor: pointer;">
-                    <td th:text="${(searchDto.order_type == 2) ? (pageDto.totalPage - pageDto.nowPage) * pageDto.numPerPage + (pageDto.numPerPage - stat.index) : (pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</td>
-                    <td th:text="${board.boardTitle}">제목</td>
-                    <td th:text="${board.member.memberName}">작성자</td>
-                    <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-                    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
-                    <td th:text="${board.views}">조회수</td>
-                </tr>
-            </tbody>
-        </table>
+<!-- 일반글 목록 출력 -->
+<tr th:each="board, stat : ${boardList}" 
+    th:data-board-no="${board.boardNo}"
+    th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
+    style="cursor:pointer;">
+    <td th:text="${(searchDto.order_type == 1) ? (pageDto.totalPage - pageDto.nowPage) * pageDto.numPerPage + (pageDto.numPerPage - stat.index) : (pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</td>
+    <td class="text-start" th:text="${board.boardTitle}">제목</td>
+    <td th:text="${board.member.memberName}">작성자</td>
+    <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
+    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+    <td th:text="${board.views}">조회수</td>
+</tr>
+    </tbody>
+</table>
     </div>
     </div>
     <br>
-	
 	
 	<!-- 게시글 작성 버튼은 오른쪽에 고정 -->
 		<div class="d-flex justify-content-end mb-3">
     		<a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
 		</div><br>
+		
+<!--게시글이 없을 경우에는 페이징이 생성되지 않게 만듦 -->
+<div class="d-flex flex-column align-items-center mt-4">
 
-<!-- 페이지네이션은 가운데 정렬, 글쓰기 버튼 아래에 위치 -->
-<div class="d-flex justify-content-center mt-4">
-<nav>
-  <ul class="pagination mb-0">
+  <!-- 게시글이 있을 경우 -->
+  <th:block th:if="${pageDto.totalPage > 0}">
+    <nav>
+      <ul class="pagination mb-0 justify-content-center">
 
-    <!-- 이전 버튼: 1페이지일 경우 숨김 -->
-    <li class="page-item" th:classappend="${pageDto.nowPage == 1} ? 'd-none'">
-      <a class="page-link"
-         th:href="@{/board/list(nowPage=${pageDto.nowPage - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-         aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-
-    <!-- 페이지 번호: 게시글이 없을 경우에도 1은 보여야 함 -->
-    <th:block th:if="${pageDto.totalPage == 0}">
-      <li class="page-item active">
-        <a class="page-link text-bg-primary border-primary text-white" href="#">1</a>
-      </li>
-    </th:block>
-
-    <th:block th:if="${pageDto.totalPage > 0}">
-      <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
-        <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+        <!-- 이전 버튼 -->
+        <li class="page-item" th:classappend="${pageDto.nowPage == 1} ? 'd-none'">
           <a class="page-link"
-             th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
-             th:href="@{/board/list(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-             th:text="${num}">페이지</a>
+             th:href="@{/board/list(nowPage=${pageDto.nowPage - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+             aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
         </li>
-      </th:block>
-    </th:block>
 
-    <!-- 다음 버튼: totalPage가 5 이하이거나 마지막 페이지면 숨김 -->
-    <li class="page-item"
-        th:classappend="${pageDto.totalPage <= 5 or pageDto.nowPage == pageDto.totalPage} ? 'd-none'">
-      <a class="page-link"
-         th:href="@{/board/list(nowPage=${pageDto.nowPage + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-         aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
+        <!-- 페이지 번호 -->
+        <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+          <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+            <a class="page-link"
+               th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+               th:href="@{/board/list(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+               th:text="${num}">페이지</a>
+          </li>
+        </th:block>
 
-  </ul>
-</nav>
+        <!-- 다음 버튼 -->
+        <li class="page-item"
+            th:classappend="${pageDto.totalPage <= 5 or pageDto.nowPage == pageDto.totalPage} ? 'd-none'">
+          <a class="page-link"
+             th:href="@{/board/list(nowPage=${pageDto.nowPage + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+             aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+  </th:block>
+
 </div>
-    
-    
-	<script th:src="@{/assets/js/vendor.min.js}"></script>
 
     <!-- Bootstrap Common JS Files Start -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>

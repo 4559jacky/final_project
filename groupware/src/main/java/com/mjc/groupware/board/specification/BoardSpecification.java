@@ -20,4 +20,8 @@ public class BoardSpecification {
         return (root, query, criteriaBuilder) ->
             criteriaBuilder.equal(root.get("boardStatus"), "N");
     }
+    public static Specification<Board> isFixed(boolean fixed) {
+        return (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("isFixed"), fixed);
+    }
 }
