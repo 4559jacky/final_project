@@ -139,18 +139,23 @@ public class ApprovalController {
 	// 사용자 : 인증받은 모든 사원이 접근 가능한 url
 	
 	@GetMapping("/approval")
-	public String approvalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+	public String approvalView(Model model, SearchDto searchDto, PageDto pageDto,
+							@AuthenticationPrincipal UserDetails userDetails) {
 		
 		String userId = userDetails.getUsername();
-
 	    MemberDto memberDto = new MemberDto();
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-	    System.out.println(member);
-	    List<Approval> approvalList = service.selectApprovalAllById(member);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
+	    pageDto.setTotalPage(approvalList.getTotalPages());
+//	    List<Approval> approvalList = service.selectApprovalAllById(member); // 검색 X
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalList", approvalList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
 		
 		return "/approval/user/approval";
 	}
