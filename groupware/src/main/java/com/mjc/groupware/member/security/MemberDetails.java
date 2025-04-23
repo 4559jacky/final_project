@@ -1,5 +1,6 @@
 package com.mjc.groupware.member.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.mjc.groupware.company.entity.FuncMapping;
+import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.member.entity.Member;
 
 import lombok.Getter;
@@ -23,7 +26,10 @@ public class MemberDetails implements UserDetails {
 	// 사용자 권한 설정
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of(new SimpleGrantedAuthority(member.getRole().getRoleName()));
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority(member.getRole().getRoleName()));
+		
+		return authorities;
 	}
 	
 	// 사용자 PW 반환
