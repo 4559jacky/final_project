@@ -1,8 +1,6 @@
 package com.mjc.groupware.company.dto;
 
-import java.util.List;
-
-import com.mjc.groupware.member.dto.RoleDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,12 +15,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class FuncDetailResponseDto {
+public class FuncMappingRequestDto {
 	
-	private String res_code;
-	private String res_msg;
+	private Long func_no;
+	private Long role_no;
 	
-	private FuncDto funcDto;
-	private List<FuncDto> funcDtoList;
-	List<RoleDto> roleDtoList;
+	@JsonProperty("is_checked")
+	private boolean is_checked;
+	
 }

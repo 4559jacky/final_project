@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -13,10 +14,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
@@ -25,6 +28,7 @@ import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
 
@@ -152,18 +156,23 @@ public class ApprovalController {
 	}
 	
 	@GetMapping("/approval/receive")
-	public String receiveApprovalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+	public String receiveApprovalView(Model model, SearchDto searchDto, PageDto pageDto, @AuthenticationPrincipal UserDetails userDetails) {
 		
 		String userId = userDetails.getUsername();
-
 	    MemberDto memberDto = new MemberDto();
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-	    List<ApprovalVo> approvalVoList = service.selectApprovalAllByApproverId(member);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    
+	    
+	    List<ApprovalVo> approvalVoList = service.selectApprovalAllByApproverId(member, searchDto, pageDto);
 	    
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalVoList", approvalVoList);
+	    
+	    
 	    
 		
 		return "/approval/user/receiveApproval";
@@ -239,8 +248,121 @@ public class ApprovalController {
 		}
 		
 		return resultMap;
+	}
+	
+	// 결재자 - 승인버튼
+	@PostMapping("/approval/success/{id}")
+	@ResponseBody
+	public Map<String,String> approvalSuccessApi(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetails userDetails) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 승인에 실패하였습니다.");
 		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+		
+		int result = service.approvalSuccessApi(id, member);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 승인되었습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	// 결재자 - 반려버튼
+	@PostMapping("/approval/companion/{id}")
+	@ResponseBody
+	public Map<String,String> approvalFailApi(@PathVariable("id") Long id, @RequestParam("decision_reason") String reason, @AuthenticationPrincipal UserDetails userDetails) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 반려에 실패하였습니다.");
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+		
+		int result = service.approvalFailApi(id, reason, member);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 반려되었습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	// 합의자 - 수락버튼
+	@PostMapping("/approval/agree/{id}")
+	@ResponseBody
+	public Map<String,String> approvalAgreeApi(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetails userDetails) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 수락에 실패하였습니다.");
+		System.out.println("test");
+		String userId = userDetails.getUsername();
+		
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    System.out.println(member);
+	    
+	    int result = service.approvalAgreeApi(id, member);
+	    
+	    System.out.println(result);
+	    
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 수락되었습니다.");
+		}
+	    
+	    return resultMap;
+	}
+	
+	
+	// 합의자 - 거절버튼
+	@PostMapping("/approval/reject/{id}")
+	@ResponseBody
+	public Map<String,String> approvalRejectApi(@PathVariable("id") Long id, @RequestParam("agree_reason") String reason, @AuthenticationPrincipal UserDetails userDetails) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 거절에 실패하였습니다.");
+		
+		String userId = userDetails.getUsername();
+		
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    System.out.println(member);
+	    
+	    int result = service.approvalRejectApi(id, reason, member);
+	    
+	    System.out.println(result);
+	    
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 거절되었습니다.");
+		}
+	    
+	    return resultMap;
 		
 	}
+	
 	
 }

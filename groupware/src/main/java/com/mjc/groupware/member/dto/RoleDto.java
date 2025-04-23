@@ -19,4 +19,6 @@ public class RoleDto {
 	private String role_name;
 	private String role_nickname;
 	
+	private int member_count;
+	
 }

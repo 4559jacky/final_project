@@ -34,38 +34,30 @@ public class WebSecurityConfig {
 					.requestMatchers("/assets/**", "/favicon.ico", "/uploads/**")
 		);
 	}
-	
-		// 시큐리티 환경 설정
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
-			http.userDetailsService(customUserDetailsService) 
-			.authorizeHttpRequests(requests -> requests
-					.requestMatchers("/login","/logout").permitAll()
-					.requestMatchers("/admin/**").hasRole("ADMIN")
-					.anyRequest().authenticated())
-			.formLogin(login -> login
-					.loginPage("/login")
-					.successHandler(new MyLoginSuccessHandler())
-					.failureHandler(new MyLoginFailureHandler()))
-			.logout(logout -> logout
-					.clearAuthentication(true)
-					.logoutSuccessUrl("/login")
-					.invalidateHttpSession(true)
-					.deleteCookies("remember-me"))
-			.rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember-me")
-					.tokenValiditySeconds(60*60*24*30)
-					.alwaysRemember(false)
-					.tokenRepository(tokenRepository()))
-			
-			 // CSRF 보호 설정
-	        .csrf(csrf -> csrf
-	        		// 댓글과 대댓글에 대한 CSRF 토큰 무시
-	            .ignoringRequestMatchers("/reply/create", "/reply/delete/**", "/reply/createSubReply", "/reply/deleteSubReply/**") 
-	        );
-			
-			return http.build();
-		}
-
+	// 시큐리티 환경 설정
+	@Bean
+	SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
+		http.userDetailsService(customUserDetailsService)
+		.authorizeHttpRequests(requests -> requests
+				.requestMatchers("/login","/logout").permitAll()
+				.requestMatchers("/admin/**").hasRole("ADMIN")
+				.anyRequest().authenticated())
+		.formLogin(login -> login
+				.loginPage("/login")
+				.successHandler(new MyLoginSuccessHandler())
+				.failureHandler(new MyLoginFailureHandler()))
+		.logout(logout -> logout
+				.clearAuthentication(true)
+				.logoutSuccessUrl("/login")
+				.invalidateHttpSession(true)
+				.deleteCookies("remember-me"))
+		.rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember-me")
+				.tokenValiditySeconds(60*60*24*30)
+				.alwaysRemember(false)
+				.tokenRepository(tokenRepository()));
+		
+		return http.build();
+	}
 	
 	// 데이터베이스 접근 Bean 등록 - Spring Security는 JDBC 방식을 필요로함
 	@Bean

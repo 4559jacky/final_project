@@ -58,44 +58,51 @@
 					</form>
 				</div>
 				<!-- 채팅방 목록 -->
-				<div class="app-chat" >
-					<ul th:if="${!#lists.isEmpty(chatRoomList)}" 
-						th:each="chatRoom : ${chatRoomList}"
-						th:attr="data-room-no=${chatRoom.chatRoomNo}"
-						class="chat-users mb-0 mh-n100" data-simplebar>
-						<li><a href="javascript:void(0)"
-							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
-							id="chat_user_3" data-user-id="3">
-								<div class="d-flex align-items-center">
-									<span class="position-relative"> <img
-										src="../assets/images/profile/user-8.jpg" alt="user-8"
-										width="48" height="48" class="rounded-circle" /> <span
-										class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-warning">
-											<span class="visually-hidden">New alerts</span>
-									</span>
-									</span>
-									<div class="ms-3 d-inline-block w-75">
-										<h6 th:text="${chatRoom.chatRoomTitle}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
-										<span th:text="${chatRoom.lastMsg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
+				<div class="app-chat" style="max-height: 572px; height: 572px;">
+					<div data-simplebar style="height: 100%;">
+						<ul th:if="${!#lists.isEmpty(chatRoomList)}"
+							th:each="chatRoom : ${chatRoomList}"
+							th:attr="data-room-no=${chatRoom.chatRoomNo}"
+							class="chat-users mb-0">
+							
+							<li>
+								<a href="javascript:void(0)"
+									class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
+									id="chat_user_3"
+									th:attr="data-room-id=${chatRoom.chatRoomNo}">
+									
+									<div class="d-flex align-items-center">
+										<span class="position-relative">
+											<img src="../assets/images/profile/user-8.jpg" alt="user-8"
+												width="48" height="48" class="rounded-circle" />
+											<span class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-warning">
+												<span class="visually-hidden">New alerts</span>
+											</span>
+										</span>
+										<div class="ms-3 d-inline-block w-75">
+											<h6 th:text="${chatRoom.chatRoomTitle}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
+											<span th:text="${chatRoom.lastMsg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
+										</div>
 									</div>
+									<p th:text="${#temporals.format(chatRoom.lastMsgDate, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
+								</a>
+							</li>
+						</ul>
+						<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0">
+							<li>
+								<div class="ms-3 d-inline-block w-75 text-center">
+									<h6 class="mb-1 fw-semibold chat-title">채팅 중인 방이 없습니다.</h6>
 								</div>
-								<p th:text="${#temporals.format(chatRoom.lastMsgDate, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
-						</a></li>
-					</ul>
-					<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0 mh-n100" data-simplebar>
-						<li>
-							<div class="ms-3 d-inline-block w-75 text-center">
-								<h6 class="mb-1 fw-semibold chat-title">채팅 중인 방이 없습니다.</h6>
-								
-							</div>
-						</li>
-					</ul>
+							</li>
+						</ul>
+					</div>
 				</div>
-				 <div class="px-9 py-6 border-top text-center">
+
+				<div class="px-9 py-6 border-top text-center">
 				    <button class="btn btn-primary px-4" id="create_btn" type="button">
 				      + 새로운 채팅 추가 
 				    </button>
-				  </div>
+				</div>
 			</div>
 			<div class="w-70 w-xs-100 chat-container">
 				<div class="chat-box-inner-part h-100">
@@ -122,7 +129,7 @@
 								</div>
 								<div>
 									<h6 class="mb-1 name fw-semibold"></h6>
-									<p class="mb-0">Away</p>
+									<p class="mb-0 dept"></p>
 								</div>
 							</div>
 							<ul class="list-unstyled mb-0 d-flex align-items-center">
@@ -201,6 +208,10 @@
 											<li><a
 												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
 												href="javascript:void(0)"> <i class="ti ti-paperclip"></i>
+											</a></li>
+											<li><a
+												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
+												href="javascript:void(0)"> <i class="ti ti-brand-telegram"></i>
 											</a></li>
 										</ul>
 									</div>
@@ -333,6 +344,10 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
+				    <!-- 채팅방 제목 입력 -->
+				    <label for="title" class="form-label">등록할 채팅방명</label> 
+					<input type="text" class="form-control" id="title" name="title"
+							style="color: black;" placeholder="등록하실 채팅방명을 입력해주세요."><br>
 					<!-- 상단: 조직도 + 사원 목록 -->
 					<div class="row mb-4" style="height: 280px;">
 						<p style="color: gray;">채팅에 추가할 인원을 선택해주세요.</p>
@@ -359,8 +374,12 @@
 					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
 					<form name="chatRoom_create_form">
 						<input type="hidden" id="chatRoomTitle" name="chat_room_title">
+						<input type="hidden" id="createMemverNo" name="create_member_no"
+                            th:value="${#authentication.principal.member.memberNo}">
 						<br><br>
-						<div id="selectedUsersInputs"></div>
+						<div id="selectedUsersInputs">
+							<input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}"  th:attr="data-id=${#authentication.principal.member.memberNo}" >
+						</div>
 						<div class="row gx-3 text-center" style="height: 200px;">
 							<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
 								<ul id="selectMemberList" class="list-group fs-6"></ul>	
@@ -428,6 +447,8 @@
 			        hiddenInput.name = "member_no"; // 백엔드에서 이 name으로 받아요!
 			        hiddenInput.value = memberNo;
 			        hiddenInput.setAttribute("data-id", memberNo);
+			        hiddenInput.setAttribute("data-pos", memberPos);
+			        hiddenInput.setAttribute("data-name", memberName);
 
 			        // 리스트와 숨은 input 추가
 			        selectUserList.appendChild(li);
@@ -438,7 +459,7 @@
 			
 		});
 		
-		// 회의실 예약 인원 삭제 
+		// 채팅방 추가 인원 삭제 
 		document.addEventListener("DOMContentLoaded",function(){
 			document.addEventListener("click", function (e) {
 			    if (e.target.classList.contains("deleteBtn")) {
@@ -453,7 +474,213 @@
 			});
 			
 		});
+		
+		// 채팅방 추가  버튼 클릭 시 정보 저장 
+		const createForm = document.chatRoom_create_form;
+		
+		createForm.addEventListener('submit',(e) => {
+			e.preventDefault()
+			
+			const selectedInputs = document.querySelectorAll("#selectedUsersInputs input[name='member_no']");
+			const chatRoomTitle = document.getElementById("title").value;
+			const chatRoomTitleInput = document.getElementById("chatRoomTitle"); // 실제 서버로 전송될 제목 hidden input
+			const createMemverNo = document.getElementById("createMemverNo").value; // 현재 로그인한 사원 번호
+			
+			// 유효성 검사 (본인 외에 최소 1명 이상 있어야 함)
+			const validSelectList = Array.from(selectedInputs).filter(input => input.value !== createMemverNo);
+			
+			// 유효성 검사
+			if (validSelectList.length === 0) {
+			    alert("채팅에 추가할 인원을 1명 이상 선택해주세요.");
+			    return;
+			}
 	
+			 let finalTitle = "";// 최종 제목 변수
+
+			  if (!chatRoomTitle) {
+			    // 제목이 비어있다면 참여자 이름+직급 조합으로 설정
+			    finalTitle = validSelectList
+			      .map(input => {
+			        const name = input.getAttribute("data-name");
+			        const position = input.getAttribute("data-pos");
+			        return `${name} ${position}`;
+			      })
+			      .join(", ");
+			  }else if(chatRoomTitle){
+				  // 제목이 비어있지 않다면 입력한 제목으로 설정
+				  finalTitle = chatRoomTitle;
+			  }
+
+			  chatRoomTitleInput.value = finalTitle;
+
+
+			const payload = new FormData(createForm);
+			
+			
+			fetch("/create",{
+				method:'post',
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body:payload,
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if (data.res_code == "200") {
+					location.reload();
+				}
+			});
+			
+		})
+		
+		// 채팅 인원 선택 모달창 리셋
+		document.getElementById("selectMemberModal").addEventListener("hidden.bs.modal", () => {
+			document.getElementById("title").value = ""; // 채팅방 제목 초기화
+			document.getElementById("chatRoomTitle").value = ""; 
+			document.getElementById("selectMemberList").innerHTML = "";
+
+		    // 숨겨진 input 리스트 초기화
+		    selectedUsersInputs.innerHTML = "";
+		});
+	
+		
+		
+		 document.addEventListener("DOMContentLoaded", function () {
+			 // 채팅방 검색 
+			 $(".search-chat").on("keyup", function () {
+				  var value = $(this).val().toLowerCase();
+				  $(".chat-users li").filter(function () {
+				    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+				  });
+				});
+			 
+			 
+			// 채팅방 목록 클릭 시 해당 채팅창으로 이동
+			$(".app-chat .chat-user").on("click", function () {
+			  // 이미 열려 있는 채팅이면 return (optional)
+			  if ($(this).hasClass("active")) {
+			    return;
+			  }
+			
+			  // 유저 정보 추출
+			  var roomNo = $(this).attr("data-room-id");
+			  var memberName = $(this).find(".chat-title").text();
+			  var memberDept = $(this).find(".dept").text();
+			  var memberImage = $(this).find("img").attr("src");
+			
+			  // 상단 이름/이미지 설정
+			  if (window.innerWidth <= 767) {
+			    $(".chat-container .current-chat-user-name .name").html(
+			      personName.split(" ")[0]
+			    );
+			  } else {
+			    $(".chat-container .current-chat-user-name .name").html(memberName);
+			  }
+			  $(".chat-container .current-chat-user-name img").attr("src", memberImage); dept
+			  $(".chat-container .current-chat-user-name .dept").html();
+			
+			  // 채팅창 보여주기
+			  $(".chat").removeClass("active-chat");
+			  $(".user-chat-box .chat-user").removeClass("bg-light-subtle");
+			  $(this).addClass("bg-light-subtle");
+			  $(".chat[data-user-id='" + roomNo + "']").addClass("active-chat");
+			
+			  // 채팅 영역 보이도록 설정
+			  $(this)
+			    .parents(".chat-application")
+			    .find(".chat-not-selected")
+			    .hide()
+			    .siblings(".chatting-box")
+			    .show();
+			  $(this)
+			    .parents(".chat-application")
+			    .find(".chat-container .chat-box-inner-part")
+			    .show();
+			
+			  // 모바일용 메뉴 닫기 처리
+			  if ($(this).parents(".user-chat-box").hasClass("user-list-box-show")) {
+			    $(this).parents(".user-chat-box").removeClass("user-list-box-show");
+			  }
+			
+			  // 하단 입력창 보이기
+			  $(".chat-meta-user").addClass("chat-active");
+			  $(".chat-send-message-footer").addClass("chat-active");
+			});
+
+
+
+			 //엔터 누르면 입력값을 메시지 박스로 만들어 .active-chat에 append
+
+			 // 시간은 현재 시각 기준으로 포맷팅해서 같이 출력
+
+			 // 입력창 비우는 것까지 포함
+
+
+			 $(".message-type-box").on("keydown", function (event) {
+			   if (event.key === "Enter") {
+			     // Start getting time
+			     var now = new Date();
+			     var hh = now.getHours();
+			     var min = now.getMinutes();
+
+			     var ampm = hh >= 12 ? "pm" : "am";
+			     hh = hh % 12;
+			     hh = hh ? hh : 12;
+			     hh = hh < 10 ? "0" + hh : hh;
+			     min = min < 10 ? "0" + min : min;
+
+			     var time = hh + ":" + min + " " + ampm;
+			     // End
+
+			     var chatInput = $(this);
+			     var chatMessageValue = chatInput.val();
+			     if (chatMessageValue === "") {
+			       return;
+			     }
+			     $messageHtml =
+			       '<div class="text-end mb-3"> <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">' +
+			       chatMessageValue +
+			       '</div> <div class="d-block fs-2">' +
+			       time +
+			       "</div>  </div>";
+			     var appendMessage = $(this)
+			       .parents(".chat-application")
+			       .find(".active-chat")
+			       .append($messageHtml);
+			     var clearChatInput = chatInput.val("");
+			   }
+			 });
+
+			 // *******************************************************************
+			 // Email Application
+			 // *******************************************************************
+
+			 //뒤로 가기 버튼 클릭 시 채팅 박스 닫기
+			 $(document).ready(function () {
+			   $(".back-btn").click(function () {
+			     $(".app-email-chatting-box").hide();
+			   });
+			   $(".chat-user").click(function () {
+			     $(".app-email-chatting-box").show();
+			   });
+			 });
+
+			 // *******************************************************************
+			 // chat Offcanvas
+			 // *******************************************************************
+
+			 // 사이드 오프캔버스(우측 사이드메뉴) 열기/닫기
+			 $("body").on("click", ".chat-menu", function () {
+			   $(".parent-chat-box").toggleClass("app-chat-right");
+			   $(this).toggleClass("app-chat-active");
+			 });
+
+	        });
+		
+		
+		
 		// 웹소켓 연결 test
 		let socket = new WebSocket("ws://localhost:8080/ws/basic");
 		socket.onopen = function(){
@@ -495,6 +722,6 @@
 	<!-- Bootstrap Common JS Files End -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-	<script src="../js/ysw/chat.js"></script>
+	
 </th:block>
 </html>
