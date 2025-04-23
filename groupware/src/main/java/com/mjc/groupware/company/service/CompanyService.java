@@ -146,7 +146,7 @@ public class CompanyService {
 	        FuncDto dto = FuncDto.builder()
 	                .func_no(func.getFuncNo())
 	                .func_name(func.getFuncName())
-	                .func_url(func.getFuncUrl())
+	                .func_code(func.getFuncCode())
 	                .func_status(func.getFuncStatus())
 	                .parent_func_no(func.getParentFunc() != null ? func.getParentFunc().getFuncNo() : null)
 	                .reg_date(func.getRegDate())

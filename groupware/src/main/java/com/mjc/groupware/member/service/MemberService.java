@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
@@ -44,7 +45,6 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final DataSource dataSource;
 	private final UserDetailsService userDetailsService;
-
 	
 	public Member selectMemberOne(MemberDto dto) {
 		Member result = repository.findByMemberId(dto.getMember_id());

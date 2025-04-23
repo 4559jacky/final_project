@@ -5,8 +5,12 @@ import javax.sql.DataSource;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class WebSecurityConfig {
 	
 	private final DataSource dataSource;
@@ -40,7 +45,6 @@ public class WebSecurityConfig {
 		http.userDetailsService(customUserDetailsService)
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/logout").permitAll()
-				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")
