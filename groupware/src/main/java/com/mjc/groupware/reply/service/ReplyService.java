@@ -86,8 +86,16 @@ public class ReplyService {
             throw new IllegalArgumentException("삭제 권한이 없습니다.");
         }
 
+        // 부모 댓글 소프트 삭제
         reply.setReplyStatus("D");
-        replyRepository.save(reply);
+
+        // 자식 댓글(대댓글)도 소프트 삭제
+        for (Reply childReply : reply.getChildReplies()) {
+            childReply.setReplyStatus("D");
+        }
+
+        // 저장 (영속성 컨텍스트에 반영됨)
+        replyRepository.save(reply);  // 자식까지 cascade 저장됨
     }
 
     // 댓글/대댓글 계층형 조회

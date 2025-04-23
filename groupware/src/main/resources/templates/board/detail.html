@@ -48,6 +48,7 @@
     <h2 th:text="${board.boardTitle ?: '제목 없음'}"
         class="fw-bold mb-0"
         style="font-size: 2rem;"></h2>
+        
 
     <!-- 작성 정보 (오른쪽 정렬) -->
     <div class="text-dark" style="font-size: 1rem; white-space: nowrap;">
@@ -127,9 +128,28 @@
                 <span th:text="${reply.memberName}">작성자 이름</span>
                 <span th:text="${reply.timeAgo}">몇시간 전</span>
             </div>
-            <div class="reply-actions">
-                <button type="button" class="btn btn-sm btn-outline-warning" th:onclick="|reportReply(${reply.reply_no})|">신고</button>
-            </div>
+            
+            
+      <!--본인이 쓴글일때는 수정 및 삭제가 보여야하고, 남이 볼때는 수정 및 삭제 버튼이 보이면 안됨  -->     
+     <th:block sec:authorize="isAuthenticated()">
+        <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="mt-4 text-end">
+             <div class="reply-actions">
+                <button type="button" class="btn btn-warning px-3 py-1" th:onclick="|reportReply(${reply.reply_no})|">신고</button>
+            </div><br>
+			<a class="btn btn-primary px-3 py-1" th:href="@{/replies/{replyNo}/update(id=${board.boardNo})}">수정</a>
+            <a class="btn btn-danger px-3 py-1" href="#" th:onclick="|replyDelete(${board.boardNo})|">삭제</a>
+        </div>
+    </th:block>
+        <!-- 수정/삭제 버튼 -->
+<!--     <th:block sec:authorize="isAuthenticated()">
+        <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="mt-4 text-end">
+            <a th:href="@{/board/list}" class="btn btn-primary px-3 py-1">목록으로</a>
+            <a class="btn btn-primary px-3 py-1" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
+            <a class="btn btn-danger px-3 py-1" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
+        </div>
+    </th:block> -->
+    
+
         </div>
 
         <div class="reply-content">
