@@ -157,7 +157,22 @@ public class ApprovalController {
 	    model.addAttribute("pageDto", pageDto);
 	    model.addAttribute("searchDto", searchDto);
 		
-		return "/approval/user/approval";
+		return "/approval/user/sendApproval";
+	}
+	
+	@GetMapping("/approval/send/detail/{id}")
+	public String approvalSendDetailView(@PathVariable("id") Long id, Model model) {
+		Approval approval = service.selectApprovalOneByApprovalNo(id);
+	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
+	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
+	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
+	    
+	    model.addAttribute("approval", approval);
+	    model.addAttribute("approverList", approverList);
+	    model.addAttribute("agreementerList", agreementerList);
+	    model.addAttribute("referencerList", referencerList);
+		
+		return "/approval/user/sendApprovalDetail";
 	}
 	
 	@GetMapping("/approval/receive")

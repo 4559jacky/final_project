@@ -183,35 +183,37 @@
 
 		<th:block th:if="${!(approvalList.empty)}">
 			<!-- Pagination -->
-			<nav class="d-flex justify-content-center mt-4">
-				<ul class="pagination mb-0">
-					<!-- 이전 페이지 버튼 -->
-					<li th:if="${pageDto.prev}"
-						class="page-item"
-						th:classappend="${pageDto.prev} ? '' : 'disabled'"><a
-						class="page-link"
-						th:href="@{/approval(nowPage=${pageDto.pageBarStart - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-						aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
-					</a></li>
-	
-					<!-- 페이지 번호 -->
-					<li class="page-item"
-						th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
-						th:classappend="${pageDto.nowPage == num} ? ' active'"><a
-						class="page-link"
-						th:href="@{/approval(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-						th:text="${num}"> </a></li>
-	
-					<!-- 다음 페이지 버튼 -->
-					<li th:if="${pageDto.next}"
-						class="page-item"
-						th:classappend="${pageDto.next} ? '' : 'disabled'"><a
-						class="page-link"
-						th:href="@{/approval(nowPage=${pageDto.pageBarEnd + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-						aria-label="Next"> <span aria-hidden="true">&raquo;</span>
-					</a></li>
-				</ul>
-			</nav>
+			<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+				<nav>
+					<ul class="pagination mb-0">
+						<!-- 이전 페이지 버튼 -->
+						<li th:if="${pageDto.prev}"
+							class="page-item"
+							th:classappend="${pageDto.prev} ? '' : 'disabled'"><a
+							class="page-link"
+							th:href="@{/approval(nowPage=${pageDto.pageBarStart - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+							aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+						</a></li>
+		
+						<!-- 페이지 번호 -->
+						<li class="page-item"
+							th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
+							th:classappend="${pageDto.nowPage == num} ? 'active'"><a
+							class="page-link" th:classappend="${pageDto.nowPage == num} ?'text-bg-primary border-primary text-white'"
+							th:href="@{/approval(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+							th:text="${num}"> </a></li>
+		
+						<!-- 다음 페이지 버튼 -->
+						<li th:if="${pageDto.next}"
+							class="page-item"
+							th:classappend="${pageDto.next} ? '' : 'disabled'"><a
+							class="page-link"
+							th:href="@{/approval(nowPage=${pageDto.pageBarEnd + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+							aria-label="Next"> <span aria-hidden="true">&raquo;</span>
+						</a></li>
+					</ul>
+				</nav>
+			</div>
 		</th:block>
 	</div>
 
@@ -307,6 +309,14 @@
 
 
 	<script>
+		
+		$(function() {
+			$('.table-responsive tbody tr').on('click', function() {
+				const approvalNo = $(this).data('approver-no');
+				location.href = '/approval/send/detail/' + approvalNo;
+			})
+		})
+	
 		document.getElementById('order_type').addEventListener('change',
 				function(e) {
 					const searchType = document.querySelector('select[name="search_type"]').value;
