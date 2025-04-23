@@ -151,7 +151,7 @@ public class ApprovalController {
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
 	    pageDto.setTotalPage(approvalList.getTotalPages());
-//	    List<Approval> approvalList = service.selectApprovalAllById(member); // 검색 X
+	    
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalList", approvalList);
 	    model.addAttribute("pageDto", pageDto);
@@ -177,9 +177,6 @@ public class ApprovalController {
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalVoList", approvalVoList);
 	    
-	    
-	    
-		
 		return "/approval/user/receiveApproval";
 	}
 	

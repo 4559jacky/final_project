@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Calendar Elements and options
   /*=====================*/
   var calendarEl = document.querySelector("#calendar");
+  var today = new Date(); //현재 날짜 객체(주,일 날짜변경하기 위한거)
   var checkWidowWidth = function () {
     if (window.innerWidth <= 1199) {
       return true;
@@ -93,7 +94,6 @@ document.addEventListener("DOMContentLoaded", function () {
     myModal.show();
     getModalStartDateEl.value = combineDate;
   };
-  
   /*=====================*/
   // Active Calender
   /*=====================*/
@@ -108,12 +108,32 @@ document.addEventListener("DOMContentLoaded", function () {
 	allDaySlot: false,
 	displayEventTime: false, //일정바 앞 시간
 	slotDuration: '00:30:00',
-	initialView: 'dayGridMonth',
 	navLinks: true,
 	nowIndicator:true,
     height: checkWidowWidth() ? 900 : 1052,
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
-    initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
+	initialDate: today,
+	// 주,일 현재날짜를 기준으로 셋팅하는 코드
+	windowResize: function () {
+		if (checkWidowWidth()) {
+		    calendar.changeView("listWeek", new Date()); // 주간 뷰 + 오늘 날짜 기준
+		    calendar.setOption("height", 900);
+		} else {
+		    calendar.changeView("dayGridMonth", new Date()); // 월간 뷰 + 오늘 기준
+		    calendar.setOption("height", 1052);
+		}
+	},
+	// 뷰가 바뀔 때마다 실행
+	  viewDidMount: function (info) {
+	    const viewType = info.view.type;
+
+	    // 만약 주간 뷰로 전환되었다면 오늘 날짜로 강제 이동
+	    if (viewType === "timeGridWeek" || viewType === "listWeek") {
+	      setTimeout(() => {
+	        calendar.gotoDate(today); // 주간 뷰에서도 오늘이 포함된 주 보이기
+	      }, 0);
+	    }
+	  },
     headerToolbar: calendarHeaderToolbar,buttonText,
 	eventSources:[
 		// DB 이벤트 API 호출
@@ -259,15 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
         text: "일정 추가",
         click: calendarAddEvent,
       },
-    },
-    windowResize: function (arg) {
-      if (checkWidowWidth()) {
-        calendar.changeView("listWeek");
-        calendar.setOption("height", 900);
-      } else {
-        calendar.changeView("dayGridMonth");
-        calendar.setOption("height", 1052);
-      }
     },
 	// now Date를 기준으로 이전날짜 클릭 불가능하게 하는 코드
 	selectAllow: function(selectInfo) {
@@ -418,37 +429,37 @@ document.addEventListener("DOMContentLoaded", function () {
 			
   		calendar.getEvents().forEach(event => {
   			const eventType = event.extendedProps.planType;
+			//planType이 없는 이벤트는 공휴일로 간주해서 무조건 표시되도록 처리
+			const isHoliday = event.extendedProps.type === 'holiday'; // 공휴일 여부
+			
 			let shouldShow = false;
 
-				switch (selectedType) {
-			          // 전체 선택 시 모든 이벤트 보이기
-			        case '개인':
-			          shouldShow = true;
-			          break;
-
-			        case '부서':
-			          // 부서를 선택하면 부서 + 회사 일정 같이 보기
-			          shouldShow = eventType === '부서' || eventType === '회사';
-			          break;
-
-			        case '회사':
-			          shouldShow = eventType === '회사';
-			          break;
-
-			        case '휴가':
-			          shouldShow = eventType === '휴가';
-			          break;
-
-			        default:
-			          shouldShow = false;
-			          break;
+			if (isHoliday) {
+			        shouldShow = true;
+			      } else {
+			        switch (selectedType) {
+			          case '개인':
+			            shouldShow = true;
+			            break;
+			          case '부서':
+			            shouldShow = eventType === '부서' || eventType === '회사';
+			            break;
+			          case '회사':
+			            shouldShow = eventType === '회사';
+			            break;
+			          case '휴가':
+			            shouldShow = eventType === '휴가';
+			            break;
+			          default:
+			            shouldShow = false;
+			            break;
+			        }
 			      }
-				 
 			      event.setProp('display', shouldShow ? 'block' : 'none');
-  		});
-  	});
-  });
-  
+	  		});
+	  	});
+	  });
+	  
   var myModal = new bootstrap.Modal(document.getElementById("eventModal"));
   var modalToggle = document.querySelector(".fc-addEventButton-button ");
   document
