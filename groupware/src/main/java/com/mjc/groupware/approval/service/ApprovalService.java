@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +31,7 @@ import com.mjc.groupware.approval.repository.ApprApproverRepository;
 import com.mjc.groupware.approval.repository.ApprReferencerRepository;
 import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
+import com.mjc.groupware.approval.specification.ApprovalSpecification;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.repository.MemberRepository;
@@ -176,6 +182,33 @@ public class ApprovalService {
 		
 	}
 
+	// 결재리스트 받아오기 - 보낸 문서함 출력(검색, 페이징 O)
+	public Page<Approval> selectApprovalAll(MemberDto member, SearchDto searchDto, PageDto pageDto) {
+		Pageable pageable = PageRequest.of(pageDto.getNowPage() -1 , pageDto.getNumPerPage(),
+				Sort.by("apprRegDate").descending());
+		
+		if(searchDto.getOrder_type() == 2) {
+			pageable = PageRequest.of(pageDto.getNowPage() -1 , pageDto.getNumPerPage(),
+					Sort.by("apprRegDate").ascending());
+		}
+		
+		Specification<Approval> spec = (root, query, criteriaBuilder) -> null;
+		if("appr_title".equals(searchDto.getSearch_type())) {
+			spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+		} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+			spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+		} else {
+			spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+		}
+		
+		Page<Approval> list = approvalRepository.findAll(spec, pageable);
+		
+		return list;
+	}
+	
+	// 결재리스트 받아오기 - 보낸 문서함 출력 (검색X)
 	public List<Approval> selectApprovalAllById(MemberDto member) {
 		
 		List<Approval> approvalList = new ArrayList<Approval>();
@@ -194,6 +227,7 @@ public class ApprovalService {
 		paramMap.put("member_no", member.getMember_no());
 		paramMap.put("search_type", searchDto.getSearch_type());
 		paramMap.put("search_text", searchDto.getSearch_text());
+		paramMap.put("order_type", searchDto.getOrder_type());
 		
 		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(paramMap);
 
@@ -410,5 +444,5 @@ public class ApprovalService {
 		
 		return result;
 	}
-	
+
 }

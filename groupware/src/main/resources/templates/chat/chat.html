@@ -118,14 +118,12 @@
 						</div>
 					</div>
 					<!-- 채팅 박스  -->
+					 <!-- 상단 채팅방 정보 출력  -->
 					<div class="chatting-box d-block">
 						<div
 							class="p-9 border-bottom chat-meta-user d-flex align-items-center justify-content-between">
 							<div class="hstack gap-3 current-chat-user-name">
 								<div class="position-relative">
-									<img src="../assets/images/profile/user-3.jpg" alt="user1"
-										width="48" height="48" class="rounded-circle" />
-
 								</div>
 								<div>
 									<h6 class="mb-1 name fw-semibold"></h6>
@@ -140,57 +138,13 @@
 							</ul>
 						</div>
 						<div class="d-flex parent-chat-box">
+						<!-- 채팅 내용 출려 -->
 							<div class="chat-box w-xs-100">
 								<div class="chat-box-inner p-9" data-simplebar>
-									<div class="chat-list chat active-chat" data-user-id="1">
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													I want more detailed information.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-												<div class="p-2 bg-info-subtle text-dark rounded-1 fs-3">
-													They got there early, and they got really good seats.</div>
-											</div>
-										</div>
-									</div>
-									
-									<div class="chat-list chat" data-user-id="3">
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-start">
-											<img src="../assets/images/profile/user-8.jpg" alt="user8"
-												width="40" height="40" class="rounded-circle" />
-											<div>
-												<h6 class="fs-2 text-muted">Andrew, 2 hours ago</h6>
-												<div
-													class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-													I want more detailed information.</div>
-											</div>
-										</div>
-										<div
-											class="hstack gap-3 align-items-start mb-7 justify-content-end">
-											<div class="text-end">
-												<h6 class="fs-2 text-muted">2 hours ago</h6>
-												<div
-													class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
-													If I don’t like something, I’ll stay away from it.</div>
-												<div class="p-2 bg-info-subtle text-dark rounded-1 fs-3">
-													They got there early, and they got really good seats.</div>
-											</div>
-										</div>
+									<div class="chat-list chat active-chat" data-user-id="0">
 										
+									</div>
+									<div class="chat-list chat" data-user-id="3">
 									</div>
 								</div>
 								<div class="px-9 py-6 border-top chat-send-message-footer">
@@ -374,7 +328,7 @@
 					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
 					<form name="chatRoom_create_form">
 						<input type="hidden" id="chatRoomTitle" name="chat_room_title">
-						<input type="hidden" id="createMemverNo" name="create_member_no"
+						<input type="hidden" id="createMemberNo" name="create_member_no"
                             th:value="${#authentication.principal.member.memberNo}">
 						<br><br>
 						<div id="selectedUsersInputs">
@@ -484,10 +438,10 @@
 			const selectedInputs = document.querySelectorAll("#selectedUsersInputs input[name='member_no']");
 			const chatRoomTitle = document.getElementById("title").value;
 			const chatRoomTitleInput = document.getElementById("chatRoomTitle"); // 실제 서버로 전송될 제목 hidden input
-			const createMemverNo = document.getElementById("createMemverNo").value; // 현재 로그인한 사원 번호
+			const createMemberNo = document.getElementById("createMemberNo").value; // 현재 로그인한 사원 번호
 			
 			// 유효성 검사 (본인 외에 최소 1명 이상 있어야 함)
-			const validSelectList = Array.from(selectedInputs).filter(input => input.value !== createMemverNo);
+			const validSelectList = Array.from(selectedInputs).filter(input => input.value !== createMemberNo);
 			
 			// 유효성 검사
 			if (validSelectList.length === 0) {
@@ -554,9 +508,9 @@
 				  $(".chat-users li").filter(function () {
 				    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
 				  });
-				});
+			});
 			 
-			 
+
 			// 채팅방 목록 클릭 시 해당 채팅창으로 이동
 			$(".app-chat .chat-user").on("click", function () {
 			  // 이미 열려 있는 채팅이면 return (optional)
@@ -569,6 +523,8 @@
 			  var memberName = $(this).find(".chat-title").text();
 			  var memberDept = $(this).find(".dept").text();
 			  var memberImage = $(this).find("img").attr("src");
+			  
+			  
 			
 			  // 상단 이름/이미지 설정
 			  if (window.innerWidth <= 767) {
@@ -578,26 +534,73 @@
 			  } else {
 			    $(".chat-container .current-chat-user-name .name").html(memberName);
 			  }
-			  $(".chat-container .current-chat-user-name img").attr("src", memberImage); dept
+			  $(".chat-container .current-chat-user-name img").attr("src", memberImage); 
 			  $(".chat-container .current-chat-user-name .dept").html();
 			
-			  // 채팅창 보여주기
-			  $(".chat").removeClass("active-chat");
-			  $(".user-chat-box .chat-user").removeClass("bg-light-subtle");
-			  $(this).addClass("bg-light-subtle");
-			  $(".chat[data-user-id='" + roomNo + "']").addClass("active-chat");
 			
-			  // 채팅 영역 보이도록 설정
-			  $(this)
-			    .parents(".chat-application")
-			    .find(".chat-not-selected")
-			    .hide()
-			    .siblings(".chatting-box")
-			    .show();
-			  $(this)
-			    .parents(".chat-application")
-			    .find(".chat-container .chat-box-inner-part")
-			    .show();
+			  // 메세지 조회
+			  fetch("/selectChatMsg/"+roomNo,{
+				method:'post',
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					}
+				})
+				.then(response => response.json())
+				.then(data => {
+					  const chatListContainer = document.querySelector(".chat-box-inner .chat.active-chat");
+					  chatListContainer.innerHTML = ""; // 기존 채팅 내용 비우기 
+					
+					  const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
+					  let userCheck= 0;
+					  
+					  data.forEach(msg => {
+						  if( msg.create_member_no == myMemberNo){
+							  userCheck= 1;
+						  }
+							 
+						  const wrapper = document.createElement("div");
+						  wrapper.className = "d-flex mb-4";
+	
+						  if (userCheck===1) {
+						    // 내가 보낸 메시지 (오른쪽 정렬)
+						    wrapper.style.justifyContent = "flex-end";
+						    wrapper.innerHTML = `
+						      <div style="text-align: right; max-width: 70%;">
+						        <h6 class="fs-2 text-muted">${formatTime(msg.send_date)}</h6>
+						        <div class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
+						          ${msg.chat_msg_content}
+						        </div>
+						      </div>
+						    `;
+						  } else {
+						    // 상대가 보낸 메시지 (왼쪽 정렬)
+						    wrapper.style.justifyContent = "flex-start";
+						    wrapper.innerHTML = `
+						      <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
+						      <div style="max-width: 70%;">
+						        <h6 class="fs-2 text-muted">${memberName}, ${formatTime(msg.send_date)}</h6>
+						        <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
+						          ${msg.chat_msg_content}
+						        </div>
+						      </div>
+						    `;
+						  }
+	
+						  chatListContainer.appendChild(wrapper);
+						});
+
+
+				
+				  // 메시지 가장 아래로 스크롤
+				  chatListContainer.scrollTop = chatListContainer.scrollHeight;
+				});
+
+			  function formatTime(isoString) {
+				  const date = new Date(isoString);
+				  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+				}
+			  
 			
 			  // 모바일용 메뉴 닫기 처리
 			  if ($(this).parents(".user-chat-box").hasClass("user-list-box-show")) {
@@ -608,6 +611,7 @@
 			  $(".chat-meta-user").addClass("chat-active");
 			  $(".chat-send-message-footer").addClass("chat-active");
 			});
+
 
 
 

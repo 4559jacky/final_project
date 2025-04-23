@@ -87,21 +87,35 @@
 
 		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form class="d-flex align-items-center gap-2 flex-wrap" action="/approval/receive" method="get">
-				<select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
-		          <option value="" selected="selected">선택</option>
-		          <option value="appr_title">제목</option>
-		          <option value="member_name">작성자</option>
-		          <option value="approval_form_name">양식 종류</option>
-		        </select>
-                   <div class="position-relative" style="max-width: 350px;">
-		          <input type="text" name="search_text" value="" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Contact">
-		          <button type="submit" class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
-		            <i class="ti ti-search fs-6 text-dark"></i>
-		          </button>
-		        </div>
-            </form>
-			<button class="btn btn-primary" onclick="createApproval();">결재 작성</button>
+			<form class="d-flex align-items-center gap-2 flex-wrap"
+				action="/approval/receive" method="get">
+				<select name="search_type"
+					class="form-select w-auto bg-primary-subtle border-0"
+					style="width: 120px;">
+					<option value="''" th:value="''" th:selected="${searchDto.search_type == null}">선택</option>
+					<option value="appr_title" th:selected="${searchDto.search_type == 'appr_title'}">제목</option>
+					<option value="member_name" th:selected="${searchDto.search_type == 'member_name'}">작성자</option>
+					<option value="approval_form_name" th:selected="${searchDto.search_type == 'approval_form_name'}">양식 종류</option>
+				</select>
+				<div class="position-relative" style="max-width: 350px;">
+					<input type="text" name="search_text" th:value="${searchDto.search_text}"
+						class="form-control search-chat py-2 ps-5" id="text-srh"
+						placeholder="Search Contact">
+					<button type="submit"
+						class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+						<i class="ti ti-search fs-6 text-dark"></i>
+					</button>
+				</div>
+				<div class="sort">
+					<select id="order_type" name="order_type"
+						class="form-select w-auto bg-primary-subtle border-0">
+						<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
+						<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
+					</select>
+				</div>
+			</form>
+			<button class="btn btn-primary" onclick="createApproval();">결재
+				작성</button>
 		</div>
 
 		<!-- Table -->
@@ -133,13 +147,17 @@
 							<!-- <td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td> -->
 							<td th:text="${approvalVo.member_name}">작성자</td>
 							<th:block th:if="${approvalVo.appr_status == 'A'}">
-								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
+								<td><span
+									class="mb-1 badge  bg-warning-subtle text-warning">합의
+										대기중</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'D'}">
-								<td><span class="mb-1 badge  bg-info-subtle text-info">결재 대기중</span></td>
+								<td><span class="mb-1 badge  bg-info-subtle text-info">결재
+										대기중</span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'C'}">
-								<td><span class="mb-1 badge  bg-success-subtle text-success">승인	</span></td>
+								<td><span
+									class="mb-1 badge  bg-success-subtle text-success">승인 </span></td>
 							</th:block>
 							<th:block th:if="${approvalVo.appr_status == 'R'}">
 								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
@@ -147,19 +165,22 @@
 							<!-- 결재 관련자 종류 구분 -->
 							<th:block th:if="${approvalVo.relationship == 'P'}">
 								<td><span class="mb-1 badge text-bg-light">결재자</span></td>
-								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
+								<input type="hidden" id="relationship"
+									th:value="${approvalVo.relationship}">
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'A'}">
 								<td><span class="mb-1 badge text-bg-light">합의자</span></td>
-								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
+								<input type="hidden" id="relationship"
+									th:value="${approvalVo.relationship}">
 							</th:block>
 							<th:block th:if="${approvalVo.relationship == 'R'}">
 								<td><span class="mb-1 badge text-bg-light">참조자</span></td>
-								<input type="hidden" id="relationship" th:value="${approvalVo.relationship}">
+								<input type="hidden" id="relationship"
+									th:value="${approvalVo.relationship}">
 							</th:block>
-							<td th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
-							<td th:text="${approvalVo.approval_form_name}">양식
-								종류</td>
+							<td
+								th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
+							<td th:text="${approvalVo.approval_form_name}">양식 종류</td>
 						</tr>
 					</tbody>
 				</table>
@@ -169,68 +190,77 @@
 		<!-- Pagination -->
 		<nav class="d-flex justify-content-center mt-4">
 			<ul class="pagination mb-0">
-				<li class="page-item">
-			      <a class="page-link"
-			         
-			         aria-label="Previous">
-			        <span aria-hidden="true">&laquo;</span>
-			      </a>
-			    </li>
-			    
-			    <th:block>
-			    
-			    </th:block>
-				
+				<li class="page-item"><a class="page-link"
+					aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+				</a></li>
+
+				<th:block>
+
+				</th:block>
+
 				<li class="page-item active"><a class="page-link" href="#">1</a></li>
 				<li class="page-item"><a class="page-link" href="#">2</a></li>
 				<li class="page-item"><a class="page-link" href="#">3</a></li>
 				<li class="page-item"><a class="page-link" href="#">...</a></li>
 				<li class="page-item"><a class="page-link" href="#">10</a></li>
-				
-				<li class="page-item">
-			      <a class="page-link"
-			         
-			         aria-label="Next">
-			        <span aria-hidden="true">&raquo;</span>
-			      </a>
-			    </li>
+
+				<li class="page-item"><a class="page-link" aria-label="Next">
+						<span aria-hidden="true">&raquo;</span>
+				</a></li>
 			</ul>
 		</nav>
 	</div>
-	
-	
+
+
 	<script>
 		const createApproval = function() {
 			location.href = '/approval/create';
 		}
-		
-		$(function(){
-			$('.table-responsive tbody tr').on('click',function(){
+
+		$(function() {
+			$('.table-responsive tbody tr').on('click', function() {
 				const approvalNo = $(this).data('approver-no');
-				location.href= '/approval/receive/detail/' + approvalNo;
+				location.href = '/approval/receive/detail/' + approvalNo;
 			})
 		})
+		
+		document.getElementById('order_type').addEventListener('change',
+			function(e) {
+				const searchType = document.querySelector('select[name="search_type"]').value;
+				const searchText = document.querySelector('input[name="search_text"]').value;
+				const orderType = e.target.value;
+				// search_type=appr_title&search_text=1&order_type=1
+				const params = new URLSearchParams({
+					search_type: searchType,
+					search_text: searchText,
+					order_type: orderType
+				});
+				location.href = "/approval/receive?" + params.toString();
+		});
+		
 	</script>
-	
-	
-	
+
+
+
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
-	
-  	<!-- Import Js Files -->
-  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
-  	<script th:src="@{/assets/js/theme/theme.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
 
-  	<!-- solar icons -->
-  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-  	
-  	<!-- Bootstrap Common JS Files End -->
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
 </th:block>
 </html>

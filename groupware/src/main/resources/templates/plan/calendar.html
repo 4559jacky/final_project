@@ -22,15 +22,22 @@ layout:decorate="~{/include/layout}">
               </div><br>
             </div>
           </div>
-          <!-- 검색어 창 -->
+          <!-- 타입별 캘린더명 -->
          <div class="d-flex justify-content-between align-items-center mb-3">
-
+			<div class="calendar-type">
+				<h4 id="calendar-title" class="mb-0 fw-bolder fs-7">개인 캘린더</h4>
+			</div>
 			<!-- 캘린더 우측 상단에 표시될 색상 안내 -->
 				<style>
+				  .legend-item .legend-label {
+					font-weight: 400;
+				  }
+				  .legend-item.active .legend-label {
+					font-weight: 900;
+				  }
 				  .calendar-legend {
 				    display: flex;
 				    gap: 25px;	/* 항목 사이 간격 */
-				    margin-top: 10px;
 				    position: absolute;
 				    top: 0;
 				    right: 0;
@@ -38,7 +45,7 @@ layout:decorate="~{/include/layout}">
 				  .legend-item {
 				    display: flex;
 				    align-items: left;
-				    font-size: 15px;
+				    font-size: 18px;
 				    white-space: nowrap; /* 글자가 줄 바뀌지 않도록 */
 				  }
 				  .legend-color {
@@ -52,16 +59,58 @@ layout:decorate="~{/include/layout}">
 				  .legend-color.personal { background-color: rgba(63, 191, 155, 1.0); }   /* 연두색 */
 				  .legend-color.vacation { background-color: rgba(242, 146, 29, 1.0); }   /* 노란색 */
 				</style>
-				<br><br><br><br>
+				<br><br><br>
 				<div id="calendar-container" style="position: relative;">
 				  <div class="calendar-legend">
-				    <div class="legend-item" data-type="회사"><div class="legend-color company"></div>회사</div>
-				    <div class="legend-item" data-type="부서"><div class="legend-color department"></div>부서</div>
-				    <div class="legend-item" data-type="개인"><div class="legend-color personal"></div>개인</div>
-				    <div class="legend-item" data-type="휴가"><div class="legend-color vacation"></div>휴가</div>
-				  </div>
+					  <div class="legend-item" data-type="회사">
+					    <div class="legend-color company"></div>
+					    <span class="legend-label">회사</span>
+					  </div>
+					  <div class="legend-item" data-type="부서">
+					    <div class="legend-color department"></div>
+					    <span class="legend-label">부서</span>
+					  </div>
+					  <div class="legend-item" data-type="개인">
+					    <div class="legend-color personal"></div>
+					    <span class="legend-label">개인</span>
+					  </div>
+					  <div class="legend-item" data-type="휴가">
+					    <div class="legend-color vacation"></div>
+					    <span class="legend-label">휴가</span>
+					  </div>
+					</div>
 				</div>
-		</div>
+			</div>
+		<script>
+		  // 각 타입에 맞는 텍스트 매핑
+		  const calendarTitles = {
+		    회사: "회사 캘린더",
+		    부서: "부서 캘린더",
+		    개인: "개인 캘린더",
+		    휴가: "휴가 캘린더"
+		  };
+		
+		  const titleEl = document.getElementById("calendar-title");
+		  const legendItems = document.querySelectorAll(".legend-item");
+		
+		  // 클릭 이벤트 등록
+		  legendItems.forEach(item => {
+		    item.addEventListener("click", () => {
+		      const type = item.getAttribute("data-type");
+		
+		      // 제목 변경
+		      titleEl.textContent = calendarTitles[type] || "캘린더";
+		
+		      // 기존 강조 제거
+		      legendItems.forEach(el => el.classList.remove("active"));
+		
+		      // 현재 항목 강조
+		      item.classList.add("active");
+		    });
+		  });
+		</script>
+
+
 		<style type="text/css">
 			.fc-day-sun .fc-daygrid-day-number {
 			    color: red !important;
