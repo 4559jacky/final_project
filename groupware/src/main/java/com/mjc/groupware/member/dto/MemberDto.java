@@ -72,8 +72,8 @@ public class MemberDto {
 				.member_id(member.getMemberId())
 				.member_pw(member.getMemberPw())
 				.member_name(member.getMemberName())
-				.pos_no(member.getPos().getPosNo())
-				.dept_no(member.getDept().getDeptNo())
+				.pos_no(member.getPos() != null ? member.getPos().getPosNo() : null)
+				.dept_no(member.getDept() != null ? member.getDept().getDeptNo() : null)
 				.role_no(role_no)
 				.dept_name(member.getDept() != null ? member.getDept().getDeptName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
 				.pos_name(member.getPos() != null ? member.getPos().getPosName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가

@@ -1,11 +1,8 @@
 package com.mjc.groupware.approval.vo;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.mjc.groupware.approval.dto.ApprApproverDto;
-import com.mjc.groupware.approval.dto.ApprovalDto;
+import com.mjc.groupware.approval.dto.PageDto;
 import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.member.entity.Member;
@@ -23,7 +20,7 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApprApproverVo {
+public class ApprApproverVo extends PageDto {
 	private Long appr_approver_no;
 	private int approver_order;
 	private String approver_decision_status;

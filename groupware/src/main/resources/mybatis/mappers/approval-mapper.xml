@@ -53,6 +53,16 @@
 				AND AA.approval_form_name LIKE CONCAT('%', #{search_text}, '%')
 			</if>
 		</where>
-		ORDER BY AA.appr_reg_date DESC;
+		<choose>
+		  <when test="order_type == 1">
+		    ORDER BY AA.appr_reg_date DESC
+		  </when>
+		  <when test="order_type == 2">
+		    ORDER BY AA.appr_reg_date ASC
+		  </when>
+		  <otherwise>
+		    ORDER BY AA.appr_reg_date DESC
+		  </otherwise>
+		</choose>
 	</select>
 </mapper>

@@ -30,7 +30,6 @@ public class PlanService {
 	}
 
 	//
-
 	public List<Plan> selectAllPlans() {
 	    return planRepository.findAll();
 	}

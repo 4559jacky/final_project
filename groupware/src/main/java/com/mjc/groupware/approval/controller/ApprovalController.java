@@ -139,20 +139,40 @@ public class ApprovalController {
 	// 사용자 : 인증받은 모든 사원이 접근 가능한 url
 	
 	@GetMapping("/approval")
-	public String approvalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+	public String approvalView(Model model, SearchDto searchDto, PageDto pageDto,
+							@AuthenticationPrincipal UserDetails userDetails) {
 		
 		String userId = userDetails.getUsername();
-
 	    MemberDto memberDto = new MemberDto();
 	    memberDto.setMember_id(userId);
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
-	    System.out.println(member);
-	    List<Approval> approvalList = service.selectApprovalAllById(member);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
+	    pageDto.setTotalPage(approvalList.getTotalPages());
+	    
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalList", approvalList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
 		
-		return "/approval/user/approval";
+		return "/approval/user/sendApproval";
+	}
+	
+	@GetMapping("/approval/send/detail/{id}")
+	public String approvalSendDetailView(@PathVariable("id") Long id, Model model) {
+		Approval approval = service.selectApprovalOneByApprovalNo(id);
+	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
+	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
+	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
+	    
+	    model.addAttribute("approval", approval);
+	    model.addAttribute("approverList", approverList);
+	    model.addAttribute("agreementerList", agreementerList);
+	    model.addAttribute("referencerList", referencerList);
+		
+		return "/approval/user/sendApprovalDetail";
 	}
 	
 	@GetMapping("/approval/receive")
@@ -172,9 +192,6 @@ public class ApprovalController {
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalVoList", approvalVoList);
 	    
-	    
-	    
-		
 		return "/approval/user/receiveApproval";
 	}
 	
