@@ -21,7 +21,6 @@
 
 <th:block layout:fragment="content">
 
-
     <!-- 페이지 제목 -->
     <div class="col-lg-8 col-md-6 col-12 align-self-center">
         <nav aria-label="breadcrumb">
@@ -61,25 +60,23 @@
     	    <span th:text="${board.member?.memberName ?: '익명'}"></span>
     	</div>
     	<div>
-	        <span> 작성일: </span>
+	        <span>작성일: </span>
     	    <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
     	</div>
     	<div>
-	        <span> 조회수: </span>
+	        <span>조회수: </span>
     	    <span th:text="${board.views}">0</span>
     	</div>
     </div>
 </div>
 </div>
-
     <hr>
-
+    
     <!-- 본문 내용 (테두리 없는 버전) -->
     <div class="toastui-editor-contents"
          style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
          th:utext="${board.boardContent ?: '내용 없음'}">
     </div>
-
     <hr>
 
 <!-- 첨부파일 -->
@@ -110,8 +107,6 @@
         </div>
     </th:block>
 </div>
-
-
 
    <!-- 댓글 작성 영역 -->
 <div class="p-4 bg-white rounded-4 shadow-sm mb-4">
