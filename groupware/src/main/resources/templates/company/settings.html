@@ -604,26 +604,70 @@ layout:decorate="~{/include/layout}">
 		    .then(data => {
 		        const subList = document.getElementById("func_sub_list");
 		        subList.innerHTML = "";
-		
+				
+		        // 상위 항목 렌더링
 		        if (data.funcDto) {
 		            const parentLi = document.createElement("li");
-		            let html = `<strong>${data.funcDto.func_name}</strong>`;
+
+		            let html = `
+		                <strong class="func-item" data-func-no="${data.funcDto.func_no}">
+		                    ${data.funcDto.func_name}
+		                </strong><br/>
+		                <div class="ms-4" id="checkbox-container-${data.funcDto.func_no}" style="display:none;">
+		            `;
+
+		            // 체크박스 로직
+		            if (data.roleDtoList && data.roleDtoList.length > 0) {
+		                const accessibleRoles = Array.isArray(data.funcDto.accessibleRoles) ? data.funcDto.accessibleRoles : [];
+
+		                data.roleDtoList.forEach(role => {
+		                    const isDisabled = (role.role_no === 1 || role.role_no === 2);
+		                    const isChecked = accessibleRoles.some(ar => ar.role_no === role.role_no);
+
+		                    html += `
+		                        <div class="form-check form-check-inline">
+		                            <input class="form-check-input"
+		                                   type="checkbox"
+		                                   name="role_no"
+		                                   value="${role.role_no}"
+		                                   data-func-no="${data.funcDto.func_no}"
+		                                   onchange="toggleFuncRole(this)"
+		                                   ${isChecked ? 'checked' : ''}
+		                                   ${isDisabled ? 'disabled' : ''}>
+		                            <label class="form-check-label">${role.role_nickname}</label>
+		                        </div>
+		                    `;
+		                });
+		            }
+
+		            html += `</div>`;
 		            parentLi.innerHTML = html;
 		            subList.appendChild(parentLi);
+
+		            // 이벤트 등록
+		            parentLi.querySelector('.func-item').addEventListener("click", function (e) {
+		                e.stopPropagation(); // 필수
+		                const funcNo = this.getAttribute("data-func-no");
+		                toggleCheckboxVisibility(funcNo);
+		            });
 		        }
-		
+				
+		        // 하위 항목 렌더링
 		        if (data.funcDtoList && data.funcDtoList.length > 0) {
 		            data.funcDtoList.forEach(child => {
 		                const li = document.createElement("li");
 		                let html = `&nbsp;&nbsp;└ <strong class="func-item" data-func-no="${child.func_no}">${child.func_name}</strong><br/>`;
-		
-		                // 하위 항목 클릭했을 때만 체크박스를 보이게 하기 위해 숨기기
+
 		                html += `<div class="ms-4" id="checkbox-container-${child.func_no}" style="display:none;">`;
-		
+						
+		                // 체크박스 로직
 		                if (data.roleDtoList && data.roleDtoList.length > 0) {
+		                    const accessibleRoles = Array.isArray(child.accessibleRoles) ? child.accessibleRoles : [];
+
 		                    data.roleDtoList.forEach(role => {
 		                        const isDisabled = (role.role_no === 1 || role.role_no === 2);
-		                        const isChecked = child.accessibleRoles.some(ar => ar.role_no === role.role_no);
+		                        const isChecked = accessibleRoles.some(ar => ar.role_no === role.role_no);
+
 		                        html += `
 		                            <div class="form-check form-check-inline">
 		                                <input class="form-check-input"
@@ -639,22 +683,17 @@ layout:decorate="~{/include/layout}">
 		                        `;
 		                    });
 		                }
-		
+
 		                html += `</div>`;
-		
 		                li.innerHTML = html;
 		                subList.appendChild(li);
-		            });
-		
-		            // 각 항목에 클릭 이벤트를 추가하여 체크박스를 보이거나 숨김
-		            const funcItems = document.querySelectorAll(".func-item");
-		            funcItems.forEach(item => {
-		                item.addEventListener("click", function() {
+
+		                // 이벤트 등록
+		                li.querySelector('.func-item').addEventListener("click", function () {
 		                    const funcNo = this.getAttribute("data-func-no");
 		                    toggleCheckboxVisibility(funcNo);
 		                });
 		            });
-		
 		        } else {
 		            const noneLi = document.createElement("li");
 		            noneLi.classList.add("text-muted");
