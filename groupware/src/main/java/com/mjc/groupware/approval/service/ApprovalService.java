@@ -227,6 +227,7 @@ public class ApprovalService {
 		paramMap.put("member_no", member.getMember_no());
 		paramMap.put("search_type", searchDto.getSearch_type());
 		paramMap.put("search_text", searchDto.getSearch_text());
+		paramMap.put("order_type", searchDto.getOrder_type());
 		
 		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(paramMap);
 
