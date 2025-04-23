@@ -52,8 +52,6 @@ public class BoardController {
     public Map<String, String> createBoard(BoardDto dto,
         @RequestParam(value = "files", required = false) List<MultipartFile> files) {
 
-        logger.debug("게시글 작성 요청 - is_fixed: " + dto.getIs_fixed());
-
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("res_code", "500");
         resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
@@ -65,8 +63,7 @@ public class BoardController {
         }
 
         // 내용 필수 체크
-        if (dto.getBoard_content() == null || dto.getBoard_content().trim().isEmpty() 
-            || dto.getBoard_content().trim().equals("<p><br></p>")) {
+        if (dto.getBoard_content() == null || dto.getBoard_content().trim().isEmpty()) {
             resultMap.put("res_msg", "내용은 필수 입력 항목입니다.");
             return resultMap;
         }
@@ -76,29 +73,33 @@ public class BoardController {
             dto.setIs_fixed(false);
         }
 
-        // 게시글 생성 (고정글/일반글 구분 없이 하나의 서비스 메소드 사용)
-        Board board = boardService.createBoard(dto, files);
+        try {
+            // 게시글 생성
+            Board board = boardService.createBoard(dto, files);
 
-        if (board == null) {
-            return resultMap;
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "게시글이 등록되었습니다.");
+        } catch (IllegalStateException e) {
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", e.getMessage());  // 예외 메시지 전달
         }
 
-        resultMap.put("res_code", "200");
-        resultMap.put("res_msg", "게시글이 등록되었습니다.");
         return resultMap;
     }
-
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
         if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
         if (pageDto.getNumPerPage() == 0) pageDto.setNumPerPage(10);
 
+        // 고정글 따로 조회
         List<Board> fixedList = boardService.selectFixedBoardList();
+        model.addAttribute("fixedList", fixedList);
+
+        // 일반글 조회
         Page<Board> boardList = boardService.selectBoardAll(searchDto, pageDto);
         pageDto.setTotalPage(boardList.getTotalPages());
 
-        model.addAttribute("fixedList", fixedList); // 고정글
-        model.addAttribute("boardList", boardList.getContent()); // 일반글
+        model.addAttribute("boardList", boardList.getContent());
         model.addAttribute("searchDto", searchDto);
         model.addAttribute("pageDto", pageDto);
 
@@ -180,4 +181,5 @@ public class BoardController {
 
         return resultMap;
     }
+    
 }

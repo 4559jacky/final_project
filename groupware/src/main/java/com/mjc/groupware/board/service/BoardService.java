@@ -42,29 +42,54 @@ public class BoardService {
         Member member = memberRepository.findById(dto.getMember_no())
                 .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
 
-        Board board = Board.builder()
-                .boardTitle(dto.getBoard_title())
-                .boardContent(dto.getBoard_content())
-                .boardStatus("N") // 기본 상태 'N'
-                .isFixed(dto.getIs_fixed() != null ? dto.getIs_fixed() : false)
-                .member(member)
-                .build();
+        boolean isFixed = Boolean.TRUE.equals(dto.getIs_fixed());
 
-        if (board.getAttachList() == null) {
+        // 고정글일 경우, 고정글만 생성하도록 처리
+        if (isFixed) {
+            // 고정글 생성
+            Board board = Board.builder()
+                    .boardTitle(dto.getBoard_title())
+                    .boardContent(dto.getBoard_content())
+                    .boardStatus("N")
+                    .isFixed(true)  // 고정글
+                    .member(member)
+                    .build();
+
+            // 첨부파일 목록 초기화
             board.setAttachList(new ArrayList<>());
+            Board savedBoard = repository.save(board);
+
+            // 파일 처리
+            if (files != null && !files.isEmpty()) {
+                List<BoardAttach> attaches = boardAttachService.uploadFiles(files, savedBoard.getBoardNo());
+                savedBoard.getAttachList().addAll(attaches);
+            }
+
+            return savedBoard; // 고정글만 저장하고 반환
+            
+        } else {
+            // 일반글 생성
+            Board board = Board.builder()
+                    .boardTitle(dto.getBoard_title())
+                    .boardContent(dto.getBoard_content())
+                    .boardStatus("N")
+                    .isFixed(false)  // 일반글
+                    .member(member)
+                    .build();
+
+            // 첨부파일 목록 초기화
+            board.setAttachList(new ArrayList<>());
+            Board savedBoard = repository.save(board);
+
+            // 파일 처리
+            if (files != null && !files.isEmpty()) {
+                List<BoardAttach> attaches = boardAttachService.uploadFiles(files, savedBoard.getBoardNo());
+                savedBoard.getAttachList().addAll(attaches);
+            }
+
+            return savedBoard; // 일반글만 저장하고 반환
         }
-
-        Board savedBoard = repository.save(board);
-
-        // 첨부파일이 있으면 저장
-        if (files != null && !files.isEmpty()) {
-            List<BoardAttach> attaches = boardAttachService.uploadFiles(files, savedBoard.getBoardNo());
-            savedBoard.getAttachList().addAll(attaches);
-        }
-
-        return savedBoard;
     }
-
     /**
      * 단일 게시글 조회
      */
@@ -85,8 +110,8 @@ public class BoardService {
      * 게시글 목록 조회 (검색 및 페이징 포함)
      */
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
+        // 🔽 정렬 조건 설정
         Sort sort;
-
         if (searchDto.getOrder_type() == 1) { // 최신순
             sort = Sort.by(Sort.Direction.DESC, "regDate");
         } else if (searchDto.getOrder_type() == 2) { // 오래된순
@@ -94,15 +119,21 @@ public class BoardService {
         } else if (searchDto.getOrder_type() == 3) { // 조회순
             sort = Sort.by(Sort.Direction.DESC, "views");
         } else {
-            sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본 최신순
+            sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본: 최신순
         }
 
+        // 🔽 페이징 처리
         Pageable pageable = PageRequest.of(pageDto.getNowPage() - 1, pageDto.getNumPerPage(), sort);
 
+        // 🔽 기본 조건: 게시 상태 = 'N' && 고정글 아님
         Specification<Board> spec = Specification.where(
-                (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
+            (root, query, cb) -> cb.and(
+                cb.equal(root.get("boardStatus"), "N"),
+                cb.isFalse(root.get("isFixed"))
+            )
         );
 
+        // 🔽 검색 조건
         String keyword = searchDto.getSearch_text();
         int searchType = searchDto.getSearch_type();
 
@@ -115,19 +146,16 @@ public class BoardService {
                     spec = spec.and(BoardSpecification.boardContentContains(keyword));
                     break;
                 case 3:
-                    spec = spec.and(BoardSpecification.boardTitleContains(keyword)
-                            .or(BoardSpecification.boardContentContains(keyword)));
+                    spec = spec.and(
+                        BoardSpecification.boardTitleContains(keyword)
+                            .or(BoardSpecification.boardContentContains(keyword))
+                    );
                     break;
             }
         }
-        return repository.findAll(spec, pageable);
-    }
 
-    /**
-     * 고정글 목록 조회
-     */
-    public List<Board> selectFixedBoardList() {
-        return repository.findByBoardStatusAndIsFixed("N", true);
+        // 🔽 최종 조회
+        return repository.findAll(spec, pageable);
     }
 
     /**
@@ -174,5 +202,9 @@ public class BoardService {
         board.setModDate(LocalDateTime.now());
 
         repository.save(board);
+    }
+    
+    public List<Board> selectFixedBoardList() {
+        return repository.findByIsFixedTrueOrderByRegDateDesc();
     }
 }

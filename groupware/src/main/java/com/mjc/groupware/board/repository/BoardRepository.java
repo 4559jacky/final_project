@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.board.entity.Board;
 
@@ -28,5 +29,7 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     @Query(value = "UPDATE board SET views = views + 1 WHERE board_no = :boardNo", nativeQuery = true)
     void updateViews(@Param("boardNo") Long boardNo);
 
-    List<Board> findByBoardStatusAndIsFixed(String boardStatus, boolean isFixed);
+    List<Board> findByIsFixedTrueOrderByRegDateDesc();  // 고정글만
+    Page<Board> findByIsFixedFalse(Specification<Board> spec, Pageable pageable);  // 일반글만
+
 }

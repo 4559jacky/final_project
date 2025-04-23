@@ -78,10 +78,7 @@ public class Board {
     @PrePersist
     public void prePersist() {
         if (isFixed == null) {
-            isFixed = false;  // 저장 전 null 값을 false로 설정
-        }
-        if (boardStatus == null) {
-            boardStatus = "N"; // 기본 상태
+            isFixed = false;  // 기본값 false로 설정
         }
     }
 

@@ -32,24 +32,30 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}">
 
-        <div class="mb-3 text-end">
-          <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
-        </div>
+<div class="form-check mb-3">
+  <input class="form-check-input" type="checkbox" id="is_fixed" name="is_fixed" value="true"
+         th:checked="${boardDto != null and boardDto.is_fixed != null and boardDto.is_fixed}" />
+  <label class="form-check-label" for="is_fixed">
+      게시글 상단에 고정
+  </label>
+</div>
 
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" id="is_fixed" name="is_fixed" value="true"
-                 th:checked="${boardDto != null and boardDto.is_fixed != null and boardDto.is_fixed}" />
-          <label class="form-check-label" for="is_fixed">
-              게시글 상단에 고정
-          </label>
-        </div>
+<div class="d-flex align-items-center mb-3">
+  <!-- 왼쪽 영역: 제목 텍스트 + 입력창 -->
+  	<div class="d-flex align-items-center flex-grow-1">
+  		<span class="fw-bold me-3" style="font-size: 1rem; line-height: 1; white-space: nowrap;">
+  			제목
+		</span>
+    <input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
+</div>
 
-        <div class="row mb-3 align-items-center">
-          <div class="mb-3">
-            <label for="board_title" class="form-label"><strong>제목</strong></label>
-            <input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
-          </div>
-        </div>
+  <!-- 오른쪽 영역: 버튼 -->
+  <div class="ms-3">
+    <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">
+      투표 추가
+    </button>
+  </div>
+</div>
 
         <div class="mb-3">
           <label for="board_content" class="form-label"><strong>내용</strong></label>

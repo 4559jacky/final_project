@@ -30,7 +30,7 @@ public class BoardDto {
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
 
-    private Boolean is_fixed = false;  // 기본값 false로 초기화
+    private Boolean is_fixed;  // 기본값 false로 초기화
 
     // 파일 첨부 리스트
     private List<BoardAttach> attachList;
