@@ -22,6 +22,7 @@ public class SharedFileDto {
 	private String file_name;
 	private String file_new_name;
 	private String file_path;
+	private char file_status;
 	//공유 여부
 	private char file_shared;
 	private Long folder_no;
@@ -35,6 +36,7 @@ public class SharedFileDto {
 				.fileNewName(file_new_name)
 				.filePath(file_path)
 				.fileShared(file_shared)
+				.fileStatus(file_status)
 				.build();
 	}
 	
@@ -45,6 +47,7 @@ public class SharedFileDto {
 				.file_new_name(file.getFileNewName())
 				.file_path(file.getFilePath())
 				.file_shared(file.getFileShared())
+				.file_status(file.getFileStatus())
 				.build();
 	}
 }

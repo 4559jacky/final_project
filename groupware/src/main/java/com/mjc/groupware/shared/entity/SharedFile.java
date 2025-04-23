@@ -43,6 +43,9 @@ public class SharedFile {
 	@Column(name="file_shared")
 	private char fileShared;
 	
+	@Column(name="file_status")
+	private char fileStatus;
+	
 	@ManyToOne
 	@JoinColumn(name="member_no", nullable = false)
 	private Member member;
