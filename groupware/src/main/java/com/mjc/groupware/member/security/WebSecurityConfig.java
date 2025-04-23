@@ -34,7 +34,6 @@ public class WebSecurityConfig {
 					.requestMatchers("/assets/**", "/favicon.ico", "/uploads/**")
 		);
 	}
-	
 	// 시큐리티 환경 설정
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
@@ -59,7 +58,6 @@ public class WebSecurityConfig {
 		
 		return http.build();
 	}
-
 	
 	// 데이터베이스 접근 Bean 등록 - Spring Security는 JDBC 방식을 필요로함
 	@Bean
