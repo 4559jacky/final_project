@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
@@ -40,18 +43,25 @@ public class PlanController {
 	// 달력에 db일정 뿌려주는 코드
 	@GetMapping("/calendar/events")
 	@ResponseBody
-	public List<Map<String, Object>> getCalendarEvents(@RequestParam(name = "start") String start, @RequestParam(name = "end") String end) {
-	    // 임시 하드코딩
-		System.out.println("start = " + start);
-		System.out.println("end = " + end);
-	    
-		List<Plan> plans = planService.selectAllPlans();
+	public List<Map<String, Object>> getCalendarEvents(@RequestParam(name = "start") String start, @RequestParam(name = "end") String end,@AuthenticationPrincipal MemberDetails memberDetails) {
+
+		Member member = memberDetails.getMember();
+		Long memberId = member.getMemberNo();
+		System.out.println("로그인한 memberId 확인 :"+memberId);
 		
+		List<Plan> plans = planService.selectAllPlans();
 		List<Map<String, Object>> events = new ArrayList<>();
-
+		
 		for(Plan plan : plans) {
-	    Map<String, Object> event = new HashMap<>();
+			String planType = plan.getPlanType();
+	        Long regMemberNo = plan.getMember().getMemberNo();
 
+	        // 방어적 null 체크 및 trim 처리
+	        if ("개인".equals(planType != null ? planType.trim() : "") && !regMemberNo.equals(memberId)) {
+	            continue;
+	        }
+			
+	    Map<String, Object> event = new HashMap<>();
 	    event.put("id", plan.getPlanNo());
 	    event.put("title", plan.getPlanTitle());
 	    event.put("start", plan.getStartDate());
