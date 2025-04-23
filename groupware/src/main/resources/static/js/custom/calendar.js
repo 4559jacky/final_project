@@ -93,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
     myModal.show();
     getModalStartDateEl.value = combineDate;
   };
+  
   /*=====================*/
   // Active Calender
   /*=====================*/
