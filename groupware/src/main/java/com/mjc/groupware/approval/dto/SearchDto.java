@@ -16,4 +16,5 @@ import lombok.ToString;
 public class SearchDto {
 	private String search_text;
 	private String search_type;
+	private int order_type;
 }

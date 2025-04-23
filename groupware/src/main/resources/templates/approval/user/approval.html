@@ -82,10 +82,33 @@
 
 		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form class="position-relative" action="/approval/search" method="get">
-                    <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search Product">
-                    <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
-            </form>
+			<form class="d-flex align-items-center gap-2 flex-wrap"
+				action="/approval" method="get">
+				<select name="search_type"
+					class="form-select w-auto bg-primary-subtle border-0"
+					style="width: 120px;">
+					<option th:value="''" th:selected="${searchDto.search_type == null}">선택</option>
+					<option th:value="appr_title" th:selected="${searchDto.search_type == 'appr_title'}">제목</option>
+					<option th:value="approval_form_name" th:selected="${searchDto.search_type == 'approval_form_name'}">양식 종류</option>
+				</select>
+				<div class="position-relative" style="max-width: 350px;">
+					<input type="text" name="search_text" th:value="${searchDto.search_text}"
+						class="form-control search-chat py-2 ps-5" id="text-srh"
+						placeholder="Search Contact">
+					<button type="submit"
+						class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+						<i class="ti ti-search fs-6 text-dark"></i>
+					</button>
+				</div>
+
+				<div class="sort">
+					<select id="order_type" name="order_type"
+						class="form-select w-auto bg-primary-subtle border-0">
+						<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
+						<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
+					</select>
+				</div>
+			</form>
 			<div class="d-flex gap-2">
 				<th:block th:if="${#strings.isEmpty(member.signature)}">
 					<button class="btn btn-primary" data-bs-toggle="modal"
@@ -99,8 +122,8 @@
 						th:value="${#authentication.principal.member.memberNo}">전자서명
 						보기</button>
 				</th:block>
-				<button class="btn btn-primary"
-					onclick='createApproval();'>결재 작성</button>
+				<button class="btn btn-primary" onclick='createApproval();'>결재
+					작성</button>
 			</div>
 		</div>
 
@@ -127,17 +150,22 @@
 						<tr th:if="${!#lists.isEmpty(approvalList)}"
 							th:each="approval, approvalStatus : ${approvalList}"
 							th:attr="data-approver-no=${approval.apprNo}">
-							<td th:text="${approvalList.size() - approvalStatus.index}">번호</td>
+							<td
+								th:text="${(pageDto.nowPage-1)*(pageDto.numPerPage)+approvalStatus.count}">번호</td>
 							<td th:text="${approval.apprTitle}">제목</td>
 							<td th:text="${approval.member.memberName}">작성자</td>
 							<th:block th:if="${approval.apprStatus == 'A'}">
-								<td><span class="mb-1 badge  bg-warning-subtle text-warning">합의 대기중</span></td>
+								<td><span
+									class="mb-1 badge  bg-warning-subtle text-warning">합의
+										대기중</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'D'}">
-								<td><span class="mb-1 badge  bg-info-subtle text-info">결재 대기중</span></td>
+								<td><span class="mb-1 badge  bg-info-subtle text-info">결재
+										대기중</span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'C'}">
-								<td><span class="mb-1 badge  bg-success-subtle text-success">승인	</span></td>
+								<td><span
+									class="mb-1 badge  bg-success-subtle text-success">승인 </span></td>
 							</th:block>
 							<th:block th:if="${approval.apprStatus == 'R'}">
 								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
@@ -156,14 +184,32 @@
 
 		<!-- Pagination -->
 		<nav class="d-flex justify-content-center mt-4">
-			<ul class="pagination">
-				<li class="page-item disabled"><a class="page-link">‹</a></li>
-				<li class="page-item active"><a class="page-link" href="#">1</a></li>
-				<li class="page-item"><a class="page-link" href="#">2</a></li>
-				<li class="page-item"><a class="page-link" href="#">3</a></li>
-				<li class="page-item"><a class="page-link" href="#">...</a></li>
-				<li class="page-item"><a class="page-link" href="#">10</a></li>
-				<li class="page-item"><a class="page-link" href="#">›</a></li>
+			<ul class="pagination mb-0">
+				<!-- 이전 페이지 버튼 -->
+				<li th:if="${pageDto.prev}"
+					class="page-item"
+					th:classappend="${pageDto.prev} ? '' : 'disabled'"><a
+					class="page-link"
+					th:href="@{/approval(nowPage=${pageDto.pageBarStart - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+					aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+				</a></li>
+
+				<!-- 페이지 번호 -->
+				<li class="page-item"
+					th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
+					th:classappend="${pageDto.nowPage == num} ? ' active'"><a
+					class="page-link"
+					th:href="@{/approval(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+					th:text="${num}"> </a></li>
+
+				<!-- 다음 페이지 버튼 -->
+				<li th:if="${pageDto.next}"
+					class="page-item"
+					th:classappend="${pageDto.next} ? '' : 'disabled'"><a
+					class="page-link"
+					th:href="@{/approval(nowPage=${pageDto.pageBarEnd + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+					aria-label="Next"> <span aria-hidden="true">&raquo;</span>
+				</a></li>
 			</ul>
 		</nav>
 	</div>
@@ -208,7 +254,8 @@
 				</div>
 
 				<div class="modal-body">
-					<div id="saveSignatureContainer" class="p-3 bg-light rounded shadow-sm">
+					<div id="saveSignatureContainer"
+						class="p-3 bg-light rounded shadow-sm">
 						<div id="saveSignature" style="width: 100%; height: 250px;">
 							<input type="hidden" th:value="${member.signature}"
 								id="member_signature"> <img src="" id="signImg"
@@ -227,21 +274,22 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- 서명 업데이트 Modal -->
 	<div class="modal fade" id="updateSignatureModal" tabindex="-1"
 		aria-labelledby="signatureModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="updateSignatureModalLabel">서명란: 마우스로
-						입력하세요</h5>
+					<h5 class="modal-title" id="updateSignatureModalLabel">서명란:
+						마우스로 입력하세요</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="닫기"></button>
 				</div>
 
 				<div class="modal-body">
-					<div id="updateSignatureContainer" class="p-3 bg-light rounded shadow-sm">
+					<div id="updateSignatureContainer"
+						class="p-3 bg-light rounded shadow-sm">
 						<div id="updateSignature" style="width: 100%; height: 250px;"></div>
 					</div>
 				</div>
@@ -258,6 +306,20 @@
 
 
 	<script>
+		document.getElementById('order_type').addEventListener('change',
+				function(e) {
+					const searchType = document.querySelector('select[name="search_type"]').value;
+					const searchText = document.querySelector('input[name="search_text"]').value;
+					const orderType = e.target.value;
+					// search_type=appr_title&search_text=1&order_type=1
+					const params = new URLSearchParams({
+						search_type: searchType,
+						search_text: searchText,
+						order_type: orderType
+					});
+					location.href = "/approval?" + params.toString();
+		});
+
 		const createApproval = function() {
 			location.href = '/approval/create';
 		}
@@ -300,7 +362,7 @@
 					isSignatureInitialized = true;
 				}
 			});
-			
+
 			$('#updateSignatureModal').on('shown.bs.modal', function() {
 
 				memberNo = $('#updateSignature_btn').val(); // 회원 번호 가져오기
@@ -322,7 +384,7 @@
 					$("#signature").jSignature("reset");
 				}
 			});
-			
+
 			$('#updateSignatureModal').on('hidden.bs.modal', function() {
 				if (isSignatureInitialized) {
 					$("#updateSignature").jSignature("reset");
@@ -358,7 +420,7 @@
 			// 모달 닫기
 			$('#signatureModal').modal('hide');
 		}
-		
+
 		// 서명변경
 		function updateSignature() {
 			const data = $("#updateSignature").jSignature("getData", "image");

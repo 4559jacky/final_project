@@ -79,6 +79,11 @@
           
           	<th:block th:with="totalCount=${noticeList.totalElements}"></th:block>
          	<tbody>
+         	
+         		<tr th:if="${noticeList.content.isEmpty()}">
+    				<td colspan="6" class="text-center text-muted">게시글이 없습니다.</td>
+  				</tr>
+         	
   				<!-- ✅ 고정글 먼저 표시 -->
   				<tr th:each="notice : ${fixedList}"
     				th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
@@ -97,7 +102,7 @@
     				<td th:text="${notice.views}">조회수</td>
 				</tr>
 
-  				<!-- ✅ 일반글 1번부터 번호 시작 -->
+  				<!-- 일반글 1번부터 번호 시작 -->
   				<tr th:each="notice, iterStat : ${noticeList.content}"
       				th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
       				style="cursor: pointer;">
@@ -105,8 +110,8 @@
     				  <!-- 번호  -->
     				
   					<td th:text="${sort == 'asc' ?
-             			 noticeList.totalElements - (noticeList.number * noticeList.size + iterStat.index)
-              			: noticeList.number * noticeList.size + iterStat.index + 1}">
+  								  noticeList.number * noticeList.size + iterStat.index + 1
+  								: noticeList.totalElements - (noticeList.number * noticeList.size + iterStat.index)}">
 					</td>
     				<td class="text-start" th:text="${notice.noticeTitle}">제목</td>
     				<td th:text="${notice.member.memberName}">작성자</td>
@@ -119,7 +124,7 @@
       </div>
     </div>
 
-    <!-- ✍ 게시글 작성 버튼: 오른쪽 위 -->
+    <!-- 게시글 작성 버튼: 오른쪽 위 -->
     <div class="d-flex justify-content-end mt-4">
       <button type="button"
               class="btn btn-primary"
@@ -128,7 +133,7 @@
       </button>
     </div>
 
-    <!-- ⏬ 페이징바: 한 줄 아래 중앙 정렬 -->
+    <!-- 페이징바: 한 줄 아래 중앙 정렬 -->
     <div class="d-flex justify-content-center mt-2">
       <nav th:if="${noticeList.totalPages > 0}">
         <ul class="pagination mb-0">
