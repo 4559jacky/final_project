@@ -517,47 +517,51 @@
               <!-- =================== -->
               <!-- 접근 :: 인사담당자, 최고관리자 -->
               <!-- =================== -->
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span class="rounded-3">
-                    <i class="ti ti-layout"></i>
-                  </span>
-                  <span class="hide-menu">인사담당자 메뉴</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/member/create}" class="sidebar-link">
-                      <i class="ti ti-id"></i>
-                      <span class="hide-menu">사원 등록</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/dept/create}" class="sidebar-link">
-                      <i class="ti ti-building"></i>
-                      <span class="hide-menu">조직 관리</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/pos/create}" class="sidebar-link">
-                      <i class="ti ti-badge"></i>
-                      <span class="hide-menu">직급 관리</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/member}" class="sidebar-link">
-                      <i class="ti ti-users"></i>
-                      <span class="hide-menu">인사 관리</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/}" class="sidebar-link">
-                      <i class="ti ti-address-book"></i>
-                      <span class="hide-menu">조직도 및 주소록</span>
-                    </a>
-                  </li>
-                  
-                </ul>
-              </li>
+              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+              	<th:block th:if="${funcNo == 1}">
+	              <li class="sidebar-item">
+	                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+	                  <span class="rounded-3">
+	                    <i class="ti ti-layout"></i>
+	                  </span>
+	                  <span class="hide-menu">인사담당자 메뉴</span>
+	                </a>
+	                <ul aria-expanded="false" class="collapse first-level">
+	                  <li class="sidebar-item">
+	                    <a th:href="@{/admin/member/create}" class="sidebar-link">
+	                      <i class="ti ti-id"></i>
+	                      <span class="hide-menu">사원 등록</span>
+	                    </a>
+	                  </li>
+	                  <li class="sidebar-item">
+	                    <a th:href="@{/admin/dept/create}" class="sidebar-link">
+	                      <i class="ti ti-building"></i>
+	                      <span class="hide-menu">조직 관리</span>
+	                    </a>
+	                  </li>
+	                  <li class="sidebar-item">
+	                    <a th:href="@{/admin/pos/create}" class="sidebar-link">
+	                      <i class="ti ti-badge"></i>
+	                      <span class="hide-menu">직급 관리</span>
+	                    </a>
+	                  </li>
+	                  <li class="sidebar-item">
+	                    <a th:href="@{/admin/member}" class="sidebar-link">
+	                      <i class="ti ti-users"></i>
+	                      <span class="hide-menu">인사 관리</span>
+	                    </a>
+	                  </li>
+	                  <li class="sidebar-item">
+	                    <a th:href="@{/}" class="sidebar-link">
+	                      <i class="ti ti-address-book"></i>
+	                      <span class="hide-menu">조직도 및 주소록</span>
+	                    </a>
+	                  </li>
+	                  
+	                </ul>
+	              </li>
+	          	</th:block>
+              </th:block>
               <li class="sidebar-item">
                 <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
                   <span class="rounded-3">

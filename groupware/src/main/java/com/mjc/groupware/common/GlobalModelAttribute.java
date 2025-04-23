@@ -1,5 +1,9 @@
 package com.mjc.groupware.common;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -7,13 +11,13 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.entity.FuncMapping;
+import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
-import com.mjc.groupware.member.dto.MemberStaticInfoDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberAttachService;
-import com.mjc.groupware.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +27,7 @@ public class GlobalModelAttribute {
 	
 	private final CompanyService companyService;
 	private final MemberAttachService memberAttachService;
+	private final FuncMappingRepository funcMappingRepository;
 	
 	@ModelAttribute("theme")
     public String theme(@CookieValue(value = "theme", defaultValue = "light") String theme) {
@@ -58,6 +63,34 @@ public class GlobalModelAttribute {
 			
 			model.addAttribute("latestMyProfile", latestMyProfile);
 		}
+	}
+	
+	@ModelAttribute
+	public void getAccessibleFunNoList(Model model, @AuthenticationPrincipal MemberDetails memberDetails) {
+		// 지금 로그인한 사원이 접근할 수 있는 기능PK를 담아서 Set<Long> 반환
+		
+		// 로그인 상태가 이상하면 빈 set 반환
+		if (memberDetails == null || memberDetails.getMember().getRole() == null || memberDetails.getMember().getRole().getRoleNo() == null) {
+	        model.addAttribute("accessibleFuncNoList", new HashSet<Long>());
+	        return;
+	    }
+		
+		// 지금 로그인한 사원이 접근할 수 있는 funcNo를 뽑아서 전역에 뿌려줌 - func_mapping 테이블에서 조회해오는 로직임
+		Long roleNo = memberDetails.getMember().getRole().getRoleNo();
+		List<FuncMapping> mappings = funcMappingRepository.findByRole_RoleNo(roleNo);
+		
+		// 맵핑되는 기능이 없으면 빈 set 반환
+		if (mappings == null || mappings.isEmpty()) {
+	        model.addAttribute("accessibleFuncNoList", new HashSet<Long>());
+	        return;
+	    }
+		
+		Set<Long> accessibleFuncNoList = new HashSet<>();
+	    for (FuncMapping mapping : mappings) {
+	        accessibleFuncNoList.add(mapping.getFunc().getFuncNo());
+	    }
+	    
+	    model.addAttribute("accessibleFuncNoList", accessibleFuncNoList);
 	}
 	
 }
