@@ -27,13 +27,14 @@ public class ReplyDto {
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
     
+    private String newContent;
+    
     private String memberPhoto; // 작성자 프로필 이미지 URL(member 엔티티에도 있어서 가져와서 쓰는중)
     
     private String timeAgo; // 댓글 등록(작성자 => 몇시간전 등록)
     
     private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 목록
     
-
     /**
      * DTO -> Entity 변환
      */
@@ -47,7 +48,6 @@ public class ReplyDto {
                 .parentReply(parent_reply_no != null ? Reply.builder().replyNo(parent_reply_no).build() : null)
                 .build();
     }
-    
     /**
      * Entity -> DTO 변환
      */

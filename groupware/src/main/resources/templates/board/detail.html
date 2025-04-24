@@ -43,27 +43,21 @@
         
 
     <!-- 작성 정보 (오른쪽 정렬) -->
-<div class="d-flex justify-content-between align-items-center text-dark" style="font-size: 1rem; white-space: nowrap;">
-    <div>
-    <div>
-        <button type="button" class="btn btn-warning px-3 py-1">신고</button>
+<div class="d-flex align-items-start" style="font-size: 1rem; white-space: nowrap;">
+  <div>
+    <div class="d-flex align-items-center">
+      <span>작성자: </span>
+      <span th:text="${board.member?.memberName ?: '익명'}" class="me-2"></span>
+      <button type="button" class="btn btn-outline-danger btn-sm" title="신고" style="padding: 0.15rem 0.5rem; height: 28px;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </button>
     </div>
-    	<div>
-	        <span>작성자: </span>
-    	    <span th:text="${board.member?.memberName ?: '익명'}"></span>
-    	</div>
-    	<div>
-	        <span>작성일: </span>
-    	    <span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span>
-    	</div>
-    	<div>
-	        <span>조회수: </span>
-    	    <span th:text="${board.views}">0</span>
-    	</div>
-    </div>
+    <div><span>작성일: </span><span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span></div>
+    <div><span>조회수: </span><span th:text="${board.views}">0</span></div>
+  </div>
 </div>
 </div>
-    <hr>
+<hr>
     
     <!-- 본문 내용 (테두리 없는 버전) -->
     <div class="toastui-editor-contents"
@@ -103,120 +97,120 @@
 
 
 <!-- 댓글 작성 영역 -->
-<div class="p-4 bg-white rounded-4 shadow-sm mb-4">
+<div class="comment-write p-4 bg-white rounded-4 shadow-sm mb-4">
     <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
     <th:block sec:authorize="isAuthenticated()">
-        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST"
-              style="display: flex; gap: 10px; align-items: stretch;">
-            <textarea name="reply_content" placeholder="댓글을 입력하세요" required
-                      style="resize: none; flex-grow: 1; height: 60px;" class="form-control"></textarea>
-            <button type="submit" class="btn btn-primary" style="height: 60px; min-width: 80px;">등록</button>
+        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST" class="d-flex gap-2 align-items-stretch">
+            <textarea name="reply_content" placeholder="댓글을 입력하세요" required class="form-control" style="resize: none; height: 60px;"></textarea>
+            <button type="submit" class="btn btn-primary" style="min-width: 80px;">등록</button>
             <input type="hidden" name="board_no" th:value="${board.boardNo}"/>
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         </form>
     </th:block>
     <th:block sec:authorize="isAnonymous()">
-        <p>로그인 후 댓글을 작성할 수 있습니다.</p>
+        <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
     </th:block>
 </div>
 
 <!-- 댓글 + 대댓글 리스트 -->
 <div th:each="reply : ${replyList}" class="reply-item mb-3 p-3 border rounded-3">
-    <div class="reply-container">
-        <div class="reply-info d-flex justify-content-between">
-            <div class="reply-author">
-                <span th:text="${reply.memberName}">작성자 이름</span>
-                <span th:text="${reply.timeAgo}">몇시간 전</span>
+    <div class="d-flex align-items-start mb-2">
+        <!-- 프로필 아이콘 -->
+        <div class="profile-icon rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3" style="width:40px; height:40px; font-size: 20px;">
+            <i class="bi bi-person"></i> <!-- Bootstrap Icons 사용 예 -->
+        </div>
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong th:text="${reply.memberName}">작성자</strong>
+                    <small class="text-muted ms-2" th:text="${reply.timeAgo}"></small>
+                </div>
+                <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
+                    <div class="reply-actions d-flex gap-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
+                    </div>
+                </th:block>
+                <th:block th:if="${reply.member_no != #authentication.principal.member.memberNo}">
+    				<button type="button" class="btn btn-outline-danger btn-sm" title="신고">
+        				<i class="bi bi-exclamation-triangle-fill"></i>
+    				</button>
+				</th:block>
             </div>
 
-            <!-- 본인이 쓴 댓글일 경우에만 수정/삭제 버튼 노출 -->
-            <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
-                <div class="mt-4 text-end">
-                    <div class="reply-actions d-flex gap-2">
-                    
-                        <!-- 수정 버튼: 수정 폼을 보여줌 -->
-                        <button type="button" class="btn btn-primary px-3 py-1"
-                                th:onclick="|showEditReplyForm(${reply.reply_no})|">수정</button>
-                        <!-- 삭제 버튼: 삭제 확인 후 바로 삭제 -->
-                        <button type="button" class="btn btn-danger"
-        						th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
-                    </div>
+            <p class="reply-content mt-2 mb-2" th:id="'reply-content-' + ${reply.reply_no}" th:text="${reply.reply_content}"></p>
+            
+            <!-- 수정 폼 -->
+            <div th:id="'reply-edit-form-' + ${reply.reply_no}" style="display: none;">
+                <textarea th:id="'edit-textarea-' + ${reply.reply_no}" class="form-control mb-2" style="resize: none; height: 60px;"></textarea>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary btn-sm" th:onclick="|cancelReplyEdit(${reply.reply_no})|">취소</button>
                 </div>
-            </th:block>
-        </div>
+            </div>
 
-        <!-- 신고 버튼 (모든 사용자에게 노출) -->
-        <div class="text-end">
-            <button type="button" class="btn btn-warning btn-sm"
-                    th:onclick="|reportReply(${reply.reply_no})|">신고</button>
-        </div>
+            <!-- 답글 버튼 -->
+            <div class="mb-2">
+                <button type="button" class="btn btn-sm btn-primary" th:onclick="|showReplyForm(${reply.reply_no})|">댓글달기</button>
+            </div>
 
-        <!-- 댓글 내용 (수정되면 입력창으로 변경됨) -->
-        <div class="reply-content">
-            <p th:text="${reply.reply_content}">댓글 내용</p>
-
-            <!-- 댓글 수정 폼 (기본 숨김) -->
-            <div id="edit-reply-form-${reply.reply_no}" style="display: none;" class="mt-2">
-                <form th:action="@{/replies/{replyNo}/update(replyNo=${reply.reply_no})}" method="POST">
-                    <textarea name="reply_content" th:text="${reply.reply_content}" class="form-control" required
-                              style="resize: none; flex-grow: 1; height: 60px;"></textarea>
-                    <button type="submit" class="btn btn-success mt-2">저장</button>
+            <!-- 대댓글 입력 폼 -->
+            <div th:id="'reply-form-' + ${reply.reply_no}" class="reply-form mb-3" style="display: none;">
+                <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}" method="POST" class="d-flex gap-2">
+                    <textarea name="reply_content" class="form-control" required style="resize: none; flex-grow: 1; height: 60px;" placeholder="답글을 입력하세요"></textarea>
+                    <button type="submit" class="btn btn-primary" style="min-width: 80px;">등록</button>
                     <input type="hidden" name="board_no" th:value="${board.boardNo}"/>
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 </form>
             </div>
-        </div>
 
-        <!-- 답글 버튼 -->
-        <div class="d-flex align-items-center mb-2">
-            <button type="button" class="btn btn-sm btn-primary"
-                    th:onclick="|showReplyForm(${reply.reply_no})|">댓글달기</button>
-        </div>
-    </div>
+            <!-- 대댓글 목록 -->
+            <div class="sub-reply-list ps-4 border-start" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
+                <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-2">
+                    <div class="d-flex align-items-start">
+                        <div class="profile-icon rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3" style="width:30px; height:30px; font-size: 16px;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong th:text="${subReply.memberName}">작성자</strong>
+                                    <small class="text-muted ms-2" th:text="${subReply.timeAgo}"></small>
+                                </div>
+                                <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
+                                    <div class="reply-actions d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-sm" th:onclick="|replyUpdate(${subReply.reply_no})|">수정</button>
+                                        <button type="button" class="btn btn-danger btn-sm" th:onclick="|replyDelete(${subReply.reply_no})|">삭제</button>
+                                    </div>
+                                </th:block>
+                               <th:block th:if="${subReply.member_no != #authentication.principal.member.memberNo}">
+    								<button type="button" class="btn btn-outline-danger btn-sm" title="신고">
+        								<i class="bi bi-exclamation-triangle-fill"></i>
+    								</button>
+								</th:block>
+                            </div>
+                            <p class="reply-content mt-1 mb-1" th:id="'reply-content-' + ${subReply.reply_no}" th:text="${subReply.reply_content}"></p>
 
-    <!-- 대댓글 입력 폼 (기본 숨김) -->
-    <div th:id="'reply-form-' + ${reply.reply_no}" style="display: none;" class="mb-2">
-        <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}"
-              method="POST" style="display: flex; gap: 10px;">
-            <textarea name="reply_content" class="form-control" required
-                      style="resize: none; flex-grow: 1; height: 60px;"></textarea>
-            <button type="submit" class="btn btn-primary">등록</button>
-            <input type="hidden" name="board_no" th:value="${board.boardNo}"/>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        </form>
-    </div>
-
-    <!-- 대댓글 목록 -->
-    <div class="ps-4 border-start mt-2"
-         th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
-        <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-1">
-            <div class="reply-info d-flex justify-content-between">
-                <div>
-                    <strong th:text="${subReply.memberName}">작성자</strong> :
-                    <span th:text="${subReply.reply_content}">내용</span>
-                </div>
-
-                <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
-                    <div class="reply-actions d-flex gap-2">
-                        <!-- 수정 버튼: 수정 폼을 보여줌 -->
-                        <button type="button" class="btn btn-primary btn-sm"
-                                th:onclick="|showEditReplyForm(${subReply.reply_no})|">수정</button>
-                        <!-- 삭제 버튼: 삭제 확인 후 바로 삭제 -->
-                        <button type="button" class="btn btn-danger btn-sm"
-                                th:onclick="|replyDelete(${subReply.reply_no})|">삭제</button>
+                            <!-- 대댓글 수정 폼 -->
+                            <div th:id="'reply-edit-form-' + ${subReply.reply_no}" style="display: none;">
+                                <textarea th:id="'edit-textarea-' + ${subReply.reply_no}" class="form-control mb-2" style="resize: none; height: 50px;"></textarea>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-secondary btn-sm" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </th:block>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
             
 <!-- 삭제 JS 및 대댓글 폼 표시 JS -->
     <script>
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
+        // 게시글 삭제 기능
         function boardDelete(boardNo) {
         	  if (!confirm("게시글을 삭제하시겠습니까?")) return;
 
@@ -240,13 +234,72 @@
         	    alert("에러 발생: " + err);
         	  });
         	}
+        
+        
+        // 댓글 수정 기능
+        function replyUpdate(replyNo) {
+            const content = document.getElementById(`reply-content-${replyNo}`);
+            const form = document.getElementById(`reply-edit-form-${replyNo}`);
+            const textarea = document.getElementById(`edit-textarea-${replyNo}`);
+
+            // textarea가 보이면, 저장 요청
+            if (form.style.display === 'block') {
+                const newContent = textarea.value.trim();
+                const csrfToken = document.querySelector('input[name="_csrf"]').value;
+
+                if (!newContent) {
+                    alert("댓글 내용을 입력하세요.");
+                    return;
+                }
+
+                fetch(`/replies/${replyNo}/update`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken
+                    },
+                    body: JSON.stringify({ reply_content: newContent })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("응답 실패");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        content.innerText = newContent;
+                        form.style.display = 'none';
+                        content.style.display = 'block';
+                        alert("댓글이 수정되었습니다.");
+                    } else {
+                        alert("수정에 실패했습니다.");
+                    }
+                })
+                .catch(err => {
+                    console.error("수정 실패:", err);
+                    alert("오류가 발생했습니다.");
+                });
+
+            } else {
+                // textarea 열기
+                textarea.value = content.innerText.trim();
+                content.style.display = 'none';
+                form.style.display = 'block';
+            }
+        }
+        // 댓글 취소 기능
+        function cancelReplyEdit(replyNo) {
+            // 수정 폼을 숨깁니다.
+            document.getElementById(`reply-edit-form-${replyNo}`).style.display = 'none';
+            // 원래 댓글 내용을 다시 보이도록 합니다.
+            document.getElementById(`reply-content-${replyNo}`).style.display = 'block';
+        }
+        
           
        // 댓글 삭제 기능
          function replyDelete(replyNo) {
   			if (!confirm("댓글을 삭제하시겠습니까?")) return;
-
   			fetch(`/replies/${replyNo}/delete`, {
-    			method: 'DELETE',
+    			method: 'POST',
     			headers: {
       		[csrfHeader]: csrfToken,  // CSRF 토큰 추가
       		'Content-Type': 'application/json'
@@ -280,6 +333,55 @@
             replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
         }
     };
+    
+    let page = 1;
+    const loadMoreComments = () => {
+        // 여기서 추가 댓글을 로드하는 API를 호출하세요.
+        page++;
+        fetch(`/comments?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                // 로드된 댓글 데이터를 화면에 추가
+                const commentContainer = document.getElementById('comment-container');
+                data.comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.classList.add('reply-item');
+                    commentElement.innerHTML = `
+                        <p>${comment.content}</p>
+                        <p>작성자: ${comment.memberName}</p>
+                    `;
+                    commentContainer.appendChild(commentElement);
+                });
+            });
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                loadMoreComments();
+            }
+        });
+    }, {
+        rootMargin: '100px',
+    });
+
+    observer.observe(document.querySelector('#load-more-trigger'));
+    
+    
+ // 위로 가는 버튼 제어
+    const backToTopButton = document.getElementById('back-to-top');
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopButton.style.display = 'block';
+        } else {
+            backToTopButton.style.display = 'none';
+        }
+    });
+
+    backToTopButton.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
     </script>
 
 	

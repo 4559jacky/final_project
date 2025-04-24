@@ -6,14 +6,14 @@ import java.util.Map;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 
@@ -66,21 +66,36 @@ public class ReplyController {
 
     // 댓글 수정
     @PostMapping("/replies/{replyNo}/update")
-    public String replyUpdate(@RequestParam("reply_content") String replyContent,
-                              @PathVariable("replyNo") Long replyNo) {
-        Member member = getLoginMember();  // 로그인 사용자 정보 조회
-        replyService.replyUpdate(replyNo, member.getMemberNo(), replyContent);  // 댓글 수정 서비스 호출
-        return redirectToBoardDetail(replyService.getBoardNoByReply(replyNo));  // 상세 페이지로 리다이렉트
+    @ResponseBody
+    public Map<String, Object> updateReplyAjax(@PathVariable("replyNo") Long replyNo,  // PathVariable에서 이름 명시
+                                               @RequestBody Map<String, String> payload,
+                                               @AuthenticationPrincipal MemberDetails memberDetails) {
+        String newContent = payload.get("reply_content");
+
+        // ReplyDto 객체에 수정된 내용을 담기
+        ReplyDto replyDto = new ReplyDto();
+        replyDto.setReply_no(replyNo);
+        replyDto.setReply_content(newContent);
+
+        // 서비스 메서드 호출
+        replyService.updateReply(replyDto, memberDetails.getMember());
+
+        // 결과 맵 생성 후 반환
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        return result;
     }
+    
     // 댓글 삭제
-    @DeleteMapping("/replies/{replyNo}/delete")
+    @PostMapping("/replies/{replyNo}/delete")
     @ResponseBody
     public Map<String, String> replyDelete(@PathVariable("replyNo") Long replyNo,
-                                           @AuthenticationPrincipal Member loginUser) {
+    		@AuthenticationPrincipal MemberDetails memberDetails) {
         Map<String, String> result = new HashMap<>();
-
         try {
-            replyService.replyDelete(replyNo, loginUser.getMemberNo());
+        	Member member = memberDetails.getMember();
+            replyService.replyDelete(replyNo, member.getMemberNo());
+            
             result.put("res_code", "200");
             result.put("res_msg", "댓글이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
