@@ -8,8 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.mjc.groupware.company.entity.FuncMapping;
-import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.member.entity.Member;
 
 import lombok.Getter;

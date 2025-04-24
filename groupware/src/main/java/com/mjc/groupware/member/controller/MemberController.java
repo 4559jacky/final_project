@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.address.service.AddressService;
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
@@ -86,8 +86,9 @@ public class MemberController {
 		return "member/login";
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_C")
 	@GetMapping("/admin/member/create")
-	public String createMemberView(@RequestParam(value = "funcNo") Long funcNo, Model model) {
+	public String createMemberView(Model model) {
 		
 		List<Pos> posList = posService.selectPosAllByPosOrderAsc();
 		List<Dept> deptList = deptService.SelectDeptAllOrderByDeptNameAsc();
@@ -101,6 +102,7 @@ public class MemberController {
 		return "member/create";
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_C")
 	@PostMapping("/admin/member/create")
 	@ResponseBody
 	public Map<String, String> createMemberApi(MemberDto dto) {
@@ -118,16 +120,17 @@ public class MemberController {
 			}
 		} catch(IllegalArgumentException e) {
 			resultMap.put("res_code", "400");
-	        resultMap.put("res_msg", e.getMessage());	
+	        resultMap.put("res_msg", e.getMessage());
 		} catch(Exception e) {
 			logger.error("사원 등록 중 오류 발생", e);
 			resultMap.put("res_code", "500");
 			resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
-		} 
+		}
 		
 		return resultMap;
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_RU")
 	@GetMapping("/admin/member")
 	public String selectMemberAll(Model model, MemberSearchDto searchDto, PageDto pageDto) {
 		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
@@ -163,6 +166,7 @@ public class MemberController {
 		return "member/list";
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_RU")
 	@PostMapping("/admin/member/select")
 	@ResponseBody
 	public MemberResponseDto selectMemberAllByDeptNoApi(@RequestParam("deptId") String deptId) {
@@ -265,6 +269,7 @@ public class MemberController {
 		return responseDto;
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_RU")
 	@PostMapping("/admin/member/update")
 	@ResponseBody
 	public Map<String, String> updateMember(@RequestBody MemberResponseDto dto) {
@@ -291,6 +296,7 @@ public class MemberController {
 		return resultMap;
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_RU")
 	@PostMapping("/admin/members/update")
 	@ResponseBody
 	public Map<String, String> updateMembersApi(@RequestBody List<MemberResponseDto> dtoList) {
@@ -320,6 +326,7 @@ public class MemberController {
 		return resultMap;
 	}
 	
+	@CheckPermission("MEMBER_ADMIN_RU")
 	@PostMapping("/admin/memberAll/update")
 	@ResponseBody
 	public Map<String, String> updateMemberAllApi(@RequestBody List<MemberResponseDto> dtoList) {
@@ -383,6 +390,20 @@ public class MemberController {
 	@PostMapping("/member/{id}/update/image")
 	@ResponseBody
 	public Map<String, String> updateMemberProfileImage(@PathVariable("id") Long memberNo, MemberAttachDto memberAttachDto) {
+		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new AccessDeniedException("로그인 정보가 없습니다.");
+		}
+		
+		MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+		Long currentMemberNo = memberDetails.getMember().getMemberNo();
+		
+		if (!memberNo.equals(currentMemberNo)) {
+			throw new AccessDeniedException("접근 권한이 없습니다.");
+		}
+		
 		// 각각의 사원이 본인의 프로필 이미지를 수정하는 로직
 		Map<String, String> resultMap = new HashMap<>();
 		
@@ -414,6 +435,20 @@ public class MemberController {
 	@PostMapping("/member/{id}/update/pw")
 	@ResponseBody
 	public Map<String, String> updateMemberPw(@PathVariable("id") Long memberNo, MemberDto dto, HttpServletResponse response) {
+		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new AccessDeniedException("로그인 정보가 없습니다.");
+		}
+		
+		MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+		Long currentMemberNo = memberDetails.getMember().getMemberNo();
+		
+		if (!memberNo.equals(currentMemberNo)) {
+			throw new AccessDeniedException("접근 권한이 없습니다.");
+		}
+		
 		Map<String, String> resultMap = new HashMap<>();
 
 		resultMap.put("res_code", "500");
@@ -448,6 +483,20 @@ public class MemberController {
 	@PostMapping("/member/{id}/update")
 	@ResponseBody
 	public Map<String, String> updateMemberProfileInfo(@PathVariable("id") Long memberNo, MemberDto dto) {
+		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new AccessDeniedException("로그인 정보가 없습니다.");
+		}
+		
+		MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+		Long currentMemberNo = memberDetails.getMember().getMemberNo();
+		
+		if (!memberNo.equals(currentMemberNo)) {
+			throw new AccessDeniedException("접근 권한이 없습니다.");
+		}
+		
 		Map<String, String> resultMap = new HashMap<>();
 		
 		resultMap.put("res_code", "500");
