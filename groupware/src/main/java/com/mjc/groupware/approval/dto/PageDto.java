@@ -27,6 +27,7 @@ public class PageDto {
 	private boolean next = true;
 	
 	private int totalPage;			// 총 페이지 수
+	private int totalCount;
 	
 	public void setNowPage(int nowPage) {
 		this.nowPage = nowPage;
@@ -36,6 +37,10 @@ public class PageDto {
 		this.totalPage = totalPage;
 		calcPaging();
 	}
+	
+	public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
 	
 	private void calcPaging() {
 		if (totalPage == 0) {
