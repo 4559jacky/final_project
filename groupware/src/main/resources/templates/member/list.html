@@ -256,7 +256,7 @@ layout:decorate="~{/include/layout}">
 											        <span aria-hidden="true">&laquo;</span>
 											      </a>
 											    </li>
-											
+												
 											    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
 											      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
 											        <a class="page-link"
@@ -366,17 +366,31 @@ layout:decorate="~{/include/layout}">
 							});
 							
 							const statusList = [
-								{ no: 100, name: '재직', color: 'text-success' },
-								{ no: 101, name: '수습', color: 'text-warning' },
-								{ no: 102, name: '인턴', color: 'text-warning' },
-								{ no: 200, name: '전출', color: 'text-secondary' },
-								{ no: 300, name: '휴직', color: 'text-warning' },
-								{ no: 301, name: '대기', color: 'text-warning' },
-								{ no: 400, name: '해고', color: 'text-secondary' },
-								{ no: 401, name: '은퇴', color: 'text-secondary' },
-								{ no: 402, name: '퇴사', color: 'text-secondary' },
-								{ no: 900, name: '사망', color: 'text-secondary' }
+								{ no: 100, name: '재직'},
+								{ no: 101, name: '수습'},
+								{ no: 102, name: '인턴'},
+								{ no: 200, name: '전출'},
+								{ no: 300, name: '휴직'},
+								{ no: 301, name: '대기'},
+								{ no: 400, name: '해고'},
+								{ no: 401, name: '은퇴'},
+								{ no: 402, name: '퇴사'},
+								{ no: 900, name: '사망'}
 							];
+							
+							const statusColorMap = {
+								100: 'text-success',
+								101: 'text-warning',
+								102: 'text-warning',
+								200: 'text-secondary',
+								300: 'text-warning',
+								301: 'text-warning',
+								400: 'text-secondary',
+								401: 'text-secondary',
+								402: 'text-secondary',
+								900: 'text-secondary'
+							};
+							
 							let statusOptions = '';
 							statusList.forEach(status => {
 							  const selected = memberDto.status === status.no ? 'selected' : '';
@@ -418,6 +432,25 @@ layout:decorate="~{/include/layout}">
 							`;
 							
 							tbody.appendChild(tr);
+							
+							setTimeout(() => {
+								  const statusSelect = tr.querySelector('select[name="status"]');
+								  const selectedStatus = memberDto.status;
+								  const colorClass = statusColorMap[selectedStatus];
+								  if (colorClass) {
+								    statusSelect.classList.add(colorClass);
+								  }
+
+								  // 변경 감지 이벤트로 동적 클래스 업데이트
+								  statusSelect.addEventListener('change', function () {
+								    this.classList.remove('text-success', 'text-warning', 'text-secondary');
+								    const newStatus = Number(this.value);
+								    const newClass = statusColorMap[newStatus];
+								    if (newClass) {
+								      this.classList.add(newClass);
+								    }
+								  });
+								}, 0);
 						});
 						
 					},
@@ -441,6 +474,8 @@ layout:decorate="~{/include/layout}">
 				}
 			}
 		});
+		
+		
 	</script>
 	
 	<script>
