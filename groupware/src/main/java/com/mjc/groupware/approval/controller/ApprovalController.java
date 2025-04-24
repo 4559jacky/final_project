@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.PageDto;
 import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
@@ -30,7 +31,6 @@ import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
-import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
 
@@ -153,6 +153,7 @@ public class ApprovalController {
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
 	    pageDto.setTotalPage(approvalList.getTotalPages());
+	    pageDto.setTotalCount((int)approvalList.getTotalElements());
 	    
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalList", approvalList);
