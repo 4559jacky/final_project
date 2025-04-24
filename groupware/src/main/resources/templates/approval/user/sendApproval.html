@@ -45,35 +45,35 @@
 		<div class="container-fluid my-5 px-4">
 			<div class="row g-3 text-center">
 				<div class="col-md">
-					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3">📤</div>
-						<div class="fw-semibold mt-2">합의 대기 중</div>
-						<div class="fs-4 fw-bold mt-1 text-primary"
-							th:text="${requestCount}">0</div>
-					</div>
-				</div>
-				<div class="col-md">
-					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3">⏳</div>
-						<div class="fw-semibold mt-2">결재 대기 중</div>
+					<div class="card shadow-sm rounded-4 p-3 h-100" style="background-color:#FFF4E5;">
+						<div class="fs-3"></div>
+						<div class="fw-semibold mt-2" style="font-size:16px;">합의 대기 중</div>
 						<div class="fs-4 fw-bold mt-1 text-warning"
-							th:text="${waitingCount}">0</div>
+							th:text="${approvalStatusTypeDto.count_A}">0</div>
 					</div>
 				</div>
 				<div class="col-md">
-					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3">❌</div>
+					<div class="card shadow-sm rounded-4 p-3 h-100" style="background-color:#E6F4FF;">
+						<div class="fs-3"></div>
+						<div class="fw-semibold mt-2">결재 대기 중</div>
+						<div class="fs-4 fw-bold mt-1 text-info"
+							th:text="${approvalStatusTypeDto.count_D}">0</div>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="card shadow-sm rounded-4 p-3 h-100" style="background-color:#FDF3F5;">
+						<div class="fs-3"></div>
 						<div class="fw-semibold mt-2">결재 반려</div>
 						<div class="fs-4 fw-bold mt-1 text-danger"
-							th:text="${rejectedCount}">0</div>
+							th:text="${approvalStatusTypeDto.count_R}">0</div>
 					</div>
 				</div>
 				<div class="col-md">
-					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3">✅</div>
+					<div class="card shadow-sm rounded-4 p-3 h-100" style="background-color:#EBFAF2;">
+						<div class="fs-3"></div>
 						<div class="fw-semibold mt-2">결재 완료</div>
 						<div class="fs-4 fw-bold mt-1 text-success"
-							th:text="${approvedCount}">0</div>
+							th:text="${approvalStatusTypeDto.count_C}">0</div>
 					</div>
 				</div>
 			</div>
