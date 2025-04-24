@@ -71,11 +71,17 @@ public class PlanController {
 	    Map<String, Object> extendedProps = new HashMap<>();
 	    extendedProps.put("planType", plan.getPlanType());
 	    extendedProps.put("description", plan.getPlanContent());
-
+	    // 일정바앞에 부서명 뿌려주기
+	    Member planMember = plan.getMember();
+	    String deptName = "";
+	    if(planMember != null && planMember.getDept() != null) {
+	    	deptName = planMember.getDept().getDeptName();
+	    }
+	    extendedProps.put("deptName", deptName);
+	    System.out.println("부서 데이터 확인:"+deptName);
+	    
 	    event.put("extendedProps", extendedProps);
-
 	    events.add(event);
-
 		}
 	    return events;
 	}

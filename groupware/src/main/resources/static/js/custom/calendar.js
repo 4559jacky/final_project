@@ -103,10 +103,10 @@ document.addEventListener("DOMContentLoaded", function () {
     selectable: true,
 	locale:'ko',
 	dayMaxEvents: 5,
+	dayMaxEventRows:true,
 	eventDisplay: 'block',
 	editable:true,
 	allDaySlot: false,
-	displayEventTime: false, //일정바 앞 시간
 	slotDuration: '00:30:00',
 	navLinks: true,
 	nowIndicator:true,
@@ -287,7 +287,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		const start = new Date(selectInfo.start);
 		  start.setHours(0, 0, 0, 0); // 선택한 날짜도 자정 기준
 		  return start >= now; // 오늘 날짜는 OK, 과거는 막힘
-	}
+	},
+	// 일정바앞 부서명 넣어주는 코드
+	eventContent: function(arg) {
+	   const department = arg.event.extendedProps.deptName || "";
+	   const title = arg.event.title;
+		console.log("부서 확인 : ", arg.event.extendedProps.deptName);
+	   return {
+	     html: `<div><strong>[${department}]</strong> ${title}</div>`
+	   };
+	 }
   });
   /*=====================*/
   // Update Calender Event
