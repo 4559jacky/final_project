@@ -165,9 +165,50 @@ select::after {
 .text-secondary {
 	color: #6c757d !important;
 }
+
+/* 라이트 테마 (기본값) */
+[data-bs-theme="light"] select option {
+	background-color: white !important;
+	color: black !important;
+}
+
+/* 다크 테마 */
+[data-bs-theme="dark"] select option {
+	background-color: #2c2c2c !important;
+	color: #f1f1f1 !important;
+}
+
+/* 라이트모드 */
+[data-bs-theme="light"] select {
+	background-color: white;
+	color: black;
+	border: 1px solid #ccc;
+	box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+}
+
+[data-bs-theme="light"] select:focus {
+	border-color: #007bff;
+	box-shadow: 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* 다크모드 */
+[data-bs-theme="dark"] select {
+	background-color: #343a40;
+	color: white;
+	border: 1px solid #495057;
+	box-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+	cursor: pointer;
+}
+
+[data-bs-theme="dark"] select:focus {
+	border-color: #007bff;
+	box-shadow: 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
 /* 사원 조회 테이블 css 끝 */
 
 /* 다크모드에서 placeholder 톤 다운 */
 [data-bs-theme="dark"] input::placeholder {
-  color: #aaa; /* 연한 회색으로 눈에 부담 없게 */
+	color: #aaa; /* 연한 회색으로 눈에 부담 없게 */
 }

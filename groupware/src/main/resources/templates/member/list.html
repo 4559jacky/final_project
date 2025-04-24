@@ -215,6 +215,7 @@ layout:decorate="~{/include/layout}">
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="role_no">
 															<option th:each="role : ${roleList}"
+																	th:if="${role.roleNo != 1}"
 																	th:value="${role.roleNo}"
 																	th:text="${role.roleNickname}"
 																	th:selected="${role.roleNo == member.role?.roleNo}">
@@ -222,7 +223,12 @@ layout:decorate="~{/include/layout}">
 														</select>
 													</td>
 													<td>
-														<select class="mb-0 fw-normal fs-4" name="status">
+														<select class="mb-0 fw-normal fs-4"
+																name="status"
+																th:classappend="${member.status == 100 ? 'text-success' :
+																			    (member.status == 101 || member.status == 102 || member.status == 300 || member.status == 301) ? 'text-danger' :
+																			    (member.status == 200 || member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
+																			    ''}">
 															<option th:each="status : ${statusList}"
 																	th:value="${status.status_no}"
 																	th:text="${status.status_name}"
@@ -353,26 +359,28 @@ layout:decorate="~{/include/layout}">
 							
 							let roleOptions = '';
 							roleListAll.forEach(role => {
-								const selected = role.role_no === memberDto.role_no ? 'selected' : '';
-								roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
+								if (role.role_no !== 1) {
+									const selected = role.role_no === memberDto.role_no ? 'selected' : '';
+									roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
+								}
 							});
 							
 							const statusList = [
-								{ no: 100, name: '재직' },
-								{ no: 101, name: '수습' },
-								{ no: 102, name: '인턴' },
-								{ no: 200, name: '전출' },
-								{ no: 300, name: '휴직' },
-								{ no: 301, name: '대기' },
-								{ no: 400, name: '해고' },
-								{ no: 401, name: '은퇴' },
-								{ no: 402, name: '퇴사' },
-								{ no: 900, name: '사망' }
+								{ no: 100, name: '재직', color: 'text-success' },
+								{ no: 101, name: '수습', color: 'text-warning' },
+								{ no: 102, name: '인턴', color: 'text-warning' },
+								{ no: 200, name: '전출', color: 'text-secondary' },
+								{ no: 300, name: '휴직', color: 'text-warning' },
+								{ no: 301, name: '대기', color: 'text-warning' },
+								{ no: 400, name: '해고', color: 'text-secondary' },
+								{ no: 401, name: '은퇴', color: 'text-secondary' },
+								{ no: 402, name: '퇴사', color: 'text-secondary' },
+								{ no: 900, name: '사망', color: 'text-secondary' }
 							];
 							let statusOptions = '';
 							statusList.forEach(status => {
 							  const selected = memberDto.status === status.no ? 'selected' : '';
-							  statusOptions += `<option value="${status.no}" ${selected}>${status.name}</option>`;
+							  statusOptions += `<option value="${status.no}" ${selected} class="${status.color}">${status.name}</option>`;
 							});
 							
 							tr.innerHTML = `
