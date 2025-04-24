@@ -18,11 +18,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="shared_folder")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SharedFolder {
@@ -33,6 +35,12 @@ public class SharedFolder {
 	
 	@Column(name="folder_name")
 	private String folderName;
+	
+	@Column(name="folder_status")
+	private String folderStatus;
+	
+	@Column(name="folder_shared")
+	private String folderShared;
 	
 	@ManyToOne
 	@JoinColumn(name="member_no", nullable = false)
