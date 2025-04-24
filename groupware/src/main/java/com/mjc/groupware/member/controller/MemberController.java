@@ -457,6 +457,14 @@ public class MemberController {
 		resultMap.put("res_msg", "비밀번호 수정 중 알 수 없는 오류가 발생하였습니다.");
 		
 		try {
+			// 서버단에서의 복잡도 검증
+			String newPw = dto.getMember_new_pw();
+			
+			if (!isValidPassword(newPw)) {
+	            throw new IllegalArgumentException("비밀번호는 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.");
+	        }
+			
+			// 실질적인 비밀번호 수정 로직
 			dto.setMember_no(memberNo);
 			
 			service.updateMemberPw(dto);
@@ -479,7 +487,17 @@ public class MemberController {
 		}
 		
 		return resultMap;
-		
+	}
+	
+	// 비밀번호 정규식 검사를 위한 private 메소드 - updateMemberPw() 에서 끌어다 씀
+	private boolean isValidPassword(String password) {
+	    if (password == null) return false;
+	    
+	    boolean lengthCheck = password.length() >= 8;
+	    boolean numberCheck = password.matches(".*[0-9].*");
+	    boolean specialCheck = password.matches(".*[!@#$%^&*(),.?\":{}|<>].*");
+	    
+	    return lengthCheck && numberCheck && specialCheck;
 	}
 	
 	@PostMapping("/member/{id}/update")
