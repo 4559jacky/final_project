@@ -217,27 +217,29 @@
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
-        const boardDelete = (boardNo) => {
-            if (!confirm("게시글을 삭제하시겠습니까?")) return;
+        function boardDelete(boardNo) {
+        	  if (!confirm("정말 삭제하시겠습니까?")) return;
 
-            fetch(`/board/delete/${boardNo}`, {
-              method: 'DELETE',
-              headers: {
-                [csrfHeader]: csrfToken
-              }
-            })
-            .then(response => {
-              if (response.ok) {
-                alert("삭제되었습니다.");
-                location.href = "/board/list";
-              } else {
-                alert("삭제 실패");
-              }
-            })
-            .catch(error => {
-              console.error("삭제 에러:", error);
-            });
-          };
+        	  fetch('/board/delete/' + boardNo, {
+        	    method: 'DELETE',
+        	    headers: {
+        	      [csrfHeader]: csrfToken,  // 🔐 CSRF 토큰 추가!
+        	      'Content-Type': 'application/json'
+        	    }
+        	  })
+        	  .then(res => res.json())
+        	  .then(data => {
+        	    if (data.res_code === "200") {
+        	      alert(data.res_msg);
+        	      location.href = '/board/list';
+        	    } else {
+        	      alert(data.res_msg);
+        	    }
+        	  })
+        	  .catch(err => {
+        	    alert("에러 발생: " + err);
+        	  });
+        	}
           
        // 댓글 삭제 기능
          const replyDelete = (replyNo) => {
