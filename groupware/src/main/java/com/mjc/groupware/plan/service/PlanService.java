@@ -2,10 +2,10 @@ package com.mjc.groupware.plan.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
 import com.mjc.groupware.plan.repository.PlanRepository;
@@ -63,6 +63,16 @@ public class PlanService {
 	    }
 
 	    return planRepository.save(plan);
+	}
+
+	// 상세모달 수정 권한체크
+	public Plan findPlanById(Long id) {
+	    return planRepository.findById(id).orElse(null);
+	}
+	public boolean canEditPlan(Plan plan, Member loginMember) {
+	    Member writer = plan.getMember(); // plan에는 member가 join돼 있다고 가정
+	    return writer.getMemberNo().equals(loginMember.getMemberNo()) ||
+	           writer.getDept().getDeptNo().equals(loginMember.getDept().getDeptNo());
 	}
 
 	// 상세모달창 삭제

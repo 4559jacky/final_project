@@ -36,8 +36,8 @@ public class Func {
 	@Column(name="func_name")
 	private String funcName;
 	
-	@Column(name="func_url")
-	private String funcUrl;
+	@Column(name="func_code")
+	private String funcCode;
 	
 	@Column(name="func_status")
 	private int funcStatus;

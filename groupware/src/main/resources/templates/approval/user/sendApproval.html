@@ -47,7 +47,7 @@
 				<div class="col-md">
 					<div class="card shadow-sm rounded-4 p-3 h-100">
 						<div class="fs-3">📤</div>
-						<div class="fw-semibold mt-2">결재 요청</div>
+						<div class="fw-semibold mt-2">합의 대기 중</div>
 						<div class="fs-4 fw-bold mt-1 text-primary"
 							th:text="${requestCount}">0</div>
 					</div>
@@ -150,8 +150,9 @@
 						<tr th:if="${!#lists.isEmpty(approvalList)}"
 							th:each="approval, approvalStatus : ${approvalList}"
 							th:attr="data-approver-no=${approval.apprNo}">
-							<td
-								th:text="${(pageDto.nowPage-1)*(pageDto.numPerPage)+approvalStatus.count}">번호</td>
+							<td th:text="${(pageDto.totalCount - ((pageDto.nowPage - 1) * pageDto.numPerPage)) - approvalStatus.index}">
+							    번호
+							</td>
 							<td th:text="${approval.apprTitle}">제목</td>
 							<td th:text="${approval.member.memberName}">작성자</td>
 							<th:block th:if="${approval.apprStatus == 'A'}">
@@ -183,35 +184,37 @@
 
 		<th:block th:if="${!(approvalList.empty)}">
 			<!-- Pagination -->
-			<nav class="d-flex justify-content-center mt-4">
-				<ul class="pagination mb-0">
-					<!-- 이전 페이지 버튼 -->
-					<li th:if="${pageDto.prev}"
-						class="page-item"
-						th:classappend="${pageDto.prev} ? '' : 'disabled'"><a
-						class="page-link"
-						th:href="@{/approval(nowPage=${pageDto.pageBarStart - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-						aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
-					</a></li>
-	
-					<!-- 페이지 번호 -->
-					<li class="page-item"
-						th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
-						th:classappend="${pageDto.nowPage == num} ? ' active'"><a
-						class="page-link"
-						th:href="@{/approval(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-						th:text="${num}"> </a></li>
-	
-					<!-- 다음 페이지 버튼 -->
-					<li th:if="${pageDto.next}"
-						class="page-item"
-						th:classappend="${pageDto.next} ? '' : 'disabled'"><a
-						class="page-link"
-						th:href="@{/approval(nowPage=${pageDto.pageBarEnd + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-						aria-label="Next"> <span aria-hidden="true">&raquo;</span>
-					</a></li>
-				</ul>
-			</nav>
+			<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+				<nav>
+					<ul class="pagination mb-0">
+						<!-- 이전 페이지 버튼 -->
+						<li th:if="${pageDto.prev}"
+							class="page-item"
+							th:classappend="${pageDto.prev} ? '' : 'disabled'"><a
+							class="page-link"
+							th:href="@{/approval(nowPage=${pageDto.pageBarStart - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+							aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+						</a></li>
+		
+						<!-- 페이지 번호 -->
+						<li class="page-item"
+							th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
+							th:classappend="${pageDto.nowPage == num} ? 'active'"><a
+							class="page-link" th:classappend="${pageDto.nowPage == num} ?'text-bg-primary border-primary text-white'"
+							th:href="@{/approval(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+							th:text="${num}"> </a></li>
+		
+						<!-- 다음 페이지 버튼 -->
+						<li th:if="${pageDto.next}"
+							class="page-item"
+							th:classappend="${pageDto.next} ? '' : 'disabled'"><a
+							class="page-link"
+							th:href="@{/approval(nowPage=${pageDto.pageBarEnd + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
+							aria-lab	el="Next"> <span aria-hidden="true">&raquo;</span>
+						</a></li>
+					</ul>
+				</nav>
+			</div>
 		</th:block>
 	</div>
 
@@ -307,6 +310,14 @@
 
 
 	<script>
+		
+		$(function() {
+			$('.table-responsive tbody tr').on('click', function() {
+				const approvalNo = $(this).data('approver-no');
+				location.href = '/approval/send/detail/' + approvalNo;
+			})
+		})
+	
 		document.getElementById('order_type').addEventListener('change',
 				function(e) {
 					const searchType = document.querySelector('select[name="search_type"]').value;

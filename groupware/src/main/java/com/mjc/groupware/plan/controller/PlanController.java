@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.service.MemberService;
@@ -44,10 +45,8 @@ public class PlanController {
 	@GetMapping("/calendar/events")
 	@ResponseBody
 	public List<Map<String, Object>> getCalendarEvents(@RequestParam(name = "start") String start, @RequestParam(name = "end") String end,@AuthenticationPrincipal MemberDetails memberDetails) {
-
 		Member member = memberDetails.getMember();
 		Long memberId = member.getMemberNo();
-		System.out.println("로그인한 memberId 확인 :"+memberId);
 		
 		List<Plan> plans = planService.selectAllPlans();
 		List<Map<String, Object>> events = new ArrayList<>();
@@ -55,7 +54,6 @@ public class PlanController {
 		for(Plan plan : plans) {
 			String planType = plan.getPlanType();
 	        Long regMemberNo = plan.getMember().getMemberNo();
-
 	        // 방어적 null 체크 및 trim 처리
 	        if ("개인".equals(planType != null ? planType.trim() : "") && !regMemberNo.equals(memberId)) {
 	            continue;
@@ -71,11 +69,26 @@ public class PlanController {
 	    Map<String, Object> extendedProps = new HashMap<>();
 	    extendedProps.put("planType", plan.getPlanType());
 	    extendedProps.put("description", plan.getPlanContent());
-
+	    // 일정바앞에 부서명 뿌려주기
+	    Member planMember = plan.getMember();
+	    String deptName = "";
+	    if(planMember != null && planMember.getDept() != null) {
+	    	deptName = planMember.getDept().getDeptName();
+	    }
+	    extendedProps.put("deptName", deptName);
+	    // 같은부서의 일정만 수정가능하게
+	    Long deptNo = null;
+	    if(planMember != null) {
+	    	Dept dept = planMember.getDept();
+	    	if(dept != null) {
+	    		deptName = dept.getDeptName();
+	    		deptNo = dept.getDeptNo();
+	    	}
+	    }
+	    extendedProps.put("deptNo", deptNo);  // 부서 번호
+	    
 	    event.put("extendedProps", extendedProps);
-
 	    events.add(event);
-
 		}
 	    return events;
 	}
@@ -119,19 +132,34 @@ public class PlanController {
 	// 상세모달창 수정
 	@PostMapping("/plan/{id}/update")
 	@ResponseBody
-	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto){
-		System.out.println("id값:"+id);
-		System.out.println("받은 title: " + dto.getPlan_title());
-		System.out.println("받은 start_date: " + dto.getStart_date());
+	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto,@AuthenticationPrincipal MemberDetails memberDetails){
+		Member loginMember = memberDetails.getMember();
+//		Long memberId = member.getMemberNo();
+//		Long deptNo = member.getDept().getDeptNo();
+//		System.out.println("로그인한 memberId 확인 :"+memberId);
+//		System.out.println("로그인한 deptNo 확인 :"+deptNo);
+		Map<String, String> resultMap = new HashMap<>();
+	    resultMap.put("res_code", "403"); // 기본 권한 없음
+	    resultMap.put("res_msg", "수정 권한이 없습니다.");
+	    
+		 Plan plan = planService.findPlanById(id);
+		    if (plan == null) {
+		        resultMap.put("res_msg", "해당 일정이 존재하지 않습니다.");
+		        return resultMap;
+		    }
 
-	    Map<String,String> resultMap = new HashMap<>();
-	    resultMap.put("res_code", "500");
-	    resultMap.put("res_msg", "일정 수정 중 오류가 발생했습니다.");
+		    boolean canEdit = planService.canEditPlan(plan, loginMember);
+		    if (!canEdit) return resultMap;
 
+
+	    //수정처리
 	    Plan result = planService.updatePlanOne(id, dto);
-	    if(result != null) {
+	    if (result != null) {
 	        resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "일정이 정상적으로 수정되었습니다.");
+	    } else {
+	        resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "일정 수정 중 오류가 발생했습니다.");
 	    }
 	    return resultMap;
 	}

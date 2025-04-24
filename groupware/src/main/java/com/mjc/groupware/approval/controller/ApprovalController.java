@@ -7,6 +7,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.PageDto;
 import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
@@ -28,7 +31,6 @@ import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
-import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
 
@@ -151,13 +153,29 @@ public class ApprovalController {
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
 	    pageDto.setTotalPage(approvalList.getTotalPages());
+	    pageDto.setTotalCount((int)approvalList.getTotalElements());
 	    
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalList", approvalList);
 	    model.addAttribute("pageDto", pageDto);
 	    model.addAttribute("searchDto", searchDto);
 		
-		return "/approval/user/approval";
+		return "/approval/user/sendApproval";
+	}
+	
+	@GetMapping("/approval/send/detail/{id}")
+	public String approvalSendDetailView(@PathVariable("id") Long id, Model model) {
+		Approval approval = service.selectApprovalOneByApprovalNo(id);
+	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
+	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
+	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
+	    
+	    model.addAttribute("approval", approval);
+	    model.addAttribute("approverList", approverList);
+	    model.addAttribute("agreementerList", agreementerList);
+	    model.addAttribute("referencerList", referencerList);
+		
+		return "/approval/user/sendApprovalDetail";
 	}
 	
 	@GetMapping("/approval/receive")
@@ -171,11 +189,22 @@ public class ApprovalController {
 	    
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    
+	    List<ApprovalVo> fullList = service.selectApprovalAllByApproverId(member, searchDto, pageDto);
 	    
-	    List<ApprovalVo> approvalVoList = service.selectApprovalAllByApproverId(member, searchDto, pageDto);
+	    int start = (pageDto.getNowPage() - 1) * pageDto.getNumPerPage();
+		int end = Math.min(start + pageDto.getNumPerPage(), fullList.size());
+		
+		List<ApprovalVo> pageContent = fullList.subList(start, end); // 현재 페이지의 데이터만 추출
+		Page<ApprovalVo> approvalVoList = new PageImpl<>(pageContent, PageRequest.of(pageDto.getNowPage() - 1, pageDto.getNumPerPage()), fullList.size());
 	    
+		// pageDto에 총 페이지 수 설정
+		int totalPage = (int) Math.ceil((double) fullList.size() / pageDto.getNumPerPage());
+		pageDto.setTotalPage(totalPage);
+		
 	    model.addAttribute("member", member);
 	    model.addAttribute("approvalVoList", approvalVoList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
 	    
 		return "/approval/user/receiveApproval";
 	}

@@ -144,6 +144,7 @@ layout:decorate="~{/include/layout}">
 										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
 										      </th:block>
 										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
+										      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
 										    </div>
 										  </div>
 										
@@ -215,6 +216,7 @@ layout:decorate="~{/include/layout}">
 													<td>
 														<select class="mb-0 fw-normal fs-4" name="role_no">
 															<option th:each="role : ${roleList}"
+																	th:if="${role.roleNo != 1}"
 																	th:value="${role.roleNo}"
 																	th:text="${role.roleNickname}"
 																	th:selected="${role.roleNo == member.role?.roleNo}">
@@ -222,7 +224,12 @@ layout:decorate="~{/include/layout}">
 														</select>
 													</td>
 													<td>
-														<select class="mb-0 fw-normal fs-4" name="status">
+														<select class="mb-0 fw-normal fs-4"
+																name="status"
+																th:classappend="${member.status == 100 ? 'text-success' :
+																			    (member.status == 101 || member.status == 102 || member.status == 300 || member.status == 301) ? 'text-danger' :
+																			    (member.status == 200 || member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
+																			    ''}">
 															<option th:each="status : ${statusList}"
 																	th:value="${status.status_no}"
 																	th:text="${status.status_name}"
@@ -250,7 +257,7 @@ layout:decorate="~{/include/layout}">
 											        <span aria-hidden="true">&laquo;</span>
 											      </a>
 											    </li>
-											
+												
 											    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
 											      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
 											        <a class="page-link"
@@ -353,26 +360,42 @@ layout:decorate="~{/include/layout}">
 							
 							let roleOptions = '';
 							roleListAll.forEach(role => {
-								const selected = role.role_no === memberDto.role_no ? 'selected' : '';
-								roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
+								if (role.role_no !== 1) {
+									const selected = role.role_no === memberDto.role_no ? 'selected' : '';
+									roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
+								}
 							});
 							
 							const statusList = [
-								{ no: 100, name: '재직' },
-								{ no: 101, name: '수습' },
-								{ no: 102, name: '인턴' },
-								{ no: 200, name: '전출' },
-								{ no: 300, name: '휴직' },
-								{ no: 301, name: '대기' },
-								{ no: 400, name: '해고' },
-								{ no: 401, name: '은퇴' },
-								{ no: 402, name: '퇴사' },
-								{ no: 900, name: '사망' }
+								{ no: 100, name: '재직'},
+								{ no: 101, name: '수습'},
+								{ no: 102, name: '인턴'},
+								{ no: 200, name: '전출'},
+								{ no: 300, name: '휴직'},
+								{ no: 301, name: '대기'},
+								{ no: 400, name: '해고'},
+								{ no: 401, name: '은퇴'},
+								{ no: 402, name: '퇴사'},
+								{ no: 900, name: '사망'}
 							];
+							
+							const statusColorMap = {
+								100: 'text-success',
+								101: 'text-warning',
+								102: 'text-warning',
+								200: 'text-secondary',
+								300: 'text-warning',
+								301: 'text-warning',
+								400: 'text-secondary',
+								401: 'text-secondary',
+								402: 'text-secondary',
+								900: 'text-secondary'
+							};
+							
 							let statusOptions = '';
 							statusList.forEach(status => {
 							  const selected = memberDto.status === status.no ? 'selected' : '';
-							  statusOptions += `<option value="${status.no}" ${selected}>${status.name}</option>`;
+							  statusOptions += `<option value="${status.no}" ${selected} class="${status.color}">${status.name}</option>`;
 							});
 							
 							tr.innerHTML = `
@@ -410,6 +433,25 @@ layout:decorate="~{/include/layout}">
 							`;
 							
 							tbody.appendChild(tr);
+							
+							setTimeout(() => {
+								  const statusSelect = tr.querySelector('select[name="status"]');
+								  const selectedStatus = memberDto.status;
+								  const colorClass = statusColorMap[selectedStatus];
+								  if (colorClass) {
+								    statusSelect.classList.add(colorClass);
+								  }
+
+								  // 변경 감지 이벤트로 동적 클래스 업데이트
+								  statusSelect.addEventListener('change', function () {
+								    this.classList.remove('text-success', 'text-warning', 'text-secondary');
+								    const newStatus = Number(this.value);
+								    const newClass = statusColorMap[newStatus];
+								    if (newClass) {
+								      this.classList.add(newClass);
+								    }
+								  });
+								}, 0);
 						});
 						
 					},
@@ -433,6 +475,8 @@ layout:decorate="~{/include/layout}">
 				}
 			}
 		});
+		
+		
 	</script>
 	
 	<script>
@@ -605,6 +649,14 @@ layout:decorate="~{/include/layout}">
 			console.log(error);
 		})
 	});
+	</script>
+	
+	<script>
+		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
+		document.getElementById("resetBtn").addEventListener("click", function() {
+		    document.getElementById("search_text").value = "";
+		    document.getElementById("searchBtn").click();
+		});
 	</script>
 	
 	<!-- Bootstrap Common JS Files Start -->

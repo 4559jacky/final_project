@@ -1,5 +1,8 @@
 package com.mjc.groupware.chat.entity;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -35,7 +38,7 @@ public class ChatMsg {
 	private String chatMsgContent;
 
 	@Column(name="send_date")
-	private String sendDate;
+	private LocalDateTime sendDate;
 	
 	@Column(name="check")
 	private String check;
@@ -44,12 +47,8 @@ public class ChatMsg {
 	@JoinColumn(name="chat_room_no")
 	private ChatRoom chatRoomNo;
 	
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name="member_no")
 	private Member memberNo;
-	
-	@ManyToOne
-	@JoinColumn(name="mapping_no")
-	private ChatMapping mappingNo;
 	
 }
