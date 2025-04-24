@@ -82,11 +82,13 @@ layout:decorate="~{/include/layout}">
 						  
 					      <div class="text-center">
 					        <!-- 업로드 이미지 (클릭 이벤트용) -->
-					        <img id="preview_image" th:src="@{/assets/images/big/img3.jpg}" alt="profile-img"
-					             class="img-fluid rounded"
-					             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer; transition: 0.2s;"
-					             onclick="document.getElementById('profile_image').click();">
-							
+					        <img id="preview_image"
+					        	th:src="${companyDto != null && companyDto.profile_image_path != null ? '/uploads/' + companyDto.new_name : '/assets/images/big/img3.jpg'}"
+					        	alt="profile-img"
+					            class="img-fluid rounded"
+					            style="width: 120px; height: 120px; object-fit: cover; cursor: pointer; transition: 0.2s;"
+					            onclick="document.getElementById('profile_image').click();">
+								
 					        <!-- 숨겨진 파일 인풋 -->
 					        <input type="file" name="profile_image" accept=".jpg,.jpeg,.png"
 					               id="profile_image" class="d-none" onchange="previewSelectedImage(this)">
@@ -95,9 +97,12 @@ layout:decorate="~{/include/layout}">
 							    JPG, JPEG, PNG 형식만 허용되며, 최대 2MB까지 업로드할 수 있습니다.
 							</p>
 							
-							<button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="resetImageBtn" style="visibility: hidden;" onclick="resetToDefaultImage()">
+							<!-- 이제 더 이상 기본 이미지로 되돌리는 기능이 필요없어짐
+							<button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="resetImageBtn" onclick="resetToDefaultImage()">
 							  기본 이미지로
 							</button>
+							-->
+							
 					      </div>
 					    </div>
 					  </div>
@@ -532,8 +537,6 @@ layout:decorate="~{/include/layout}">
 		     		preview.src = e.target.result;
 		    	};
 		    	reader.readAsDataURL(file);
-				
-		    	resetBtn.style.visibility = "visible";
 		  	}
 		}
 		
