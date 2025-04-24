@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.plan.entity.Plan;
 
@@ -46,7 +47,8 @@ public class PlanDto {
     private String color;
     private String member_name;
     private String dept_name;
-
+    private String member_no;
+    private Long dept_no;
     
     // DB저장
 	public Plan toEntity() {
@@ -78,7 +80,7 @@ public class PlanDto {
 				.color(plan.getColor())
 				.member_name(plan.getMember() != null ? plan.getMember().getMemberName() : null)
 				.dept_name(plan.getMember().getDept() != null ? plan.getMember().getDept().getDeptName() : null)
-
+				.dept_no(plan.getMember().getDept() != null ? plan.getMember().getDept().getDeptNo() : null)
 				.build();
 	}
 	
@@ -97,6 +99,7 @@ public class PlanDto {
 		extendedProps.put("planContent", plan_content);
 		extendedProps.put("memberName", member_name);
 		extendedProps.put("deptName", dept_name);
+		extendedProps.put("deptName", dept_no);
 
 		event.put("extendedProps", extendedProps);
 

@@ -192,6 +192,33 @@ document.addEventListener("DOMContentLoaded", function () {
 	],
 	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
+		// 본인일정과 본인이 속한 부서의 일정만 수정,삭제 가능하게
+		const calendarEl = document.getElementById("calendar");
+		if (!calendarEl) {
+		        console.error("#calendar 요소를 찾을 수 없습니다.");
+		        return;
+		    }
+			const currentMemberNo = parseInt(calendarEl.dataset.memberNo);  // 로그인한 사용자의 memberNo
+			    const currentDeptNo = parseInt(calendarEl.dataset.deptNo);  // 로그인한 사용자의 deptNo
+
+			    const regMemberNo = info.event.extendedProps.regMemberNo;  // 일정 등록자 (작성자) memberNo
+			    const eventDeptNo = info.event.extendedProps.deptNo;  // 일정의 부서 번호
+
+			    // 수정, 삭제 버튼 활성화 여부 결정
+			    const btnDeleteEvent = document.getElementById('btn-delete-event');
+			    const btnUpdateEvent = document.getElementById('btn-update-event');
+
+			    if (btnDeleteEvent && btnUpdateEvent) {
+			        // 조건: 본인 작성한 일정이거나, 자신이 속한 부서의 일정
+			        if (currentMemberNo === regMemberNo || currentDeptNo === eventDeptNo) {
+			            btnDeleteEvent.style.display = 'inline-block'; // 보이기
+			            btnUpdateEvent.style.display = 'inline-block';
+			        } else {
+			            btnDeleteEvent.style.display = 'none'; // 숨기기
+			            btnUpdateEvent.style.display = 'none';
+			        }
+			    }
+		//
 		const eventId = info.event.id;
 		getEvent = info.event;
 		
