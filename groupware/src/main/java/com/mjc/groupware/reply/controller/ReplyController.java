@@ -30,8 +30,7 @@ public class ReplyController {
         return "redirect:/board/detail/" + boardNo;
     }
 
-   
-    //댓글 생성 서비스 호출 후 게시글 상세 페이지로 리다이렉트
+    // 댓글 생성 서비스 호출 후 게시글 상세 페이지로 리다이렉트
     @PostMapping("/replies/{boardNo}/create")
     public String replyCreate(@ModelAttribute ReplyDto replyDto, @PathVariable("boardNo") Long boardNo) {
         Member member = getLoginMember();  // 로그인 사용자 정보 조회
@@ -42,8 +41,7 @@ public class ReplyController {
         return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
     }
 
-     
-     //대댓글 생성 서비스 호출 후 상세 페이지
+    // 대댓글 생성 서비스 호출 후 상세 페이지
     @PostMapping("/replies/{boardNo}/{parentReplyNo}/create-sub")
     public String replyCreateSub(@ModelAttribute ReplyDto replyDto,
                                  @PathVariable("boardNo") Long boardNo,
@@ -57,16 +55,14 @@ public class ReplyController {
         return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
     }
 
-    
-     // 댓글 수정
+    // 댓글 수정
     @PostMapping("/replies/{replyNo}/update")
-    public String replyUpdate(@ModelAttribute ReplyDto replyDto,
+    public String replyUpdate(@RequestParam("reply_content") String replyContent,
                               @PathVariable("replyNo") Long replyNo) {
         Member member = getLoginMember();  // 로그인 사용자 정보 조회
-        replyService.replyUpdate(replyNo, member.getMemberNo(), replyDto.getReply_content());  // 댓글 수정 서비스 호출
-        return redirectToBoardDetail(replyDto.getBoard_no());  // 상세 페이지로 리다이렉트
+        replyService.replyUpdate(replyNo, member.getMemberNo(), replyContent);  // 댓글 수정 서비스 호출
+        return redirectToBoardDetail(replyService.getBoardNoByReply(replyNo));  // 상세 페이지로 리다이렉트
     }
-    
 
     // 댓글 삭제
     @PostMapping("/replies/{replyNo}/delete")

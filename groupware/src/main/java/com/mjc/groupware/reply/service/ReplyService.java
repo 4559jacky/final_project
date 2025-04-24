@@ -56,24 +56,50 @@ public class ReplyService {
     // 대댓글 생성
     @Transactional
     public void replyCreateSub(ReplyDto replyDto) {
-        if (replyDto.getParent_reply_no() == null) {
-            throw new IllegalArgumentException("부모 댓글 번호가 필요합니다.");
-        }
         replyCreate(replyDto);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ReplyDto> getRepliesByBoard(Long boardNo) {
+        List<Reply> replies = replyRepository.findByBoard_BoardNoAndReplyStatus(boardNo, "N");
+
+        // 대댓글 포함하여 트리 구조로 정리
+        Map<Long, ReplyDto> replyMap = new HashMap<>();
+        List<ReplyDto> result = new ArrayList<>();
+
+        for (Reply reply : replies) {
+            ReplyDto dto = ReplyDto.toDto(reply);
+            dto.setTimeAgo(getTimeAgo(dto.getReg_date()));
+
+            if (dto.getParent_reply_no() == null) {
+                result.add(dto);
+            }
+            replyMap.put(dto.getReply_no(), dto);
+        }
+
+        for (Reply reply : replies) {
+            if (reply.getParentReply() != null) {
+                ReplyDto parentDto = replyMap.get(reply.getParentReply().getReplyNo());
+                if (parentDto != null) {
+                    parentDto.getSubReplies().add(ReplyDto.toDto(reply));
+                }
+            }
+        }
+
+        return result;
     }
 
     // 댓글 수정
-    @Transactional
     public void replyUpdate(Long replyNo, Long memberNo, String newContent) {
         Reply reply = replyRepository.findById(replyNo)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
         if (!reply.getMember().getMemberNo().equals(memberNo)) {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 
-        reply.setReplyContent(newContent);
-        replyRepository.save(reply);
+        reply.setReplyContent(newContent); // 내용 수정
+        replyRepository.save(reply);  // 저장
     }
 
     // 댓글 삭제
@@ -135,13 +161,25 @@ public class ReplyService {
     }
     
     // 댓글 등록(작성자 => 몇시간전)
-    public String calculateTimeAgo(LocalDateTime time) {
+    private String getTimeAgo(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
         long minutes = duration.toMinutes();
-
-        if (minutes < 1) return "방금 전";
-        if (minutes < 60) return minutes + "분 전";
-        if (minutes < 1440) return (minutes / 60) + "시간 전";
-        return (minutes / 1440) + "일 전";
+        if (minutes < 1) {
+            return "Just now";
+        } else if (minutes < 60) {
+            return minutes + " minute(s) ago";
+        } else if (minutes < 1440) {
+            long hours = duration.toHours();
+            return hours + " hour(s) ago";
+        } else {
+            long days = duration.toDays();
+            return days + " day(s) ago";
+        }
     }
+
+	public Long getBoardNoByReply(Long replyNo) {
+		Reply reply = replyRepository.findById(replyNo)
+			.orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+		return reply.getBoard().getBoardNo();
+	}
 }

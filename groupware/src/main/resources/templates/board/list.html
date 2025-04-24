@@ -93,14 +93,9 @@
 <tr th:each="board : ${fixedList}" 
     th:data-board-no="${board.boardNo}"
     th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
-    style="cursor:pointer; font-weight:bold; background-color:#e8d9ff;">
-    <td>
-        <span>📌</span>
-    </td>
-    <td class="text-start">
-        <span class="badge bg-warning text-dark me-1">공지</span>
-        <span th:text="${board.boardTitle}">제목</span>
-    </td>
+    class="fixed-row">
+    <td><span>📌</span></td>
+    <td class="text-start"><span th:text="${board.boardTitle}">제목</span></td>
     <td th:text="${board.member.memberName}">작성자</td>
     <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>

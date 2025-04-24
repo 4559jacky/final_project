@@ -77,12 +77,10 @@
 		}
 		
 		/* 고정된 게시글에 적용될 스타일 */
-		.fixed-post {
-    		background-color: #9b4dca; /* 보라색 배경 */
-    		color: white; /* 글자 색상은 하얀색 */
-    		font-weight: bold; /* 글자를 굵게 */
-    		border-radius: 8px; /* 테두리 둥글게 */
-    		padding: 5px 10px; /* 안쪽 여백 */
+		.fixed-row td {
+  			background-color: #f3e5f5 !important;  /* 연보라 */
+  			color: black !important;
+  			font-weight: bold;
 		}
 		
 		/* 댓글 기본 스타일 */
@@ -132,24 +130,24 @@
     		border-left: 3px solid #bbb; /* 대댓글은 다른 색상의 테두리 */
 		}
 
-/* 댓글/대댓글 들여쓰기 효과를 위한 클래스 추가 */
-.reply-container {
-    margin-left: 20px;
-}
+		/* 댓글/대댓글 들여쓰기 효과를 위한 클래스 추가 */
+		.reply-container {
+    		margin-left: 20px;
+		}
 
-/* 댓글/대댓글은 flex로 배치하여 지그재그 형태를 강조 */
-.reply-info {
-    display: flex;
-    justify-content: space-between;
-}
+		/* 댓글/대댓글은 flex로 배치하여 지그재그 형태를 강조 */
+		.reply-info {
+    		display: flex;
+    		justify-content: space-between;
+		}
 
-.reply-actions {
-    margin-left: auto;
-}
-.fixed-row {
-  background-color: #e8d9ff !important;
-  color: black !important;
-}
+		.reply-actions {
+    		margin-left: auto;
+		}
+		.fixed-row {
+  			background-color: #e8d9ff !important;
+  			color: black !important;
+		}
 
 
 
