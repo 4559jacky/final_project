@@ -47,7 +47,7 @@ public class BoardController {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
-
+    // 게시글 작성
     @PostMapping("/board")
     @ResponseBody
     public Map<String, String> createBoard(BoardDto dto,
@@ -87,6 +87,7 @@ public class BoardController {
 
         return resultMap;
     }
+    // 게시글 목록
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
         if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
@@ -139,7 +140,7 @@ public class BoardController {
             return "error";
         }
     }
-
+    // 게시글 수정
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateBoard(
@@ -164,7 +165,7 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
-
+    // 게시글 삭제
     @DeleteMapping("/board/delete/{boardNo}")
     @ResponseBody
     public Map<String, String> deleteBoard(@PathVariable("boardNo") Long boardNo) {

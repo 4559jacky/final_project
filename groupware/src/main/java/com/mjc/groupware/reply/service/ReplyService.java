@@ -90,6 +90,7 @@ public class ReplyService {
     }
 
     // 댓글 수정
+    @Transactional
     public void replyUpdate(Long replyNo, Long memberNo, String newContent) {
         Reply reply = replyRepository.findById(replyNo)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
@@ -107,23 +108,17 @@ public class ReplyService {
     public void replyDelete(Long replyNo, Long memberNo) {
         Reply reply = replyRepository.findById(replyNo)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-
+        
+        // 댓글 작성자가 아닌 경우
         if (!reply.getMember().getMemberNo().equals(memberNo)) {
             throw new IllegalArgumentException("삭제 권한이 없습니다.");
         }
 
-        // 부모 댓글 소프트 삭제
-        reply.setReplyStatus("D");
-
-        // 자식 댓글(대댓글)도 소프트 삭제
-        for (Reply childReply : reply.getChildReplies()) {
-            childReply.setReplyStatus("D");
-        }
-
-        // 저장 (영속성 컨텍스트에 반영됨)
-        replyRepository.save(reply);  // 자식까지 cascade 저장됨
+        reply.setReplyStatus("D");  // 댓글 상태를 'D'로 변경 (소프트 삭제)
+        replyRepository.save(reply);  // 댓글 상태 변경 저장
     }
-
+    
+    
     // 댓글/대댓글 계층형 조회
     @Transactional(readOnly = true)
     public List<ReplyDto> getHierarchicalRepliesByBoardNo(Long boardNo) {

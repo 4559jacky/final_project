@@ -1,8 +1,17 @@
 package com.mjc.groupware.reply.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.reply.dto.ReplyDto;
@@ -63,13 +72,22 @@ public class ReplyController {
         replyService.replyUpdate(replyNo, member.getMemberNo(), replyContent);  // 댓글 수정 서비스 호출
         return redirectToBoardDetail(replyService.getBoardNoByReply(replyNo));  // 상세 페이지로 리다이렉트
     }
-
     // 댓글 삭제
-    @PostMapping("/replies/{replyNo}/delete")
-    public String replyDelete(@PathVariable("replyNo") Long replyNo,
-                              @RequestParam("board_no") Long boardNo) {
-        Member member = getLoginMember();  // 로그인 사용자 정보 조회
-        replyService.replyDelete(replyNo, member.getMemberNo());  // 댓글 삭제 서비스 호출
-        return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
+    @DeleteMapping("/replies/{replyNo}/delete")
+    @ResponseBody
+    public Map<String, String> replyDelete(@PathVariable("replyNo") Long replyNo,
+                                           @AuthenticationPrincipal Member loginUser) {
+        Map<String, String> result = new HashMap<>();
+
+        try {
+            replyService.replyDelete(replyNo, loginUser.getMemberNo());
+            result.put("res_code", "200");
+            result.put("res_msg", "댓글이 성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            result.put("res_code", "500");
+            result.put("res_msg", "댓글 삭제 중 오류 발생");
+        }
+
+        return result;
     }
 }
