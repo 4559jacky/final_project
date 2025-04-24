@@ -708,6 +708,14 @@ layout:decorate="~{/include/layout}">
     	// 계정 정보 수정하는 로직
 		const updatePwForm = document.update_pw_form;
 		
+    	// 비밀번호 복잡도 검사를 위한 함수
+		function isValidPassword(pw) {
+			const lengthCheck = pw.length >= 8;
+			const numberCheck = /[0-9]/.test(pw);
+			const specialCheck = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+			return lengthCheck && numberCheck && specialCheck;
+		}
+    	
 		updatePwForm.addEventListener('submit',(event) => {
 			event.preventDefault();
 			
@@ -720,11 +728,14 @@ layout:decorate="~{/include/layout}">
 			} else if(!updatePwForm.member_new_pw.value) {
 				vali_text += "변경할 비밀번호를 입력하세요.";
 				updatePwForm.member_new_pw.focus();
-			} else if(!updatePwForm.member_new_pw_check.value ) {
+			} else if(!updatePwForm.member_new_pw_check.value) {
 				vali_text += "변경할 비밀번호 확인을 입력하세요.";
 				updatePwForm.member_new_pw_check.focus();
 			} else if(updatePwForm.member_new_pw.value != updatePwForm.member_new_pw_check.value) {
 				vali_text += "변경할 비밀번호가 서로 일치하지 않습니다.";
+				updatePwForm.member_new_pw.focus();
+			} else if (!isValidPassword(updatePwForm.member_new_pw.value)) {
+				vali_text += "비밀번호는 숫자, 특수문자를 포함해 8자 이상이어야 합니다.";
 				updatePwForm.member_new_pw.focus();
 			} else {
 				vali_check = true;

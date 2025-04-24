@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
@@ -30,6 +31,7 @@ public class DeptController {
 	private final DeptService service;
 	private final MemberService memberService;
 	
+	@CheckPermission("DEPT_ADMIN_CRU")
 	@GetMapping("/admin/dept/create")
 	public String createDeptView(Model model) {
 		List<Dept> deptList = service.selectDeptAll();
@@ -41,6 +43,7 @@ public class DeptController {
 		return "dept/create";
 	}
 	
+	@CheckPermission("DEPT_ADMIN_CRU")
 	@PostMapping("/admin/dept/create")
 	@ResponseBody
 	public Map<String, String> createDeptApi(DeptDto dto) {
@@ -78,6 +81,7 @@ public class DeptController {
 		return resultMap;
 	}
 	
+	@CheckPermission("DEPT_ADMIN_CRU")
 	@GetMapping("/admin/dept/select")
 	@ResponseBody
 	public Map<String, String> selectDeptByDeptNoApi(@RequestParam("deptId") String deptId) {
@@ -129,6 +133,7 @@ public class DeptController {
 		return resultMap;
 	}
 	
+	@CheckPermission("DEPT_ADMIN_CRU")
 	@PostMapping("/admin/dept/update")
 	@ResponseBody
 	public Map<String, String> updateDept(DeptDto dto, @RequestParam(value="transferDeptNo", required=false) Long transferDeptNo) {

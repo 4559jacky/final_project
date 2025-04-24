@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.pos.dto.PosDto;
 import com.mjc.groupware.pos.dto.PosOrderDto;
 import com.mjc.groupware.pos.entity.Pos;
@@ -29,6 +30,7 @@ public class PosController {
 	
 	private final PosService service;
 	
+	@CheckPermission("POS_ADMIN_CRUD")
 	@GetMapping("/admin/pos/create")
 	public String createPosView(Model model) {
 		List<Pos> posList = service.selectPosAllByPosOrderAsc();
@@ -40,6 +42,7 @@ public class PosController {
 		return "pos/create";
 	}
 	
+	@CheckPermission("POS_ADMIN_CRUD")
 	@PostMapping("/admin/pos/create")
 	@ResponseBody
 	public Map<String, String> createPosApi(PosDto dto) {
@@ -67,6 +70,7 @@ public class PosController {
 		return resultMap;
 	}
 	
+	@CheckPermission("POS_ADMIN_CRUD")
 	@PostMapping("/admin/pos/update/order")
 	@ResponseBody
 	public Map<String, String> updatePosOrderApi(@RequestBody List<PosOrderDto> posOrderList) {
@@ -101,6 +105,7 @@ public class PosController {
 		return resultMap;
 	}
 	
+	@CheckPermission("POS_ADMIN_CRUD")
 	@PostMapping("/admin/pos/update/name")
 	@ResponseBody
 	public Map<String, String> updatePosNameApi(@RequestBody PosDto dto) {
@@ -131,6 +136,7 @@ public class PosController {
 		return resultMap;
 	}
 	
+	@CheckPermission("POS_ADMIN_CRUD")
 	@PostMapping("/admin/pos/delete")
 	@ResponseBody
 	public Map<String, String> deletePosApi(@RequestBody PosDto dto) {
