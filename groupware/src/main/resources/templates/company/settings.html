@@ -39,15 +39,15 @@ layout:decorate="~{/include/layout}">
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-            	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#pills-notifications" type="button" role="tab" aria-controls="pills-notifications" aria-selected="false">
-                	<i class="ti ti-puzzle me-2 fs-6"></i>
-                	<span class="d-none d-md-block">기능 설정</span>
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
             	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-role-tab" data-bs-toggle="pill" data-bs-target="#pills-role" type="button" role="tab" aria-controls="pills-role" aria-selected="false">
                 	<i class="ti ti-shield me-2 fs-6"></i>
                 	<span class="d-none d-md-block">권한 설정</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+            	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#pills-notifications" type="button" role="tab" aria-controls="pills-notifications" aria-selected="false">
+                	<i class="ti ti-puzzle me-2 fs-6"></i>
+                	<span class="d-none d-md-block">기능 설정</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -864,8 +864,8 @@ layout:decorate="~{/include/layout}">
 			      		<input type="text" class="form-control" id="role_name" name="role_name" required>
 			    	</div>
 		    	<div class="modal-footer">
-			        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 			        <button type="submit" class="btn btn-primary">추가</button>
+			        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 			    </div>
 	      	</div>
 		  </form>
@@ -896,8 +896,8 @@ layout:decorate="~{/include/layout}">
 	            <input type="text" class="form-control" id="edit_role_name" name="role_name" required>
 	          </div>
 	          <div class="modal-footer">
-	            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 	            <button type="submit" class="btn btn-primary">수정</button>
+	            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 	          </div>
 	        </div>
 	      </form>
@@ -943,8 +943,8 @@ layout:decorate="~{/include/layout}">
 			  정말 삭제하시겠습니까?
 	        </div>
 	        <div class="modal-footer">
-	          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 	          <button type="submit" class="btn btn-danger">삭제</button>
+	          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 	        </div>
 	      </form>
 	    </div>

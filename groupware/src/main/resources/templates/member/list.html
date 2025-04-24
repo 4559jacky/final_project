@@ -144,6 +144,7 @@ layout:decorate="~{/include/layout}">
 										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
 										      </th:block>
 										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
+										      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
 										    </div>
 										  </div>
 										
@@ -648,6 +649,14 @@ layout:decorate="~{/include/layout}">
 			console.log(error);
 		})
 	});
+	</script>
+	
+	<script>
+		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
+		document.getElementById("resetBtn").addEventListener("click", function() {
+		    document.getElementById("search_text").value = "";
+		    document.getElementById("searchBtn").click();
+		});
 	</script>
 	
 	<!-- Bootstrap Common JS Files Start -->
