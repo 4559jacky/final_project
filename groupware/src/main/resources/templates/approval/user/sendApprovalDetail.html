@@ -7,7 +7,10 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
+	<!-- jQuery -->
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
+
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
 		<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -81,60 +84,34 @@
 									class="table table-bordered text-center w-100">
 									<thead class="table-light">
 										<tr id="approver">
-											<th:block th:if="${approverList.size() > 0}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${approverList[0].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() <= 0}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() > 1}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${approverList[1].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() <= 1}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() > 2}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${approverList[2].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() <= 2}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() > 3}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${approverList[3].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() <= 3}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() > 4}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${approverList[4].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${approverList.size() <= 4}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
+										  <th:block th:each="i : ${#numbers.sequence(0, 4)}">
+										    <th class="text-center bg-light" style="width: 20%;" name="approver"
+										        th:text="${(i < approverList.size()) ? approverList[i].member.memberName : ''}">
+										    </th>
+										  </th:block>
 										</tr>
 									</thead>
 									<tbody>
 										<tr id="approver_signature">
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
+										  <th:block th:each="i : ${#numbers.sequence(0, 4)}">
+										    <td class="text-center" style="height: 80px; padding: 0;">
+										      <th:block th:if="${i < approverList.size()}">
+										        <th:block th:if="${approverList[i].approverDecisionStatus == 'C'}">
+										          <th:block th:if="${approverList[i].member.signature != null}">
+										            <input type="hidden" th:value="${approverList[i].member.signature}" th:id="'approver_signature' + ${i + 1}">
+										            <img th:src="@{${approverList[i].member.signature}}" th:id="'approverSignImg' + ${i + 1}" class="signature-img" alt="서명 이미지">
+										          </th:block>
+										          <th:block th:if="${approverList[i].member.signature == null}">
+										            <input type="hidden" th:id="'approver_signature' + ${i + 1}">
+										            <img th:src="@{/img/approval_btn.png}" class="signature-img" alt="서명 이미지">
+										          </th:block>
+										        </th:block>
+										        <th:block th:if="${approverList[i].approverDecisionStatus == 'R'}">
+										        	<img th:src="@{/img/companion_btn.png}" class="signature-img" alt="서명 이미지">
+										        </th:block>
+										      </th:block>
+										    </td>
+										  </th:block>
 										</tr>
 									</tbody>
 								</table></td>
@@ -145,60 +122,34 @@
 								<table class="table table-bordered text-center w-100">
 									<thead class="table-light">
 										<tr id="agreementer">
-											<th:block th:if="${agreementerList.size() > 0}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${agreementerList[0].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() <= 0}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() > 1}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${agreementerList[1].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() <= 1}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() > 2}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${agreementerList[2].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() <= 2}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() > 3}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${agreementerList[3].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() <= 3}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() > 4}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"
-													th:text="${agreementerList[4].member.memberName}"></th>
-											</th:block>
-											<th:block th:if="${agreementerList.size() <= 4}">
-												<th class="text-center bg-light" style="width: 20%;"
-													name="approver"></th>
-											</th:block>
+										  <th:block th:each="i : ${#numbers.sequence(0, 4)}">
+										    <th class="text-center bg-light" style="width: 20%;" name="agreementer"
+										        th:text="${i < agreementerList.size()} ? ${agreementerList[i].member.memberName} : ''">
+										    </th>
+										  </th:block>
 										</tr>
 									</thead>
 									<tbody>
 										<tr id="agreementer_signature">
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
-											<td class="text-center" style="height: 80px;"></td>
+										  <th:block th:each="i : ${#numbers.sequence(0, 4)}">
+										    <td class="text-center" style="height: 80px; padding: 0;">
+										      <th:block th:if="${i < agreementerList.size()}">
+										        <th:block th:if="${agreementerList[i].agreementerAgreeStatus == 'C'}">
+										          <th:block th:if="${agreementerList[i].member.signature != null}">
+										            <input type="hidden" th:value="${agreementerList[i].member.signature}" th:id="'agreementer_signature' + ${i+1}">
+										            <img th:src="@{${agreementerList[i].member.signature}}" th:id="'agreementerSignImg' + ${i+1}" class="signature-img" alt="서명 이미지">
+										          </th:block>
+										          <th:block th:if="${agreementerList[i].member.signature == null}">
+										            <input type="hidden" th:id="'agreementer_signature' + ${i+1}">
+										            <img th:src="@{/img/approval_btn.png}" class="signature-img" alt="서명 이미지">
+										          </th:block>
+										        </th:block>
+										        <th:block th:if="${approverList[i].approverDecisionStatus == 'R'}">
+										        	<img th:src="@{/img/companion_btn.png}" class="signature-img" alt="서명 이미지">
+										        </th:block>
+										      </th:block>
+										    </td>
+										  </th:block>
 										</tr>
 									</tbody>
 								</table>
@@ -229,8 +180,9 @@
 					th:utext="${approval.apprText}"></div>
 					
 				<th:block th:if="${approval.apprStatus == 'R'}">
+					<hr>
 					<div class="mb-4">
-						<h5>반려 사유</h5>
+						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
 					</div>
 					<div class="mb-4" id="appr_reason">
 						<span th:text="${approval.apprReason}">반려 사유</span>
@@ -241,7 +193,33 @@
 	</div>
 
 	<script>
-		
+		$(document).ready(function() {
+			
+			$(document).ready(function() {
+				for (let i = 1; i <= 5; i++) {
+					const signature = $(`#approver_signature${i}`).val();
+					const imgTag = $(`#approverSignImg${i}`);
+
+					if (signature) {
+						imgTag.attr('src', 'data:image/png;base64,' + signature);
+					} else {
+						imgTag.attr('src', '');
+					}
+				}
+				
+				for (let i = 1; i <= 5; i++) {
+					const signature = $(`#agreementer_signature${i}`).val();
+					const imgTag = $(`#agreementerSignImg${i}`);
+
+					if (signature) {
+						imgTag.attr('src', 'data:image/png;base64,' + signature);
+					} else {
+						imgTag.attr('src', '');
+					}
+				}
+			});
+			
+		});
 	</script>
 
 

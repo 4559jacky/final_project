@@ -72,10 +72,17 @@
   margin-top: 4px;
   line-height: 40px;
 }
+
 .table td {
 		color: black !important;
 	}
 	
 .table-responsive tbody tr {
 	cursor: pointer;
+}
+.signature-img {
+		  width: 100%;
+		  height: 100%;
+		  object-fit: contain; /* 또는 cover로 바꿔도 됨 */
+		  display: block;
 }

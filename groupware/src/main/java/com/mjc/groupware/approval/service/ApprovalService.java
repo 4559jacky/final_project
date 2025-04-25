@@ -49,7 +49,6 @@ public class ApprovalService {
 	private final ApprAgreementerRepository apprAgreementerRepository;
 	private final ApprReferencerRepository apprReferencerRepository;
 	private final ApprovalMapper approvalMapper;
-	private final MemberRepository memberRepository;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
