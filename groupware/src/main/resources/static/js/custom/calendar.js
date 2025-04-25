@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		console.log("부서 확인 : ", arg.event.extendedProps.deptName);
 	   
 		// 부서 일정일 때만 부서명을 앞에 붙임
-		   const displayTitle = (planType === "부서")
+		   const displayTitle = (planType === "부서" || planType ==='휴가')
 		     ? `<strong>[${department}]</strong> ${title}`
 		     : title;
 		   return {
