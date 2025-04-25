@@ -123,12 +123,12 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <strong th:text="${reply.memberName}">작성자</strong>
-                    <small class="text-muted ms-2" th:text="${reply.timeAgo}"></small>
+                    <small class="text-muted ms-2" th:text="${reply.timeAgo}"></small> <!--일단 아직 보류(팀원들은 년도 날짜식으로 바꿧으면 좋겠다고 했고, 선생님은 알아서 생각해서 했으면 좋겠다고 해서 좀 생각해보기)  -->
                 </div>
                 <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
                     <div class="reply-actions d-flex gap-2">
-                        <button type="button" class="btn btn-outline-primary btn-sm" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
-                        <button type="button" class="btn btn-outline-danger btn-sm" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
+                        <button type="button" class="btn btn-primary btn-sm" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
+                        <button type="button" class="btn btn-danger btn-sm" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
                     </div>
                 </th:block>
                 <th:block th:if="${reply.member_no != #authentication.principal.member.memberNo}">
@@ -194,7 +194,7 @@
                             <div th:id="'reply-edit-form-' + ${subReply.reply_no}" style="display: none;">
                                 <textarea th:id="'edit-textarea-' + ${subReply.reply_no}" class="form-control mb-2" style="resize: none; height: 50px;"></textarea>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-sm" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
+                                    <button type="button" class="btn btn-primary btn-sm" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
                                 </div>
                             </div>
                         </div>
@@ -203,6 +203,10 @@
             </div>
         </div>
     </div>
+</div>
+ <!-- 댓글 리스트 반복문 끝난 후 -->
+<div class="scroll-to-top-wrapper text-center my-4">
+    <i class="bi bi-arrow-bar-up scroll-to-top-icon" style="font-size: 2rem; cursor: pointer;" title="맨 위로 이동"></i>
 </div>
             
 <!-- 삭제 JS 및 대댓글 폼 표시 JS -->
@@ -368,20 +372,17 @@
     observer.observe(document.querySelector('#load-more-trigger'));
     
     
- // 위로 가는 버튼 제어
-    const backToTopButton = document.getElementById('back-to-top');
+ 	// 위로 가는 버튼 제어
+    document.addEventListener('DOMContentLoaded', function () {
+    const scrollToTopIcon = document.querySelector('.scroll-to-top-icon');
 
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            backToTopButton.style.display = 'block';
-        } else {
-            backToTopButton.style.display = 'none';
-        }
+    scrollToTopIcon.addEventListener('click', function () {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'  // 부드러운 스크롤 효과
+        });
     });
-
-    backToTopButton.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+});
     </script>
 
 	

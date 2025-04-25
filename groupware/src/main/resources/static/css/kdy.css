@@ -56,6 +56,9 @@
 		
 		/* 댓글 작성 영역 */
 .comment-write {
+    position: sticky;
+    top: 75px; /* 네비바 높이만큼 띄우기 */
+    z-index: 1000;
     background-color: #ffffff;
     border-radius: 1rem;
     padding: 1.5rem;
@@ -296,6 +299,14 @@
         height: 24px;
         font-size: 0.85rem;
     }
+}
+.scroll-to-top-icon {
+    color: #0d6efd; /* Bootstrap primary color */
+    transition: color 0.3s ease;
+}
+
+.scroll-to-top-icon:hover {
+    color: #0a58ca;
 }
 
   
