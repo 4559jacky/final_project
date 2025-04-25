@@ -19,11 +19,20 @@ public class PageDto {
     private boolean prev = true; // 이전 버튼
     private boolean next = true; // 다음 버튼
     private int totalPage; // 총 페이지 수
+    private int totalCount;
     
     private List<BoardDto> boardList; // 게시글 DTO 리스트
 
     public void setNowPage(int nowPage) {
         this.nowPage = nowPage;
+    }
+    
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
     }
 
     public void setTotalPage(int totalPage) {

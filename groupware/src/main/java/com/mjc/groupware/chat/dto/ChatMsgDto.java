@@ -29,6 +29,12 @@ public class ChatMsgDto {
 	 private Long chat_room_no;
 	 
 	 private Long member_no;
+	 
+	 private String member_name;
+	 
+	 private String member_pos_name;
+	 
+	 private String member_dept_name;
 	
 	 // 변환 메서드 (Entity → DTO)
     public ChatMsgDto toDto(ChatMsg msg) {
@@ -39,6 +45,9 @@ public class ChatMsgDto {
                 .check(msg.getCheck())
                 .chat_room_no(msg.getChatRoomNo().getChatRoomNo())
                 .member_no(msg.getMemberNo().getMemberNo())
+                .member_name(msg.getMemberNo().getMemberName())
+                .member_pos_name(msg.getMemberNo().getPos() != null? msg.getMemberNo().getPos().getPosName() : null)
+                .member_dept_name(msg.getMemberNo().getDept()  != null? msg.getMemberNo().getDept().getDeptName() : null)
                 .build();
     }
 }

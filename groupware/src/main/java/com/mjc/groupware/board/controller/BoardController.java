@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +47,7 @@ public class BoardController {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
-
+    // 게시글 작성
     @PostMapping("/board")
     @ResponseBody
     public Map<String, String> createBoard(BoardDto dto,
@@ -86,6 +87,7 @@ public class BoardController {
 
         return resultMap;
     }
+    // 게시글 목록
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
         if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
@@ -138,7 +140,7 @@ public class BoardController {
             return "error";
         }
     }
-
+    // 게시글 수정
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateBoard(
@@ -163,8 +165,8 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
-
-    @PostMapping("/board/delete/{boardNo}")
+    // 게시글 삭제
+    @DeleteMapping("/board/delete/{boardNo}")
     @ResponseBody
     public Map<String, String> deleteBoard(@PathVariable("boardNo") Long boardNo) {
         Map<String, String> resultMap = new HashMap<>();
