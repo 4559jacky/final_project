@@ -40,8 +40,7 @@
 					<div class="d-flex align-items-center justify-content-between mb-3">
 						<div class="d-flex align-items-center">
 							<div class="position-relative">
-								<img src="../assets/images/profile/user-1.jpg" alt="user1"
-									width="54" height="54" class="rounded-circle" />
+								<img th:src="@{/img/default_profile.png}" width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
 								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
@@ -551,7 +550,7 @@
 				  const memberInfoDiv = document.getElementById('memberInfo').value;
 				  
 				  data.memberInfos.forEach(member => {
-			            const memberHTML = `
+			           /*  const memberHTML = `
 			                <div class="d-flex align-items-center justify-content-between mb-3">
 			                    <div class="d-flex align-items-center">
 			                        <div class="position-relative">
@@ -564,7 +563,7 @@
 			                    </div>
 			                </div>
 			            `;
-			            memberInfoContainer.insertAdjacentHTML("beforeend", memberHTML);
+			            memberInfoContainer.insertAdjacentHTML("beforeend", memberHTML); */
 			        });
 			  })
 			  
