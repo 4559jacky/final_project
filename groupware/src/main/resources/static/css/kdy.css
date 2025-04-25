@@ -300,13 +300,6 @@
         font-size: 0.85rem;
     }
 }
-.scroll-to-top-icon {
-    color: #0d6efd; /* Bootstrap primary color */
-    transition: color 0.3s ease;
-}
 
-.scroll-to-top-icon:hover {
-    color: #0a58ca;
-}
 
   

@@ -30,10 +30,10 @@
     <div class="d-flex align-items-center gap-2">
         <!-- 검색 타입 -->
        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
-    		<option th:value="1" th:selected="${searchDto.search_type == 1}">선택</option>
-    		<option th:value="2" th:selected="${searchDto.search_type == 2}">제목</option>
-    		<option th:value="3" th:selected="${searchDto.search_type == 3}">내용</option>
-    		<option th:value="4" th:selected="${searchDto.search_type == 4}">제목+내용</option>
+    		<option th:value="0" th:selected="${searchDto.search_type == 0}">선택</option>
+    		<option th:value="1" th:selected="${searchDto.search_type == 1}">제목</option>
+    		<option th:value="2" th:selected="${searchDto.search_type == 2}">내용</option>
+    		<option th:value="3" th:selected="${searchDto.search_type == 3}">제목+내용</option>
 	  </select>
 
         <!-- 검색창(고침) -->

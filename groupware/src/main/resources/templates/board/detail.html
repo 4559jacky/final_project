@@ -112,6 +112,7 @@
     </th:block>
 </div>
 
+
 <!-- 댓글 + 대댓글 리스트 -->
 <div th:each="reply : ${replyList}" class="reply-item mb-3 p-3 border rounded-3">
     <div class="d-flex align-items-start mb-2">
@@ -206,7 +207,7 @@
 </div>
  <!-- 댓글 리스트 반복문 끝난 후 -->
 <div class="scroll-to-top-wrapper text-center my-4">
-    <i class="bi bi-arrow-bar-up scroll-to-top-icon" style="font-size: 2rem; cursor: pointer;" title="맨 위로 이동"></i>
+    <i class="bi bi-arrow-up-circle" style="font-size: 2rem; cursor: pointer;" title="맨 위로 이동"></i>
 </div>
             
 <!-- 삭제 JS 및 대댓글 폼 표시 JS -->
@@ -371,18 +372,7 @@
 
     observer.observe(document.querySelector('#load-more-trigger'));
     
-    
- 	// 위로 가는 버튼 제어
-    document.addEventListener('DOMContentLoaded', function () {
-    const scrollToTopIcon = document.querySelector('.scroll-to-top-icon');
-
-    scrollToTopIcon.addEventListener('click', function () {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'  // 부드러운 스크롤 효과
-        });
-    });
-});
+    // 하단만 아이콘을 클릭하면 움직일수있게 추가함(추가 예정) 아래에서 위까지 올라갈수있게 설정해야함
     </script>
 
 	

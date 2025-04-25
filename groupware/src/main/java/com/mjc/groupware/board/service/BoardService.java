@@ -139,18 +139,13 @@ public class BoardService {
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             switch (searchType) {
-                case 1:
-                    spec = spec.and(BoardSpecification.boardTitleContains(keyword));
-                    break;
-                case 2:
-                    spec = spec.and(BoardSpecification.boardContentContains(keyword));
-                    break;
-                case 3:
-                    spec = spec.and(
-                        BoardSpecification.boardTitleContains(keyword)
+            	
+                case 1: spec = spec.and(BoardSpecification.boardTitleContains(keyword)); break; // 제목 검색
+                case 2: spec = spec.and(BoardSpecification.boardContentContains(keyword)); break; // 내용 검색
+                case 3: spec = spec.and(BoardSpecification.boardTitleContains(keyword)
                             .or(BoardSpecification.boardContentContains(keyword))
                     );
-                    break;
+                    break; // 제목+내용 검색
             }
         }
 
