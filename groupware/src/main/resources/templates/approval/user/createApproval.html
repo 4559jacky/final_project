@@ -71,9 +71,9 @@
 									th:value="${#authentication.principal.member.memberNo}">
 								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
 									제목</h4>
-								<div class="text-end" style="min-width: 180px;">
+								<!-- <div class="text-end" style="min-width: 180px;">
 									작성일 : <span id="reg_date"></span>
-								</div>
+								</div> -->
 								<table class="table table-bordered align-middle">
 									<tbody>
 										<tr>
@@ -274,18 +274,28 @@
 	</div>
 	
 	<script>
-		let end_date = document.getElementById('end_date');
-		end_date.addEventListener('change', function(e) {
-			e.preventDefault();
-			let start_date = document.getElementById('start_date').value;
-			if(!start_date) {
-				alert('시작일을 먼저 입력해주세요.');
-				end_date.value = '';
-			} else if(start_date > end_date.value) {
-				alert('종료일은 시작일보다 같거나 늦어져야합니다.');
-				end_date.value = '';
-			}
-		})
+		document.addEventListener('DOMContentLoaded', function () {
+			const startDateInput = document.getElementById('start_date');
+			const endDateInput = document.getElementById('end_date');
+	
+			// 시작일 변경 시 종료일 최소값 설정
+			startDateInput.addEventListener('change', function () {
+				if (startDateInput.value) {
+					endDateInput.min = startDateInput.value;
+				} else {
+					endDateInput.removeAttribute('min');
+				}
+			});
+	
+			// 종료일 변경 시 시작일 최대값 설정
+			endDateInput.addEventListener('change', function () {
+				if (endDateInput.value) {
+					startDateInput.max = endDateInput.value;
+				} else {
+					startDateInput.removeAttribute('max');
+				}
+			});
+		});
 	</script>
 
 

@@ -12,6 +12,7 @@
 	<!-- JSignature -->
 	<script th:src="@{/js/jji/Jsignature/Jsignature.min.js}"></script>
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
+	
 
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
@@ -344,7 +345,7 @@
 		let isSignatureInitialized = false;
 
 		$(document).ready(function() {
-
+			
 			$('#saveSignatureModal').on('shown.bs.modal', function() {
 
 				memberNo = $('#saveSignature_btn').val(); // 회원 번호 가져오기
@@ -369,8 +370,12 @@
 				if (!isSignatureInitialized) {
 					$("#signature").jSignature({
 						height : 300,
-						width : 600
+						width : 600,
 					});
+					// 캔버스 내부 선 초기화
+					var $canvas = $("#signature").find("canvas")[0];
+					var ctx = $canvas.getContext("2d");
+					ctx.clearRect(0, 0, $canvas.width, $canvas.height); // 캔버스 전체 지우기
 					isSignatureInitialized = true;
 				}
 			});
@@ -386,6 +391,10 @@
 						height : 300,
 						width : 600
 					});
+					// 캔버스 내부 선 초기화
+					var $canvas = $("#signature").find("canvas")[0];
+					var ctx = $canvas.getContext("2d");
+					ctx.clearRect(0, 0, $canvas.width, $canvas.height); // 캔버스 전체 지우기
 					isSignatureInitialized = true;
 				}
 			});
