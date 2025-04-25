@@ -60,10 +60,11 @@ public class ChatController {
 	// 채팅방 정보 조회
 	@PostMapping("/selectChatRoom/{id}")
 	@ResponseBody
-	public ChatRoom selectChat(@PathVariable("id") Long chatRoomNo) {
+	public ChatRoomDto selectChatRoomOne(@PathVariable("id") Long chatRoomNo) {
 		ChatRoom chatRoom = chatRoomService.selectChatRoomOne(chatRoomNo);
+	    ChatRoomDto dto = ChatRoomDto.toDto(chatRoom);
 		
-		return chatRoom;
+		return dto;
 	}
 	
 	// 채팅 메세지 조회
