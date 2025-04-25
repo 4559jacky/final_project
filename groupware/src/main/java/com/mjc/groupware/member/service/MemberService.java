@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
@@ -44,7 +45,6 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final DataSource dataSource;
 	private final UserDetailsService userDetailsService;
-
 	
 	public Member selectMemberOne(MemberDto dto) {
 		Member result = repository.findByMemberId(dto.getMember_id());
@@ -71,9 +71,11 @@ public class MemberService {
 		
 		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
 			// 아무것도 입력하지않으면 findAll() 과 동일함
+			spec = spec.and(MemberSpecification.memberNotAdmin());
 		} else {
 			
-			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()));
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()))
+					.and(MemberSpecification.memberNotAdmin());
 			
 			try {
 				Long memberNo = Long.parseLong(searchDto.getSearch_text());

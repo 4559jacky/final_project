@@ -172,54 +172,66 @@
 								</div>
 							</div>
 							<div class="app-chat-offcanvas border-start">
-								<div class="custom-app-scroll mh-n100" data-simplebar>
-									<div
-										class="p-3 d-flex align-items-center justify-content-between">
-										<h6 class="fw-semibold mb-0 text-nowrap">
-											Media <span class="text-muted">(36)</span>
-										</h6>
-										<a
-											class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
-											href="javascript:void(0)"> <i class="ti ti-x"></i>
-										</a>
-									</div>
-									<div class="offcanvas-body p-9">
-
-										<div class="row mb-7 text-nowrap">
-											<div class="col-4 px-1 mb-2">
-
-												<img src="../assets/images/products/product-1.jpg"
-													width="88" height="65" alt="flexy-img" class="rounded" />
-
-											</div>
-										</div>
-										<div class="files-chat">
-											<h6 class="fw-semibold mb-3 text-nowrap">
-												Files <span class="text-muted">(36)</span>
-											</h6>
-											<a href="javascript:void(0)"
-												class="hstack gap-3 file-chat-hover justify-content-between text-nowrap mb-9">
-												<div class="d-flex align-items-center gap-3">
-													<div class="rounded-1 text-bg-light p-6">
-														<img src="../assets/images/chat/icon-zip-folder.svg"
-															alt="flexy-img" width="24" height="24" />
-													</div>
-													<div>
-														<h6 class="fw-semibold">work-project.zip</h6>
-														<div
-															class="d-flex align-items-center gap-3 fs-2 text-muted">
-															<span>2 MB</span> <span>2 Dec 2024</span>
-														</div>
-													</div>
-												</div> <span
-												class="position-relative nav-icon-hover download-file">
-													<i class="ti ti-download text-dark fs-6 bg-hover-primary"></i>
-											</span>
-											</a>
-										</div>
-									</div>
-								</div>
+							    <div class="custom-app-scroll mh-n100" data-simplebar>
+							        <div class="p-3 d-flex align-items-center justify-content-end">
+							            <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
+							                href="javascript:void(0)"> <i class="ti ti-x"></i> </a>
+							        </div>
+							
+							        <!-- 참여자 -->
+							        <div class="offcanvas-body px-9 pt-0">
+							            <div class="section-block mb-5">
+							                <h6 class="fw-semibold mb-3 text-nowrap">
+							                    참여자 <span class="text-muted" id="memberCount">참여자 수</span>
+							                </h6>
+							                <div class="d-flex flex-wrap gap-2" id="memberInfo">
+							                </div>
+							            </div>
+							
+							            <!-- 이미지 -->
+							            <div class="section-block mb-5">
+							                <h6 class="fw-semibold mb-3 text-nowrap">
+							                    이미지 <span class="text-muted">(36)</span>
+							                </h6>
+							                <div class="row g-2">
+							                    <div class="col-4">
+							                        <img src="../assets/images/products/product-1.jpg" width="100%" class="rounded" alt="이미지" />
+							                    </div>
+							                    <div class="col-4">
+							                        <img src="../assets/images/products/product-2.jpg" width="100%" class="rounded" alt="이미지" />
+							                    </div>
+							                    <!-- ...반복 -->
+							                </div>
+							            </div>
+							
+							            <!-- 파일 -->
+							            <div class="section-block mb-5">
+							                <h6 class="fw-semibold mb-3 text-nowrap">
+							                    Files <span class="text-muted">(36)</span>
+							                </h6>
+							                <a href="javascript:void(0)"
+							                    class="hstack gap-3 file-chat-hover justify-content-between text-nowrap mb-3">
+							                    <div class="d-flex align-items-center gap-3">
+							                        <div class="rounded-1 text-bg-light p-6">
+							                            <img src="../assets/images/chat/icon-zip-folder.svg" alt="flexy-img" width="24"
+							                                height="24" />
+							                        </div>
+							                        <div>
+							                            <h6 class="fw-semibold">work-project.zip</h6>
+							                            <div class="d-flex align-items-center gap-3 fs-2 text-muted">
+							                                <span>2 MB</span> <span>2 Dec 2024</span>
+							                            </div>
+							                        </div>
+							                    </div>
+							                    <span class="position-relative nav-icon-hover download-file">
+							                        <i class="ti ti-download text-dark fs-6 bg-hover-primary"></i>
+							                    </span>
+							                </a>
+							            </div>
+							        </div>
+							    </div>
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -524,8 +536,38 @@
 			  var memberDept = $(this).find(".dept").text();
 			  var memberImage = $(this).find("img").attr("src");
 			  
+			  fetch("/selectChatRoom/"+roomNo,{
+				method:'post',
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+				           	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					}
+			  })
+			  .then(response => response.json())
+			  .then(data => {
+				  console.log(data);
+				  document.getElementById("memberCount").textContent = "("+data.memberInfos.length+")";
+				  
+				  const memberInfoDiv = document.getElementById('memberInfo').value;
+				  
+				  data.memberInfos.forEach(member => {
+			            const memberHTML = `
+			                <div class="d-flex align-items-center justify-content-between mb-3">
+			                    <div class="d-flex align-items-center">
+			                        <div class="position-relative">
+			                            <img src="${latestMyProfile}" alt="user" width="54" height="54" class="rounded-circle" />
+			                        </div>
+			                        <div class="ms-3">
+			                            <h6 class="fw-semibold mb-2">${member.memberName} ${member.positionName ?? ''}</h6>
+			                            <p class="mb-0 fs-2">${member.departmentName ?? ''}</p>
+			                        </div>
+			                    </div>
+			                </div>
+			            `;
+			            memberInfoContainer.insertAdjacentHTML("beforeend", memberHTML);
+			        });
+			  })
 			  
-			
 			  // 상단 이름/이미지 설정
 			  if (window.innerWidth <= 767) {
 			    $(".chat-container .current-chat-user-name .name").html(
@@ -535,8 +577,6 @@
 			    $(".chat-container .current-chat-user-name .name").html(memberName);
 			  }
 			  $(".chat-container .current-chat-user-name img").attr("src", memberImage); 
-			  $(".chat-container .current-chat-user-name .dept").html();
-			
 			
 			  // 메세지 조회
 			  fetch("/selectChatMsg/"+roomNo,{
@@ -552,48 +592,50 @@
 					  chatListContainer.innerHTML = ""; // 기존 채팅 내용 비우기 
 					
 					  const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
-					  let userCheck= 0;
 					  
 					  data.forEach(msg => {
-						  if( msg.create_member_no == myMemberNo){
-							  userCheck= 1;
-						  }
-							 
-						  const wrapper = document.createElement("div");
-						  wrapper.className = "d-flex mb-4";
-	
-						  if (userCheck===1) {
-						    // 내가 보낸 메시지 (오른쪽 정렬)
-						    wrapper.style.justifyContent = "flex-end";
-						    wrapper.innerHTML = `
-						      <div style="text-align: right; max-width: 70%;">
-						        <h6 class="fs-2 text-muted">${formatTime(msg.send_date)}</h6>
-						        <div class="p-2 bg-info-subtle text-dark mb-1 d-inline-block rounded-1 fs-3">
-						          ${msg.chat_msg_content}
-						        </div>
-						      </div>
-						    `;
-						  } else {
-						    // 상대가 보낸 메시지 (왼쪽 정렬)
-						    wrapper.style.justifyContent = "flex-start";
-						    wrapper.innerHTML = `
-						      <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
-						      <div style="max-width: 70%;">
-						        <h6 class="fs-2 text-muted">${memberName}, ${formatTime(msg.send_date)}</h6>
-						        <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3">
-						          ${msg.chat_msg_content}
-						        </div>
-						      </div>
-						    `;
-						  }
-	
-						  chatListContainer.appendChild(wrapper);
+						    const userCheck = (msg.member_no == myMemberNo); // 여기로 이동
+						    
+						    const wrapper = document.createElement("div");
+						    wrapper.className = "d-flex mb-4";
+
+						    if (userCheck) {
+						        // ✅ 내가 보낸 메시지 (오른쪽 정렬, 시간 → 메시지 순)
+						        wrapper.style.justifyContent = "flex-end";
+						        wrapper.innerHTML = `
+						            <div class="d-flex align-items-end mb-3" style="max-width: 70%;">
+						                <div class="text-muted fs-2 me-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
+						                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
+						                    ${msg.chat_msg_content}
+						                </div>
+						            </div>
+						        `;
+						    } else {
+						        // ✅ 상대가 보낸 메시지 (왼쪽 정렬, 메시지 → 시간 순)
+						        wrapper.style.justifyContent = "flex-start";
+						        wrapper.innerHTML = `
+						            <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
+						            <div class="mb-3" style="max-width: 70%;">
+						                <div class="fw-bold fs-2">${msg.member_name} ${msg.member_pos_name} (${msg.member_dept_name})</div>
+						                <div class="d-flex align-items-end">
+						                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">
+						                        ${msg.chat_msg_content}
+						                    </div>
+						                    <div class="text-muted fs-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
+						                </div>
+						            </div>
+						        `;
+						    }
+
+
+
+						    chatListContainer.appendChild(wrapper);
 						});
 
 
 				
-				  // 메시지 가장 아래로 스크롤
-				  chatListContainer.scrollTop = chatListContainer.scrollHeight;
+				    // 메시지 가장 아래로 스크롤
+					chatListContainer.scrollTop = chatListContainer.scrollHeight;
 				});
 
 			  function formatTime(isoString) {

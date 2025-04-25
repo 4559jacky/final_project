@@ -1,6 +1,7 @@
 package com.mjc.groupware.company.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.dto.FuncMappingRequestDto;
+import com.mjc.groupware.company.dto.RoleDetailResponseDto;
 import com.mjc.groupware.company.entity.Func;
 import com.mjc.groupware.company.entity.FuncMapping;
 import com.mjc.groupware.company.repository.FuncMappingRepository;
@@ -36,7 +38,7 @@ public class FuncService {
 			result = FuncDto.builder()
 					.func_no(target.getFuncNo())
 					.func_name(target.getFuncName())
-					.func_url(target.getFuncUrl())
+					.func_code(target.getFuncCode())
 					.func_status(target.getFuncStatus())
 					.parent_func_no(target.getParentFunc() != null ? target.getParentFunc().getFuncNo() : null)
 					.reg_date(target.getRegDate())
@@ -71,7 +73,7 @@ public class FuncService {
 			FuncDto funcDto = FuncDto.builder()
 					.func_no(func.getFuncNo())
 					.func_name(func.getFuncName())
-					.func_url(func.getFuncUrl())
+					.func_code(func.getFuncCode())
 					.func_status(func.getFuncStatus())
 					.parent_func_no(func.getParentFunc() != null ? func.getParentFunc().getFuncNo() : null)
 					.reg_date(func.getRegDate())
@@ -110,7 +112,7 @@ public class FuncService {
 		FuncDto funcDto = FuncDto.builder()
 				.func_no(result.getFuncNo())
 				.func_name(result.getFuncName())
-				.func_url(result.getFuncUrl())
+				.func_code(result.getFuncCode())
 				.func_status(result.getFuncStatus())
 				.parent_func_no(result.getParentFunc() != null ? result.getParentFunc().getFuncNo() : null)
 				.reg_date(result.getRegDate())
@@ -157,6 +159,26 @@ public class FuncService {
 				funcMappingRepository.delete(exists);
 			}
 		}
+	}
+	
+	public List<RoleDetailResponseDto> getFuncAllByRole(Long roleNo) {
+		List<FuncMapping> funcMappings  = funcMappingRepository.findByRoleRoleNo(roleNo);
+		
+		List<RoleDetailResponseDto> resultList = new ArrayList<>();
+		
+		for (FuncMapping funcMapping : funcMappings) {
+	        Func func = funcMapping.getFunc();
+	        RoleDetailResponseDto roleDetail = RoleDetailResponseDto.builder()
+	                .func_no(func.getFuncNo())
+	                .func_name(func.getFuncName())
+	                .build();
+
+	        resultList.add(roleDetail);
+	    }
+		
+		resultList.sort(Comparator.comparing(RoleDetailResponseDto::getFunc_name));
+		
+		return resultList;
 	}
 	
 }

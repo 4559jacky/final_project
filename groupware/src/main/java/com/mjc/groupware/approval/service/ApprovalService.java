@@ -18,6 +18,7 @@ import com.mjc.groupware.approval.dto.ApprApproverDto;
 import com.mjc.groupware.approval.dto.ApprReferencerDto;
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.PageDto;
 import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
@@ -33,7 +34,6 @@ import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
 import com.mjc.groupware.approval.specification.ApprovalSpecification;
 import com.mjc.groupware.member.dto.MemberDto;
-import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;

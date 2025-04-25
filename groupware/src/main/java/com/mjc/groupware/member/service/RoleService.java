@@ -10,6 +10,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.company.dto.RoleDetailResponseDto;
+import com.mjc.groupware.company.entity.Func;
+import com.mjc.groupware.company.repository.FuncRepository;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
@@ -26,6 +29,7 @@ public class RoleService {
 	
 	private final RoleRepository repository;
 	private final MemberRepository memberRepository;
+	private final FuncRepository funcRepository;
 	
 	public List<Role> selectRoleAll() {
 		return repository.findAll();

@@ -20,4 +20,8 @@ public class MemberSpecification {
 		return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("memberNo"), memberNo);
 	}
 	
+	public static Specification<Member> memberNotAdmin() {
+		return (root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get("memberNo"), 1L);
+	}
+	
 }

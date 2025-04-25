@@ -1,10 +1,19 @@
 package com.mjc.groupware.reply.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 
@@ -30,8 +39,7 @@ public class ReplyController {
         return "redirect:/board/detail/" + boardNo;
     }
 
-   
-    //댓글 생성 서비스 호출 후 게시글 상세 페이지로 리다이렉트
+    // 댓글 생성 서비스 호출 후 게시글 상세 페이지로 리다이렉트
     @PostMapping("/replies/{boardNo}/create")
     public String replyCreate(@ModelAttribute ReplyDto replyDto, @PathVariable("boardNo") Long boardNo) {
         Member member = getLoginMember();  // 로그인 사용자 정보 조회
@@ -42,8 +50,7 @@ public class ReplyController {
         return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
     }
 
-     
-     //대댓글 생성 서비스 호출 후 상세 페이지
+    // 대댓글 생성 서비스 호출 후 상세 페이지
     @PostMapping("/replies/{boardNo}/{parentReplyNo}/create-sub")
     public String replyCreateSub(@ModelAttribute ReplyDto replyDto,
                                  @PathVariable("boardNo") Long boardNo,
@@ -57,23 +64,45 @@ public class ReplyController {
         return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
     }
 
-    
-     // 댓글 수정
+    // 댓글 수정
     @PostMapping("/replies/{replyNo}/update")
-    public String replyUpdate(@ModelAttribute ReplyDto replyDto,
-                              @PathVariable("replyNo") Long replyNo) {
-        Member member = getLoginMember();  // 로그인 사용자 정보 조회
-        replyService.replyUpdate(replyNo, member.getMemberNo(), replyDto.getReply_content());  // 댓글 수정 서비스 호출
-        return redirectToBoardDetail(replyDto.getBoard_no());  // 상세 페이지로 리다이렉트
+    @ResponseBody
+    public Map<String, Object> updateReplyAjax(@PathVariable("replyNo") Long replyNo,  // PathVariable에서 이름 명시
+                                               @RequestBody Map<String, String> payload,
+                                               @AuthenticationPrincipal MemberDetails memberDetails) {
+        String newContent = payload.get("reply_content");
+
+        // ReplyDto 객체에 수정된 내용을 담기
+        ReplyDto replyDto = new ReplyDto();
+        replyDto.setReply_no(replyNo);
+        replyDto.setReply_content(newContent);
+
+        // 서비스 메서드 호출
+        replyService.updateReply(replyDto, memberDetails.getMember());
+
+        // 결과 맵 생성 후 반환
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        return result;
     }
     
-
     // 댓글 삭제
     @PostMapping("/replies/{replyNo}/delete")
-    public String replyDelete(@PathVariable("replyNo") Long replyNo,
-                              @RequestParam("board_no") Long boardNo) {
-        Member member = getLoginMember();  // 로그인 사용자 정보 조회
-        replyService.replyDelete(replyNo, member.getMemberNo());  // 댓글 삭제 서비스 호출
-        return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
+    @ResponseBody
+    public Map<String, String> replyDelete(@PathVariable("replyNo") Long replyNo,
+    		@AuthenticationPrincipal MemberDetails memberDetails) {
+        Map<String, String> result = new HashMap<>();
+        try {
+        	Member member = memberDetails.getMember();
+            replyService.replyDelete(replyNo, member.getMemberNo());
+            
+            result.put("res_code", "200");
+            result.put("res_msg", "댓글이 성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            result.put("res_code", "500");
+            result.put("res_msg", "댓글 삭제 중 오류 발생");
+        }
+
+        return result;
     }
 }

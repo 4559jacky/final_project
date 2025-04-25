@@ -1,10 +1,12 @@
 package com.mjc.groupware.chat.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -60,6 +62,5 @@ public class ChatRoom {
 	@OneToMany(mappedBy = "chatRoomNo")
     private List<ChatMapping> mappings; 
 
-	
 	
 }

@@ -32,10 +32,6 @@
     </div>
 
     <div class="mt-4 p-5 bg-white rounded-4 shadow-sm mb-5">
-        <!-- 투표 버튼 -->
-        <div class="mb-3 text-end">
-            <button type="button" class="btn btn-outline-secondary" onclick="openVoteModal()">투표 추가</button>
-        </div>
 
         <form method="post" enctype="multipart/form-data" id="board_form">
             <!-- Hidden Fields -->
@@ -43,14 +39,26 @@
             <input type="hidden" name="board_content" id="board_content"/>
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-            <!-- 제목 -->
-            <div class="mb-3">
-                <label for="board_title" class="form-label fw-semibold">제목</label>
-                <input type="text" class="form-control bg-white text-dark"
-                       id="board_title" name="board_title"
-                       th:value="${board.boardTitle}" maxlength="100"
-                       placeholder="제목을 입력하세요" required>
-            </div>
+		<!-- 제목 + 투표 버튼 (한 줄에 정렬) -->
+		<div class="d-flex align-items-center mb-3">
+  			<!-- 왼쪽: 제목 입력 -->
+  		<div class="d-flex align-items-center flex-grow-1">
+    		<span class="fw-bold me-3" style="font-size: 1rem; line-height: 1; white-space: nowrap;">
+      					제목
+    		</span>
+    	<input type="text" class="form-control bg-white text-dark"
+           	id="board_title" name="board_title"
+           	th:value="${board.boardTitle}"
+           	maxlength="100" placeholder="제목을 입력하세요" required>
+  		</div>
+
+  		<!-- 오른쪽: 투표 버튼 -->
+  		<div class="ms-3">
+    		<button type="button" class="btn btn-outline-danger" onclick="openVoteModal()">
+      		투표 삭제
+    		</button>
+  		</div>
+		</div>
 
             <!-- 내용 -->
             <div class="mb-3">

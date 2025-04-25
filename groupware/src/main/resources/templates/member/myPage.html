@@ -8,7 +8,7 @@ layout:decorate="~{/include/layout}">
 	
 	<!-- Custom CSS Files -->
 	
-	
+	<link th:href="@{/css/cjs/my_page.css}" rel="stylesheet">
 	
 	<!-- ---------------------------------------------------------------------------- -->
 	<!-- HTML 작성 공간 -->
@@ -73,7 +73,11 @@ layout:decorate="~{/include/layout}">
 								  
 							      <div class="text-center pt-4">
 							        <!-- 업로드 이미지 (클릭 이벤트용) -->
-							        <img id="preview_image" th:src="@{/img/default_profile.png}" alt="profile-img"
+							        <img id="preview_image"
+							        	 alt="profile-img"
+							        	 th:src="${memberAttachDto != null and memberAttachDto.attach_path != null} ?
+             									 @{/uploads/{image}(image=${memberAttachDto.new_name})} :
+              									@{/img/default_profile.png}"
 							             class="img-fluid rounded"
 							             style="width: 240px; height: 240px; object-fit: cover; cursor: pointer; transition: 0.2s;"
 							             onclick="document.getElementById('profile_image').click();">
@@ -689,18 +693,20 @@ layout:decorate="~{/include/layout}">
 		  	}
 		}
 		
-		// 선택한 파일을 내리고 기본 이미지로 되돌림
+		// 선택한 파일을 내리고 기본 이미지로 되돌림 -> 원래 이렇게 구성하였으나, 마지막에 등록한 이미지가 보이도록 구성하면서 리로드로 변경함.
 		function resetToDefaultImage() {
-			const defaultImageUrl = '/img/default_profile.png';
-			const preview = document.getElementById('preview_image');
-			const fileInput = document.getElementById('profile_image');
-			const saveBtn = document.getElementById('saveImageBtn');
-			const resetBtn = document.getElementById('resetImageBtn');
+			// const defaultImageUrl = '/img/default_profile.png';
+			// const preview = document.getElementById('preview_image');
+			// const fileInput = document.getElementById('profile_image');
+			// const saveBtn = document.getElementById('saveImageBtn');
+			// const resetBtn = document.getElementById('resetImageBtn');
 			
-			preview.src = defaultImageUrl;
-			fileInput.value = '';
-			saveBtn.style.visibility = "hidden";
-			resetBtn.style.visibility = "hidden";
+			// preview.src = defaultImageUrl;
+			// fileInput.value = '';
+			// saveBtn.style.visibility = "hidden";
+			// resetBtn.style.visibility = "hidden";
+			
+			location.reload();
 		}
 	</script>
 	
@@ -708,6 +714,14 @@ layout:decorate="~{/include/layout}">
     	// 계정 정보 수정하는 로직
 		const updatePwForm = document.update_pw_form;
 		
+    	// 비밀번호 복잡도 검사를 위한 함수
+		function isValidPassword(pw) {
+			const lengthCheck = pw.length >= 8;
+			const numberCheck = /[0-9]/.test(pw);
+			const specialCheck = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+			return lengthCheck && numberCheck && specialCheck;
+		}
+    	
 		updatePwForm.addEventListener('submit',(event) => {
 			event.preventDefault();
 			
@@ -720,11 +734,14 @@ layout:decorate="~{/include/layout}">
 			} else if(!updatePwForm.member_new_pw.value) {
 				vali_text += "변경할 비밀번호를 입력하세요.";
 				updatePwForm.member_new_pw.focus();
-			} else if(!updatePwForm.member_new_pw_check.value ) {
+			} else if(!updatePwForm.member_new_pw_check.value) {
 				vali_text += "변경할 비밀번호 확인을 입력하세요.";
 				updatePwForm.member_new_pw_check.focus();
 			} else if(updatePwForm.member_new_pw.value != updatePwForm.member_new_pw_check.value) {
 				vali_text += "변경할 비밀번호가 서로 일치하지 않습니다.";
+				updatePwForm.member_new_pw.focus();
+			} else if (!isValidPassword(updatePwForm.member_new_pw.value)) {
+				vali_text += "비밀번호는 숫자, 특수문자를 포함해 8자 이상이어야 합니다.";
 				updatePwForm.member_new_pw.focus();
 			} else {
 				vali_check = true;

@@ -22,7 +22,7 @@ public class FuncDto {
 	
 	private Long func_no;
 	private String func_name;
-	private String func_url;
+	private String func_code;
 	private int func_status;
 	private Long parent_func_no;
 	private LocalDateTime reg_date;
