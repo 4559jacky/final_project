@@ -17,4 +17,7 @@ public interface FuncMappingRepository extends JpaRepository<FuncMapping, Long> 
     void deleteByFuncAndRole(Func func, Role role);
 	
     List<FuncMapping> findByRole_RoleNo(Long roleNo);
+    
+    List<FuncMapping> findByRoleRoleNo(Long roleNo);
+    
 }

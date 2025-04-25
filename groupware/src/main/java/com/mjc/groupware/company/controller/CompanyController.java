@@ -21,6 +21,7 @@ import com.mjc.groupware.company.dto.CompanyDto;
 import com.mjc.groupware.company.dto.FuncDetailResponseDto;
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.dto.FuncMappingRequestDto;
+import com.mjc.groupware.company.dto.RoleDetailResponseDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.repository.CompanyRepository;
 import com.mjc.groupware.company.service.CompanyService;
@@ -205,6 +206,14 @@ public class CompanyController {
 		}
 		
 		return resultMap;
+	}
+	
+	@GetMapping("/admin/company/role/{id}/detail")
+	@ResponseBody
+	public List<RoleDetailResponseDto> getFuncListByRole(@PathVariable("id") Long roleNo) {
+		List<RoleDetailResponseDto> funcList = funcService.getFuncAllByRole(roleNo);
+		
+		return funcList != null ? funcList : List.of();
 	}
 	
 	@GetMapping("/admin/company/func/{id}/detail")

@@ -132,84 +132,6 @@ layout:decorate="~{/include/layout}">
 		      </div>
 		      
 		      <!-- 두 번째 탭 -->
-              <div class="tab-pane fade" id="pills-notifications" role="tabpanel" aria-labelledby="pills-notifications-tab" tabindex="0">
-                  <div class="row">
-		          
-		            <!-- 사용할 기능 목록 -->
-					<div class="col-lg-6 d-flex align-items-stretch">
-					  <div class="card w-100 border position-relative overflow-hidden">
-					    <div class="card-body p-4">
-					      <h4 class="card-title">주요 기능 선택</h4>
-					      <p class="card-subtitle mb-4">Choose the functions to be activated for your groupware.</p>
-						  
-					      <div class="text-center">
-					        
-					        <div class="text-start">
-					        	<th:block th:if="${funcList != null and !#lists.isEmpty(funcList)}">
-								  <form id="func_form" name="func_form">
-								    <div class="form-group">
-								      <ul class="list-unstyled">
-								      	<li class="mb-2" th:each="func : ${funcList}">
-								            	<input type="checkbox"
-								            		name="func_no"
-								            		style="cursor: pointer;"
-								                	th:value="${func.func_no}"
-								                	th:checked="${func.func_status == 1}"
-								                	th:disabled="${func.func_no == 1}"
-								                	class="form-check-input me-2"
-								                	onchange="changeFuncToggle(this)">
-								                	
-								                <label th:for="'func_' + ${func.func_no}" class="me-2"></label>
-								                
-								         		<span class="fw-medium"
-								         			style="cursor: pointer;"
-								         			th:text="${func.func_name}"
-								         			th:attr="data-func-no=${func.func_no}"
-								         			onclick="loadFuncDetail(event, this)">기능 이름</span>
-										</li>
-								      </ul>
-								    </div>
-								  </form>
-								</th:block>
-								<th:block th:if="${funcList == null or #lists.isEmpty(funcList)}"> 
-								  <div class="text-start text-muted small py-3">
-								    사용 가능한 기능이 없습니다.
-								  </div>
-								</th:block>
-							</div>
-							
-					      </div>
-					      
-					    </div>
-					  </div>
-					</div>
-					
-					<div class="col-lg-6 d-flex align-items-stretch">
-					  <div class="card w-100 border position-relative overflow-hidden">
-					    <div class="card-body p-4">
-					      <h4 class="card-title">기능 상세 및 접근 권한 부여</h4>
-					      <p class="card-subtitle mb-4">Click to modify the accessible permissions for this function.</p>
-						  
-					      <div class="text-center">
-					      
-					        <div class="text-start" id="func_detail_panel">
-							
-							  <ul id="func_sub_list" class="list-unstyled small">
-							    
-							  </ul>
-							  
-							</div>
-							
-					      </div>
-					    </div>
-					  </div>
-					</div>
-					
-		          </div>
-                  
-                </div>
-                
-                <!-- 세 번째 탭 -->
                 <div class="tab-pane fade" id="pills-role" role="tabpanel" aria-labelledby="pills-notifications-tab" tabindex="0">
                   <div class="row">
 		          
@@ -313,9 +235,86 @@ layout:decorate="~{/include/layout}">
 		          </div>
                   
                 </div>
-                <!-- 세 번째 탭 끝 -->
-                
-                
+              <!-- 두 번째 탭 끝 -->
+		      
+		      <!-- 세 번째 탭 -->
+              <div class="tab-pane fade" id="pills-notifications" role="tabpanel" aria-labelledby="pills-notifications-tab" tabindex="0">
+                  <div class="row">
+		          
+		            <!-- 사용할 기능 목록 -->
+					<div class="col-lg-6 d-flex align-items-stretch">
+					  <div class="card w-100 border position-relative overflow-hidden">
+					    <div class="card-body p-4">
+					      <h4 class="card-title">주요 기능 선택</h4>
+					      <p class="card-subtitle mb-4">Choose the functions to be activated for your groupware.</p>
+						  
+					      <div class="text-center">
+					        
+					        <div class="text-start">
+					        	<th:block th:if="${funcList != null and !#lists.isEmpty(funcList)}">
+								  <form id="func_form" name="func_form">
+								    <div class="form-group">
+								      <ul class="list-unstyled">
+								      	<li class="mb-2" th:each="func : ${funcList}">
+								            	<input type="checkbox"
+								            		name="func_no"
+								            		style="cursor: pointer;"
+								                	th:value="${func.func_no}"
+								                	th:checked="${func.func_status == 1}"
+								                	th:disabled="${func.func_no == 1}"
+								                	class="form-check-input me-2"
+								                	onchange="changeFuncToggle(this)">
+								                	
+								                <label th:for="'func_' + ${func.func_no}" class="me-2"></label>
+								                
+								         		<span class="fw-medium"
+								         			style="cursor: pointer;"
+								         			th:text="${func.func_name}"
+								         			th:attr="data-func-no=${func.func_no}"
+								         			onclick="loadFuncDetail(event, this)">기능 이름</span>
+										</li>
+								      </ul>
+								    </div>
+								  </form>
+								</th:block>
+								<th:block th:if="${funcList == null or #lists.isEmpty(funcList)}"> 
+								  <div class="text-start text-muted small py-3">
+								    사용 가능한 기능이 없습니다.
+								  </div>
+								</th:block>
+							</div>
+							
+					      </div>
+					      
+					    </div>
+					  </div>
+					</div>
+					
+					<div class="col-lg-6 d-flex align-items-stretch">
+					  <div class="card w-100 border position-relative overflow-hidden">
+					    <div class="card-body p-4">
+					      <h4 class="card-title">기능 상세 및 접근 권한 부여</h4>
+					      <p class="card-subtitle mb-4">Click to modify the accessible permissions for this function.</p>
+						  
+					      <div class="text-center">
+					      
+					        <div class="text-start" id="func_detail_panel">
+							
+							  <ul id="func_sub_list" class="list-unstyled small">
+							    
+							  </ul>
+							  
+							</div>
+							
+					      </div>
+					    </div>
+					  </div>
+					</div>
+					
+		          </div>
+                  
+                </div>
+				
                 <!-- 다섯 번째 탭 -->
                 <div class="tab-pane fade" id="pills-bills" role="tabpanel" aria-labelledby="pills-bills-tab" tabindex="0">
                   <div class="row justify-content-center">
@@ -556,6 +555,46 @@ layout:decorate="~{/include/layout}">
 	</script>
 	
 	<script>
+		// 권한을 클릭하면 해당 권한으로 뭘 할 수 있는지 보여주는 로직 
+		document.querySelectorAll('[data-role-no]').forEach(elem => {
+			elem.addEventListener('click', function () {
+				const roleNo = this.getAttribute('data-role-no');
+				loadRoleFuncDetail(roleNo);
+			});
+		});
+		
+		// 해당 권한으로 뭘 할 수 있는지 조회해오는 로직
+		function loadRoleFuncDetail(roleNo) {
+
+			fetch(`/admin/company/role/${roleNo}/detail`, {
+				method : "get"
+			})
+			.then(response => response.json())
+			.then(data => {
+				const target = document.getElementById("role_sub_list");
+				target.innerHTML = "";
+				
+				if (data && data.length > 0) {
+					data.forEach(func => {
+						const li = document.createElement("li");
+						li.className = "mb-1";
+						li.innerHTML = `
+							<i class="bi bi-check2-circle me-2 text-primary"></i>
+							<span>${func.func_name}</span>
+						`;
+						target.appendChild(li);
+					});
+				} else {
+					target.innerHTML = `<li class="text-muted small">이 권한으로 접근 가능한 기능이 없습니다.</li>`;
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			})
+		}
+	</script>
+	
+	<script>
 		// 사용할 기능 체크박스를 클릭하면 DB에 접근하여 func_status를 바꿔주는 로직
 		function changeFuncToggle(checkbox) {
 			const checked = checkbox.checked;
@@ -743,7 +782,7 @@ layout:decorate="~{/include/layout}">
 		    .then(data => {
 				alert(data.res_msg);
 				if (data.res_code === '200') {
-					location.reload();
+					
 				}
 			})
 		    .catch(error => {
