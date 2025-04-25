@@ -94,11 +94,12 @@ layout:decorate="~{/include/layout}">
 					               id="profile_image" class="d-none" onchange="previewSelectedImage(this)">
 							
 					        <p class="mt-3 mb-0 text-muted small" onclick="document.getElementById('profile_image').click()" style="cursor: pointer;">
+							    이미지를 클릭하시면 변경할 수 있습니다.<br>
 							    JPG, JPEG, PNG 형식만 허용되며, 최대 2MB까지 업로드할 수 있습니다.
 							</p>
 							
-							<button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="resetImageBtn" onclick="resetToDefaultImage()">
-							  기본 이미지로
+							<button type="button" class="btn btn-sm btn-outline-secondary mt-1" style="visibility:hidden;" id="resetImageBtn" onclick="resetToDefaultImage()">
+							  reset
 							</button>
 							
 					      </div>
@@ -121,7 +122,7 @@ layout:decorate="~{/include/layout}">
 						
 		                <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
 		                  <button type="submit" class="btn btn-primary px-4">등록</button>
-		                  <button type="reset" class="btn bg-danger-subtle text-danger px-4" onclick="location.href='/home'">취소</button>
+		                  <button type="reset" class="btn bg-danger-subtle text-danger px-4" onclick="location.reload();">취소</button>
 		                </div>
 		              </div>
 		            </div>
@@ -533,6 +534,7 @@ layout:decorate="~{/include/layout}">
 		    	const reader = new FileReader();
 		    	reader.onload = function (e) {
 		     		preview.src = e.target.result;
+		     		resetBtn.style.visibility = "visible"; // 더이상 기본 이미지로 되돌리는 버튼을 사용할 필요가 없음
 		    	};
 		    	reader.readAsDataURL(file);
 		  	}
@@ -540,14 +542,16 @@ layout:decorate="~{/include/layout}">
 		
 		// 선택한 파일을 내리고 기본 이미지로 되돌림
 		function resetToDefaultImage() {
-			const defaultImageUrl = '/assets/images/big/img3.jpg';
-			const preview = document.getElementById('preview_image');
-			const fileInput = document.getElementById('profile_image');
-			const resetBtn = document.getElementById('resetImageBtn');
+			// const defaultImageUrl = '/assets/images/big/img3.jpg';
+			// const preview = document.getElementById('preview_image');
+			// const fileInput = document.getElementById('profile_image');
+			// const resetBtn = document.getElementById('resetImageBtn');
 			
-			preview.src = defaultImageUrl;
-			fileInput.value = '';
-			resetBtn.style.visibility = "hidden";
+			// preview.src = defaultImageUrl;
+			// fileInput.value = '';
+			// resetBtn.style.visibility = "hidden";
+			
+			location.reload();
 		}
 	</script>
 	

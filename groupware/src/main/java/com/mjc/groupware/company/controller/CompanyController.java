@@ -116,7 +116,16 @@ public class CompanyController {
 			CompanyDto param = new CompanyDto();
 			
 			if (file == null || file.isEmpty()) {
-		    	throw new IllegalArgumentException("이미지 파일을 등록해주세요");
+				CompanyDto latest = service.selectLatestCompanyProfile();
+				
+				if(latest != null) {
+					param.setOri_name(latest.getOri_name());
+					param.setNew_name(latest.getNew_name());
+					param.setAttach_path(latest.getAttach_path());
+					param.setProfile_image_path(latest.getAttach_path());					
+				} else {
+					throw new IllegalArgumentException("이미지 파일을 등록해주세요");					
+				}
 		    } else {
 		    	CompanyDto uploadedDto = service.uploadFile(file);
 		    	param.setOri_name(uploadedDto.getOri_name());

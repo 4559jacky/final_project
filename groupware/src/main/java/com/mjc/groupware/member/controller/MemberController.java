@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -380,11 +379,14 @@ public class MemberController {
 		List<String> addr1List = addressService.selectAddr1Distinct();
 		List<String> addr2List = addressService.selectAddr2ByAddr1(member.getMemberAddr1());
 		
+		MemberAttachDto memberAttachDto = memberAttachService.selectLatestMyProfile(memberDetails.getMember());
+		
 		model.addAttribute("member", member);
 		model.addAttribute("addr1List", addr1List);
 		model.addAttribute("addr2List", addr2List);
 		model.addAttribute("selectedAddr1", member.getMemberAddr1());
 		model.addAttribute("selectedAddr2", member.getMemberAddr2());
+		model.addAttribute("memberAttachDto", memberAttachDto);
 		
 		return "member/myPage";
 	}
