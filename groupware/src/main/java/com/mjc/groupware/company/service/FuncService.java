@@ -1,6 +1,7 @@
 package com.mjc.groupware.company.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.dto.FuncMappingRequestDto;
+import com.mjc.groupware.company.dto.RoleDetailResponseDto;
 import com.mjc.groupware.company.entity.Func;
 import com.mjc.groupware.company.entity.FuncMapping;
 import com.mjc.groupware.company.repository.FuncMappingRepository;
@@ -157,6 +159,26 @@ public class FuncService {
 				funcMappingRepository.delete(exists);
 			}
 		}
+	}
+	
+	public List<RoleDetailResponseDto> getFuncAllByRole(Long roleNo) {
+		List<FuncMapping> funcMappings  = funcMappingRepository.findByRoleRoleNo(roleNo);
+		
+		List<RoleDetailResponseDto> resultList = new ArrayList<>();
+		
+		for (FuncMapping funcMapping : funcMappings) {
+	        Func func = funcMapping.getFunc();
+	        RoleDetailResponseDto roleDetail = RoleDetailResponseDto.builder()
+	                .func_no(func.getFuncNo())
+	                .func_name(func.getFuncName())
+	                .build();
+
+	        resultList.add(roleDetail);
+	    }
+		
+		resultList.sort(Comparator.comparing(RoleDetailResponseDto::getFunc_name));
+		
+		return resultList;
 	}
 	
 }
