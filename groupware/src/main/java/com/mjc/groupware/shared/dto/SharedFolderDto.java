@@ -2,9 +2,7 @@ package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
 
-import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
-import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.shared.entity.SharedFolder;
 
 import lombok.AllArgsConstructor;

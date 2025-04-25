@@ -44,8 +44,19 @@ public class NoticeController {
     					   @RequestParam(value = "sort", defaultValue = "desc") String sort,	
     					   @RequestParam(value = "page", defaultValue = "0") int page,
     					   Model model) {    	
+    	// 검색 키워드에서 HTML 태그 제거
+    	if (keyword != null) {
+    		keyword = keyword.replaceAll("<[^>]*>", "").trim();
+    		
+    		// 빈값이 되면 검색 무시
+    		if (keyword.isEmpty()) {
+    			keyword = null;
+    		}
+    	}
     	Page<Notice> noticeList = service.searchNotice(searchType, keyword, sort, page);
         
+    	
+    	
     	// ✅ 고정글은 항상 상단 고정
     	   List<Notice> fixedList = service.getFixedNotices();
     	   model.addAttribute("fixedList", fixedList);
