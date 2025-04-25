@@ -317,11 +317,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	},
 	// 일정바앞 부서명 넣어주는 코드
 	eventContent: function(arg) {
+	   const planType = arg.event.extendedProps.planType;
 	   const department = arg.event.extendedProps.deptName || "";
 	   const title = arg.event.title;
 		console.log("부서 확인 : ", arg.event.extendedProps.deptName);
-	   return {
-	     html: `<div><strong>[${department}]</strong> ${title}</div>`
+	   
+		// 부서 일정일 때만 부서명을 앞에 붙임
+		   const displayTitle = (planType === "부서" || planType ==='휴가')
+		     ? `<strong>[${department}]</strong> ${title}`
+		     : title;
+		   return {
+		     html: `<div>${displayTitle}</div>`
 	   };
 	 }
   });
