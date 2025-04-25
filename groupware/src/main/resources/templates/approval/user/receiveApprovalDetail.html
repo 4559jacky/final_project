@@ -106,6 +106,9 @@
 										            <img th:src="@{/img/approval_btn.png}" class="signature-img" alt="서명 이미지">
 										          </th:block>
 										        </th:block>
+										        <th:block th:if="${approverList[i].approverDecisionStatus == 'R'}">
+										        	<img th:src="@{/img/companion_btn.png}" class="signature-img" alt="서명 이미지">
+										        </th:block>
 										      </th:block>
 										    </td>
 										  </th:block>
@@ -141,6 +144,9 @@
 										            <img th:src="@{/img/approval_btn.png}" class="signature-img" alt="서명 이미지">
 										          </th:block>
 										        </th:block>
+										        <th:block th:if="${approverList[i].approverDecisionStatus == 'R'}">
+										        	<img th:src="@{/img/companion_btn.png}" class="signature-img" alt="서명 이미지">
+										        </th:block>
 										      </th:block>
 										    </td>
 										  </th:block>
@@ -174,8 +180,9 @@
 					th:utext="${approval.apprText}"></div>
 					
 				<th:block th:if="${approval.apprStatus == 'R'}">
+					<hr>
 					<div class="mb-4">
-						<h5>반려 사유</h5>
+						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
 					</div>
 					<div class="mb-4" id="appr_reason">
 						<span th:text="${approval.apprReason}">반려 사유</span>
