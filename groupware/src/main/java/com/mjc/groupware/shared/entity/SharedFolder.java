@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.pos.entity.Pos;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,6 +51,14 @@ public class SharedFolder {
 	@ManyToOne
 	@JoinColumn(name="folder_parent_no")
 	private SharedFolder parentFolder;
+	
+	@ManyToOne
+	@JoinColumn(name="dept_no")
+    private Dept dept;
+	
+	@ManyToOne
+	@JoinColumn(name="pos_no")
+    private Pos pos;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")

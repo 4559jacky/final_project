@@ -48,10 +48,5 @@ public class SharedFolderController {
 		return Map.of("message", "📁 폴더가 생성되었습니다.");
 	}
 	
-	// 트리랑 테이블 동기화 
-	@GetMapping("/shared/folder/{folderNo}/contents")
-	@ResponseBody
-	public List<Map<String, Object>> getFolderAndFileContents(@PathVariable Long folderNo){
-		return SharedFolderService.getFolderAndFileContents(folderNo);
-	}
+	
 }

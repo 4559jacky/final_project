@@ -1,6 +1,7 @@
 let selectedParentNo = null;
 $(document).ready(function () {
   console.log("✅ jstree.js 로딩됨");
+  // 1 공유 트리
   $('#shared-tree').jstree({
     core: {
       data: {
@@ -24,8 +25,22 @@ $(document).ready(function () {
     }
   });
 
-  $('#expand_all').click(() => $('#shared-tree').jstree('open_all'));
-  $('#collapse_all').click(() => $('#shared-tree').jstree('close_all'));
+ /*  // 개인 폴더 tree
+  $('#personal-tree').jstree({
+	core : {
+	 data : {
+		url: '/shared/main/tree/personal', // 개인 폴더용 API
+		dataType: 'json'
+	 },
+	 themes: {dots:true, icons: true}
+	}
+  })
+  $('#personal-tree').on("changed.jstree", function (e, data){
+	const folderId = data.selected[0];
+	if (folderId) {
+	      window.location.href = '/shared?folderNo=' + folderId; // 나중에 에디터 영역 만들때 쓰자.
+	    }
+  })  */
 
 
 // 폴더 모달창 js 
@@ -135,26 +150,3 @@ function createTopFolder(){
 	  });
 }
 
-// tree 클릭 시 오른쪽 테이블 동적으로 생성
-function createFolderContents(folderNo){
-	fetch(`/shared/folder/${folderNo}/contents`)
-	.then(res => res.json())
-	.then(data => {
-		const tbody = document.querySelector('tbody');
-		tbody.innerHTML = ""; // 기존 목록 비움.
-		
-		data.forEach(item => {
-			const icon = item.type === 'folder' ? '📁' : '📄';
-			const shared = item.shared ? '공유' : '공유안함';
-			const size = item.size || '-';
-			tbody.innerHTML += `
-			<tr data-folder-id="${item.id}">
-				<td>${icon} ${item.name}</td>
-			    <td>${shared}</td>
-			    <td>${size}</td>
-			    <td>${item.regDate}</td>
-			</tr>
-			`;	
-		});
-	});
-}
