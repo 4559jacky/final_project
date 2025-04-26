@@ -4,3 +4,41 @@
     color: #0d6efd !important;
     border-color: #0d6efd !important;
   }
+
+.table td {
+		color: black !important;
+	}
+.toastui-editor-contents img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+ 
+}
+
+.toastui-editor-contents{
+	 color: black !important;
+	 font-size: 1.1rem;
+}
+.title{
+	color: black !important;
+}
+
+
+.file-link {
+            display: inline-block;
+            color: #007bff;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+.file-link:hover {
+            color: #000;
+            text-decoration: underline;
+        }	
+
+.fixed-row td {
+  background-color: #f3e5f5 !important;   /* 연보라 */
+  color: black !important;
+}

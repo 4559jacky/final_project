@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+.theme-option.selected {
+	box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.7);
+	transform: scale(1.1);
+	transition: all 0.3s ease;
+}
+
+.func-item {
+	cursor: pointer;
+}

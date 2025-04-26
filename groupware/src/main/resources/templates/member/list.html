@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	
+	<link th:href="@{/css/cjs/member_list.css}" rel="stylesheet">
+	
+	<!-- jsTree -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	
+	<div class="page-titles mb-7 mb-md-5">
+		<div class="row">
+			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">인사 담당자 / 인사 관리</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">인사 관리</h2>
+			</div><br>
+		</div>
+	</div>
+	
+	<div class="card">
+        <div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+					<div class="row">
+                    	<div class="col-lg-3 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">부서</h4>
+                          			<br>
+  									
+  									<th:block th:if="${!#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
+   										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
+									</div>
+									</th:block>
+									<th:block th:if="${#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										등록된 부서가 없습니다.
+									</div>
+									</th:block>
+									
+									<div id="dept-tree">
+   										<ul>
+									      <li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}" th:data-parent="'#'">
+									         <span th:text="${dept.name}"></span>
+									      </li>
+									   </ul>
+									</div>
+									
+									<!-- jsTree 데이터 확인용 버튼 -->
+  									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
+  									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-9 d-flex align-items-stretch d-none" id="update_member_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="update_member_form">
+                          				<div class="d-flex justify-content-between align-items-center mb-3">
+										  <h4 class="card-title fw-bold mb-0">사원 목록</h4>
+										  <button type="button" id="chkUpdateBtn" class="btn btn-primary btn-sm">
+										    일괄 수정
+										  </button>
+										</div>
+										
+                          				<br>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_list" class="form-label">부서목록</label>
+                              				<input type="text" class="form-control" id="dept_list" name="dept_list" th:value="${deptList}">
+                            			</div>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_no" class="form-label">부서번호</label>
+                              				<input type="text" class="form-control" id="dept_no" name="dept_no">
+                            			</div>
+                            			
+                            			<div class="table-responsive mb-4 border rounded-1">
+							                <table class="table text-nowrap mb-0 align-middle">
+							                  <thead class="text-dark fs-4">
+							                    <tr>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">부서</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">직급</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">권한</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">상태</h6>
+							                      </th>
+							                    </tr>
+							                  </thead>
+							                  <tbody id="member-tbody">
+												
+							                  </tbody>
+							                </table>
+							              
+							              </div>
+                      				</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-9 d-flex align-items-stretch" id="none_member_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="update_members_form" action="/admin/member" method="get">
+                        				<div class="d-flex justify-content-between align-items-center mb-3">
+										  
+										  <div class="d-flex align-items-center">
+										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
+											
+										    <div class="input-group">
+										      <th:block th:if="${searchText != null}">
+											  	<input type="text" id="search_text" name="search_text" th:value="${searchText}" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
+										      </th:block>
+										      <th:block th:if="${searchText == null}">
+										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
+										      </th:block>
+										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
+										      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
+										    </div>
+										  </div>
+										
+										  
+										  <button type="button" id="checkboxUpdateBtn" class="btn btn-primary btn-sm">
+										    일괄 수정
+										  </button>
+										</div>
+										
+										<br>
+										
+										<div class="table-responsive mb-4 border rounded-1">
+							                <table class="table text-nowrap mb-0 align-middle">
+							                  <thead class="text-dark fs-4">
+							                    <tr>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">부서</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">직급</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">권한</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">상태</h6>
+							                      </th>
+							                    </tr>
+							                  </thead>
+							                  <tbody id="member-tbody">
+						                		<tr th:if="${memberList != null}" th:each="member : ${memberList}">
+													<td>
+														<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
+													</td>
+													<td>
+														<div class="d-flex align-items-center">
+															<div class="ms-3">
+																<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+																<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
+															</div>
+														</div>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="dept_no">
+															<option value="">-</option>
+															<option th:each="dept : ${deptList}"
+																	th:value="${dept.deptNo}"
+																	th:text="${dept.deptName}"
+																	th:selected="${dept.deptNo == member.dept?.deptNo}">
+															</option>
+														</select>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="pos_no">
+															<option value="">-</option>
+															<option th:each="pos : ${posList}"
+																	th:value="${pos.posNo}"
+																	th:text="${pos.posName}"
+																	th:selected="${pos.posNo == member.pos?.posNo}">
+															</option>
+														</select>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4" name="role_no">
+															<option th:each="role : ${roleList}"
+																	th:if="${role.roleNo != 1}"
+																	th:value="${role.roleNo}"
+																	th:text="${role.roleNickname}"
+																	th:selected="${role.roleNo == member.role?.roleNo}">
+															</option>
+														</select>
+													</td>
+													<td>
+														<select class="mb-0 fw-normal fs-4"
+																name="status"
+																th:classappend="${member.status == 100 ? 'text-success' :
+																			    (member.status == 101 || member.status == 102 || member.status == 300 || member.status == 301) ? 'text-danger' :
+																			    (member.status == 200 || member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
+																			    ''}">
+															<option th:each="status : ${statusList}"
+																	th:value="${status.status_no}"
+																	th:text="${status.status_name}"
+																	th:selected="${status.status_no == member.status}">
+															</option>
+														</select>
+													</td>
+											  	</tr>
+											  	<tr th:if="${memberList == null}">
+											  		<td colspan="7">사원 정보가 없습니다.</td>
+											  	</tr>
+							                  	</tbody>
+							                </table>
+							              
+							              </div>
+						                
+										<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+
+										  <nav>
+											  <ul class="pagination mb-0">
+											    <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
+											      <a class="page-link"
+											         th:href="${pageDto.prev} ? @{/admin/member(nowPage=${pageDto.pageBarStart-1}, search_text=${searchText})} : '#'"
+											         aria-label="Previous">
+											        <span aria-hidden="true">&laquo;</span>
+											      </a>
+											    </li>
+												
+											    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+											      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+											        <a class="page-link"
+											           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+											           th:href="@{/admin/member(nowPage=${num}, search_text=${searchText})}"
+											           th:text="${num}">페이지</a>
+											      </li>
+											    </th:block>
+											
+											    <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
+											      <a class="page-link"
+											         th:href="${pageDto.next} ? @{/admin/member(nowPage=${pageDto.pageBarEnd+1}, search_text=${searchText})} : '#'"
+											         aria-label="Next">
+											        <span aria-hidden="true">&raquo;</span>
+											      </a>
+											    </li>
+											  </ul>
+										    </nav>
+										  
+										  <!--
+										  <div class="position-absolute end-0">
+										    <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;">
+										      <option value="10">10명</option>
+										      <option value="20">20명</option>
+										      <option value="30">30명</option>
+										    </select>
+										  </div>
+										  -->
+										  
+										</div>
+                        			</form>
+									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                  	</div>            	
+                </div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		$('#dept-tree').on('click', '.jstree-anchor', function (e) {
+			e.stopPropagation();
+											
+			const nodeEl = $(this).closest('li'); 	// 해당 anchor의 상위 li로 접근해서
+			const fullId = nodeEl.attr('id'); 		// 해당 li의 id값을 추출
+			
+			const deptId = fullId?.replace('dept_', ''); // 클릭한 부서의 id를 추출
+			
+			if (deptId && deptId.trim().length > 0) {
+				$("#update_member_div").removeClass("d-none");
+				$("#none_member_div").addClass("d-none");
+				
+				$.ajax({
+					type: "post",
+					url: "/admin/member/select",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					data: {
+						deptId : deptId
+					},
+					dataType: "json",
+					success: function(data) {
+						const deptNo = data.dept_no
+						const memberListByDept = data.member_list_by_dept;
+						const resCode = data.res_code;
+						const resMsg = data.res_msg;
+						const deptListAll = data.dept_list_all;
+						const posListAll = data.pos_list_all;
+			            const roleListAll = data.role_list_all;
+			           
+						const tbody = document.getElementById('member-tbody');
+						tbody.innerHTML = '';
+						
+						if (memberListByDept.length === 0) {
+							  const tr = document.createElement('tr');
+							  tr.innerHTML = `<td colspan="7" class="text-center text-muted py-4">사원 정보가 없습니다.</td>`;
+							  tbody.appendChild(tr);
+							  return;
+						}
+						
+						memberListByDept.forEach(memberDto => {
+							const tr = document.createElement('tr');
+							
+							let deptOptions = '';
+							deptListAll.forEach(dept => {
+								const selected = String(dept.dept_no) === String(memberDto.dept_no) ? 'selected' : '';
+								deptOptions += `<option value="${dept.dept_no}" ${selected}>${dept.dept_name}</option>`;
+							});
+							
+							let posOptions = '';
+							posListAll.forEach(pos => {
+								const selected = String(pos.pos_no) === String(memberDto.pos_no) ? 'selected' : '';
+								posOptions += `<option value="${pos.pos_no}" ${selected}>${pos.pos_name}</option>`;
+							});
+							
+							let roleOptions = '';
+							roleListAll.forEach(role => {
+								if (role.role_no !== 1) {
+									const selected = role.role_no === memberDto.role_no ? 'selected' : '';
+									roleOptions += `<option value="${role.role_no}" ${selected}>${role.role_nickname}</option>`;
+								}
+							});
+							
+							const statusList = [
+								{ no: 100, name: '재직'},
+								{ no: 101, name: '수습'},
+								{ no: 102, name: '인턴'},
+								{ no: 200, name: '전출'},
+								{ no: 300, name: '휴직'},
+								{ no: 301, name: '대기'},
+								{ no: 400, name: '해고'},
+								{ no: 401, name: '은퇴'},
+								{ no: 402, name: '퇴사'},
+								{ no: 900, name: '사망'}
+							];
+							
+							const statusColorMap = {
+								100: 'text-success',
+								101: 'text-warning',
+								102: 'text-warning',
+								200: 'text-secondary',
+								300: 'text-warning',
+								301: 'text-warning',
+								400: 'text-secondary',
+								401: 'text-secondary',
+								402: 'text-secondary',
+								900: 'text-secondary'
+							};
+							
+							let statusOptions = '';
+							statusList.forEach(status => {
+							  const selected = memberDto.status === status.no ? 'selected' : '';
+							  statusOptions += `<option value="${status.no}" ${selected} class="${status.color}">${status.name}</option>`;
+							});
+							
+							tr.innerHTML = `
+								<td>
+									<input type="checkbox" class="form-check-input member-checkbox me-2" data-member-no="${memberDto.member_no}">
+								</td>
+								<td>
+									<div class="d-flex align-items-center">
+										<div class="ms-3">
+											<h6 class="fs-4 fw-semibold mb-0 member-name">${memberDto.member_name}</h6>
+											<span class="fw-normal">#${memberDto.member_no}</span>
+										</div>
+									</div>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="dept_no">
+										${deptOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="pos_no">
+										${posOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="role_no">
+										${roleOptions}
+									</select>
+								</td>
+								<td>
+									<select class="mb-0 fw-normal fs-4" name="status">
+										${statusOptions}
+									</select>
+								</td>
+							`;
+							
+							tbody.appendChild(tr);
+							
+							setTimeout(() => {
+								  const statusSelect = tr.querySelector('select[name="status"]');
+								  const selectedStatus = memberDto.status;
+								  const colorClass = statusColorMap[selectedStatus];
+								  if (colorClass) {
+								    statusSelect.classList.add(colorClass);
+								  }
+
+								  // 변경 감지 이벤트로 동적 클래스 업데이트
+								  statusSelect.addEventListener('change', function () {
+								    this.classList.remove('text-success', 'text-warning', 'text-secondary');
+								    const newStatus = Number(this.value);
+								    const newClass = statusColorMap[newStatus];
+								    if (newClass) {
+								      this.classList.add(newClass);
+								    }
+								  });
+								}, 0);
+						});
+						
+					},
+					error: function(error) {
+					    console.log(error);
+					}
+				});
+			}
+		});
+		
+		$(document).on("click", function (e) {
+			// 트리 안쪽이 아닌 다른 곳을 클릭했을 경우
+			if (!$(e.target).closest('#dept-tree').length) {
+				if (
+					!$(e.target).closest('#dept-tree').length && 
+					!$(e.target).closest('#update_member_div').length &&
+					!$(e.target).closest('#create_member_div').length
+				) {
+					$("#update_member_div").addClass("d-none");
+					$("#none_member_div").removeClass("d-none");
+				}
+			}
+		});
+		
+		
+	</script>
+	
+	<script>
+		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직 - 피드백 이후 현재 쓰지 않고 있음
+		document.getElementById('member-tbody').addEventListener('click', function (e) {
+			
+			if (e.target.classList.contains('edit-member-btn')) {
+
+				if(!confirm("정말로 수정하시겠습니까?")) {
+					return;
+				}
+				
+				const tr = e.target.closest('tr');
+				const memberNo = e.target.dataset.memberNo;
+	
+				// tr 안의 select 값들 추출
+				const deptNo = tr.querySelector('select[name="dept_no"]').value;
+				const posNo = tr.querySelector('select[name="pos_no"]').value;
+				const roleNo = tr.querySelector('select[name="role_no"]').value;
+				const status = tr.querySelector('select[name="status"]').value;
+	
+				const updateData = {
+					member_no: memberNo,
+					dept_no: deptNo,
+					pos_no: posNo,
+					role_no: roleNo,
+					status: status
+				};
+				
+				fetch('/admin/member/update', {
+					method : "post",
+					headers : {
+						'Content-Type': 'application/json',
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body: JSON.stringify(updateData)
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/member";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
+	</script>
+	
+	<script>
+		// 부서별 조회에서 일괄 수정 버튼을 눌렀을 때 발생하는 로직
+		document.getElementById('chkUpdateBtn').addEventListener('click', function () {
+			const checkedRows = document.querySelectorAll('.member-checkbox:checked');
+			if (checkedRows.length === 0) {
+				alert('수정할 사원을 선택해주세요.');
+			    return;
+			}
+			
+			const updateList = [];
+			const nameList = [];
+			
+			checkedRows.forEach(checkbox => {
+			    const tr = checkbox.closest('tr');
+			    const memberNo = checkbox.dataset.memberNo;
+			    const deptNo = tr.querySelector('select[name="dept_no"]').value;
+			    const posNo = tr.querySelector('select[name="pos_no"]').value;
+			    const roleNo = tr.querySelector('select[name="role_no"]').value;
+			    const status = tr.querySelector('select[name="status"]').value;
+				
+			    const memberName = tr.querySelector('.member-name').textContent.trim();
+			    
+			    updateList.push({
+				    member_no: memberNo,
+				    dept_no: deptNo,
+				    pos_no: posNo,
+				    role_no: roleNo,
+				    status: status
+			    });
+			    
+			    nameList.push(memberName);
+			});
+			
+			const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
+			
+			if(!confirm(nameConfirmMsg)) {
+				return;
+			}
+			
+			fetch('/admin/members/update', {
+				method : "post",
+				headers : {
+					'Content-Type': 'application/json',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body: JSON.stringify(updateList)
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if(data.res_code == '200') {
+					location.href = "/admin/member";
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			})
+		});
+	</script>
+	
+	<script>
+	// 전체 조회에서 일괄 수정 버튼을 눌렀을 때 발생하는 로직
+	document.getElementById('checkboxUpdateBtn').addEventListener('click', function () {
+		const checkedRows = document.querySelectorAll('.member-checkbox:checked');
+		if (checkedRows.length === 0) {
+			alert('수정할 사원을 선택해주세요.');
+		    return;
+		}
+		
+		const updateList = [];
+		const nameList = [];
+		
+		checkedRows.forEach(checkbox => {
+		    const tr = checkbox.closest('tr');
+		    const memberNo = checkbox.dataset.memberNo;
+		    const deptNo = tr.querySelector('select[name="dept_no"]').value;
+		    const posNo = tr.querySelector('select[name="pos_no"]').value;
+		    const roleNo = tr.querySelector('select[name="role_no"]').value;
+		    const status = tr.querySelector('select[name="status"]').value;
+			
+		    const memberName = tr.querySelector('.member-name').textContent.trim();
+		    
+		    updateList.push({
+			    member_no: memberNo,
+			    dept_no: deptNo,
+			    pos_no: posNo,
+			    role_no: roleNo,
+			    status: status
+		    });
+		    
+		    nameList.push(memberName);
+		});
+		
+		const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
+		
+		if(!confirm(nameConfirmMsg)) {
+			return;
+		}
+		
+		fetch('/admin/memberAll/update', {
+			method : "post",
+			headers : {
+				'Content-Type': 'application/json',
+				'header': document.querySelector('meta[name="_csrf_header"]').content,
+				'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			},
+			body: JSON.stringify(updateList)
+		})
+		.then(response => response.json())
+		.then(data => {
+			alert(data.res_msg);
+			if(data.res_code == '200') {
+				location.href = "/admin/member";
+			}
+		})
+		.catch(error => {
+			console.log(error);
+		})
+	});
+	</script>
+	
+	<script>
+		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
+		document.getElementById("resetBtn").addEventListener("click", function() {
+		    document.getElementById("search_text").value = "";
+		    document.getElementById("searchBtn").click();
+		});
+	</script>
+	
+	<!-- Bootstrap Common JS Files Start -->
+	
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+	
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- jsTree -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+	<script th:src="@{/js/cjs/jstree.js}"></script>
+
+</th:block>
+</html>
