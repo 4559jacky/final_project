@@ -7,8 +7,6 @@
 	layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
-	<script th:src="@{/js/jquery-3.7.1.js}"></script>
-	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="container-fluid px-4">
 		<!-- Breadcrumb -->
 		<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -42,27 +40,43 @@
 			<!-- 전체 너비 확장 -->
 			<div class="row g-3 text-center">
 				<div class="col-md">
+					<!-- 자동 비율로 5등분 -->
 					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3"></div>
-						<div class="fw-semibold mt-2" style="font-size:16px;">결재자</div>
-						<div class="fs-4 fw-bold mt-1"
-							th:text="${approvalRelatedDto.count_P}">0</div>
+						<div class="fs-3">⏳</div>
+						<div class="fw-semibold">대기중인 결재</div>
+						<div class="fs-4 fw-bold mt-1 text-primary"
+							th:text="${pendingCount}">4</div>
 					</div>
 				</div>
 				<div class="col-md">
 					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3"></div>
-						<div class="fw-semibold mt-2" style="font-size:16px;">합의자</div>
-						<div class="fs-4 fw-bold mt-1"
-							th:text="${approvalRelatedDto.count_A}">0</div>
+						<div class="fs-3">✅</div>
+						<div class="fw-semibold">승인한 결재</div>
+						<div class="fs-4 fw-bold mt-1 text-success"
+							th:text="${approvedCount}">56</div>
 					</div>
 				</div>
 				<div class="col-md">
 					<div class="card shadow-sm rounded-4 p-3 h-100">
-						<div class="fs-3"></div>
-						<div class="fw-semibold mt-2" style="font-size:16px;">참조자</div>
-						<div class="fs-4 fw-bold mt-1"
-							th:text="${approvalRelatedDto.count_R}">0</div>
+						<div class="fs-3">❌</div>
+						<div class="fw-semibold">반려된 결재</div>
+						<div class="fs-4 fw-bold mt-1 text-danger"
+							th:text="${rejectedCount}">31</div>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="card shadow-sm rounded-4 p-3 h-100">
+						<div class="fs-3">👀</div>
+						<div class="fw-semibold">참조된 결재</div>
+						<div class="fs-4 fw-bold mt-1 text-secondary"
+							th:text="${referencedCount}">242</div>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="card shadow-sm rounded-4 p-3 h-100">
+						<div class="fs-3">🤝</div>
+						<div class="fw-semibold">합의된 결재</div>
+						<div class="fs-4 fw-bold mt-1 text-info" th:text="${agreedCount}">11</div>
 					</div>
 				</div>
 			</div>
@@ -71,35 +85,17 @@
 
 		<!-- Search -->
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<form class="d-flex align-items-center gap-2 flex-wrap"
-				action="/approval/receive" method="get">
-				<select name="search_type"
-					class="form-select w-auto bg-primary-subtle border-0"
-					style="width: 120px;">
-					<option value="''" th:value="''" th:selected="${searchDto.search_type == null}">선택</option>
-					<option value="appr_title" th:selected="${searchDto.search_type == 'appr_title'}">제목</option>
-					<option value="member_name" th:selected="${searchDto.search_type == 'member_name'}">작성자</option>
-					<option value="approval_form_name" th:selected="${searchDto.search_type == 'approval_form_name'}">양식 종류</option>
-				</select>
-				<div class="position-relative" style="max-width: 350px;">
-					<input type="text" name="search_text" th:value="${searchDto.search_text}"
-						class="form-control search-chat py-2 ps-5" id="text-srh"
-						placeholder="Search Contact">
-					<button type="submit"
-						class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
-						<i class="ti ti-search fs-6 text-dark"></i>
-					</button>
-				</div>
-				<div class="sort">
-					<select id="order_type" name="order_type"
-						class="form-select w-auto bg-primary-subtle border-0">
-						<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
-						<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
-					</select>
-				</div>
+			<form action="/approval/search" method="get"
+				class="d-flex align-items-center px-3 py-2"
+				style="background-color: #f8f9fa; border-radius: 50px; max-width: 400px; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);">
+				<button type="submit" class="btn p-0 border-0 bg-transparent">
+					<i class="ti ti-search fs-5 text-primary"></i>
+				</button>
+				<input type="text" name="keyword"
+					class="form-control border-0 bg-transparent ms-2"
+					placeholder="검색어를 입력하세요." style="box-shadow: none;">
 			</form>
-			<button class="btn btn-primary" onclick="createApproval();">결재
-				작성</button>
+			<button class="btn btn-primary rounded-pill">결재 작성</button>
 		</div>
 
 		<!-- Table -->
@@ -107,158 +103,45 @@
 			<div class="table-responsive">
 				<table class="table align-middle text-center">
 					<!-- 테이블 헤더 -->
-					<thead class="bg-light">
+					<thead class="table-light">
 						<tr>
 							<th>번호</th>
 							<th>제목</th>
 							<th>작성자</th>
 							<th>상태</th>
-							<th>관련</th>
 							<th>작성일</th>
 							<th>양식 종류</th>
 						</tr>
 					</thead>
 					<!-- 테이블 바디 -->
 					<tbody>
-						<tr th:if="${#lists.isEmpty(approvalVoList.content)}">
-							<td colspan="7">받은 결재 요청이 없습니다.</td>
+						<!-- 예시 데이터 -->
+						<tr>
+							<td>1</td>
+							<td>육아 휴직 신청합니다.</td>
+							<td>김민지</td>
+							<td><span class="badge bg-warning-subtle text-dark">대기중</span></td>
+							<td>2025/04/02</td>
+							<td>휴가 신청서</td>
 						</tr>
-						<tr th:if="${!#lists.isEmpty(approvalVoList.content)}"
-							th:each="approvalVo, approvalStatus : ${approvalVoList.content}"
-							th:attr="data-approver-no=${approvalVo.appr_no}">
-							<td th:text="${approvalVoList.totalElements - (approvalVoList.number * approvalVoList.size) - approvalStatus.index}">
-							    번호
-							</td>
-							<td th:text="${approvalVo.appr_title}">제목</td>
-							<!-- <td><a th:href="@{/approval/receive/detail/{id}(id=${approvalVo.appr_no})}" th:text="${approvalVo.appr_title}">제목</a></td> -->
-							<td th:text="${approvalVo.member_name}">작성자</td>
-							<th:block th:if="${approvalVo.appr_status == 'A'}">
-								<td><span
-									class="mb-1 badge  bg-warning-subtle text-warning">합의
-										대기중</span></td>
-							</th:block>
-							<th:block th:if="${approvalVo.appr_status == 'D'}">
-								<td><span class="mb-1 badge  bg-info-subtle text-info">결재
-										대기중</span></td>
-							</th:block>
-							<th:block th:if="${approvalVo.appr_status == 'C'}">
-								<td><span
-									class="mb-1 badge  bg-success-subtle text-success">승인 </span></td>
-							</th:block>
-							<th:block th:if="${approvalVo.appr_status == 'R'}">
-								<td><span class="mb-1 badge  bg-danger-subtle text-danger">반려</span></td>
-							</th:block>
-							<!-- 결재 관련자 종류 구분 -->
-							<th:block th:if="${approvalVo.relationship == 'P'}">
-								<td><span class="mb-1 badge text-bg-light">결재자</span></td>
-								<input type="hidden" id="relationship"
-									th:value="${approvalVo.relationship}">
-							</th:block>
-							<th:block th:if="${approvalVo.relationship == 'A'}">
-								<td><span class="mb-1 badge text-bg-light">합의자</span></td>
-								<input type="hidden" id="relationship"
-									th:value="${approvalVo.relationship}">
-							</th:block>
-							<th:block th:if="${approvalVo.relationship == 'R'}">
-								<td><span class="mb-1 badge text-bg-light">참조자</span></td>
-								<input type="hidden" id="relationship"
-									th:value="${approvalVo.relationship}">
-							</th:block>
-							<td
-								th:text="${#temporals.format(approvalVo.appr_reg_date,'yyyy-MM-dd HH:mm')}">요청일</td>
-							<td th:text="${approvalVo.approval_form_name}">양식 종류</td>
-						</tr>
+						<!-- ... -->
 					</tbody>
 				</table>
 			</div>
 		</div>
 
-		<th:block th:if="${!(approvalVoList.empty)}">
-			<!-- Pagination -->
-			<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
-				<nav>
-					<ul class="pagination mb-0">
-						<!-- 이전 페이지 버튼 -->
-						<li th:if="${pageDto.prev}"
-							class="page-item"
-							th:classappend="${pageDto.prev} ? '' : 'disabled'"><a
-							class="page-link"
-							th:href="@{/approval/receive(nowPage=${pageDto.pageBarStart - 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-							aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
-						</a></li>
-		
-						<!-- 페이지 번호 -->
-						<li class="page-item"
-							th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
-							th:classappend="${pageDto.nowPage == num} ? 'active'"><a
-							class="page-link" th:classappend="${pageDto.nowPage == num} ?'text-bg-primary border-primary text-white'"
-							th:href="@{/approval/receive(nowPage=${num}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-							th:text="${num}"> </a></li>
-		
-						<!-- 다음 페이지 버튼 -->
-						<li th:if="${pageDto.next}"
-							class="page-item"
-							th:classappend="${pageDto.next} ? '' : 'disabled'"><a
-							class="page-link"
-							th:href="@{/approval/receive(nowPage=${pageDto.pageBarEnd + 1}, search_type=${searchDto.search_type}, search_text=${searchDto.search_text}, order_type=${searchDto.order_type})}"
-							aria-label="Next"> <span aria-hidden="true">&raquo;</span>
-						</a></li>
-					</ul>
-				</nav>
-			</div>
-		</th:block>
+		<!-- Pagination -->
+		<nav class="d-flex justify-content-center mt-4">
+			<ul class="pagination">
+				<li class="page-item disabled"><a class="page-link">‹</a></li>
+				<li class="page-item active"><a class="page-link" href="#">1</a></li>
+				<li class="page-item"><a class="page-link" href="#">2</a></li>
+				<li class="page-item"><a class="page-link" href="#">3</a></li>
+				<li class="page-item"><a class="page-link" href="#">...</a></li>
+				<li class="page-item"><a class="page-link" href="#">10</a></li>
+				<li class="page-item"><a class="page-link" href="#">›</a></li>
+			</ul>
+		</nav>
 	</div>
-
-
-	<script>
-		const createApproval = function() {
-			location.href = '/approval/create';
-		}
-
-		$(function() {
-			$('.table-responsive tbody tr').on('click', function() {
-				const approvalNo = $(this).data('approver-no');
-				location.href = '/approval/receive/detail/' + approvalNo;
-			})
-		})
-		
-		document.getElementById('order_type').addEventListener('change',
-			function(e) {
-				const searchType = document.querySelector('select[name="search_type"]').value;
-				const searchText = document.querySelector('input[name="search_text"]').value;
-				const orderType = e.target.value;
-				// search_type=appr_title&search_text=1&order_type=1
-				const params = new URLSearchParams({
-					search_type: searchType,
-					search_text: searchText,
-					order_type: orderType
-				});
-				location.href = "/approval/receive?" + params.toString();
-		});
-		
-	</script>
-
-
-
-	<!-- Import vendorJs Files -->
-	<script th:src="@{/assets/js/vendor.min.js}"></script>
-
-	<!-- Import Js Files -->
-	<script
-		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-	<script th:src="@{/assets/js/theme/app.init.js}"></script>
-	<script th:src="@{/assets/js/theme/theme.js}"></script>
-	<script th:src="@{/assets/js/theme/app.min.js}"></script>
-	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-
-	<!-- solar icons -->
-	<script
-		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-
-	<!-- Bootstrap Common JS Files End -->
 </th:block>
 </html>

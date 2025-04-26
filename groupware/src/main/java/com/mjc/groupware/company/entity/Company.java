@@ -41,9 +41,6 @@ public class Company {
 	@Column(name="attach_path")
 	private String attachPath;
 	
-	@Column(name="theme_color")
-	private String themeColor;
-	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
 	private LocalDateTime regDate;
@@ -51,9 +48,5 @@ public class Company {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
-	
-	public void updateThemeColor(String themeColor) {
-		this.themeColor = themeColor;
-	}
 	
 }

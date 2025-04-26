@@ -12,7 +12,7 @@ public class GroupwareApplication implements WebMvcConfigurer {
 	@Value("${ffupload.location}")
 	private String fileDir;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) {	
 		SpringApplication.run(GroupwareApplication.class, args);
 	}
 	
