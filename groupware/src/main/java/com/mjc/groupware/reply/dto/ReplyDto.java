@@ -36,6 +36,8 @@ public class ReplyDto {
     private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 목록
 
     private Member member; // Member 객체 추가
+    
+    private int subReplyCount; // 대댓글 개수
 
     // [부서명]성명 형식으로 작성자 정보를 반환하는 메소드 추가
     public String getFormattedMemberInfo() {
@@ -60,7 +62,7 @@ public class ReplyDto {
      * Entity -> DTO 변환
      */
     public static ReplyDto toDto(Reply reply) {
-        return ReplyDto.builder()
+        ReplyDto dto = ReplyDto.builder()
                 .reply_no(reply.getReplyNo())
                 .member_no(reply.getMember() != null ? reply.getMember().getMemberNo() : null)
                 .memberName(reply.getMember() != null ? reply.getMember().getMemberName() : null)
@@ -75,7 +77,18 @@ public class ReplyDto {
                 .member(reply.getMember()) // Member 객체 설정
                 .memberPhoto(reply.getMember() != null && reply.getMember().getMemberAttachs() != null && !reply.getMember().getMemberAttachs().isEmpty() ? reply.getMember().getMemberAttachs().get(0).getAttachPath() : null)
                 .build();
+        
+        // 대댓글 수 초기화
+        dto.setSubReplyCount(0);
+        
+        return dto;
     }
+
+    // 대댓글 수 증가시키는 메소드
+    public void incrementSubReplyCount() {
+        this.subReplyCount++;
+    }
+
     // 년월일시간 추가
     private static String formatDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

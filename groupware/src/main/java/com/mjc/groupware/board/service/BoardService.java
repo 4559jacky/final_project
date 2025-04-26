@@ -106,11 +106,9 @@ public class BoardService {
         repository.updateViews(boardNo);
     }
 
-    /**
-     * 게시글 목록 조회 (검색 및 페이징 포함)
-     */
+ // 게시글 목록 조회 (검색 및 페이징 포함)
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
-        // 🔽 정렬 조건 설정
+        // 정렬 조건 설정
         Sort sort;
         if (searchDto.getOrder_type() == 1) { // 최신순
             sort = Sort.by(Sort.Direction.DESC, "regDate");
@@ -122,37 +120,35 @@ public class BoardService {
             sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본: 최신순
         }
 
-        // 🔽 페이징 처리
+        // 페이징 처리
         Pageable pageable = PageRequest.of(pageDto.getNowPage() - 1, pageDto.getNumPerPage(), sort);
 
-        // 🔽 기본 조건: 게시 상태 = 'N' && 고정글 아님
+        // 기본 조건: 게시 상태 = 'N'
         Specification<Board> spec = Specification.where(
-            (root, query, cb) -> cb.and(
-                cb.equal(root.get("boardStatus"), "N"),
-                cb.isFalse(root.get("isFixed"))
-            )
+            (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
         );
 
-        // 🔽 검색 조건
+        // 고정글 제외 여부 조건 추가 (필터 추가: `isFixed` == false)
+        spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isFixed"))); // 고정글 제외
+
+        // 검색 조건
         String keyword = searchDto.getSearch_text();
         int searchType = searchDto.getSearch_type();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             switch (searchType) {
-            	
                 case 1: spec = spec.and(BoardSpecification.boardTitleContains(keyword)); break; // 제목 검색
                 case 2: spec = spec.and(BoardSpecification.boardContentContains(keyword)); break; // 내용 검색
                 case 3: spec = spec.and(BoardSpecification.boardTitleContains(keyword)
                             .or(BoardSpecification.boardContentContains(keyword))
-                    );
-                    break; // 제목+내용 검색
+            );
+            break; // 제목+내용 검색
             }
         }
 
-        // 🔽 최종 조회
+        // 최종 조회
         return repository.findAll(spec, pageable);
     }
-
     /**
      * 게시글 수정
      */

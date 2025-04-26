@@ -68,6 +68,7 @@ public class ReplyService {
         replyRepository.save(subReply);
     }
 
+
     // 댓글 트리 구조 반환
     @Transactional(readOnly = true)
     public List<ReplyDto> getReplyListByBoard(Long boardNo) {
@@ -86,7 +87,8 @@ public class ReplyService {
             } else {
                 ReplyDto parentDto = replyMap.get(dto.getParent_reply_no());
                 if (parentDto != null) {
-                    parentDto.getSubReplies().add(dto); // 대댓글
+                    parentDto.getSubReplies().add(dto); // 대댓글 추가
+                    parentDto.setSubReplyCount(parentDto.getSubReplyCount() + 1); // 여기 추가!!
                 }
             }
         }
