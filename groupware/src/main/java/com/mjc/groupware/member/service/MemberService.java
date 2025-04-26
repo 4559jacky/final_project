@@ -5,21 +5,35 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.MemberResponseDto;
+import com.mjc.groupware.member.dto.MemberSearchDto;
+import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.member.security.MemberDetails;
+import com.mjc.groupware.member.specification.MemberSpecification;
 import com.mjc.groupware.pos.entity.Pos;
 
 import lombok.RequiredArgsConstructor;
-
 
 
 @Service
@@ -50,6 +64,32 @@ public class MemberService {
 		return resultList;
 	}
 	
+	public Page<Member> selectMemberAll(MemberSearchDto searchDto, PageDto pageDto) {		
+		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
+		
+		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("memberNo").ascending());
+		
+		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
+			// 아무것도 입력하지않으면 findAll() 과 동일함
+			spec = spec.and(MemberSpecification.memberNotAdmin());
+		} else {
+			
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()))
+					.and(MemberSpecification.memberNotAdmin());
+			
+			try {
+				Long memberNo = Long.parseLong(searchDto.getSearch_text());
+				spec = spec.or(MemberSpecification.memberNoEquals(memberNo));
+			} catch(Exception e) {
+				
+			}
+		}
+		
+		Page<Member> resultList = repository.findAll(spec, pageable);
+		
+		return resultList;
+	}
+	
 	@Transactional(rollbackFor = Exception.class)
 	public Member createMember(MemberDto dto) {
 		Member result = null;
@@ -63,12 +103,11 @@ public class MemberService {
 					.memberName(dto.getMember_name())
 					.pos(dto.getPos_no() != 0 ?	Pos.builder().posNo(dto.getPos_no()).build() : null)
 					.dept(dto.getDept_no() != 0 ? Dept.builder().deptNo(dto.getDept_no()).build() : null)
-					.role(Role.builder().roleNo((long)3).build())
+					.role(Role.builder().roleNo((long)2).build())
 					.status(100)
 					.build());
 					
 		} catch(DataIntegrityViolationException e) {
-			System.out.println("예외 발생");
 			throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
 		}
 		
@@ -79,7 +118,7 @@ public class MemberService {
 	public void transferMembersOfDept(Long fromDeptNo, Long toDeptNo) {
 		// 삭제인 경우(get_status == 3 인 경우 - 해당 부서의 멤버 구성원을 선택한 부서로 이관시켜주는 작업
 		List<Member> members = repository.findAllByDept_DeptNo(fromDeptNo);
-			
+		
 		Dept transferDept = null;
 		if (toDeptNo != null) {
 			transferDept = deptRepository.findById(toDeptNo)
@@ -92,6 +131,103 @@ public class MemberService {
 		
 	}
 	
+	public void updateMemberPw(MemberDto dto) {
+		try {
+			Specification<Member> spec = (root, query, criteriaBuilder) -> null;
+			spec = spec.and(MemberSpecification.equalMemberNo(dto.getMember_no()));
+			
+			Member target = repository.findOne(spec).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다"));
+			
+			if(!passwordEncoder.matches(dto.getMember_pw(), target.getMemberPw())) {
+				throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+			}
+			
+			target.changePassword(passwordEncoder.encode(dto.getMember_new_pw()));
+			
+			repository.save(target);
+			
+			// 비밀번호 수정 후 -> 자동로그인이 있다면 자동로그인을 해제
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+			String sql = "DELETE FROM persistent_logins WHERE username = ?";
+			jdbcTemplate.update(sql, dto.getMember_id());
+			
+			// 비밀번호 수정 후 -> 로그아웃 시키지 않고, 인증정보를 바꾸고 싶을 때 - 비밀번호 외 비교적 간단한 정보 바꿀 때
+//			UserDetails updatedUserDetails = userDetailsService.loadUserByUsername(dto.getMember_id());
+//			Authentication newAuth = new UsernamePasswordAuthenticationToken(
+//					updatedUserDetails,
+//					updatedUserDetails.getPassword(),
+//					updatedUserDetails.getAuthorities());
+//			SecurityContextHolder.getContext().setAuthentication(newAuth);
+			
+			// 비밀번호 수정 후 -> 로그인 된 사원의 인증 상태를 해제 (즉, 인증이 풀리면서 /login 으로 강제로 끌려들어감)
+			SecurityContextHolder.getContext().setAuthentication(null);
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("비밀번호 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateMemberInfo(MemberDto dto) {
+		// 앞서 많이 썼지만 @Transaction + 도메인메소드 응용해서 바뀐 부분만 수정하는 로직 - 이렇게 안 하면 데이터로 넣지 않는 부분에 null이 들어감
+		try {
+			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+			
+			target.updateProfileInfo(
+			        dto.getMember_name(),
+			        dto.getMember_gender(),
+			        dto.getMember_birth(),
+			        dto.getMember_phone(),
+			        dto.getMember_email(),
+			        dto.getMember_addr1(),
+			        dto.getMember_addr2(),
+			        dto.getMember_addr3()
+			    );
+			
+			MemberDetails updatedDetails = new MemberDetails(target);
+			
+			Authentication newAuth = new UsernamePasswordAuthenticationToken(
+			        updatedDetails,
+			        null,								// 이미 인증된 유저의 세션을 갱신하는 거라서 null 로 놓는 것이 훨씬 안전하다고 함
+			        updatedDetails.getAuthorities()
+			);
+			
+			SecurityContextHolder.getContext().setAuthentication(newAuth);
+			
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("개인정보 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public void updateMember(MemberResponseDto dto) {
+		// 당연하게도 dto에 삽입된 정보만 바꿀 것이므로 @Transaction + 도메인메소드 활용
+		try {
+			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+			
+			target.updateMember(
+				dto.getDept_no() != null ? Dept.builder().deptNo(dto.getDept_no()).build() : null,
+				dto.getPos_no() != null ? Pos.builder().posNo(dto.getPos_no()).build() : null,
+				Role.builder().roleNo(dto.getRole_no()).build(),
+				dto.getStatus()
+			);
+			
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("사원 정보 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
+	// 특정 부서에 속한 모든 사원들을 조회(직급 순서 기준으로 오름차순, 같다면 PK기준으로 오름차순)
+	public List<Member> selectMemberAllByDeptIdByPosOrder(Long id) {
+		List<Member> memberList = repository.findAllByDeptNoSortedByPosOrder(id);
+		return memberList;
+	}
+	
 	// 결재라인 부서의 속한 사원들select
 	public List<Member> selectMemberAllByDeptId(Long id) { 
 		List<Member> memberList = repository.findAllByDept_DeptNo(id); 
@@ -99,4 +235,46 @@ public class MemberService {
 	}
 	
 	
+	// 전자서명 저장
+	public int createSignatureApi(Long member_no, String signature) {
+		
+		int result = 0;
+		
+		try {
+			Member entity = repository.findById(member_no).orElse(null);
+			MemberDto memberDto = new MemberDto().toDto(entity);
+			memberDto.setSignature(signature);
+			
+			Member member = Member.builder()
+								.memberNo(memberDto.getMember_no())
+								.memberId(memberDto.getMember_id())
+								.memberPw(memberDto.getMember_pw())
+								.memberName(memberDto.getMember_name())
+								.memberBirth(memberDto.getMember_birth())
+								.memberGender(memberDto.getMember_gender())
+								.memberAddr1(memberDto.getMember_addr1())
+								.memberAddr2(memberDto.getMember_addr2())
+								.memberAddr3(memberDto.getMember_addr3())
+								.pos(Pos.builder().posNo(memberDto.getPos_no()).build())
+								.dept(Dept.builder().deptNo(memberDto.getDept_no()).build())
+								.role(Role.builder().roleNo(memberDto.getRole_no()).build())
+								.status(memberDto.getStatus())
+								.signature(signature)
+								.build();
+			
+			Member saved = repository.save(member);
+			
+			System.out.println(memberDto);
+			
+			if(saved != null) {
+				result = 1;
+			}
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+
 }

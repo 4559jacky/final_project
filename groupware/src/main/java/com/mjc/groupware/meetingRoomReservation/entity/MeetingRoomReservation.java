@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,6 +23,7 @@ import lombok.NoArgsConstructor;
 @Table(name="meeting_room_reservation")
 @Builder
 @Getter
+@Setter
 public class MeetingRoomReservation {
 
 	@Id
@@ -41,4 +43,7 @@ public class MeetingRoomReservation {
 	
 	@Column(name="meeting_start_time")
 	private LocalTime meetingStartTime;
+	
+	@Column(name="reservation_status")
+	private String reservationStatus;
 }
