@@ -20,9 +20,9 @@ import lombok.Setter;
 @Builder
 public class PosDto {
 	
-	@JsonProperty("pos_no")
+	@JsonProperty("posNo")
 	private Long pos_no;
-	@JsonProperty("pos_name")
+	@JsonProperty("posName")
 	private String pos_name;
 	private Long pos_order;
 	private LocalDateTime reg_date;

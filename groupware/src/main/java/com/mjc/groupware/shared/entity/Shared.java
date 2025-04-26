@@ -1,15 +1,19 @@
-package com.mjc.groupware.company.entity;
+package com.mjc.groupware.shared.entity;
 
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.mjc.groupware.member.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,29 +21,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="company")
+@Table(name="shared_board")
+@Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Builder
-public class Company {
-	
+public class Shared {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="company_no")
-	private Long companyNo;
+	@Column(name="shared_no")
+	private Long sharedNo;
 	
-	@Column(name="company_name")
-	private String companyName;
+	@Column(name="shared_title")
+	private String sharedTitle;
 	
-	@Column(name="ori_name")
-	private String oriName;
+	@Column(name="shared_content")
+	private String sharedContent;
 	
-	@Column(name="new_name")
-	private String newName;
+	@Column(name="views")
+	private int views;
 	
-	@Column(name="attach_path")
-	private String attachPath;
+	@ManyToOne
+	@JoinColumn(name="member_no", nullable = false)
+	private Member member;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -48,5 +52,4 @@ public class Company {
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
-	
 }

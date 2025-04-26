@@ -205,6 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     },
   });
+
   /*=====================*/
   // Update Calender Event
   /*=====================*/

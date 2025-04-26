@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity
 public class WebSecurityConfig {
 	
 	private final DataSource dataSource;
@@ -33,16 +31,17 @@ public class WebSecurityConfig {
 	WebSecurityCustomizer configure() {
 		return (web -> web.ignoring()
 					.requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-					.requestMatchers("/assets/**", "/favicon.ico", "/uploads/**")
+					.requestMatchers("/assets/**", "/favicon.ico")
 		);
 	}
+	
 	// 시큐리티 환경 설정
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
 		http.userDetailsService(customUserDetailsService)
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/logout").permitAll()
-				.requestMatchers("/admin/company/**").hasRole("ADMIN")
+				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")

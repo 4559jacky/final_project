@@ -36,7 +36,7 @@
 							<h6 class="text-center text-primary">📄 사용 중</h6>
 							<th:block th:each="form : ${formList}"
 								th:if="${form.approvalFormStatus} == 'Y'">
-								<button class="btn btn-outline-primary form-btn"
+								<button class="btn btn-outline-primary"
 									th:value="${form.approvalFormNo}"
 									th:text="${form.approvalFormName}"
 									th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
@@ -106,14 +106,6 @@
 		}
 		
 		let selectedApprovalFormNo = null; // 전역 변수
-		
-		document.addEventListener("DOMContentLoaded", function() {
-	        // 첫 번째 버튼을 자동 클릭
-	        const firstButton = document.querySelector('.form-btn');
-	        if (firstButton) {
-	          firstButton.click();
-	        }
-	      });
 		
 		const viewForm = function(approvalFormNo) {
 			  selectedApprovalFormNo = approvalFormNo;
@@ -220,6 +212,7 @@
   	
   	<!-- Custom JS Files -->
   	
-
+  	
+  	
 </th:block>
 </html>
