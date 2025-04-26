@@ -52,7 +52,7 @@ public class ApprovalController {
 
 	// 관리자 : 관리자만 접근 가능한 url
 	
-	@GetMapping("/admin/approval")
+	@GetMapping("/admin/approval") 
 	public String approvalAdminView(Model model) {
 		
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
