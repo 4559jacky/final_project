@@ -46,11 +46,8 @@
 <div class="d-flex align-items-start" style="font-size: 1rem; white-space: nowrap;">
   <div>
     <div class="d-flex align-items-center">
-      <span>작성자: </span>
-      <span th:text="${board.member?.memberName ?: '익명'}" class="me-2"></span>
-      <button type="button" class="btn btn-outline-danger btn-sm" title="신고" style="padding: 0.15rem 0.5rem; height: 28px;">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-      </button>
+<span>작성자: </span>
+<span th:text="'[' + ${board.member?.dept?.deptName ?: '부서'} + ']' + ${board.member?.memberName ?: '익명'}" class="me-2"></span>
     </div>
     <div><span>작성일: </span><span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span></div>
     <div><span>조회수: </span><span th:text="${board.views}">0</span></div>
@@ -96,47 +93,28 @@
 
 
 
-<!-- 댓글 작성 영역 -->
-<div class="comment-write p-4 bg-white rounded-4 shadow-sm mb-4">
-    <label class="fw-bold fs-5 mb-3 d-block">💬 댓글 달기</label>
-    <th:block sec:authorize="isAuthenticated()">
-        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST" class="d-flex gap-2 align-items-stretch">
-            <textarea name="reply_content" placeholder="댓글을 입력하세요" required class="form-control" style="resize: none; height: 60px;"></textarea>
-            <button type="submit" class="btn btn-primary" style="min-width: 80px;">등록</button>
-            <input type="hidden" name="board_no" th:value="${board.boardNo}"/>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        </form>
-    </th:block>
-    <th:block sec:authorize="isAnonymous()">
-        <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
-    </th:block>
-</div>
-
-
 <!-- 댓글 + 대댓글 리스트 -->
 <div th:each="reply : ${replyList}" class="reply-item mb-3 p-3 border rounded-3">
     <div class="d-flex align-items-start mb-2">
-        <!-- 프로필 아이콘 -->
-        <div class="profile-icon rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3" style="width:40px; height:40px; font-size: 20px;">
-            <i class="bi bi-person"></i> <!-- Bootstrap Icons 사용 예 -->
-        </div>
+    
+		<!-- 프로필 아이콘 -->
+		<div class="profile-icon rounded-circle bg-white text-white d-flex justify-content-center align-items-center me-3" style="width:40px; height:40px; font-size: 20px;">
+    		<img th:src="@{/img/default_profile.png}" alt="Profile Image" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+		</div>
         <div class="flex-grow-1">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <strong th:text="${reply.memberName}">작성자</strong>
-                    <small class="text-muted ms-2" th:text="${reply.timeAgo}"></small> <!--일단 아직 보류(팀원들은 년도 날짜식으로 바꿧으면 좋겠다고 했고, 선생님은 알아서 생각해서 했으면 좋겠다고 해서 좀 생각해보기)  -->
+                 <!-- 댓글 작성자 -->
+					<strong th:text="'[' + ${reply.deptName != null ? reply.deptName : '부서없음'} + '] ' + ${reply.memberName != null ? reply.memberName : '익명'}" class="me-2"></strong>
+                    <small class="ms-2" th:text="${reply.regDateFormatted}" style="color: black;">댓글 등록 시간</small>
                 </div>
+                
                 <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
                     <div class="reply-actions d-flex gap-2">
                         <button type="button" class="btn btn-primary btn-sm" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
                         <button type="button" class="btn btn-danger btn-sm" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
                     </div>
                 </th:block>
-                <th:block th:if="${reply.member_no != #authentication.principal.member.memberNo}">
-    				<button type="button" class="btn btn-outline-danger btn-sm" title="신고">
-        				<i class="bi bi-exclamation-triangle-fill"></i>
-    				</button>
-				</th:block>
             </div>
 
             <p class="reply-content mt-2 mb-2" th:id="'reply-content-' + ${reply.reply_no}" th:text="${reply.reply_content}"></p>
@@ -151,7 +129,7 @@
 
             <!-- 답글 버튼 -->
             <div class="mb-2">
-                <button type="button" class="btn btn-sm btn-primary" th:onclick="|showReplyForm(${reply.reply_no})|">댓글달기</button>
+                <button type="button" class="btn btn-sm btn-primary" th:onclick="|showReplyForm(${reply.reply_no})|">답글달기</button>
             </div>
 
             <!-- 대댓글 입력 폼 -->
@@ -168,14 +146,16 @@
             <div class="sub-reply-list ps-4 border-start" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
                 <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-2">
                     <div class="d-flex align-items-start">
-                        <div class="profile-icon rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3" style="width:30px; height:30px; font-size: 16px;">
-                            <i class="bi bi-person"></i>
-                        </div>
+					<!-- 프로필 아이콘 (아이콘 크기 30px) -->
+						<div class="profile-icon rounded-circle bg-white d-flex justify-content-center align-items-center me-3" style="width:30px; height:30px; font-size: 16px;">
+    						<img th:src="@{/img/default_profile.png}" alt="Profile Image" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+						</div>
                         <div class="flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong th:text="${subReply.memberName}">작성자</strong>
-                                    <small class="text-muted ms-2" th:text="${subReply.timeAgo}"></small>
+								<!-- 대댓글 작성자 -->
+							<strong th:text="'[' + ${subReply.deptName != null ? subReply.deptName : '부서없음'} + '] ' + ${subReply.memberName != null ? subReply.memberName : '익명'}" class="me-2"></strong>
+                                    <small class="ms-2" th:text="${subReply.regDateFormatted}" style="color: black;">대댓글 등록 시간</small>
                                 </div>
                                 <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
                                     <div class="reply-actions d-flex gap-2">
@@ -183,11 +163,6 @@
                                         <button type="button" class="btn btn-danger btn-sm" th:onclick="|replyDelete(${subReply.reply_no})|">삭제</button>
                                     </div>
                                 </th:block>
-                               <th:block th:if="${subReply.member_no != #authentication.principal.member.memberNo}">
-    								<button type="button" class="btn btn-outline-danger btn-sm" title="신고">
-        								<i class="bi bi-exclamation-triangle-fill"></i>
-    								</button>
-								</th:block>
                             </div>
                             <p class="reply-content mt-1 mb-1" th:id="'reply-content-' + ${subReply.reply_no}" th:text="${subReply.reply_content}"></p>
 
@@ -205,10 +180,22 @@
         </div>
     </div>
 </div>
- <!-- 댓글 리스트 반복문 끝난 후 -->
-<div class="scroll-to-top-wrapper text-center my-4">
-    <i class="bi bi-arrow-up-circle" style="font-size: 2rem; cursor: pointer;" title="맨 위로 이동"></i>
+
+<!-- 댓글 작성 영역 (하단 고정) -->
+<div class="comment-write p-4 bg-white rounded-4 shadow-sm mb-4 fixed-bottom">
+    <th:block sec:authorize="isAuthenticated()">
+        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST" class="d-flex gap-2 align-items-stretch">
+            <textarea name="reply_content" placeholder="댓글을 입력하세요" required class="form-control" style="resize: none; height: 60px;"></textarea>
+            <button type="submit" class="btn btn-primary" style="min-width: 80px;">등록</button>
+            <input type="hidden" name="board_no" th:value="${board.boardNo}"/>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        </form>
+    </th:block>
+    <th:block sec:authorize="isAnonymous()">
+        <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
+    </th:block>
 </div>
+
             
 <!-- 삭제 JS 및 대댓글 폼 표시 JS -->
     <script>
@@ -241,7 +228,7 @@
         	}
         
         
-        // 댓글 수정 기능
+     // 댓글 수정 기능
         function replyUpdate(replyNo) {
             const content = document.getElementById(`reply-content-${replyNo}`);
             const form = document.getElementById(`reply-edit-form-${replyNo}`);
@@ -291,6 +278,7 @@
                 form.style.display = 'block';
             }
         }
+
         // 댓글 취소 기능
         function cancelReplyEdit(replyNo) {
             // 수정 폼을 숨깁니다.
@@ -298,81 +286,97 @@
             // 원래 댓글 내용을 다시 보이도록 합니다.
             document.getElementById(`reply-content-${replyNo}`).style.display = 'block';
         }
-        
-          
-       // 댓글 삭제 기능
-         function replyDelete(replyNo) {
-  			if (!confirm("댓글을 삭제하시겠습니까?")) return;
-  			fetch(`/replies/${replyNo}/delete`, {
-    			method: 'POST',
-    			headers: {
-      		[csrfHeader]: csrfToken,  // CSRF 토큰 추가
-      		'Content-Type': 'application/json'
-    		}
-  		})
-  		.then(res => res.json())
-  		.then(data => {
-    		if (data.res_code === "200") {
-      			alert(data.res_msg);  // 댓글 삭제 성공 메시지
-      			location.reload();  // 페이지 새로 고침 (댓글 목록 갱신)
-    	} else {
-      			alert(data.res_msg);  // 댓글 삭제 실패 메시지
-    	}
-  	})
-  		.catch(err => {
-    		alert("에러 발생: " + err);  // 에러 처리
-  		});
-	}
 
-    const showEditReplyForm = (replyNo) => {
-        const replyForm = document.getElementById(`edit-reply-form-${replyNo}`);
-        if (replyForm !== null) {
-            // 수정 폼을 보이거나 숨기기
-            replyForm.style.display = (replyForm.style.display === 'none' || replyForm.style.display === '') ? 'block' : 'none';
-        }
-    };
-
-    const showReplyForm = (replyNo) => {
-        const replyForm = document.getElementById(`reply-form-${replyNo}`);
-        if (replyForm) {
-            replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-        }
-    };
-    
-    let page = 1;
-    const loadMoreComments = () => {
-        // 여기서 추가 댓글을 로드하는 API를 호출하세요.
-        page++;
-        fetch(`/comments?page=${page}`)
-            .then(response => response.json())
+        // 댓글 삭제 기능
+        function replyDelete(replyNo) {
+            if (!confirm("댓글을 삭제하시겠습니까?")) return;
+            fetch(`/replies/${replyNo}/delete`, {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken,  // CSRF 토큰 추가
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
             .then(data => {
-                // 로드된 댓글 데이터를 화면에 추가
-                const commentContainer = document.getElementById('comment-container');
-                data.comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.classList.add('reply-item');
-                    commentElement.innerHTML = `
-                        <p>${comment.content}</p>
-                        <p>작성자: ${comment.memberName}</p>
-                    `;
-                    commentContainer.appendChild(commentElement);
-                });
+                if (data.res_code === "200") {
+                    alert(data.res_msg);  // 댓글 삭제 성공 메시지
+                    location.reload();  // 페이지 새로 고침 (댓글 목록 갱신)
+                } else {
+                    alert(data.res_msg);  // 댓글 삭제 실패 메시지
+                }
+            })
+            .catch(err => {
+                alert("에러 발생: " + err);  // 에러 처리
             });
-    };
+        }
 
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                loadMoreComments();
+        const showEditReplyForm = (replyNo) => {
+            const replyForm = document.getElementById(`edit-reply-form-${replyNo}`);
+            if (replyForm !== null) {
+                // 수정 폼을 보이거나 숨기기
+                replyForm.style.display = (replyForm.style.display === 'none' || replyForm.style.display === '') ? 'block' : 'none';
             }
-        });
-    }, {
-        rootMargin: '100px',
-    });
+        };
 
-    observer.observe(document.querySelector('#load-more-trigger'));
-    
-    // 하단만 아이콘을 클릭하면 움직일수있게 추가함(추가 예정) 아래에서 위까지 올라갈수있게 설정해야함
+        const showReplyForm = (replyNo) => {
+            const replyForm = document.getElementById(`reply-form-${replyNo}`);
+            if (replyForm) {
+                replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+            }
+        };
+
+        let page = 1;
+        const loadMoreComments = () => {
+            // 여기서 추가 댓글을 로드하는 API를 호출하세요.
+            page++;
+            fetch(`/comments?page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 로드된 댓글 데이터를 화면에 추가
+                    const commentContainer = document.getElementById('comment-container');
+                    data.comments.forEach(comment => {
+                        const commentElement = document.createElement('div');
+                        commentElement.classList.add('reply-item');
+                        commentElement.innerHTML = `
+                            <p>${comment.content}</p>
+                            <p>작성자: ${comment.memberName}</p>
+                        `;
+                        commentContainer.appendChild(commentElement);
+                    });
+                });
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    loadMoreComments();
+                }
+            });
+        }, {
+            rootMargin: '100px',
+        });
+
+        observer.observe(document.querySelector('#load-more-trigger'));
+
+        // 댓글 작성 영역이 고정되도록 하는 기능 추가
+        document.addEventListener("DOMContentLoaded", function () {
+            const commentContainer = document.getElementById('comment-container');
+            const commentWriteArea = document.querySelector('.comment-write');
+
+            // 페이지 로드 시, 댓글 목록이 많아지면 스크롤이 자동으로 댓글 영역에 맞춰 내려가도록 처리
+            const handleScroll = () => {
+                commentContainer.scrollTop = commentContainer.scrollHeight;
+            };
+
+            // 댓글 추가 후 스크롤을 맨 아래로 내리기
+            document.querySelector('form').addEventListener('submit', function () {
+                setTimeout(handleScroll, 300); // 댓글이 추가된 후 스크롤 처리
+            });
+
+            // 대댓글/댓글을 추가할 때마다 페이지가 아래로 내려가도록 추가
+            window.addEventListener("resize", handleScroll);  // 창 크기 변경 시에도 처리
+        });
     </script>
 
 	

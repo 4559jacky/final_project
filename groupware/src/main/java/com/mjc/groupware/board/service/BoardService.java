@@ -197,9 +197,14 @@ public class BoardService {
         board.setModDate(LocalDateTime.now());
 
         repository.save(board);
+
+        // 고정글 목록 갱신 (고정글에서 삭제된 게시글을 제외)
+        List<Board> fixedList = repository.findByIsFixedTrueOrderByRegDateDesc();
+        // fixedList에서 삭제된 boardNo를 제외하고 업데이트
+        fixedList.removeIf(fixedBoard -> fixedBoard.getBoardNo().equals(boardNo));
     }
-    
+    // 고정글 삭제를 하면 목록에서 삭제 될수있게 코드 수정
     public List<Board> selectFixedBoardList() {
-        return repository.findByIsFixedTrueOrderByRegDateDesc();
+        return repository.findByIsFixedTrueAndBoardStatusNot("Y", Sort.by(Sort.Order.desc("regDate")));
     }
 }
