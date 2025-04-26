@@ -128,10 +128,10 @@ public class BoardService {
             (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
         );
 
-        // 고정글 제외 여부 조건 추가 (필터 추가: `isFixed` == false)
-        spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isFixed"))); // 고정글 제외
+        // 고정글 제외 조건: isFixed 필드를 명시적으로 검사하여 제외
+        spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isFixed")));  // 고정글 제외
 
-        // 검색 조건
+        // 검색 조건 처리
         String keyword = searchDto.getSearch_text();
         int searchType = searchDto.getSearch_type();
 
@@ -141,8 +141,8 @@ public class BoardService {
                 case 2: spec = spec.and(BoardSpecification.boardContentContains(keyword)); break; // 내용 검색
                 case 3: spec = spec.and(BoardSpecification.boardTitleContains(keyword)
                             .or(BoardSpecification.boardContentContains(keyword))
-            );
-            break; // 제목+내용 검색
+                );
+                break; // 제목+내용 검색
             }
         }
 
