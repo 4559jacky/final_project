@@ -1,36 +1,30 @@
-package com.mjc.groupware.company.entity;
-
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+package com.mjc.groupware.shared.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
-@Table(name="company")
+@Table(name="shared_attach")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
-public class Company {
-	
+@ToString
+public class Attach {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="company_no")
-	private Long companyNo;
-	
-	@Column(name="company_name")
-	private String companyName;
+	private Long attachNo;
 	
 	@Column(name="ori_name")
 	private String oriName;
@@ -41,12 +35,7 @@ public class Company {
 	@Column(name="attach_path")
 	private String attachPath;
 	
-	@CreationTimestamp
-	@Column(updatable=false,name="reg_date")
-	private LocalDateTime regDate;
-	
-	@UpdateTimestamp
-	@Column(insertable=false,name="mod_date")
-	private LocalDateTime modDate;
-	
+	@ManyToOne
+	@JoinColumn(name="shared_no")
+	private Shared shared;
 }

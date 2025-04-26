@@ -23,10 +23,6 @@ public class DeptService {
 		return repository.findAll();
 	}
 	
-	public List<Dept> SelectDeptAllOrderByDeptNameAsc() {
-		return repository.findAllByOrderByDeptNameAsc();
-	}
-	
 	public Dept createDept(DeptDto dto) {
 		if(repository.existsByDeptNameAndDeptStatusNot(dto.getDept_name(), 3)) {
 		    throw new IllegalArgumentException("이미 존재하는 부서명입니다.");
