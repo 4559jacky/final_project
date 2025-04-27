@@ -79,7 +79,7 @@
                     <th>제목</th>
                     <th>작성자</th>
                     <th>등록일</th>
-                    <th>수정일</th>
+<!--                     <th>수정일</th> -->
                     <th>조회수</th>
                 </tr>
             </thead>
@@ -88,7 +88,7 @@
 <!-- 게시글이 없을 경우, 고정글과 일반글이 모두 없을 때만 "게시글이 없습니다" 문구가 보이게 처리 -->
 <th:block th:if="${#lists.isEmpty(boardList) and #lists.isEmpty(fixedList)}">
     <tr>
-        <td colspan="6" class="text-center text-muted">게시글이 없습니다.</td>
+        <td colspan="5" class="text-center text-muted">게시글이 없습니다.</td>
     </tr>
 </th:block>
           
@@ -101,7 +101,7 @@
     <td class="text-center"><span th:text="${board.boardTitle}">제목</span></td>
     <td th:text="${board.member.memberName}">작성자</td>
     <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+<!--     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td> -->
     <td th:text="${board.views}">조회수</td>
 </tr>
 
@@ -116,7 +116,7 @@
     <td class="text-center" th:text="${board.boardTitle}">제목</td>
     <td th:text="${board.member.memberName}">작성자</td>
     <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+<!--     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td> -->
     <td th:text="${board.views}">조회수</td>
 </tr>
     </tbody>
