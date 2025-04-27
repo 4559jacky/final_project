@@ -72,6 +72,7 @@
   margin-top: 4px;
   line-height: 40px;
 }
+
 .table td {
 		color: black !important;
 	}
@@ -79,3 +80,21 @@
 .table-responsive tbody tr {
 	cursor: pointer;
 }
+.signature-img {
+		  width: 100%;
+		  height: 100%;
+		  object-fit: contain; /* 또는 cover로 바꿔도 됨 */
+		  display: block;
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+.active-card {
+	    background: linear-gradient(145deg, #ffffff, #e6f0ff); /* 살짝 푸른빛 배경 */
+	    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4), 
+	                0 0 30px rgba(13, 110, 253, 0.2); /* 빛나는 블루 계열 그림자 */
+	    transform: scale(1.03); /* 살짝 확대 */
+	    transition: all 0.3s ease; /* 부드럽게 */
+	}

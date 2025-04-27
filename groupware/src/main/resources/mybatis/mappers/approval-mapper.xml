@@ -52,6 +52,9 @@
 			<if test="search_type == 'approval_form_name' and search_text != null and search_text != ''">
 				AND AA.approval_form_name LIKE CONCAT('%', #{search_text}, '%')
 			</if>
+			<if test="search_status != null and search_status != ''">
+		        AND AA.relationship = #{search_status}
+		    </if>
 		</where>
 		<choose>
 		  <when test="order_type == 1">
@@ -64,5 +67,31 @@
 		    ORDER BY AA.appr_reg_date DESC
 		  </otherwise>
 		</choose>
+	</select>
+	
+	<select id="selectApprovalStatusByMemberNo" parameterType="map"
+	resultType="com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo">
+	SELECT
+	  SUM(CASE WHEN W.relationship = 'P' THEN 1 ELSE 0 END) AS P_count,
+	  SUM(CASE WHEN W.relationship = 'A' THEN 1 ELSE 0 END) AS A_count,
+	  SUM(CASE WHEN W.relationship = 'R' THEN 1 ELSE 0 END) AS R_count
+	FROM (
+	    SELECT a.appr_no, 'P' AS relationship
+	    FROM `approval` a
+	    JOIN (SELECT * FROM `appr_approver` WHERE approver_no = #{member_no}) p ON a.appr_no = p.appr_no
+	    AND p.approver_order <![CDATA[ <= ]]> a.appr_order_status
+	
+	    UNION ALL
+	
+	    SELECT a.appr_no, 'A' AS relationship
+	    FROM `approval` a
+	    JOIN (SELECT * FROM `appr_agreementer` WHERE agreementer_no = #{member_no}) t ON a.appr_no = t.appr_no
+	
+	    UNION ALL
+	
+	    SELECT a.appr_no, 'R' AS relationship
+	    FROM `approval` a
+	    JOIN (SELECT * FROM `appr_referencer` WHERE referencer_no = #{member_no}) r ON a.appr_no = r.appr_no
+	) W;
 	</select>
 </mapper>

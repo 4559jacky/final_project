@@ -7,15 +7,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.mjc.groupware.member.entity.Member;
-import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.shared.dto.SharedFolderDto;
 import com.mjc.groupware.shared.entity.SharedFolder;
 import com.mjc.groupware.shared.repository.FolderRepository;
+import com.mjc.groupware.shared.service.SharedFolderService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class SharedFolderController {
 	
 	private final FolderRepository folderRepository;
-	private final MemberRepository memberRepository;
-	
+	private final SharedFolderService sharedFolderService;
 	
 	@GetMapping("/shared/main/tree")
 	@ResponseBody
@@ -41,24 +40,13 @@ public class SharedFolderController {
 	    }).collect(Collectors.toList());
 	}
 	
+	// 최상위,하위 폴더 생성.
 	@PostMapping("/shared/folder/create")
 	@ResponseBody
-	public Map<String, String> createFolder(@RequestBody SharedFolderDto dto) {
-	    Member member = memberRepository.findById(dto.getMember_no())
-	        .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
-
-	    SharedFolder.SharedFolderBuilder builder = SharedFolder.builder()
-	        .folderName(dto.getFolder_name())
-	        .member(member);
-
-	    if (dto.getFolder_parent_no() != null) {
-	        builder.parentFolder(folderRepository.findById(dto.getFolder_parent_no()).orElse(null));
-	    }
-
-	    SharedFolder folder = builder.build();
-	    folderRepository.save(folder);
-
-	    return Map.of("message", "📁 폴더가 생성되었습니다.");
+	public Map<String,String> createFolder(@RequestBody SharedFolderDto dto){
+		sharedFolderService.createFolder(dto);
+		return Map.of("message", "📁 폴더가 생성되었습니다.");
 	}
+	
 	
 }

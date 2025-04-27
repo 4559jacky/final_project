@@ -26,6 +26,7 @@ import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.mapper.ApprovalMapper;
+import com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.repository.ApprAgreementerRepository;
 import com.mjc.groupware.approval.repository.ApprApproverRepository;
@@ -34,7 +35,6 @@ import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
 import com.mjc.groupware.approval.specification.ApprovalSpecification;
 import com.mjc.groupware.member.dto.MemberDto;
-import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,7 +49,6 @@ public class ApprovalService {
 	private final ApprAgreementerRepository apprAgreementerRepository;
 	private final ApprReferencerRepository apprReferencerRepository;
 	private final ApprovalMapper approvalMapper;
-	private final MemberRepository memberRepository;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
@@ -193,15 +192,31 @@ public class ApprovalService {
 		}
 		
 		Specification<Approval> spec = (root, query, criteriaBuilder) -> null;
-		if("appr_title".equals(searchDto.getSearch_type())) {
-			spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
-					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
-		} else if("approval_form_name".equals(searchDto.getSearch_type())) {
-			spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
-					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+		if(searchDto.getSearch_status() == null) {
+			if("appr_title".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else {
+				spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			}
 		} else {
-			spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			if("appr_title".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else {
+				spec = spec.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			}
 		}
+		
 		
 		Page<Approval> list = approvalRepository.findAll(spec, pageable);
 		
@@ -228,10 +243,21 @@ public class ApprovalService {
 		paramMap.put("search_type", searchDto.getSearch_type());
 		paramMap.put("search_text", searchDto.getSearch_text());
 		paramMap.put("order_type", searchDto.getOrder_type());
+		paramMap.put("search_status", searchDto.getSearch_status());
 		
 		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(paramMap);
 
 		return approvalVoList;
+	}
+	
+	public ApprovalStatusVo selectApprovalStatusByApproverId(MemberDto member) {
+		ApprovalStatusVo approvalStatusVo = new ApprovalStatusVo();
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("member_no", member.getMember_no());
+		
+		approvalStatusVo = approvalMapper.selectApprovalStatusByMemberNo(paramMap);
+		
+		return approvalStatusVo;
 	}
 
 	public Approval selectApprovalOneByApprovalNo(Long id) {

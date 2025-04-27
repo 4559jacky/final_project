@@ -30,10 +30,14 @@ public class ApprovalDto {
 	private String appr_status;
 	private int appr_order_status;
 	private String appr_reason;
-	private LocalDate start_date;
-	private LocalDate end_date;
 	private Long appr_sender;
 	private Long approval_type_no;
+	
+	// 연차 신청서 주요정보
+	private LocalDate start_date;
+	private LocalDate end_date;
+	private double use_annual_leave;
+	private String half_anuual_leave_type; // 반차 타입
 	
 	// 결재자, 합의자, 참조자
 	private List<Long> approver_no;

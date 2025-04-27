@@ -291,21 +291,10 @@ layout:decorate="~{/include/layout}">
 			            <input type="text" class="form-control" id="detail-event-writer" readonly style="background-color: #f8f9fa;"/>
 			          </div>
 			          <div class="col">
-			            <label class="form-label">부서</label>
-			            <input type="text" class="form-control" id="detail-event-department" readonly style="background-color: #f8f9fa;"/>
-			          </div>
-			        </div>
-			        <div class="row g-3 mb-3">
-			          <div class="col">
 			            <label class="form-label">작성일</label>
 			            <input type="text" class="form-control" id="detail-event-created-date" readonly style="background-color: #f8f9fa;"/>
 			          </div>
-			          <div class="col">
-			            <label class="form-label">수정일</label>
-			            <input type="text" class="form-control" id="detail-event-modified-date" name="updatedAt" readonly style="background-color: #f8f9fa;"/>
-			          </div>
 			        </div>
-			        
 			        <!-- 일정명 -->
 			        <div class="mb-3">
 			          <label class="form-label">일정명</label>
@@ -350,15 +339,16 @@ layout:decorate="~{/include/layout}">
 			            <input type="datetime-local" class="form-control" id="detail-event-end-date" name="end_date"/>
 			          </div>
 			        </div>
+			          <div class="col">
+			            <label class="form-label">수정기록</label>
+			            <div class="form-control" id="detail-event-modified-date" name="updatedAt" readonly style="height:150px; overflow-y:auto; background-color:#f8f9fa;"/>
+			            </div>
+			          </div>
 			      </div>
 			      <div class="modal-footer">
 			        <button type="button" class="btn btn-outline-danger" id="btn-delete-event">삭제</button>
 			        <button type="button" class="btn btn-primary btn-update-event" id="btn-update-event"
 			        data-id="plan_no">수정</button>
-			        <!-- 일정 상세 모달에서 -->
-					<!-- <th:block th:if="${canEdit}">
-					    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">수정</button>
-					</th:block> -->
 			      </div>
 			    </div>
 			  </div>

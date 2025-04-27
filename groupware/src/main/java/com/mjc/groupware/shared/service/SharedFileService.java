@@ -71,7 +71,6 @@ public class SharedFileService {
             // 8. Entity 생성 및 DB 저장
             SharedFile entity = SharedFile.builder()
                     .fileName(oriName)
-                    .fileNewName(newName)
                     .filePath(fullPath)
                     .member(member)
                     .folder(folder)
@@ -82,8 +81,7 @@ public class SharedFileService {
             // 9. DTO로 반환
             dto = SharedFileDto.builder()
                     .file_no(saved.getFileNo())
-                    .file_name(saved.getFileName())
-                    .file_new_name(saved.getFileNewName())
+                    .file_name(saved.getFileName())             
                     .file_path(saved.getFilePath())
                     .build();
 

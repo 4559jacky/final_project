@@ -34,17 +34,17 @@ public class SharedFile {
 	@Column(name="file_name")
 	private String fileName;
 	
-	@Column(name="file_new_name")
-	private String fileNewName;
+	@Column(name="file_size")
+	private Long fileSize;
 	
 	@Column(name="file_path")
 	private String filePath;
 	
 	@Column(name="file_shared")
-	private char fileShared;
+	private String fileShared;
 	
 	@Column(name="file_status")
-	private char fileStatus;
+	private String fileStatus;
 	
 	@ManyToOne
 	@JoinColumn(name="member_no", nullable = false)
