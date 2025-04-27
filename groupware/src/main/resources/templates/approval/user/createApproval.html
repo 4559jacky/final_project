@@ -90,15 +90,18 @@
 												class="form-control w-100"></td>
 										</tr>
 										<tr>
-											<th class="text-center bg-light">일시</th>
-											<td colspan="5">
-												<div class="d-flex align-items-center" style="gap: 8px;">
-													<input type="date" id="start_date" name="start_date" class="form-control"
-														style="width: 200px; height: 36px;"> <span>
-														~ </span> <input type="date" id="end_date" name="end_date" class="form-control"
-														style="width: 200px; height: 36px;">
-												</div>
-											</td>
+										  <th class="text-center bg-light">일시</th>
+										  <td colspan="5">
+										    <div class="d-flex align-items-center" style="gap: 8px;">
+										      <input type="date" id="start_date" name="start_date" class="form-control" style="width: 150px; height: 36px;">
+										      <span> ~ </span>
+										      <input type="date" id="end_date" name="end_date" class="form-control" style="width: 150px; height: 36px;">
+										      &nbsp;
+										      <span id="annualInfoText" style="display: none;">남은 연차 : <span th:text="${#authentication.principal.member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 : <span id="use_annual_leave">0</span>
+										      &nbsp;<label><input class="form-check-input" type="checkbox" id="am" value="morning" disabled>&nbsp;오전</label>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" id="pm" value="afternoon" disabled>&nbsp;오후</label></span>
+										    
+										    </div>
+										  </td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">결재자</th>
@@ -177,6 +180,31 @@
 			</div>
 		</div>
 	</div>
+	
+	<script>
+	
+		document.getElementById("am").addEventListener('click', function(){
+			if(this.checked == true) {
+				if(document.getElementById("pm").checked == true) {
+					document.getElementById("pm").checked = false;
+				}
+				document.getElementById('use_annual_leave').innerText = 0.5;
+			} else {
+				document.getElementById('use_annual_leave').innerText = 1;
+			}
+		})
+		
+		document.getElementById("pm").addEventListener('click', function(){
+			if(this.checked == true) {
+				if(document.getElementById("am").checked == true) {
+					document.getElementById("am").checked = false;
+				}
+				document.getElementById('use_annual_leave').innerText = 0.5;
+			} else {
+				document.getElementById('use_annual_leave').innerText = 1;
+			}
+		})
+	</script>
 
 
 	<!-- alert 창 -->
@@ -275,27 +303,59 @@
 	
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-			const startDateInput = document.getElementById('start_date');
-			const endDateInput = document.getElementById('end_date');
+			  const startDateInput = document.getElementById('start_date');
+			  const endDateInput = document.getElementById('end_date');
+			  const useAnnualLeave = document.getElementById('use_annual_leave');  // 사용 연차 표시 요소
 	
-			// 시작일 변경 시 종료일 최소값 설정
-			startDateInput.addEventListener('change', function () {
-				if (startDateInput.value) {
-					endDateInput.min = startDateInput.value;
-				} else {
-					endDateInput.removeAttribute('min');
-				}
-			});
+			  // 시작일 변경 시 종료일 최소값 설정
+			  startDateInput.addEventListener('change', function () {
+			    if (startDateInput.value) {
+			      endDateInput.min = startDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      endDateInput.removeAttribute('min');
+			    }
+			  });
 	
-			// 종료일 변경 시 시작일 최대값 설정
-			endDateInput.addEventListener('change', function () {
-				if (endDateInput.value) {
-					startDateInput.max = endDateInput.value;
-				} else {
-					startDateInput.removeAttribute('max');
-				}
+			  // 종료일 변경 시 시작일 최대값 설정
+			  endDateInput.addEventListener('change', function () {
+			    if (endDateInput.value) {
+			      startDateInput.max = endDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      startDateInput.removeAttribute('max');
+			    }
+			  });
+	
+			  // 시작일과 종료일의 날짜 차이를 계산하고 표시하는 함수
+			  function updateAnnualLeave() {
+			    const startDate = new Date(startDateInput.value);
+			    const endDate = new Date(endDateInput.value);
+	
+			    if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+			      const timeDifference = endDate - startDate; // 밀리초 단위 차이
+			      const dayDifference = timeDifference / (1000 * 3600 * 24) + 1; // 일 단위로 변환 (+1은 시작일 포함)
+					
+			      if(dayDifference == 1) {
+			    	  document.getElementById("am").disabled = false;
+			    	  document.getElementById("pm").disabled = false;
+			      } else {
+			    	  document.getElementById("am").disabled = true;
+			    	  document.getElementById("pm").disabled = true;
+			    	  document.getElementById("am").checked = false;
+			    	  document.getElementById("pm").checked = false;
+			      }
+			      
+			      if (dayDifference > 0) {
+			        useAnnualLeave.textContent = dayDifference;  // 사용 연차 표시
+			      } else {
+			        useAnnualLeave.textContent = 0; // 날짜 차이가 0일이면 0으로 표시
+			      }
+			    } else {
+			      useAnnualLeave.textContent = 0; // 유효한 날짜가 아닌 경우 0으로 표시
+			    }
+			  }
 			});
-		});
 	</script>
 
 
@@ -350,6 +410,12 @@
 		          document.querySelector("td[name='sender_name']").innerText = member.member_name;
 		          document.querySelector("td[name='dept_name']").innerText = member.dept_name;
 		          document.querySelector("td[name='pos_name']").innerText = member.pos_name;
+		          
+		          if (approvalForm.approval_form_type === 1) {
+		        	  document.getElementById('annualInfoText').style.display = '';
+		        	} else {
+		        	  document.getElementById('annualInfoText').style.display = 'none';
+		        	}
 
 		    	  // contenteditable div
 		    	  const editor = document.createElement('div');
