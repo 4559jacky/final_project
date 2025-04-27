@@ -4,6 +4,8 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 	<link rel="stylesheet"
 		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 	<link th:href="@{/css/ysw.css}" rel="stylesheet">
@@ -153,6 +155,8 @@
 												class="form-control message-type-box text-muted border-0 p-0 ms-2"
 												placeholder="Type a Message" fdprocessedid="0p3op" />
 										</div>
+										<input type= hidden id="chatRoomNo">
+										<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
 										<ul class="list-unstyledn mb-0 d-flex align-items-center">
 											<li><a
 												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
@@ -534,6 +538,7 @@
 			  var memberName = $(this).find(".chat-title").text();
 			  var memberDept = $(this).find(".dept").text();
 			  var memberImage = $(this).find("img").attr("src");
+			  document.getElementById('chatRoomNo').value = roomNo;
 			  
 			  fetch("/selectChatRoom/"+roomNo,{
 				method:'post',
@@ -652,51 +657,128 @@
 			  $(".chat-meta-user").addClass("chat-active");
 			  $(".chat-send-message-footer").addClass("chat-active");
 			});
+			
+			
+			let stompClient = null;
+		    let currentSubscription = null;
+		    let chatRoomNo = null; 
 
+		    function connectChat() {
+		        let sock = new SockJS("/ws-chat");
+		        stompClient = Stomp.over(sock);
 
+		        stompClient.connect({}, function (frame) {
+		            console.log('Connected: ' + frame);
+		            // 👉 소켓 연결만! 채팅방 구독은 클릭할 때!
+		        });
+		    }
 
+		    function subscribeChatRoom(chatRoomNo) {
+		        if (currentSubscription) {
+		            currentSubscription.unsubscribe(); // 기존 구독 끊기
+		        }
 
-			 //엔터 누르면 입력값을 메시지 박스로 만들어 .active-chat에 append
+		        currentSubscription = stompClient.subscribe('/topic/chat/room/' + chatRoomNo, function (messageOutput) {
+		            let msg = JSON.parse(messageOutput.body);
 
-			 // 시간은 현재 시각 기준으로 포맷팅해서 같이 출력
+		            let $messageHtml =
+		                '<div class="text-start mb-3"> <div class="p-2 bg-light text-dark rounded-1 d-inline-block fs-3">' +
+		                msg.chat_msg_content +
+		                '</div> <div class="d-block fs-2">' +
+		                formatTime(new Date()) +
+		                "</div>  </div>";
 
-			 // 입력창 비우는 것까지 포함
+		            $(".active-chat").append($messageHtml);
+		            scrollToBottom();
+		        });
+		    }
 
+		    function sendMsg(messageContent) {
+		        let chatRoomNo = document.getElementById('chatRoomNo').value; // 🔥 input에서 읽기
 
-			 $(".message-type-box").on("keydown", function (event) {
-			   if (event.key === "Enter") {
-			     // Start getting time
-			     var now = new Date();
-			     var hh = now.getHours();
-			     var min = now.getMinutes();
+		        if (!chatRoomNo) {
+		            alert("채팅방을 먼저 선택하세요!");
+		            return;
+		        }
 
-			     var ampm = hh >= 12 ? "pm" : "am";
-			     hh = hh % 12;
-			     hh = hh ? hh : 12;
-			     hh = hh < 10 ? "0" + hh : hh;
-			     min = min < 10 ? "0" + min : min;
+		        if (messageContent && stompClient && stompClient.connected) {
+		            stompClient.send("/app/chat/msg", {}, JSON.stringify({
+		                chat_room_no: chatRoomNo,
+		                chat_msg_content: messageContent
+		            }));
 
-			     var time = hh + ":" + min + " " + ampm;
-			     // End
+		            document.getElementById('msg').value = '';
+		        }
+		    }
 
-			     var chatInput = $(this);
-			     var chatMessageValue = chatInput.val();
-			     if (chatMessageValue === "") {
-			       return;
-			     }
-			     $messageHtml =
-			       '<div class="text-end mb-3"> <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">' +
-			       chatMessageValue +
-			       '</div> <div class="d-block fs-2">' +
-			       time +
-			       "</div>  </div>";
-			     var appendMessage = $(this)
-			       .parents(".chat-application")
-			       .find(".active-chat")
-			       .append($messageHtml);
-			     var clearChatInput = chatInput.val("");
-			   }
-			 });
+		    function handleSend() {
+		        let messageContent = document.getElementById('msg').value.trim();
+		        if (messageContent !== "") {
+		            sendMsg(messageContent);
+		            appendMyMessage(messageContent);
+		        }
+		    }
+
+		    function appendMyMessage(messageContent) {
+		        let now = new Date();
+		        let time = formatTime(now);
+
+		        let $messageHtml =
+		            '<div class="text-end mb-3"> <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">' +
+		            messageContent +
+		            '</div> <div class="d-block fs-2">' +
+		            time +
+		            "</div>  </div>";
+
+		        $(".active-chat").append($messageHtml);
+		        scrollToBottom();
+		    }
+
+		    function formatTime(date) {
+		        let hh = date.getHours();
+		        let min = date.getMinutes();
+
+		        let ampm = hh >= 12 ? "pm" : "am";
+		        hh = hh % 12;
+		        hh = hh ? hh : 12;
+		        hh = hh < 10 ? "0" + hh : hh;
+		        min = min < 10 ? "0" + min : min;
+
+		        return hh + ":" + min + " " + ampm;
+		    }
+
+		    function scrollToBottom() {
+		        let chatBox = document.getElementById('chat-box');
+		        chatBox.scrollTop = chatBox.scrollHeight;
+		    }
+
+		    $(document).ready(function () {
+		        connectChat(); // ✅ 소켓 연결만!
+
+		        $(".message-type-box").on("keydown", function (event) {
+		            if (event.key === "Enter") {
+		                event.preventDefault();
+		                handleSend();
+		            }
+		        });
+
+		        // ✅ 채팅방 클릭할 때
+		        $(".chat-room-item").on("click", function () {
+		            let chatRoomNo = document.getElementById('chatRoomNo').value;
+
+		            if (!chatRoomNo) {
+		                alert("채팅방 번호가 없습니다.");
+		                return;
+		            }
+
+		            subscribeChatRoom(chatRoomNo);
+
+		            // 채팅창 비우기
+		            $(".active-chat").empty();
+		        });
+		    });
+			
+			
 
 			 // *******************************************************************
 			 // Email Application
@@ -724,27 +806,6 @@
 
 	        });
 		
-		
-		
-		// 웹소켓 연결 test
-		let socket = new WebSocket("ws://localhost:8080/ws/basic");
-		socket.onopen = function(){
-			// 클라이언트 -> 서버 연결합시다!! 
-			// 서버의 afterConnectionEstablished 메소드
-			console.log("클라이언트 : 연결");
-		}
-		socket.onmessage = function(event){
-			// 클라이언트 -> 서버 메시지 send
-			// 메시지를 서버가 handleTextMessage에서 처리
-			// 서버의 sendMessage 메소드 동작
-			// console.log(event.data);
-			document.getElementById('output').innerHTML += '<p>'+event.data+"</p>";
-		}
-		const sendMsg = function(){
-			let msg = document.getElementById('msg').value;
-			socket.send(msg);
-			document.getElementById('msg').value ="";
-		}
 	</script>
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
 

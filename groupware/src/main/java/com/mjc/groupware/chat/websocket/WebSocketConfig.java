@@ -2,24 +2,25 @@ package com.mjc.groupware.chat.websocket;
 
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocket
-@RequiredArgsConstructor
-public class WebSocketConfig implements WebSocketConfigurer{
-	
-	private final BasicWebSocketHandler basicWebSocketHandler;
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 
 	@Override
-	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(basicWebSocketHandler, "/ws/basic")
-			.setAllowedOrigins("http://localhost:8080");
-		
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/ws-chat")
+				.setAllowedOrigins("http://localhost:8080")
+				.withSockJS();
 	}
 
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.setApplicationDestinationPrefixes("/app"); // 클라이언트 → 서버로 보낼 때 prefix
+		registry.enableSimpleBroker("/topic"); // 서버 → 클라이언트로 보낼 때 prefix (pub-sub 채널)
+	}
 }
