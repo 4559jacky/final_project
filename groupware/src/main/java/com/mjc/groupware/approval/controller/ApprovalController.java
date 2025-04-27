@@ -19,11 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
-import com.mjc.groupware.approval.dto.ApprovalRelatedDto;
 import com.mjc.groupware.approval.dto.ApprovalStatusTypeDto;
 import com.mjc.groupware.approval.dto.PageDto;
 import com.mjc.groupware.approval.dto.SearchDto;
@@ -32,6 +29,7 @@ import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
+import com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
@@ -212,17 +210,7 @@ public class ApprovalController {
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    
 	    List<ApprovalVo> fullList = service.selectApprovalAllByApproverId(member, searchDto, pageDto);
-	    
-	    ApprovalRelatedDto ard = new ApprovalRelatedDto();
-	    for(ApprovalVo a : fullList) {
-	    	if("P".equals(a.getRelationship())) {
-	    		ard.setCount_P(ard.getCount_P()+1);
-	    	} else if("A".equals(a.getRelationship())) {
-	    		ard.setCount_A(ard.getCount_A()+1);
-	    	} else if("R".equals(a.getRelationship())) {
-	    		ard.setCount_R(ard.getCount_R()+1);
-	    	}
-	    }
+	    ApprovalStatusVo statusCnt = service.selectApprovalStatusByApproverId(member);
 	    
 	    int start = (pageDto.getNowPage() - 1) * pageDto.getNumPerPage();
 		int end = Math.min(start + pageDto.getNumPerPage(), fullList.size());
@@ -238,7 +226,7 @@ public class ApprovalController {
 	    model.addAttribute("approvalVoList", approvalVoList);
 	    model.addAttribute("pageDto", pageDto);
 	    model.addAttribute("searchDto", searchDto);
-	    model.addAttribute("approvalRelatedDto", ard);
+	    model.addAttribute("statusCnt", statusCnt);
 	    
 		return "/approval/user/receiveApproval";
 	}
