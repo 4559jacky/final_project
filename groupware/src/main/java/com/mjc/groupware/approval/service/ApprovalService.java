@@ -192,15 +192,31 @@ public class ApprovalService {
 		}
 		
 		Specification<Approval> spec = (root, query, criteriaBuilder) -> null;
-		if("appr_title".equals(searchDto.getSearch_type())) {
-			spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
-					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
-		} else if("approval_form_name".equals(searchDto.getSearch_type())) {
-			spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
-					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+		if(searchDto.getSearch_status() == null) {
+			if("appr_title".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else {
+				spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			}
 		} else {
-			spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			if("appr_title".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else {
+				spec = spec.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			}
 		}
+		
 		
 		Page<Approval> list = approvalRepository.findAll(spec, pageable);
 		
