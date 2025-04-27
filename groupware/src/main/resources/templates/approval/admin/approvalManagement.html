@@ -33,10 +33,10 @@
 
 						<!-- 사용중인 결재 양식 -->
 						<div class="d-grid gap-2 mb-3">
-							<h6 class="text-center text-primary">📄 사용 중</h6>
+							<h6 class="text-center text-primary">사용 중</h6>
 							<th:block th:each="form : ${formList}"
 								th:if="${form.approvalFormStatus} == 'Y'">
-								<button class="btn btn-outline-primary form-btn"
+								<button class="btn btn-primary form-btn"
 									th:value="${form.approvalFormNo}"
 									th:text="${form.approvalFormName}"
 									th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
@@ -51,10 +51,10 @@
 
 						<!-- 보관 중인 결재 양식 -->
 						<div class="d-grid gap-2 mt-3">
-							<h6 class="text-center text-secondary">🗂 보관 중</h6>
+							<h6 class="text-center text-secondary">보관 중</h6>
 							<th:block th:each="form : ${formList}"
 								th:if="${form.approvalFormStatus} == 'N'">
-								<button class="btn btn-outline-secondary"
+								<button class="btn btn-primary form-btn"
 									th:value="${form.approvalFormNo}"
 									th:text="${form.approvalFormName}"
 									th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
@@ -118,7 +118,7 @@
 		const viewForm = function(approvalFormNo) {
 			  selectedApprovalFormNo = approvalFormNo;
 
-			  fetch('/admin/approvalForm/view/' + approvalFormNo, {
+			  fetch('/admin/approvalForm/view/' + selectedApprovalFormNo, {
 			    method: 'POST',
 			    headers: {
 			      'Content-Type': 'application/json',
@@ -135,8 +135,8 @@
 			    document.getElementById('approval-content').innerHTML = html;
 
 			    // 기존 선택된 버튼에서 클래스 제거
-			    document.querySelectorAll('.btn-outline-primary, .btn-outline-secondary').forEach(btn => {
-			      btn.classList.remove('selected-button');
+			    document.querySelectorAll('.btn-outline-primary, .form-btn').forEach(btn => {
+			      btn.classList.remove('active');
 			    });
 
 			    // 클릭한 버튼 찾아서 클래스 추가
@@ -145,7 +145,7 @@
 			    );
 
 			    if (clickedBtn) {
-			      clickedBtn.classList.add('selected-button');
+			      clickedBtn.classList.add('active');
 			    }
 			  })
 			  .catch(err => console.error('Fetch Error:', err));
@@ -154,13 +154,13 @@
 			const changeStatus = function() {
 				  console.log('test');
 				  
-				  let form = document.getElementsByClassName('selected-button')[0];
+				  let form = document.getElementsByClassName('active')[0];
 
 				  if (form) {
 				    let formNo = form.value;
 				    console.log(formNo);
 				    
-				    fetch('/admin/approvalForm/statusUpdate/'+formNo,{
+				    fetch('/admin/approvalForm/statusUpdate/'+selectedApprovalFormNo,{
 				    	method:'POST',
 				    	headers: {
 						      'Content-Type': 'application/json',
