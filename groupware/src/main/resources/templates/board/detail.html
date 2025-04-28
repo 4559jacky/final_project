@@ -177,7 +177,7 @@
     </div>
 </div>
 
-        <!-- 댓글 작성 영역 -->
+ <!-- 댓글 작성 영역 -->
         <div class="comment-write p-4 bg-white rounded-4 shadow-sm mb-4">
             <th:block sec:authorize="isAuthenticated()">
                 <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST" class="d-flex gap-2 align-items-stretch">
@@ -194,8 +194,6 @@
 
         <!-- 무한 스크롤 트리거 -->
         <div id="load-more-trigger" style="height: 20px;"></div>
-    
-
             
 <!-- 삭제 JS 및 대댓글 폼 표시 JS -->
     <script>
