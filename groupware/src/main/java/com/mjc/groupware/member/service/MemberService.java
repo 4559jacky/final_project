@@ -207,8 +207,23 @@ public class MemberService {
 		try {
 			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
 			
+			Dept currentDept = target.getDept();
+			Long currentDeptNo = currentDept != null ? currentDept.getDeptNo() : null;
+			
+			Dept newDept = dto.getDept_no() != null ? Dept.builder().deptNo(dto.getDept_no()).build() : null;
+			
+			if (newDept != null && !newDept.getDeptNo().equals(currentDeptNo)) {
+	            // 변경하려는 사람이 부서장이라면 해당 부서의 부서장 정보를 null로 수정
+	            if (currentDept != null && currentDept.getMember() != null &&
+	                currentDept.getMember().getMemberNo().equals(target.getMemberNo())) {
+	                currentDept.clearDeptHead();
+	            }
+	            
+	            newDept.changeDeptManager(target);
+			}
+			
 			target.updateMember(
-				dto.getDept_no() != null ? Dept.builder().deptNo(dto.getDept_no()).build() : null,
+				newDept,
 				dto.getPos_no() != null ? Pos.builder().posNo(dto.getPos_no()).build() : null,
 				Role.builder().roleNo(dto.getRole_no()).build(),
 				dto.getStatus()
