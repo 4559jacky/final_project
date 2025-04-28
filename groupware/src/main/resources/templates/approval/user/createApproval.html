@@ -68,7 +68,7 @@
 							style="min-height: 600px; position: relative;" id="form_div">
 							<th:block>
 								<input type="hidden" name="appr_sender"
-									th:value="${#authentication.principal.member.memberNo}">
+									th:value="${member.memberNo}">
 								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
 									제목</h4>
 								<!-- <div class="text-end" style="min-width: 180px;">
@@ -97,9 +97,9 @@
 										      <span> ~ </span>
 										      <input type="date" id="end_date" name="end_date" class="form-control" style="width: 150px; height: 36px;">
 										      &nbsp;
-										      <span id="annualInfoText" style="display: none;">남은 연차 : <span th:text="${#authentication.principal.member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 : <span id="use_annual_leave">0</span>
-										      &nbsp;<label><input class="form-check-input" type="checkbox" id="am" value="morning" disabled>&nbsp;오전</label>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" id="pm" value="afternoon" disabled>&nbsp;오후</label></span>
-										    
+										      <span id="annualInfoText" style="display: none;">남은 연차 : <span th:text="${member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 : <span id="use_annual_leave">0</span>
+										      &nbsp;<label><input class="form-check-input" type="checkbox" name="annual_leave_type" id="am" value="1" disabled>&nbsp;오전</label>
+										      &nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="annual_leave_type" id="pm" value="2" disabled>&nbsp;오후</label></span>
 										    </div>
 										  </td>
 										</tr>
@@ -881,6 +881,16 @@
 				document.querySelector("input[name='appr_text']").value = 
 					document.querySelector("div[name='appr_content']").innerHTML;
 				let payload = new FormData(createApprovalForm);
+				let use_annual_leave = document.getElementById('use_annual_leave').innerText;
+				let annual_leave_type = 0; // 기본값: 0 (선택 없음)
+		        if (document.getElementById('am').checked) {
+		            annual_leave_type = 1; // 오전
+		        }
+		        if (document.getElementById('pm').checked) {
+		            annual_leave_type = 2; // 오후
+		        }
+				payload.append('use_annual_leave', use_annual_leave);
+				payload.append('annual_leave_type', annual_leave_type);
 				const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 				const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 				payload.append('_csrf', csrfToken);
