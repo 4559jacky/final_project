@@ -237,8 +237,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			
 			// 고정값
 			document.getElementById("detail-event-id").value = data.plan_id;
-			document.getElementById("detail-event-writer").value = data.member_name;
-		    document.getElementById("detail-event-department").value = data.dept_name;
+			document.getElementById("detail-event-writer").value = `${data.member_name} (${data.dept_name})`;
 			document.getElementById("detail-event-created-date").value = data.reg_date;
 			document.getElementById("detail-event-modified-date").value = data.mod_date;
 			// 수정가능값
@@ -256,6 +255,14 @@ document.addEventListener("DOMContentLoaded", function () {
 			    } else if (planType === "휴가") {
 			      document.getElementById("detail-type-leave").checked = true;
 			    }
+			/*document.getElementById("detail-event-modified-history").innerHTML = `
+				  <ul>
+				    <li>${data.member_name} - ${data.mod_date}</li>
+				    <li>김민수 - 2024-02-15 수정</li>
+				    <li>박지현 - 2024-03-22 수정</li>
+				  </ul>
+				`;*/
+
 		  })
 		  .catch(err => console.error("디테일 로딩 실패", err));
 	},
@@ -317,11 +324,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	},
 	// 일정바앞 부서명 넣어주는 코드
 	eventContent: function(arg) {
+	   const planType = arg.event.extendedProps.planType;
 	   const department = arg.event.extendedProps.deptName || "";
 	   const title = arg.event.title;
 		console.log("부서 확인 : ", arg.event.extendedProps.deptName);
-	   return {
-	     html: `<div><strong>[${department}]</strong> ${title}</div>`
+	   
+		// 부서 일정일 때만 부서명을 앞에 붙임
+		   const displayTitle = (planType === "부서" || planType ==='휴가')
+		     ? `<strong>[${department}]</strong> ${title}`
+		     : title;
+		   return {
+		     html: `<div>${displayTitle}</div>`
 	   };
 	 }
   });

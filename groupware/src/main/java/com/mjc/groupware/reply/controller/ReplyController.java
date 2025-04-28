@@ -45,6 +45,7 @@ public class ReplyController {
         Member member = getLoginMember();  // 로그인 사용자 정보 조회
         replyDto.setMember_no(member.getMemberNo());  // 댓글 작성자 설정
         replyDto.setBoard_no(boardNo);  // 댓글이 달릴 게시글 번호 설정
+        replyDto.setDeptName(member.getDept() != null ? member.getDept().getDeptName() : "부서 미정");  // 부서명 설정
 
         replyService.replyCreate(replyDto);  // 댓글 생성 서비스 호출
         return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트
@@ -59,6 +60,7 @@ public class ReplyController {
         replyDto.setMember_no(member.getMemberNo());  // 대댓글 작성자 설정
         replyDto.setBoard_no(boardNo);  // 게시글 번호 설정
         replyDto.setParent_reply_no(parentReplyNo);  // 부모 댓글 번호 설정
+        replyDto.setDeptName(member.getDept() != null ? member.getDept().getDeptName() : "부서 미정");  // 부서명 설정
 
         replyService.replyCreateSub(replyDto);  // 대댓글 생성 서비스 호출
         return redirectToBoardDetail(boardNo);  // 상세 페이지로 리다이렉트

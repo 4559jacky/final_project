@@ -47,6 +47,8 @@ public class BoardController {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
+    
+    
     // 게시글 작성
     @PostMapping("/board")
     @ResponseBody
@@ -87,6 +89,8 @@ public class BoardController {
 
         return resultMap;
     }
+    
+    
     // 게시글 목록
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
@@ -99,7 +103,9 @@ public class BoardController {
 
         // 일반글 조회
         Page<Board> boardList = boardService.selectBoardAll(searchDto, pageDto);
+        
         pageDto.setTotalPage(boardList.getTotalPages());
+        pageDto.setTotalCount((int) boardList.getTotalElements()); // 추가: 전체 글 수 세팅
 
         model.addAttribute("boardList", boardList.getContent());
         model.addAttribute("searchDto", searchDto);
@@ -107,6 +113,7 @@ public class BoardController {
 
         return "board/list";
     }
+    
 
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
@@ -126,6 +133,7 @@ public class BoardController {
             return "error";
         }
     }
+    
 
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
@@ -140,6 +148,8 @@ public class BoardController {
             return "error";
         }
     }
+    
+    
     // 게시글 수정
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
@@ -149,22 +159,34 @@ public class BoardController {
             @RequestParam(value = "files", required = false) List<MultipartFile> files,
             @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {
         try {
+            // 게시글 번호 설정
             boardDto.setBoard_no(boardNo);
             boardDto.setDelete_files(deleteFiles);
+
+            // isFixed 값이 null이면 false로 설정 (체크박스를 해제한 경우)
+            if (boardDto.getIs_fixed() == null) {
+                boardDto.setIs_fixed(false); // 고정되지 않은 일반글로 설정
+            }
+
+            // 게시글 수정 서비스 호출
             boardService.updateBoard(boardDto, files);
 
+            // 성공 응답 반환
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "200");
             result.put("res_msg", "수정 성공");
             result.put("boardNo", String.valueOf(boardNo));
             return ResponseEntity.ok(result);
         } catch (Exception e) {
+            // 에러 응답 반환
             Map<String, String> result = new HashMap<>();
             result.put("res_code", "500");
             result.put("res_msg", "에러: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
+    
+    
     // 게시글 삭제
     @DeleteMapping("/board/delete/{boardNo}")
     @ResponseBody

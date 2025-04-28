@@ -70,6 +70,9 @@ public class Member {
     @Column(name = "status")
     private int status;
     
+    @Column(name = "annual_leave")
+    private double annualLeave;
+    
     @Column(name = "signature")
     private String signature;
 	

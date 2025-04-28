@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
+import com.mjc.groupware.approval.dto.ApprovalStatusTypeDto;
 import com.mjc.groupware.approval.dto.PageDto;
 import com.mjc.groupware.approval.dto.SearchDto;
 import com.mjc.groupware.approval.entity.ApprAgreementer;
@@ -28,6 +29,7 @@ import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
+import com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
@@ -48,7 +50,7 @@ public class ApprovalController {
 
 	// 관리자 : 관리자만 접근 가능한 url
 	
-	@GetMapping("/admin/approval")
+	@GetMapping("/admin/approval") 
 	public String approvalAdminView(Model model) {
 		
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
@@ -150,8 +152,25 @@ public class ApprovalController {
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
 	    
+	    System.out.println(searchDto.getSearch_status());
+	    
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
+	    List<Approval> list = service.selectApprovalAllById(member);
+	    
+	    ApprovalStatusTypeDto astd = new ApprovalStatusTypeDto();
+	    for(Approval approval : list) {
+	    	if("A".equals(approval.getApprStatus())) {
+	    		astd.setCount_A(astd.getCount_A()+1);
+	    	} else if("D".equals(approval.getApprStatus())) {
+	    		astd.setCount_D(astd.getCount_D()+1);
+	    	} else if("R".equals(approval.getApprStatus())) {
+	    		astd.setCount_R(astd.getCount_R()+1);
+	    	} else if("C".equals(approval.getApprStatus())) {
+	    		astd.setCount_C(astd.getCount_C()+1);
+	    	}
+	    }
+	    
 	    pageDto.setTotalPage(approvalList.getTotalPages());
 	    pageDto.setTotalCount((int)approvalList.getTotalElements());
 	    
@@ -159,6 +178,7 @@ public class ApprovalController {
 	    model.addAttribute("approvalList", approvalList);
 	    model.addAttribute("pageDto", pageDto);
 	    model.addAttribute("searchDto", searchDto);
+	    model.addAttribute("approvalStatusTypeDto", astd);
 		
 		return "/approval/user/sendApproval";
 	}
@@ -190,6 +210,7 @@ public class ApprovalController {
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    
 	    List<ApprovalVo> fullList = service.selectApprovalAllByApproverId(member, searchDto, pageDto);
+	    ApprovalStatusVo statusCnt = service.selectApprovalStatusByApproverId(member);
 	    
 	    int start = (pageDto.getNowPage() - 1) * pageDto.getNumPerPage();
 		int end = Math.min(start + pageDto.getNumPerPage(), fullList.size());
@@ -205,6 +226,7 @@ public class ApprovalController {
 	    model.addAttribute("approvalVoList", approvalVoList);
 	    model.addAttribute("pageDto", pageDto);
 	    model.addAttribute("searchDto", searchDto);
+	    model.addAttribute("statusCnt", statusCnt);
 	    
 		return "/approval/user/receiveApproval";
 	}

@@ -71,9 +71,9 @@
 									th:value="${#authentication.principal.member.memberNo}">
 								<h4 id="approval_form_name" class="fw-bold text-center mb-4">양식
 									제목</h4>
-								<div class="text-end" style="min-width: 180px;">
+								<!-- <div class="text-end" style="min-width: 180px;">
 									작성일 : <span id="reg_date"></span>
-								</div>
+								</div> -->
 								<table class="table table-bordered align-middle">
 									<tbody>
 										<tr>
@@ -90,15 +90,18 @@
 												class="form-control w-100"></td>
 										</tr>
 										<tr>
-											<th class="text-center bg-light">일시</th>
-											<td colspan="5">
-												<div class="d-flex align-items-center" style="gap: 8px;">
-													<input type="date" id="start_date" name="start_date" class="form-control"
-														style="width: 200px; height: 36px;"> <span>
-														~ </span> <input type="date" id="end_date" name="end_date" class="form-control"
-														style="width: 200px; height: 36px;">
-												</div>
-											</td>
+										  <th class="text-center bg-light">일시</th>
+										  <td colspan="5">
+										    <div class="d-flex align-items-center" style="gap: 8px;">
+										      <input type="date" id="start_date" name="start_date" class="form-control" style="width: 150px; height: 36px;">
+										      <span> ~ </span>
+										      <input type="date" id="end_date" name="end_date" class="form-control" style="width: 150px; height: 36px;">
+										      &nbsp;
+										      <span id="annualInfoText" style="display: none;">남은 연차 : <span th:text="${#authentication.principal.member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 : <span id="use_annual_leave">0</span>
+										      &nbsp;<label><input class="form-check-input" type="checkbox" id="am" value="morning" disabled>&nbsp;오전</label>&nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" id="pm" value="afternoon" disabled>&nbsp;오후</label></span>
+										    
+										    </div>
+										  </td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">결재자</th>
@@ -177,6 +180,31 @@
 			</div>
 		</div>
 	</div>
+	
+	<script>
+	
+		document.getElementById("am").addEventListener('click', function(){
+			if(this.checked == true) {
+				if(document.getElementById("pm").checked == true) {
+					document.getElementById("pm").checked = false;
+				}
+				document.getElementById('use_annual_leave').innerText = 0.5;
+			} else {
+				document.getElementById('use_annual_leave').innerText = 1;
+			}
+		})
+		
+		document.getElementById("pm").addEventListener('click', function(){
+			if(this.checked == true) {
+				if(document.getElementById("am").checked == true) {
+					document.getElementById("am").checked = false;
+				}
+				document.getElementById('use_annual_leave').innerText = 0.5;
+			} else {
+				document.getElementById('use_annual_leave').innerText = 1;
+			}
+		})
+	</script>
 
 
 	<!-- alert 창 -->
@@ -274,18 +302,60 @@
 	</div>
 	
 	<script>
-		let end_date = document.getElementById('end_date');
-		end_date.addEventListener('change', function(e) {
-			e.preventDefault();
-			let start_date = document.getElementById('start_date').value;
-			if(!start_date) {
-				alert('시작일을 먼저 입력해주세요.');
-				end_date.value = '';
-			} else if(start_date > end_date.value) {
-				alert('종료일은 시작일보다 같거나 늦어져야합니다.');
-				end_date.value = '';
-			}
-		})
+		document.addEventListener('DOMContentLoaded', function () {
+			  const startDateInput = document.getElementById('start_date');
+			  const endDateInput = document.getElementById('end_date');
+			  const useAnnualLeave = document.getElementById('use_annual_leave');  // 사용 연차 표시 요소
+	
+			  // 시작일 변경 시 종료일 최소값 설정
+			  startDateInput.addEventListener('change', function () {
+			    if (startDateInput.value) {
+			      endDateInput.min = startDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      endDateInput.removeAttribute('min');
+			    }
+			  });
+	
+			  // 종료일 변경 시 시작일 최대값 설정
+			  endDateInput.addEventListener('change', function () {
+			    if (endDateInput.value) {
+			      startDateInput.max = endDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      startDateInput.removeAttribute('max');
+			    }
+			  });
+	
+			  // 시작일과 종료일의 날짜 차이를 계산하고 표시하는 함수
+			  function updateAnnualLeave() {
+			    const startDate = new Date(startDateInput.value);
+			    const endDate = new Date(endDateInput.value);
+	
+			    if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+			      const timeDifference = endDate - startDate; // 밀리초 단위 차이
+			      const dayDifference = timeDifference / (1000 * 3600 * 24) + 1; // 일 단위로 변환 (+1은 시작일 포함)
+					
+			      if(dayDifference == 1) {
+			    	  document.getElementById("am").disabled = false;
+			    	  document.getElementById("pm").disabled = false;
+			      } else {
+			    	  document.getElementById("am").disabled = true;
+			    	  document.getElementById("pm").disabled = true;
+			    	  document.getElementById("am").checked = false;
+			    	  document.getElementById("pm").checked = false;
+			      }
+			      
+			      if (dayDifference > 0) {
+			        useAnnualLeave.textContent = dayDifference;  // 사용 연차 표시
+			      } else {
+			        useAnnualLeave.textContent = 0; // 날짜 차이가 0일이면 0으로 표시
+			      }
+			    } else {
+			      useAnnualLeave.textContent = 0; // 유효한 날짜가 아닌 경우 0으로 표시
+			    }
+			  }
+			});
 	</script>
 
 
@@ -340,6 +410,12 @@
 		          document.querySelector("td[name='sender_name']").innerText = member.member_name;
 		          document.querySelector("td[name='dept_name']").innerText = member.dept_name;
 		          document.querySelector("td[name='pos_name']").innerText = member.pos_name;
+		          
+		          if (approvalForm.approval_form_type === 1) {
+		        	  document.getElementById('annualInfoText').style.display = '';
+		        	} else {
+		        	  document.getElementById('annualInfoText').style.display = 'none';
+		        	}
 
 		    	  // contenteditable div
 		    	  const editor = document.createElement('div');
@@ -466,53 +542,62 @@
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
 	        checkedMember.push(checkbox.value);
 	    });
-
+	
 	    checkedMember.forEach(function(member) {
-	        // 이미 추가된 결재자인지 확인
 	        let isAlreadyAddedApprover = Array.from(document.querySelectorAll('.selected_approver')).some(el => el.value === member);
 	        let isAlreadyAddedReferencer = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
 	        let isAlreadyAddedAgreementer = Array.from(document.querySelectorAll('.selected_agreementer')).some(el => el.value === member);
-
-	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) { // 중복이 아닐 때만 추가
+	
+	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) {
 	            fetch('/member/' + member, {
 	                method: 'GET'
 	            })
 	            .then(response => response.json())
 	            .then(data => {
 	                const list = document.getElementById("approverList");
-
+	
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item approver_li';
 	                li.innerHTML = `<button class="selected_approver btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
 	                
 	                list.appendChild(li);
 	                
-	             	// 해당 checkbox 찾아서 체크 해제
-	                document.querySelector(`.member-checkbox[value="${member}"]`).checked = false;
+	                // 체크 해제 + disabled 처리
+	                const checkbox = document.querySelector(`.member-checkbox[value="${member}"]`);
+	                if (checkbox) {
+	                    checkbox.checked = false;
+	                    checkbox.disabled = true;
+	                }
 	            })
 	            .catch(err => {
 	                console.error("사원 목록 불러오기 실패:", err);
 	            });
 	        } else {
-	        	alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
+	            alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
 	            console.log(`이미 추가된 사원: ${member}`);
 	        }
 	    });
 	};
+
 	
 	 // 결재자 목록에서 - 버튼 클릭 시 항목 제거
     document.getElementById('approverList').addEventListener('click', function(event) {
-        // 클릭된 요소가 .selected_approver 버튼인지 확인
-        if (event.target && event.target.classList.contains('selected_approver')) {
-            let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-
-            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
-            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
-            if (listItem) {
-                listItem.remove();  // <li> 요소 삭제
-            }
-        }
-    });
+	    if (event.target && event.target.classList.contains('selected_approver')) {
+	        let approverId = event.target.value;  // 버튼의 value 값 (member_no)
+	
+	        // 버튼의 부모 li 요소 삭제
+	        let listItem = event.target.closest('li');
+	        if (listItem) {
+	            listItem.remove();
+	        }
+	
+	        // 체크박스 다시 활성화시키기
+	        const checkbox = document.querySelector(`.member-checkbox[value="${approverId}"]`);
+	        if (checkbox) {
+	            checkbox.disabled = false;
+	        }
+	    }
+	});
 	 
 	 
 	 
@@ -522,35 +607,37 @@
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
 	        checkedMember.push(checkbox.value);
 	    });
-
+	
 	    checkedMember.forEach(function(member) {
-	        // 이미 추가된 합의자인지 확인
 	        let isAlreadyAddedApprover = Array.from(document.querySelectorAll('.selected_approver')).some(el => el.value === member);
 	        let isAlreadyAddedReferencer = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
 	        let isAlreadyAddedAgreementer = Array.from(document.querySelectorAll('.selected_agreementer')).some(el => el.value === member);
-
-	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) { // 중복이 아닐 때만 추가
+	
+	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) {
 	            fetch('/member/' + member, {
 	                method: 'GET'
 	            })
 	            .then(response => response.json())
 	            .then(data => {
 	                const list = document.getElementById("agreementerList");
-
+	
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item agreementer_li';
 	                li.innerHTML = `<button class="selected_agreementer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
-	                
 	                list.appendChild(li);
-	                
-	            	// 해당 checkbox 찾아서 체크 해제
-	                document.querySelector(`.member-checkbox[value="${member}"]`).checked = false;
+	
+	                // 체크 해제 + 비활성화
+	                const checkbox = document.querySelector(`.member-checkbox[value="${member}"]`);
+	                if (checkbox) {
+	                    checkbox.checked = false;
+	                    checkbox.disabled = true;
+	                }
 	            })
 	            .catch(err => {
 	                console.error("사원 목록 불러오기 실패:", err);
 	            });
 	        } else {
-	        	alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
+	            alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
 	            console.log(`이미 추가된 사원: ${member}`);
 	        }
 	    });
@@ -558,17 +645,20 @@
 	
 	 // 합의자 목록에서 - 버튼 클릭 시 항목 제거
     document.getElementById('agreementerList').addEventListener('click', function(event) {
-        // 클릭된 요소가 .selected_approver 버튼인지 확인
-        if (event.target && event.target.classList.contains('selected_agreementer')) {
-            let approverId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-
-            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
-            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
-            if (listItem) {
-                listItem.remove();  // <li> 요소 삭제
-            }
-        }
-    });
+	    if (event.target && event.target.classList.contains('selected_agreementer')) {
+	        let agreementerId = event.target.value;
+	
+	        let listItem = event.target.closest('li');
+	        if (listItem) {
+	            listItem.remove();
+	        }
+	
+	        const checkbox = document.querySelector(`.member-checkbox[value="${agreementerId}"]`);
+	        if (checkbox) {
+	            checkbox.disabled = false;
+	        }
+	    }
+	});
 	 
 	 
  	// 참조자 등록버튼
@@ -577,36 +667,37 @@
 	    document.querySelectorAll('.member-checkbox:checked').forEach(function(checkbox) {
 	        checkedMember.push(checkbox.value);
 	    });
-
+	
 	    checkedMember.forEach(function(member) {
-	        // 이미 추가된 결재자인지 확인
 	        let isAlreadyAddedApprover = Array.from(document.querySelectorAll('.selected_approver')).some(el => el.value === member);
 	        let isAlreadyAddedReferencer = Array.from(document.querySelectorAll('.selected_referencer')).some(el => el.value === member);
 	        let isAlreadyAddedAgreementer = Array.from(document.querySelectorAll('.selected_agreementer')).some(el => el.value === member);
-	        
-
-	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) { // 중복이 아닐 때만 추가
+	
+	        if (!isAlreadyAddedApprover && !isAlreadyAddedReferencer && !isAlreadyAddedAgreementer) {
 	            fetch('/member/' + member, {
 	                method: 'GET'
 	            })
 	            .then(response => response.json())
 	            .then(data => {
 	                const list = document.getElementById("referencerList");
-
+	
 	                const li = document.createElement("li");
 	                li.className = 'list-group-item referencer_li';
 	                li.innerHTML = `<button class="selected_referencer btn-sm btn btn-rounded btn-light" value="${data.member_no}">-</button> ${data.member_name}`;
-	                
 	                list.appendChild(li);
-	                
-	             	// 해당 checkbox 찾아서 체크 해제
-	                document.querySelector(`.member-checkbox[value="${member}"]`).checked = false;
+	
+	                // 체크 해제 + 비활성화
+	                const checkbox = document.querySelector(`.member-checkbox[value="${member}"]`);
+	                if (checkbox) {
+	                    checkbox.checked = false;
+	                    checkbox.disabled = true;
+	                }
 	            })
 	            .catch(err => {
 	                console.error("사원 목록 불러오기 실패:", err);
 	            });
 	        } else {
-	        	alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
+	            alert('각 항목에 추가된 사원은 중복으로 추가 할 수 없습니다.');
 	            console.log(`이미 추가된 사원: ${member}`);
 	        }
 	    });
@@ -614,16 +705,20 @@
 	
 	 // 참조자 목록에서 - 버튼 클릭 시 항목 제거
     document.getElementById('referencerList').addEventListener('click', function(event) {
-        if (event.target && event.target.classList.contains('selected_referencer')) {
-            let referencerId = event.target.value;  // 클릭한 버튼의 value 값 가져오기
-
-            // 클릭된 버튼의 부모 <li> 요소를 찾아서 삭제
-            let listItem = event.target.closest('li');  // 버튼의 부모 li 찾기
-            if (listItem) {
-                listItem.remove();  // <li> 요소 삭제
-            }
-        }
-    }); 
+	    if (event.target && event.target.classList.contains('selected_referencer')) {
+	        let referencerId = event.target.value;
+	
+	        let listItem = event.target.closest('li');
+	        if (listItem) {
+	            listItem.remove();
+	        }
+	
+	        const checkbox = document.querySelector(`.member-checkbox[value="${referencerId}"]`);
+	        if (checkbox) {
+	            checkbox.disabled = false;
+	        }
+	    }
+	});
 	 
 	 
 	 

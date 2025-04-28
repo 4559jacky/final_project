@@ -26,4 +26,9 @@ public class ApprovalSpecification {
 	        return criteriaBuilder.equal(memberJoin.get("memberNo"), keyword);
 	    };
 	}
+	
+	public static Specification<Approval> approvalStatusContains(String keyword) {
+		return (root, query, criteriaBuilder) -> 
+			criteriaBuilder.like(root.get("apprStatus"), "%"+keyword+"%");
+	}
 }
