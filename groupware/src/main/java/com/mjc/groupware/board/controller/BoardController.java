@@ -117,13 +117,18 @@ public class BoardController {
 
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
-        logger.debug("boardNo received: "+boardNo);
+        logger.debug("boardNo received: " + boardNo);
+
+        // 조회수 먼저 올리기
+        boardService.updateViews(boardNo);
+
+        // 첨부파일 조회
         List<BoardAttach> attachList = boardAttachService.selectAttachList(boardNo);
         model.addAttribute("attachList", attachList);
 
+        // 다시 게시글 가져오기 (업데이트된 조회수 포함)
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
         if (optionalBoard.isPresent()) {
-            boardService.updateViews(boardNo);
             model.addAttribute("board", optionalBoard.get());
             List<ReplyDto> replyList = replyService.getHierarchicalRepliesByBoardNo(boardNo);
             model.addAttribute("replyList", replyList);
