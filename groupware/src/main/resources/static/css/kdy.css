@@ -163,3 +163,7 @@ body {
 .sub-reply-list {
     padding-left: 30px; /* 대댓글을 조금 들여서 보여주기 */
 }
+/* 새로 추가 */
+.reply-content {
+    white-space: pre-wrap;
+}
