@@ -95,6 +95,7 @@ public class BoardService {
      */
     @Transactional(readOnly = true)
     public Optional<Board> selectBoardOne(Long boardNo) {
+    	updateViews(boardNo); // 조회수 증가
         return repository.findById(boardNo);
     }
 
@@ -105,7 +106,8 @@ public class BoardService {
     public void updateViews(Long boardNo) {
         repository.updateViews(boardNo);
     }
-
+    
+    
  // 게시글 목록 조회 (검색 및 페이징 포함)
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
         // 정렬 조건 설정
@@ -134,6 +136,7 @@ public class BoardService {
         // 검색 조건 처리
         String keyword = searchDto.getSearch_text();
         int searchType = searchDto.getSearch_type();
+        
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             switch (searchType) {

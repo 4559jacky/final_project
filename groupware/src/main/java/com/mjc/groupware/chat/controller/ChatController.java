@@ -87,13 +87,22 @@ public class ChatController {
 		return chatMsgDtoList;
 	}
 	
-	// 실시간 채팅 + db 저장 
+	// 실시간 채팅
 	@MessageMapping("/chat/msg")
 	public void message(ChatMsgDto dto) {
-		
-		// 구독중인 사용자들에게 전송
-		messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), dto);
+	    // 하나의 메시지를 모든 사용자가 받을 수 있도록 전송
+	    ChatMsgDto msgdto = new ChatMsgDto();
+	    msgdto.setChat_room_no(dto.getChat_room_no());
+	    msgdto.setMember_no(dto.getMember_no());
+	    msgdto.setChat_msg_content(dto.getChat_msg_content());
+	    msgdto.setMember_no_list(dto.getMember_no_list());
+
+	    // 채팅방에 메시지를 한 번만 전송 (모든 사용자에게 전송)
+	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), msgdto);
 	}
+
+	
+
 	
 	
 	

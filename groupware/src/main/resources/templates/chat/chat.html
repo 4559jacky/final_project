@@ -153,7 +153,7 @@
 										<div class="d-flex align-items-center gap-2 w-85">
 											<input type="text"
 												class="form-control message-type-box text-muted border-0 p-0 ms-2"
-												placeholder="Type a Message" fdprocessedid="0p3op" />
+												placeholder="메세지를 입력해주세요." fdprocessedid="0p3op" id="msgContent"/>
 										</div>
 										<input type= hidden id="chatRoomNo">
 										<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
@@ -166,10 +166,14 @@
 												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
 												href="javascript:void(0)"> <i class="ti ti-paperclip"></i>
 											</a></li>
-											<li><a
-												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
-												href="javascript:void(0)"> <i class="ti ti-brand-telegram"></i>
-											</a></li>
+											<li>
+												<a
+												  class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
+												  href="javascript:void(0)"
+												  id="send_btn">
+												  <i class="ti ti-brand-telegram"></i>
+												</a>
+											</li>
 										</ul>
 									</div>
 								</div>
@@ -363,12 +367,6 @@
 		</div>
 	</div>
 	
-	
-	
-	<h1>WebSocket 테스트</h1>
-	<input type="text" id="msg">
-	<input type="button" value="전송" onclick="sendMsg();">
-	<div id="output"></div>
 	<script>
 		
 		// 채팅방 추가
@@ -528,256 +526,262 @@
 
 			// 채팅방 목록 클릭 시 해당 채팅창으로 이동
 			$(".app-chat .chat-user").on("click", function () {
-			  // 이미 열려 있는 채팅이면 return (optional)
-			  if ($(this).hasClass("active")) {
-			    return;
-			  }
-			
-			  // 유저 정보 추출
-			  var roomNo = $(this).attr("data-room-id");
-			  var memberName = $(this).find(".chat-title").text();
-			  var memberDept = $(this).find(".dept").text();
-			  var memberImage = $(this).find("img").attr("src");
-			  document.getElementById('chatRoomNo').value = roomNo;
-			  
-			  fetch("/selectChatRoom/"+roomNo,{
-				method:'post',
-				headers : {
-					'header': document.querySelector('meta[name="_csrf_header"]').content,
-				           	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-					}
-			  })
-			  .then(response => response.json())
-			  .then(data => {
-				  console.log(data);
-				  document.getElementById("memberCount").textContent = "("+data.memberInfos.length+")";
+				  // 이미 열려 있는 채팅이면 return (optional)
+				  if ($(this).hasClass("active")) {
+				    return;
+				  }
 				  
-				  const memberInfoDiv = document.getElementById('memberInfo').value;
-				  
-				  data.memberInfos.forEach(member => {
-			           /*  const memberHTML = `
-			                <div class="d-flex align-items-center justify-content-between mb-3">
-			                    <div class="d-flex align-items-center">
-			                        <div class="position-relative">
-			                            <img src="${latestMyProfile}" alt="user" width="54" height="54" class="rounded-circle" />
-			                        </div>
-			                        <div class="ms-3">
-			                            <h6 class="fw-semibold mb-2">${member.memberName} ${member.positionName ?? ''}</h6>
-			                            <p class="mb-0 fs-2">${member.departmentName ?? ''}</p>
-			                        </div>
-			                    </div>
-			                </div>
-			            `;
-			            memberInfoContainer.insertAdjacentHTML("beforeend", memberHTML); */
-			        });
-			  })
-			  
-			  // 상단 이름/이미지 설정
-			  if (window.innerWidth <= 767) {
-			    $(".chat-container .current-chat-user-name .name").html(
-			      personName.split(" ")[0]
-			    );
-			  } else {
-			    $(".chat-container .current-chat-user-name .name").html(memberName);
-			  }
-			  $(".chat-container .current-chat-user-name img").attr("src", memberImage); 
-			
-			  // 메세지 조회
-			  fetch("/selectChatMsg/"+roomNo,{
-				method:'post',
-				headers : {
-					'header': document.querySelector('meta[name="_csrf_header"]').content,
-	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-					}
-				})
-				.then(response => response.json())
-				.then(data => {
-					  const chatListContainer = document.querySelector(".chat-box-inner .chat.active-chat");
-					  chatListContainer.innerHTML = ""; // 기존 채팅 내용 비우기 
-					
-					  const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
-					  
-					  data.forEach(msg => {
-						    const userCheck = (msg.member_no == myMemberNo); // 여기로 이동
-						    
-						    const wrapper = document.createElement("div");
-						    wrapper.className = "d-flex mb-4";
-
-						    if (userCheck) {
-						        // ✅ 내가 보낸 메시지 (오른쪽 정렬, 시간 → 메시지 순)
-						        wrapper.style.justifyContent = "flex-end";
-						        wrapper.innerHTML = `
-						            <div class="d-flex align-items-end mb-3" style="max-width: 70%;">
-						                <div class="text-muted fs-2 me-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
-						                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-						                    ${msg.chat_msg_content}
-						                </div>
-						            </div>
-						        `;
-						    } else {
-						        // ✅ 상대가 보낸 메시지 (왼쪽 정렬, 메시지 → 시간 순)
-						        wrapper.style.justifyContent = "flex-start";
-						        wrapper.innerHTML = `
-						            <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
-						            <div class="mb-3" style="max-width: 70%;">
-						                <div class="fw-bold fs-2">${msg.member_name} ${msg.member_pos_name} (${msg.member_dept_name})</div>
-						                <div class="d-flex align-items-end">
-						                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">
-						                        ${msg.chat_msg_content}
-						                    </div>
-						                    <div class="text-muted fs-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
-						                </div>
-						            </div>
-						        `;
-						    }
-
-
-
-						    chatListContainer.appendChild(wrapper);
-						});
-
-
+				  document.getElementById("msgContent").value = "";
 				
-				    // 메시지 가장 아래로 스크롤
-					chatListContainer.scrollTop = chatListContainer.scrollHeight;
+				  // 유저 정보 추출
+				  var roomNo = $(this).attr("data-room-id");
+				  var memberName = $(this).find(".chat-title").text();
+				  var memberDept = $(this).find(".dept").text();
+				  var memberImage = $(this).find("img").attr("src");
+				  document.getElementById('chatRoomNo').value = roomNo;
+				  
+				  fetch("/selectChatRoom/"+roomNo,{
+					method:'post',
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+					           	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						}
+				  })
+				  .then(response => response.json())
+				  .then(data => {
+					    document.getElementById("memberCount").textContent = "(" + data.memberInfos.length + ")";
+					    
+					    const memberInfoDiv = document.getElementById('memberInfo');
+					    memberInfoDiv.innerHTML = '';
+					
+					    data.memberInfos.forEach(member => { // data.memberInfos 로 접근!
+					        const memberHTML = `
+					            <div class="d-flex align-items-center justify-content-between mb-3">
+					                <div class="d-flex align-items-center">
+					                    <div class="ms-3">
+					                        <h6 class="fw-semibold mb-2">${member.memberName} ${member.positionName ?? ''}</h6>
+					                        <p class="mb-0 fs-2">${member.departmentName ?? ''}</p>
+					                    </div>
+					                </div>
+					            </div>
+					            <input type="hidden" class="receiverNoInput" value="${member.memberNo}" />
+					        `;
+					        memberInfoDiv.insertAdjacentHTML('beforeend', memberHTML);
+					    });
+					})
+				
+				  
+				  // 상단 이름/이미지 설정
+				  if (window.innerWidth <= 767) {
+				    $(".chat-container .current-chat-user-name .name").html(
+				      personName.split(" ")[0]
+				    );
+				  } else {
+				    $(".chat-container .current-chat-user-name .name").html(memberName);
+				  }
+				  $(".chat-container .current-chat-user-name img").attr("src", memberImage); 
+				
+				  // 메세지 조회
+				  fetch("/selectChatMsg/"+roomNo,{
+					method:'post',
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+				            	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						  const chatListContainer = document.querySelector(".chat-box-inner .chat.active-chat");
+						  chatListContainer.innerHTML = ""; // 기존 채팅 내용 비우기 
+						
+						  const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
+						  
+						  data.forEach(msg => {
+							    const userCheck = (msg.member_no == myMemberNo); // 여기로 이동
+							    
+							    const wrapper = document.createElement("div");
+							    wrapper.className = "d-flex mb-4";
+				
+							    if (userCheck) {
+							        // ✅ 내가 보낸 메시지 (오른쪽 정렬, 시간 → 메시지 순)
+							        wrapper.style.justifyContent = "flex-end";
+							        wrapper.innerHTML = `
+							            <div class="d-flex align-items-end mb-3" style="max-width: 70%;">
+							                <div class="text-muted fs-2 me-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
+							                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
+							                    ${msg.chat_msg_content}
+							                </div>
+							            </div>
+							        `;
+							    } else {
+							        // ✅ 상대가 보낸 메시지 (왼쪽 정렬, 메시지 → 시간 순)
+							        wrapper.style.justifyContent = "flex-start";
+							        wrapper.innerHTML = `
+							            <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
+							            <div class="mb-3" style="max-width: 70%;">
+							                <div class="fw-bold fs-2">${msg.member_name} ${msg.member_pos_name} (${msg.member_dept_name})</div>
+							                <div class="d-flex align-items-end">
+							                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">
+							                        ${msg.chat_msg_content}
+							                    </div>
+							                    <div class="text-muted fs-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
+							                </div>
+							            </div>
+							        `;
+							    }
+				
+				
+				
+							    chatListContainer.appendChild(wrapper);
+							});
+				
+				
+					
+					    // 메시지 가장 아래로 스크롤
+						chatListContainer.scrollTop = chatListContainer.scrollHeight;
+					});
+				
+				  function formatTime(isoString) {
+					  const date = new Date(isoString);
+					  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+					}
+				  
+				
+				  // 모바일용 메뉴 닫기 처리
+				  if ($(this).parents(".user-chat-box").hasClass("user-list-box-show")) {
+				    $(this).parents(".user-chat-box").removeClass("user-list-box-show");
+				  }
+				
+				  // 하단 입력창 보이기
+				  $(".chat-meta-user").addClass("chat-active");
+				  $(".chat-send-message-footer").addClass("chat-active");
+				  
+				  
+				  let stompClient = null;
+				  
+				// 구독 끊고
+				  if (stompClient) {
+				      stompClient.disconnect(function() {
+				          console.log("Disconnected previous connection");
+				      });
+				  }
+				  
+				//  stomp 연결
+				
+				let senderNo = document.getElementById("sendMemberNo").value;
+				
+				let socket = new SockJS("/ws-chat");
+				stompClient = Stomp.over(socket);
+				
+				stompClient.connect({}, function (frame) {
+					console.log("STOMP 연결 성공: " + frame);
+				
+					// 채팅 메시지 수신 구독
+					stompClient.subscribe("/topic/chat/room/" + roomNo, function (message) {
+						let msgData = JSON.parse(message.body);
+				
+						console.log("Received message: ", msgData);	
+						
+						// Start getting time
+					    var now = new Date();
+						var hh = now.getHours();
+						var min = now.getMinutes();
+						
+						// 두 자릿수로 맞추기 위해 조건 추가
+						hh = hh < 10 ? "0" + hh : hh;
+						min = min < 10 ? "0" + min : min;
+						
+						// 원하는 형식으로 시간 만들기
+						var time = hh + ":" + min;
+					    // End
+
+						 const chatListContainer = document.querySelector(".chat-box-inner .chat.active-chat");
+						
+						 const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
+						 
+						
+					    const userCheck = (msgData.member_no == myMemberNo); // 여기로 이동
+					    
+					    const wrapper = document.createElement("div");
+					    wrapper.className = "d-flex mb-4";
+					
+					    if (userCheck) {
+					        // ✅ 내가 보낸 메시지 (오른쪽 정렬, 시간 → 메시지 순)
+					        wrapper.style.justifyContent = "flex-end";
+					        wrapper.innerHTML = `
+					            <div class="d-flex align-items-end mb-3" style="max-width: 70%;">
+					                <div class="text-muted fs-2 me-2" style="white-space: nowrap;">`+time+`</div>
+					                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
+					                    ${msgData.chat_msg_content} 
+					                </div>
+					            </div>
+					        `;
+					    } else {
+					        // ✅ 상대가 보낸 메시지 (왼쪽 정렬, 메시지 → 시간 순)
+					        wrapper.style.justifyContent = "flex-start";
+					        wrapper.innerHTML = `
+					            <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
+					            <div class="mb-3" style="max-width: 70%;">
+					                <div class="fw-bold fs-2">${msgData.member_no}</div>
+					                <div class="d-flex align-items-end">
+					                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">
+					                    	${msgData.chat_msg_content} 
+					                     </div>
+					                    <div class="text-muted fs-2" style="white-space: nowrap;">`+time+`</div>
+					                </div>
+					            </div>
+					        `;
+					    }		
+					
+					    chatListContainer.appendChild(wrapper);
+					    chatListContainer.scrollTop = chatListContainer.scrollHeight;
+					     
+					});
+				});
+				
+
+				let checkMsg = document.getElementById("msgContent").value;
+				
+				// send_btn 클릭 이벤트
+				document.getElementById("send_btn").addEventListener("click", function () {
+				    let checkMsg = document.getElementById("msgContent").value.trim();
+				    if (checkMsg !== "") {
+				        sendMessage();
+				    }
 				});
 
-			  function formatTime(isoString) {
-				  const date = new Date(isoString);
-				  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+				// 엔터 키 눌림 감지
+				document.getElementById("msgContent").addEventListener("keydown", function (event) {
+				    if (event.key === "Enter") {
+				        event.preventDefault();
+				        let checkMsg = document.getElementById("msgContent").value.trim();
+				        if (checkMsg !== "") {
+				            sendMessage();
+				        }
+				    }
+				});
+
+				// 메시지 전송 함수
+				function sendMessage() {
+				    let receiverNos = []; // 여러 명 받을 거니까 배열 준비
+				    document.querySelectorAll(".receiverNoInput").forEach(input => {
+				        receiverNos.push(parseInt(input.value)); // 예: 여러 input에서 수집 (숫자로 변환)
+				    });
+
+				    let msgContent = document.getElementById("msgContent").value;
+
+				    stompClient.send("/app/chat/msg", {}, JSON.stringify({
+				        member_no: senderNo,
+				        chat_room_no: roomNo,
+				        member_no_list: receiverNos,
+				        chat_msg_content: msgContent
+				    }));
+
+				    document.getElementById("msgContent").value = ""; // 메시지 입력창 비우기
 				}
-			  
-			
-			  // 모바일용 메뉴 닫기 처리
-			  if ($(this).parents(".user-chat-box").hasClass("user-list-box-show")) {
-			    $(this).parents(".user-chat-box").removeClass("user-list-box-show");
-			  }
-			
-			  // 하단 입력창 보이기
-			  $(".chat-meta-user").addClass("chat-active");
-			  $(".chat-send-message-footer").addClass("chat-active");
+
+
 			});
-			
-			
-			let stompClient = null;
-		    let currentSubscription = null;
-		    let chatRoomNo = null; 
-
-		    function connectChat() {
-		        let sock = new SockJS("/ws-chat");
-		        stompClient = Stomp.over(sock);
-
-		        stompClient.connect({}, function (frame) {
-		            console.log('Connected: ' + frame);
-		            // 👉 소켓 연결만! 채팅방 구독은 클릭할 때!
-		        });
-		    }
-
-		    function subscribeChatRoom(chatRoomNo) {
-		        if (currentSubscription) {
-		            currentSubscription.unsubscribe(); // 기존 구독 끊기
-		        }
-
-		        currentSubscription = stompClient.subscribe('/topic/chat/room/' + chatRoomNo, function (messageOutput) {
-		            let msg = JSON.parse(messageOutput.body);
-
-		            let $messageHtml =
-		                '<div class="text-start mb-3"> <div class="p-2 bg-light text-dark rounded-1 d-inline-block fs-3">' +
-		                msg.chat_msg_content +
-		                '</div> <div class="d-block fs-2">' +
-		                formatTime(new Date()) +
-		                "</div>  </div>";
-
-		            $(".active-chat").append($messageHtml);
-		            scrollToBottom();
-		        });
-		    }
-
-		    function sendMsg(messageContent) {
-		        let chatRoomNo = document.getElementById('chatRoomNo').value; // 🔥 input에서 읽기
-
-		        if (!chatRoomNo) {
-		            alert("채팅방을 먼저 선택하세요!");
-		            return;
-		        }
-
-		        if (messageContent && stompClient && stompClient.connected) {
-		            stompClient.send("/app/chat/msg", {}, JSON.stringify({
-		                chat_room_no: chatRoomNo,
-		                chat_msg_content: messageContent
-		            }));
-
-		            document.getElementById('msg').value = '';
-		        }
-		    }
-
-		    function handleSend() {
-		        let messageContent = document.getElementById('msg').value.trim();
-		        if (messageContent !== "") {
-		            sendMsg(messageContent);
-		            appendMyMessage(messageContent);
-		        }
-		    }
-
-		    function appendMyMessage(messageContent) {
-		        let now = new Date();
-		        let time = formatTime(now);
-
-		        let $messageHtml =
-		            '<div class="text-end mb-3"> <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">' +
-		            messageContent +
-		            '</div> <div class="d-block fs-2">' +
-		            time +
-		            "</div>  </div>";
-
-		        $(".active-chat").append($messageHtml);
-		        scrollToBottom();
-		    }
-
-		    function formatTime(date) {
-		        let hh = date.getHours();
-		        let min = date.getMinutes();
-
-		        let ampm = hh >= 12 ? "pm" : "am";
-		        hh = hh % 12;
-		        hh = hh ? hh : 12;
-		        hh = hh < 10 ? "0" + hh : hh;
-		        min = min < 10 ? "0" + min : min;
-
-		        return hh + ":" + min + " " + ampm;
-		    }
-
-		    function scrollToBottom() {
-		        let chatBox = document.getElementById('chat-box');
-		        chatBox.scrollTop = chatBox.scrollHeight;
-		    }
-
-		    $(document).ready(function () {
-		        connectChat(); // ✅ 소켓 연결만!
-
-		        $(".message-type-box").on("keydown", function (event) {
-		            if (event.key === "Enter") {
-		                event.preventDefault();
-		                handleSend();
-		            }
-		        });
-
-		        // ✅ 채팅방 클릭할 때
-		        $(".chat-room-item").on("click", function () {
-		            let chatRoomNo = document.getElementById('chatRoomNo').value;
-
-		            if (!chatRoomNo) {
-		                alert("채팅방 번호가 없습니다.");
-		                return;
-		            }
-
-		            subscribeChatRoom(chatRoomNo);
-
-		            // 채팅창 비우기
-		            $(".active-chat").empty();
-		        });
-		    });
-			
 			
 
 			 // *******************************************************************
