@@ -6,7 +6,6 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.pos.entity.Pos;
 
@@ -102,7 +101,6 @@ public class Member {
 	
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
-	
 
 	@OneToMany(mappedBy="member")
 	private List<MemberAttach> memberAttachs;
