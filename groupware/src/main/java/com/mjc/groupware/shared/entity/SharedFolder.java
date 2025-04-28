@@ -39,10 +39,10 @@ public class SharedFolder {
 	private String folderName;
 	
 	@Column(name="folder_status")
-	private String folderStatus;
+	private String folderStatus = "N";
 	
-	@Column(name="folder_shared")
-	private String folderShared;
+	@Column(name="folder_type")
+	private Integer folderType;
 	
 	@ManyToOne
 	@JoinColumn(name="member_no", nullable = false)
