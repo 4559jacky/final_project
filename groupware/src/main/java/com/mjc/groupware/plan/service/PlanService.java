@@ -25,16 +25,17 @@ public class PlanService {
 		return planRepository.save(dto.toEntity());
 	}
 
-	// 목록조회
-//	public List<Plan> selectPlanAll() {
-//		return planRepository.findAll();
-//	}
-//
-//	//
+	// HTML리턴(페이지 이동용)- 목록뿌려주기
+	public List<Plan> selectPlanAll() {
+		return planRepository.findAll();
+	}
+
+	// 달력에 db일정 뿌려주는 코드 - 목록뿌려주기
 	public List<Plan> selectAllPlans() {
 	    return planRepository.findAll();
 	}
 
+	// 삭제 Y/N 확인
 	public List<Plan> selectPlanAllNotDeleted() {
 	    return planRepository.findByDelYn("N");
 	}
@@ -83,19 +84,6 @@ public class PlanService {
 	}
 
 	// 상세모달창 삭제
-//	public int deletePlan(Long id) {
-//		int result = 0;
-//		try {
-//			Plan target = planRepository.findById(id).orElse(null);
-//			if(target != null) {
-//				planRepository.deleteById(id);
-//			}
-//			result = 1;
-//		}catch(Exception e) {
-//			e.printStackTrace();
-//		}
-//		return result;
-//	}
 	@Transactional
 	public int deletePlan(Long id, Long memberId) {
 	    int result = 0;

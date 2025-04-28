@@ -35,19 +35,8 @@ public class PlanController {
 
 	// HTML리턴(페이지 이동용)
 	@GetMapping("/calendar")
-	public String calendarView(Model model, @AuthenticationPrincipal MemberDetails memberDetails) {
-		Member member = memberDetails.getMember();
-		Long memberId = member.getMemberNo();
-		
-		List<Plan> planList = planService.selectPlanAllNotDeleted();
-		List<Plan> resultList = new ArrayList<Plan>();
-		for(Plan p : planList) {
-			if("N".equals(p.getDelYn())) {
-				resultList.add(p);
-			}
-		}
-		model.addAttribute("resultList",resultList);
-		model.addAttribute("memberId", memberId);
+	public String calendarView(Model model) {
+		List<Plan> planList = planService.selectPlanAll();
 		return "plan/calendar";
 	}
 	
@@ -62,6 +51,11 @@ public class PlanController {
 		List<Map<String, Object>> events = new ArrayList<>();
 		
 		for(Plan plan : plans) {
+			// 삭제 여부 체크 추가 (delYn = 'N'인 경우만 처리)
+			if(!"N".equals(plan.getDelYn())) {
+				continue;
+			}
+			
 			String planType = plan.getPlanType();
 	        Long regMemberNo = plan.getMember().getMemberNo();
 	        // 방어적 null 체크 및 trim 처리
