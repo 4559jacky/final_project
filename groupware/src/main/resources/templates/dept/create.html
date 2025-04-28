@@ -176,7 +176,10 @@ layout:decorate="~{/include/layout}">
                                   			<label for="member_no" class="form-label">부서장</label>
                                   			<select class="form-select" id="member_no" name="member_no" aria-label="dept-chief-member">
                                     			<option selected th:value="0">-</option>
-                                    			<option th:each="member : ${memberWithoutDept}" th:value="${member.memberNo}" th:text="'# ' + ${member.memberNo} + ' ' + ${member.memberName}"></option>
+                                    			<option th:each="member : ${memberWithoutDept}"
+                                    					th:if="${member.memberNo != 1}"
+                                    					th:value="${member.memberNo}"
+                                    					th:text="'# ' + ${member.memberNo} + ' ' + ${member.memberName}"></option>
                                   			</select>
                                 		</div>
                                 		
