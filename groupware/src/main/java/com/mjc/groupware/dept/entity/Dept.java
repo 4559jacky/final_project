@@ -66,4 +66,16 @@ public class Dept {
 	@OneToMany(mappedBy="dept")
 	private List<Member> members;
 	
+	public void clearDeptHead() {
+        if (this.member != null) {
+            this.member = null;
+        }
+    }
+	
+	public void changeDeptManager(Member newManager) {
+        if (this.member != null && this.member.equals(newManager)) {
+            return;
+        }
+        this.member = newManager;
+    }
 }

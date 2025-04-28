@@ -248,9 +248,17 @@ public class ApprovalController {
 	}
 	
 	@GetMapping("/approval/create")
-	public String createApprovalView(Model model) {
+	public String createApprovalView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		
+		String userId = userDetails.getUsername();
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+		
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
 		model.addAttribute("formList", resultList);
+		model.addAttribute("member", member);
 		return "/approval/user/createApproval";
 	}
 	

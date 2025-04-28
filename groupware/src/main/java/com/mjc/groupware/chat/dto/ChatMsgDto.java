@@ -1,6 +1,7 @@
 package com.mjc.groupware.chat.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.mjc.groupware.chat.entity.ChatMsg;
 
@@ -9,7 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,6 +33,8 @@ public class ChatMsgDto {
 	 private String member_pos_name;
 	 
 	 private String member_dept_name;
+	 
+	 private List<Long> member_no_list;
 	
 	 // 변환 메서드 (Entity → DTO)
     public ChatMsgDto toDto(ChatMsg msg) {

@@ -37,7 +37,7 @@ public class ApprovalDto {
 	private LocalDate start_date;
 	private LocalDate end_date;
 	private double use_annual_leave;
-	private String half_anuual_leave_type; // 반차 타입
+	private int annual_leave_type; // 반차 타입
 	
 	// 결재자, 합의자, 참조자
 	private List<Long> approver_no;
@@ -56,6 +56,8 @@ public class ApprovalDto {
 				.apprReason(appr_reason)
 				.startDate(start_date)
 				.endDate(end_date)
+				.useAnnualLeave(use_annual_leave)
+				.annualLeaveType(annual_leave_type)
 				.member(Member.builder().memberNo(appr_sender).build())
 				.approvalForm(ApprovalForm.builder().approvalFormNo(approval_type_no).build())
 				.build();
@@ -73,6 +75,8 @@ public class ApprovalDto {
 				.appr_reason(approval.getApprReason())
 				.start_date(approval.getStartDate())
 				.end_date(approval.getEndDate())
+				.use_annual_leave(approval.getUseAnnualLeave())
+				.annual_leave_type(approval.getAnnualLeaveType())
 				.appr_sender(approval.getMember().getMemberNo())
 				.approval_type_no(approval.getApprovalForm().getApprovalFormNo())
 				.build();

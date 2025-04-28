@@ -23,10 +23,7 @@
 		<h2 class="mb-0 fw-bolder fs-8">결재 양식 생성</h2>
 	</div>
 	<br>
-	<!-- 📌 Summernote CSS는 그대로 유지 -->
-	<link
-		href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css"
-		rel="stylesheet">
+
 
 	<!-- 📌 Bootstrap 스타일 적용된 Form -->
 	<form name="update_approval_form" action="/admin/approvalForm/update"
@@ -54,9 +51,9 @@
 
 				<!-- 에디터 영역 -->
 				<div class="post-form">
-					<textarea name="approval_form" id="summernote"
-						th:text="${form.approval_form}"></textarea>
-				</div>
+                    <div id="editor" style="margin-top: 10px;"></div>
+                    <textarea id="approval_form_content" name="approval_form" th:text="${form.approval_form}" hidden></textarea>
+                </div>
 			</div>
 		</div>
 	</form>
@@ -64,101 +61,69 @@
 
 <!-- 스크립트는 여기에 넣기 -->
 <th:block layout:fragment="scripts">
+
+	<link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
 	<script>
-    $(document).ready(function () {
-      console.log("Summernote 상태:", $.fn.summernote);
-
-      $('#summernote').summernote({
-    	    height: 800,
-    	    lang: 'ko-KR',
-    	    codeviewFilter: false,
-    	    toolbar: [
-    	      ['fontsize', ['fontsize']],
-    	      ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
-    	      ['color', ['color']],
-    	      ['table', ['table']],
-    	      ['para', ['ul', 'ol', 'paragraph']],
-    	      ['height', ['height']],
-    	      ['insert',['picture']]
-    	    ],
-    	    fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋음체','바탕체'],
-    	    fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72','96'],
-    	    focus: true,
-    	    callbacks: {
-    	      onInit: function () {
-    	        // 모든 드롭다운 항목 선택 시 닫힘 처리
-    	        $(document).on('click', '.dropdown-menu a, .note-dimension-picker', function () {
-    	          setTimeout(function () {
-    	            $('.dropdown-menu').removeClass('show');
-    	          }, 150); // 자연스럽게 닫히도록 딜레이
-    	        });
-    	      }
-    	    }
-    	  });
-
-      // 👇 Bootstrap 5에서 dropdown toggle을 강제로 수동 연결
-      $('body').on('click', '.note-btn.dropdown-toggle', function (e) {
-        var $dropdown = $(this).next('.dropdown-menu');
-        $('.dropdown-menu').not($dropdown).removeClass('show'); // 다른 드롭다운 닫기
-        $dropdown.toggleClass('show');
-      });
-
-      // 👇 다른 곳 클릭하면 드롭다운 닫기
-      $(document).on('click', function (e) {
-        if (!$(e.target).closest('.note-editor').length) {
-          $('.dropdown-menu').removeClass('show');
-        }
-      });
-    });
-    
-    const form = document.update_approval_form;
-    form.addEventListener('submit', (e) => {
-    	  e.preventDefault();
-
-    	  let vali_check = false;
-    	  let vali_text = "";
-
-    	  const title = form.approval_form_name.value;
-    	  const content = $('#summernote').summernote('code');
-
-    	  if (!title) {
-    	    vali_text += "제목을 입력하세요.";
-    	  } else if (!content || content === '<p><br></p>') {
-    	    vali_text += "내용을 입력하세요.";
-    	  } else {
-    	    vali_check = true;
-    	  }
-
-    	  if (!vali_check) {
-    	    alert(vali_text);
-    	  } else {
-    	    // 👉 summernote 값 수동 주입!
-    	    $('#summernote').val(content);
-
-    	    const payload = new FormData(form);
-
-    	    fetch("/admin/approvalForm/update", {
-    	      	method: 'post',
-    	      	headers : {
-					'header': document.querySelector('meta[name="_csrf_header"]').content,
-	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-				},
-    	      	body: payload
-    	    })
-    	    .then(response => response.json())
-    	    .then(data => {
-    	      console.log(data);
-    	      alert(data.res_msg);
-    	      if (data.res_code === '200') {
-    	        location.href = '/admin/approval';
-    	      }
-    	    })
-    	    .catch(error => {
-    	      console.log(error);
-    	    });
-    	  }
-    	});
-    
+		document.addEventListener("DOMContentLoaded", function () {
+	        const editor = new toastui.Editor({
+	            el: document.querySelector('#editor'),
+	            height: '400px',
+	            initialEditType: 'wysiwyg',
+	            previewStyle: 'vertical',
+	            	initialValue: document.getElementById('approval_form_content').value
+	        });
+	    
+		    const form = document.update_approval_form;
+		    form.addEventListener('submit', (e) => {
+		    	  e.preventDefault();
+		
+		    	  let vali_check = false;
+		    	  let vali_text = "";
+		
+		    	  const title = form.approval_form_name.value;
+		    	  const content = editor.getHTML();
+	        	  form.approval_form.value = content;
+	        	  
+		    	  if (!title) {
+		    	    vali_text += "제목을 입력하세요.";
+		    	  } else if (!content || content === '<p><br></p>') {
+		    	    vali_text += "내용을 입력하세요.";
+		    	  } else {
+		    	    vali_check = true;
+		    	  }
+		
+		    	  if (!vali_check) {
+		    	    alert(vali_text);
+		    	  } else {
+		    	    // 👉 summernote 값 수동 주입!
+		    	    $('#summernote').val(content);
+		
+		    	    const payload = new FormData(form);
+		
+		    	    fetch("/admin/approvalForm/update", {
+		    	      	method: 'post',
+		    	      	headers : {
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+		    	      	body: payload
+		    	    })
+		    	    .then(response => response.json())
+		    	    .then(data => {
+		    	      console.log(data);
+		    	      alert(data.res_msg);
+		    	      if (data.res_code === '200') {
+		    	        location.href = '/admin/approval';
+		    	      }
+		    	    })
+		    	    .catch(error => {
+		    	      console.log(error);
+		    	    });
+		    	  }
+		    	});
+		});
   </script>
   <!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
