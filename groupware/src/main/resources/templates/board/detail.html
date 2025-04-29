@@ -91,359 +91,320 @@
     </th:block>
 </div>
 
-
-
   <!-- 댓글 및 대댓글 영역 -->
-    <div id="comment-container" class="container my-4">
-        <!-- 댓글 + 대댓글 리스트 -->
-        <div th:each="reply : ${replyList}" class="reply-item mb-3 p-3 border rounded-3">
-            <div class="d-flex align-items-start mb-2">
-                <div class="profile-icon rounded-circle bg-white text-white d-flex justify-content-center align-items-center me-3">
-                    <img th:src="@{/img/default_profile.png}" alt="Profile Image" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+  <div id="comment-container" class="container my-4">
+    <!-- 댓글 + 대댓글 리스트 -->
+    <div th:each="reply : ${replyList}" class="reply-item mb-3">
+      <div class="d-flex align-items-start mb-2">
+        <div class="profile-icon rounded-circle me-3">
+          <img th:src="@{/img/default_profile.png}" alt="Profile Image" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <strong th:text="'[' + (${reply.deptName} != null ? ${reply.deptName} : '부서없음') + '] ' + (${reply.memberName} != null ? ${reply.memberName} : '익명')" class="me-2"></strong>
+              <small class="ms-2 time-display" th:text="${reply.reg_date != null} ? ${#temporals.format(reply.reg_date, 'yyyy-MM-dd HH:mm')} : ''"></small>
+              <small th:if="${reply.mod_date != null}" class="ms-1 modified-tag">(수정됨)</small>
+            </div>
+            <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
+              <div class="reply-actions d-flex gap-2">
+                <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
+                <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
+                <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${reply.reply_no})|">확인</button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${reply.reply_no})|">취소</button>
+              </div>
+            </th:block>
+          </div>
+
+          <!-- 댓글 내용 -->
+          <p class="reply-content mt-2 mb-2" th:id="'reply-content-' + ${reply.reply_no}" th:text="${reply.reply_content}"></p>
+
+          <!-- 댓글 수정 폼 -->
+          <div th:id="'reply-edit-form-' + ${reply.reply_no}" class="reply-edit-form">
+            <textarea th:id="'edit-textarea-' + ${reply.reply_no}" class="form-control mb-2" style="resize: none; height: 60px;"></textarea>
+          </div>
+
+          <!-- 답글 토글 및 작성 버튼 -->
+          <span th:id="'reply-toggle-' + ${reply.reply_no}"
+                th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
+                th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
+                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개(>)' : '답글 달기'"
+                onclick="toggleSubReply(this)"
+                style="cursor: pointer;"></span>
+
+          <!-- 대댓글 리스트 -->
+          <div th:id="'sub-reply-list-' + ${reply.reply_no}" class="sub-reply-list collapsed" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
+            <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-2">
+              <div class="d-flex align-items-start">
+                <div class="profile-icon rounded-circle me-3" style="width:30px; height:30px;">
+                  <img th:src="@{/img/default_profile.png}" alt="Profile Image" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong th:text="'[' + (${reply.deptName} != null ? ${reply.deptName} : '부서없음') + '] ' + (${reply.memberName} != null ? ${reply.memberName} : '익명')" class="me-2"></strong>
-                            <small class="ms-2 time-display" th:text="${reply.reg_date != null} ? ${#temporals.format(reply.reg_date, 'yyyy-MM-dd HH:mm')} : ''" style="color: black;"></small>
-                            <small th:if="${reply.mod_date != null}" class="ms-1 modified-tag">(수정됨)</small>
-                        </div>
-                        <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
-                            <div class="reply-actions d-flex gap-2">
-                                <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
-                                <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
-                                <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${reply.reply_no})|">확인</button>
-                                <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${reply.reply_no})|">취소</button>
-                            </div>
-                        </th:block>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong th:text="'[' + (${subReply.deptName} != null ? ${subReply.deptName} : '부서없음') + '] ' + (${subReply.memberName} != null ? ${subReply.memberName} : '익명')" class="me-2"></strong>
+                      <small class="ms-2 time-display" th:text="${subReply.reg_date != null} ? ${#temporals.format(subReply.reg_date, 'yyyy-MM-dd HH:mm')} : ''"></small>
+                      <small th:if="${subReply.mod_date != null}" class="ms-1 modified-tag">(수정됨)</small>
                     </div>
-
-                    <!-- 댓글 내용 -->
-                    <p class="reply-content mt-2 mb-2" th:id="'reply-content-' + ${reply.reply_no}" th:text="${reply.reply_content}"></p>
-
-                    <!-- 댓글 수정 폼 -->
-                    <div th:id="'reply-edit-form-' + ${reply.reply_no}" class="reply-edit-form" style="display: none;">
-                        <textarea th:id="'edit-textarea-' + ${reply.reply_no}" class="form-control mb-2" style="resize: none; height: 60px;"></textarea>
-                    </div>
-
-                    <!-- 답글 토글 및 작성 버튼 -->
-                    <span th:id="'reply-toggle-' + ${reply.reply_no}"
-                          th:class="'reply-action-text text-decoration-underline font-weight-bold ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
-                          th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
-                          th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개(>)' : '답글 달기'"
-                          onclick="toggleSubReply(this)"
-                          style="cursor: pointer;"></span>
-
-                    <!-- 대댓글 리스트 -->
-                    <div th:id="'sub-reply-list-' + ${reply.reply_no}" class="sub-reply-list ps-4 border-start collapsed" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
-                        <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-2">
-                            <div class="d-flex align-items-start">
-                                <div class="profile-icon rounded-circle bg-white d-flex justify-content-center align-items-center me-3" style="width:30px; height:30px;">
-                                    <img th:src="@{/img/default_profile.png}" alt="Profile Image" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong th:text="'[' + (${subReply.deptName} != null ? ${subReply.deptName} : '부서없음') + '] ' + (${subReply.memberName} != null ? ${subReply.memberName} : '익명')" class="me-2"></strong>
-                                            <small class="ms-2 time-display" th:text="${subReply.reg_date != null} ? ${#temporals.format(subReply.reg_date, 'yyyy-MM-dd HH:mm')} : ''" style="color: black;"></small>
-                                            <small th:if="${subReply.mod_date != null}" class="ms-1 modified-tag">(수정됨)</small>
-                                        </div>
-                                        <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
-                                            <div class="reply-actions d-flex gap-2">
-                                                <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${subReply.reply_no})|">수정</button>
-                                                <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${subReply.reply_no}, ${board.boardNo})|">삭제</button>
-                                                <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${subReply.reply_no})|">확인</button>
-                                                <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
-                                            </div>
-                                        </th:block>
-                                    </div>
-                                    <p class="reply-content mt-1 mb-1" th:id="'reply-content-' + ${subReply.reply_no}" th:text="${subReply.reply_content}"></p>
-
-                                    <!-- 대댓글 수정 폼 -->
-                                    <div th:id="'reply-edit-form-' + ${subReply.reply_no}" class="reply-edit-form" style="display: none;">
-                                        <textarea th:id="'edit-textarea-' + ${subReply.reply_no}" class="form-control mb-2" style="resize: none; height: 50px;"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 대댓글 작성 폼 (각 댓글 아래에 따로 생성) -->
-                    <div class="sub-reply-write p-3 mt-2 bg-light rounded" style="display: none;" th:id="'sub-reply-form-' + ${reply.reply_no}">
-                        <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}" method="POST" class="d-flex gap-2 align-items-stretch sub-reply-form-content">
-                            <textarea name="reply_content" placeholder="답글을 입력하세요." required class="form-control" style="resize: none; height: 60px;"></textarea>
-                            <input type="hidden" name="board_no" th:value="${board.boardNo}" />
-                            <input type="hidden" name="parent_reply_no" th:value="${reply.reply_no}" />
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="btn btn-primary" style="min-width: 80px;">등록</button>
-                        </form>
-                    </div>
+                    <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
+                      <div class="reply-actions d-flex gap-2">
+                        <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${subReply.reply_no})|">수정</button>
+                        <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${subReply.reply_no}, ${board.boardNo})|">삭제</button>
+                        <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${subReply.reply_no})|">확인</button>
+                        <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
+                      </div>
+                    </th:block>
+                  </div>
+                  <p class="reply-content mt-1 mb-1" th:id="'reply-content-' + ${subReply.reply_no}" th:text="${subReply.reply_content}"></p>
+                  <div th:id="'reply-edit-form-' + ${subReply.reply_no}" class="reply-edit-form">
+                    <textarea th:id="'edit-textarea-' + ${subReply.reply_no}" class="form-control mb-2" style="resize: none; height: 50px;"></textarea>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
+          </div>
 
-        <!-- 댓글 작성 영역 -->
-        <div class="comment-write p-4 bg-white rounded-4 shadow-sm">
-            <th:block sec:authorize="isAuthenticated()">
-                <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST" class="d-flex gap-2 align-items-stretch">
-                    <textarea name="reply_content" placeholder="댓글을 입력하세요." required class="form-control" style="resize: none; height: 60px;"></textarea>
-                    <input type="hidden" name="board_no" th:value="${board.boardNo}" />
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" class="btn btn-primary" style="min-width: 80px;">등록</button>
-                </form>
-            </th:block>
-            <th:block sec:authorize="isAnonymous()">
-                <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
-            </th:block>
+          <!-- 대댓글 작성 폼 -->
+          <div class="sub-reply-write mt-2" style="display: none;" th:id="'sub-reply-form-' + ${reply.reply_no}">
+            <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}" method="POST" class="d-flex gap-2 align-items-stretch sub-reply-form-content">
+              <textarea name="reply_content" placeholder="답글을 입력하세요." required class="form-control"></textarea>
+              <input type="hidden" name="board_no" th:value="${board.boardNo}" />
+              <input type="hidden" name="parent_reply_no" th:value="${reply.reply_no}" />
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <button type="submit" class="btn btn-primary">등록</button>
+            </form>
+          </div>
         </div>
-
-        <!-- 무한 스크롤 트리거 -->
-<!--         <div id="load-more-trigger" style="height: 20px;"></div> -->
+      </div>
     </div>
+
+    <!-- 댓글 작성 영역 (하단 고정) -->
+    <div class="comment-write">
+      <th:block sec:authorize="isAuthenticated()">
+        <form th:action="@{/replies/{boardNo}/create(boardNo=${board.boardNo})}" method="POST" class="d-flex gap-2 align-items-stretch">
+          <textarea name="reply_content" placeholder="댓글을 입력하세요." required class="form-control"></textarea>
+          <input type="hidden" name="board_no" th:value="${board.boardNo}" />
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit" class="btn btn-primary">등록</button>
+        </form>
+      </th:block>
+      <th:block sec:authorize="isAnonymous()">
+        <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
+      </th:block>
+    </div>
+  </div>
             
-<!-- 삭제 JS 및 대댓글 폼 표시 JS -->
-    <script>
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+  <!-- JavaScript -->
+  <script>
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
-        // 게시글 삭제 기능
-        function boardDelete(boardNo) {
-        	  if (!confirm("게시글을 삭제하시겠습니까?")) return;
-
-        	  fetch('/board/delete/' + boardNo, {
-        	    method: 'DELETE',
-        	    headers: {
-        	      [csrfHeader]: csrfToken,  // 🔐 CSRF 토큰 추가!
-        	      'Content-Type': 'application/json'
-        	    }
-        	  })
-        	  .then(res => res.json())
-        	  .then(data => {
-        	    if (data.res_code === "200") {
-        	      alert(data.res_msg);
-        	      location.href = '/board/list';
-        	    } else {
-        	      alert(data.res_msg);
-        	    }
-        	  })
-        	  .catch(err => {
-        	    alert("에러 발생: " + err);
-        	  });
-        	}
+    // 게시글 삭제 기능
+    function boardDelete(boardNo) {
+      if (!confirm("게시글을 삭제하시겠습니까?")) return;
+      fetch('/board/delete/' + boardNo, {
+        method: 'DELETE',
+        headers: {
+          [csrfHeader]: csrfToken,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.res_code === "200") {
+          alert(data.res_msg);
+          location.href = '/board/list';
+        } else {
+          alert(data.res_msg);
+        }
+      })
+      .catch(err => {
+        alert("에러 발생: " + err);
+      });
+    }
         
-        
-     // 댓글 수정 시작
-        function replyUpdate(replyNo) {
-            const content = document.getElementById(`reply-content-${replyNo}`);
-            const form = document.getElementById(`reply-edit-form-${replyNo}`);
-            const textarea = document.getElementById(`edit-textarea-${replyNo}`);
-            const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
+    // 댓글 수정 시작
+    function replyUpdate(replyNo) {
+      const content = document.getElementById(`reply-content-${replyNo}`);
+      const form = document.getElementById(`reply-edit-form-${replyNo}`);
+      const textarea = document.getElementById(`edit-textarea-${replyNo}`);
+      const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
+      textarea.value = content.innerText.trim();
+      content.style.display = 'none';
+      form.style.display = 'block';
+      actions.querySelector('.edit-btn').style.display = 'none';
+      actions.querySelector('.delete-btn').style.display = 'none';
+      actions.querySelector('.save-btn').style.display = 'inline-block';
+      actions.querySelector('.cancel-btn').style.display = 'inline-block';
+    }
 
-            textarea.value = content.innerText.trim();
-
-            content.style.display = 'none';
-            form.style.display = 'block';
-
-            actions.querySelector('.edit-btn').style.display = 'none';
-            actions.querySelector('.delete-btn').style.display = 'none';
-            actions.querySelector('.save-btn').style.display = 'inline-block';
-            actions.querySelector('.cancel-btn').style.display = 'inline-block';
+    // 댓글 수정 저장
+    function saveReplyEdit(replyNo) {
+      const content = document.getElementById(`reply-content-${replyNo}`);
+      const form = document.getElementById(`reply-edit-form-${replyNo}`);
+      const textarea = document.getElementById(`edit-textarea-${replyNo}`);
+      const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
+      const timeElement = content.parentElement.querySelector('.time-display');
+      const newContent = textarea.value.trim();
+      if (!newContent) {
+        alert("댓글 내용을 입력하세요.");
+        return;
+      }
+      fetch(`/replies/${replyNo}/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ reply_content: newContent })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("응답 실패");
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          content.innerText = newContent;
+          content.style.display = 'block';
+          form.style.display = 'none';
+          actions.querySelector('.edit-btn').style.display = 'inline-block';
+          actions.querySelector('.delete-btn').style.display = 'inline-block';
+          actions.querySelector('.save-btn').style.display = 'none';
+          actions.querySelector('.cancel-btn').style.display = 'none';
+          timeElement.innerText = data.modDateFormatted;
+          let modifiedTag = timeElement.parentElement.querySelector('.modified-tag');
+          if (!modifiedTag) {
+            modifiedTag = document.createElement('small');
+            modifiedTag.className = 'modified-tag ms-1';
+            modifiedTag.innerText = '(수정됨)';
+            timeElement.parentElement.appendChild(modifiedTag);
+          }
+          alert("댓글이 수정되었습니다.");
+        } else {
+          alert("수정에 실패했습니다.");
         }
+      })
+      .catch(err => {
+        console.error("수정 실패:", err);
+        alert("오류가 발생했습니다.");
+      });
+    }
 
-        // 댓글 수정 저장
-        function saveReplyEdit(replyNo) {
-            const content = document.getElementById(`reply-content-${replyNo}`);
-            const form = document.getElementById(`reply-edit-form-${replyNo}`);
-            const textarea = document.getElementById(`edit-textarea-${replyNo}`);
-            const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
-            const timeElement = content.parentElement.querySelector('.time-display');
-            const newContent = textarea.value.trim();
+    // 댓글 수정 취소
+    function cancelReplyEdit(replyNo) {
+      const content = document.getElementById(`reply-content-${replyNo}`);
+      const form = document.getElementById(`reply-edit-form-${replyNo}`);
+      const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
+      content.style.display = 'block';
+      form.style.display = 'none';
+      actions.querySelector('.edit-btn').style.display = 'inline-block';
+      actions.querySelector('.delete-btn').style.display = 'inline-block';
+      actions.querySelector('.save-btn').style.display = 'none';
+      actions.querySelector('.cancel-btn').style.display = 'none';
+    }
 
-            if (!newContent) {
-                alert("댓글 내용을 입력하세요.");
-                return;
-            }
-
-            fetch(`/replies/${replyNo}/update`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    [csrfHeader]: csrfToken
-                },
-                body: JSON.stringify({ reply_content: newContent })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("응답 실패");
-                return res.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    content.innerText = newContent;
-                    content.style.display = 'block';
-                    form.style.display = 'none';
-
-                    actions.querySelector('.edit-btn').style.display = 'inline-block';
-                    actions.querySelector('.delete-btn').style.display = 'inline-block';
-                    actions.querySelector('.save-btn').style.display = 'none';
-                    actions.querySelector('.cancel-btn').style.display = 'none';
-
-                    timeElement.innerText = data.modDateFormatted;
-
-                    let modifiedTag = timeElement.parentElement.querySelector('.modified-tag');
-                    if (!modifiedTag) {
-                        modifiedTag = document.createElement('small');
-                        modifiedTag.className = 'modified-tag ms-1';
-                        modifiedTag.innerText = '(수정됨)';
-                        timeElement.parentElement.appendChild(modifiedTag);
-                    }
-
-                    alert("댓글이 수정되었습니다.");
-                } else {
-                    alert("수정에 실패했습니다.");
-                }
-            })
-            .catch(err => {
-                console.error("수정 실패:", err);
-                alert("오류가 발생했습니다.");
-            });
+    // 댓글 삭제
+    function replyDelete(replyNo, boardNo) {
+      if (!confirm("댓글을 삭제하시겠습니까?")) return;
+      fetch(`/replies/${replyNo}/delete`, {
+        method: 'POST',
+        headers: {
+          [csrfHeader]: csrfToken,
+          'Content-Type': 'application/json'
         }
-
-        // 댓글 수정 취소
-        function cancelReplyEdit(replyNo) {
-            const content = document.getElementById(`reply-content-${replyNo}`);
-            const form = document.getElementById(`reply-edit-form-${replyNo}`);
-            const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
-
-            content.style.display = 'block';
-            form.style.display = 'none';
-
-            actions.querySelector('.edit-btn').style.display = 'inline-block';
-            actions.querySelector('.delete-btn').style.display = 'inline-block';
-            actions.querySelector('.save-btn').style.display = 'none';
-            actions.querySelector('.cancel-btn').style.display = 'none';
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.res_code === "200") {
+          alert(data.res_msg);
+          location.reload();
+        } else {
+          alert(data.res_msg);
         }
+      })
+      .catch(err => {
+        console.error('삭제 실패:', err);
+        alert("에러 발생: " + err);
+      });
+    }
 
-        // 댓글 삭제
-        function replyDelete(replyNo, boardNo) {
-            if (!confirm("댓글을 삭제하시겠습니까?")) return;
+    // 답글 토글 및 대댓글 폼 표시
+    function toggleSubReply(element) {
+      const replyNo = element.getAttribute('data-reply-no');
+      const boardNo = element.getAttribute('data-board-no');
+      const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
+      const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
+      const subReplyCount = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
+      const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
+      if (subReplyList) {
+        subReplyList.classList.toggle('collapsed');
+        element.innerText = isCollapsed ? `답글 ${subReplyCount}개(>)` : `답글 ${subReplyCount}개(<)`;
+      }
+      document.querySelectorAll('.sub-reply-write').forEach(form => {
+        form.style.display = 'none';
+      });
+      subReplyForm.style.display = subReplyForm.style.display === 'block' ? 'none' : 'block';
+    }
 
-            fetch(`/replies/${replyNo}/delete`, {
-                method: 'POST',
-                headers: {
-                    [csrfHeader]: csrfToken,
-                    'Content-Type': 'application/json'
-                }
+    // 대댓글 폼 제출 처리
+    document.querySelectorAll('.sub-reply-form-content').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const replyNo = this.querySelector('input[name="parent_reply_no"]').value;
+        const toggleButton = document.getElementById(`reply-toggle-${replyNo}`);
+        let subReplyCount = parseInt(toggleButton.getAttribute('data-sub-reply-count')) || 0;
+        fetch(this.action, {
+          method: 'POST',
+          headers: {
+            [csrfHeader]: csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams(new FormData(this)).toString()
+        })
+        .then(res => {
+          if (res.ok) {
+            subReplyCount++;
+            toggleButton.setAttribute('data-sub-reply-count', subReplyCount);
+            toggleButton.classList.add('has-sub-replies');
+            toggleButton.innerText = `답글 ${subReplyCount}개(>)`;
+            this.closest('.sub-reply-write').style.display = 'none';
+            this.reset();
+            fetch(`/replies/count/${replyNo}`, {
+              headers: { [csrfHeader]: csrfToken }
             })
             .then(res => res.json())
             .then(data => {
-                if (data.res_code === "200") {
-                    alert(data.res_msg);
-                    location.reload();
-                } else {
-                    alert(data.res_msg);
-                }
-            })
-            .catch(err => {
-                console.error('삭제 실패:', err);
-                alert("에러 발생: " + err);
+              if (data.count !== undefined) {
+                toggleButton.setAttribute('data-sub-reply-count', data.count);
+                toggleButton.innerText = `답글 ${data.count}개(>)`;
+              }
             });
-        }
-
-        // 답글 토글 및 대댓글 폼 표시
-        function toggleSubReply(element) {
-            const replyNo = element.getAttribute('data-reply-no');
-            const boardNo = element.getAttribute('data-board-no');
-            const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
-            const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
-            const subReplyCount = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
-            const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
-
-            // 대댓글 리스트 토글
-            if (subReplyList) {
-                subReplyList.classList.toggle('collapsed');
-                element.innerText = isCollapsed ? `답글 ${subReplyCount}개(>)` : `답글 ${subReplyCount}개(<)`;
-            }
-
-            // 모든 대댓글 폼 숨기기
-            document.querySelectorAll('.sub-reply-write').forEach(form => {
-                form.style.display = 'none';
-            });
-
-            // 현재 댓글의 대댓글 폼 표시
-            subReplyForm.style.display = subReplyForm.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // 대댓글 폼 제출 처리
-        document.querySelectorAll('.sub-reply-form-content').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const replyNo = this.querySelector('input[name="parent_reply_no"]').value;
-                const toggleButton = document.getElementById(`reply-toggle-${replyNo}`);
-                let subReplyCount = parseInt(toggleButton.getAttribute('data-sub-reply-count')) || 0;
-
-                fetch(this.action, {
-                    method: 'POST',
-                    headers: {
-                        [csrfHeader]: csrfToken,
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams(new FormData(this)).toString()
-                })
-                .then(res => {
-                    if (res.ok) {
-                        subReplyCount++;
-                        toggleButton.setAttribute('data-sub-reply-count', subReplyCount);
-                        toggleButton.classList.add('has-sub-replies');
-                        toggleButton.innerText = `답글 ${subReplyCount}개(>)`;
-
-                        // 폼 숨기기 및 초기화
-                        this.closest('.sub-reply-write').style.display = 'none';
-                        this.reset();
-
-                        // 답글 수 재조회
-                        fetch(`/replies/count/${replyNo}`, {
-                            headers: { [csrfHeader]: csrfToken }
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.count !== undefined) {
-                                toggleButton.setAttribute('data-sub-reply-count', data.count);
-                                toggleButton.innerText = `답글 ${data.count}개(>)`;
-                            }
-                        });
-
-                        location.reload(); // 페이지 새로고침
-                    } else {
-                        alert('답글 등록에 실패했습니다.');
-                    }
-                })
-                .catch(err => {
-                    console.error('대댓글 등록 오류:', err);
-                    alert('오류 발생: ' + err);
-                });
-            });
+            location.reload();
+          } else {
+            alert('답글 등록에 실패했습니다.');
+          }
+        })
+        .catch(err => {
+          console.error('대댓글 등록 오류:', err);
+          alert('오류 발생: ' + err);
         });
-    </script>
+      });
+    });
+  </script>
 
-	
-        <!-- Start Editor JS -->
-        <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
-
-        <!-- JavaScript 파일 로딩 -->
-        <script th:src="@{/assets/js/vendor.min.js}"></script>
-        <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-        <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-        <script th:src="@{/assets/js/theme/app.init.js}"></script>
-        <script th:src="@{/assets/js/theme/theme.js}"></script>
-        <script th:src="@{/assets/js/theme/app.min.js}"></script>
-        <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-
-        <!-- solar icons -->
-        <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-        <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-        <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-        <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-
-    </th:block>
+  <!-- Start Editor JS -->
+  <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>
+  <!-- JavaScript 파일 로딩 -->
+  <script th:src="@{/assets/js/vendor.min.js}"></script>
+  <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  <script th:src="@{/assets/js/theme/app.init.js}"></script>
+  <script th:src="@{/assets/js/theme/theme.js}"></script>
+  <script th:src="@{/assets/js/theme/app.min.js}"></script>
+  <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+</th:block>
 </html>
