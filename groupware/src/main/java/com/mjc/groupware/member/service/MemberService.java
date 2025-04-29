@@ -242,6 +242,11 @@ public class MemberService {
 		return memberList;
 	}
 	
+	// 가장 마지막 pk를 가지고 있는 member 추출
+	public Member selectMemberOneByLastNo() {
+	    return repository.findTopByOrderByMemberNoDesc();
+	}
+	
 	// 결재라인 부서의 속한 사원들select
 	public List<Member> selectMemberAllByDeptId(Long id) { 
 		List<Member> memberList = repository.findAllByDept_DeptNo(id); 

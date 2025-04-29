@@ -123,6 +123,8 @@ public class CompanyService {
 				.new_name(latest.getNewName())
 				.attach_path(latest.getAttachPath())
 				.theme_color(latest.getThemeColor())
+				.company_initial(latest.getCompanyInitial())
+				.rule_status(latest.getRuleStatus())
 				.reg_date(latest.getRegDate())
 				.mod_date(latest.getModDate())
 				.light_logo_path("/uploads/" + latest.getNewName())

@@ -1,5 +1,6 @@
 package com.mjc.groupware.member.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,10 +26,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.common.annotation.CheckPermission;
+import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
+import com.mjc.groupware.member.dto.MemberCreationDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
@@ -64,6 +68,7 @@ public class MemberController {
 	private final DeptService deptService;
 	private final RoleService roleService;
 	private final AddressService addressService;
+	private final CompanyService companyService;
 	private final PosRepository posRepository;
 	
 	@GetMapping("/login")
@@ -92,9 +97,29 @@ public class MemberController {
 		
 		List<Pos> posList = posService.selectPosAllByPosOrderAsc();
 		List<Dept> deptList = deptService.SelectDeptAllOrderByDeptNameAsc();
+		CompanyDto companyDto = companyService.selectLatestCompanyProfile();
 		
 		model.addAttribute("posList", posList);
 		model.addAttribute("deptList", deptList);
+		model.addAttribute("companyDto", companyDto);
+		
+		if(companyDto != null) {
+			String companyInitial = companyDto.getCompany_initial();
+			String entryYear = String.valueOf(LocalDate.now().getYear());
+			String yearSuffix = entryYear.equals("2025") ? "25" : entryYear.substring(2); 
+			Long lastMemberNo = service.selectMemberOneByLastNo().getMemberNo();
+			Long newMemberNo = (lastMemberNo != null) ? lastMemberNo + 1 : 1L;
+			
+			String defaultId = companyInitial + entryYear + String.format("%05d", newMemberNo % 100000);
+			String defaultPw = companyInitial.toUpperCase() + "@" + yearSuffix + String.format("%02d", newMemberNo % 100);
+			
+			MemberCreationDto creationDto = MemberCreationDto.builder()
+			        .defaultMemberId(defaultId)
+			        .defaultMemberPw(defaultPw)
+			        .build();
+			
+			model.addAttribute("memberCreationDto", creationDto);
+		}
 		
 		Optional<Pos> maxOrderPos = posRepository.findTopByOrderByPosOrderDesc();
 		maxOrderPos.ifPresent(pos -> model.addAttribute("selectedPosNo", pos.getPosNo()));
