@@ -53,7 +53,7 @@
 								th:each="form : ${formList}">
 								<th:block th:if="${form.approvalFormStatus == 'Y'}">
 									<!-- class="btn btn-primary" -->
-									<button class="btn btn-primary form-btn"
+									<button class="btn bg-primary-subtle text-primary form-btn"
 										th:text="${form.approvalFormName}"
 										th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식
 										이름</button>

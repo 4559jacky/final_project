@@ -32,6 +32,7 @@ public class ApprovalDto {
 	private String appr_reason;
 	private Long appr_sender;
 	private Long approval_type_no;
+	private String return_reason;
 	
 	// 연차 신청서 주요정보
 	private LocalDate start_date;
@@ -58,6 +59,7 @@ public class ApprovalDto {
 				.endDate(end_date)
 				.useAnnualLeave(use_annual_leave)
 				.annualLeaveType(annual_leave_type)
+				.returnReason(appr_reason)
 				.member(Member.builder().memberNo(appr_sender).build())
 				.approvalForm(ApprovalForm.builder().approvalFormNo(approval_type_no).build())
 				.build();
@@ -77,6 +79,7 @@ public class ApprovalDto {
 				.end_date(approval.getEndDate())
 				.use_annual_leave(approval.getUseAnnualLeave())
 				.annual_leave_type(approval.getAnnualLeaveType())
+				.return_reason(approval.getReturnReason())
 				.appr_sender(approval.getMember().getMemberNo())
 				.approval_type_no(approval.getApprovalForm().getApprovalFormNo())
 				.build();
