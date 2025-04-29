@@ -20,10 +20,10 @@ public class ReplyDto {
 
     private Long reply_no;
     private Long member_no;
-    private String memberName;  // 작성자 이름 추가
-    private String deptName; // 부서명 추가
+    private String memberName;
+    private String deptName;
     private Long board_no;
-    private Long parent_reply_no; // 대댓글
+    private Long parent_reply_no;
     private String reply_content;
     private String reply_status;
     private LocalDateTime reg_date;
@@ -31,15 +31,15 @@ public class ReplyDto {
     
     private String newContent;
     
-    private String memberPhoto; // 작성자 프로필 이미지 URL(member 엔티티에도 있어서 가져와서 쓰는중)
-    private String regDateFormatted; // 추가
-    private List<ReplyDto> subReplies = new ArrayList<>();  // 대댓글 목록
-
-    private Member member; // Member 객체 추가
+    private String memberPhoto;
+    private String regDateFormatted;
+    private String modDateFormatted;
+    private List<ReplyDto> subReplies = new ArrayList<>();
     
-    private int subReplyCount; // 대댓글 개수
+    private Member member;
+    
+    private int subReplyCount;
 
-    // [부서명]성명 형식으로 작성자 정보를 반환하는 메소드 추가
     public String getFormattedMemberInfo() {
         return String.format("[%s]%s", deptName != null ? deptName : "부서 미정", memberName);
     }
@@ -66,7 +66,7 @@ public class ReplyDto {
                 .reply_no(reply.getReplyNo())
                 .member_no(reply.getMember() != null ? reply.getMember().getMemberNo() : null)
                 .memberName(reply.getMember() != null ? reply.getMember().getMemberName() : null)
-                .deptName(reply.getMember() != null && reply.getMember().getDept() != null ? reply.getMember().getDept().getDeptName() : null) // 부서명 설정
+                .deptName(reply.getMember() != null && reply.getMember().getDept() != null ? reply.getMember().getDept().getDeptName() : null)
                 .board_no(reply.getBoard() != null ? reply.getBoard().getBoardNo() : null)
                 .parent_reply_no(reply.getParentReply() != null ? reply.getParentReply().getReplyNo() : null)
                 .reply_content(reply.getReplyContent())
@@ -74,11 +74,11 @@ public class ReplyDto {
                 .reg_date(reply.getRegDate())
                 .mod_date(reply.getModDate())
                 .regDateFormatted(reply.getRegDate() != null ? formatDate(reply.getRegDate()) : null)
-                .member(reply.getMember()) // Member 객체 설정
+                .modDateFormatted(reply.getModDate() != null ? formatDate(reply.getModDate()) : null)
+                .member(reply.getMember())
                 .memberPhoto(reply.getMember() != null && reply.getMember().getMemberAttachs() != null && !reply.getMember().getMemberAttachs().isEmpty() ? reply.getMember().getMemberAttachs().get(0).getAttachPath() : null)
                 .build();
         
-        // 대댓글 수 초기화
         dto.setSubReplyCount(0);
         
         return dto;
@@ -94,4 +94,14 @@ public class ReplyDto {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return dateTime.format(formatter);
     }
+
+    // 수정된 시간을 실시간으로 반영하는 메소드
+    public void updateModDate(LocalDateTime modDate) {
+        this.mod_date = modDate;
+        this.modDateFormatted = formatDate(modDate);
+    }
+
+	public Object isModified() {
+		return null;
+	}
 }

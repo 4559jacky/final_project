@@ -98,3 +98,12 @@
 	    transform: scale(1.03); /* 살짝 확대 */
 	    transition: all 0.3s ease; /* 부드럽게 */
 	}
+	
+figure.table table, figure.table th, figure.table td {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+}
+
+figure.table td {
+  padding: 8px;
+}
