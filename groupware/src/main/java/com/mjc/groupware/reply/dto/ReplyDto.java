@@ -21,46 +21,40 @@ import lombok.*;
 @Builder
 public class ReplyDto {
 
-    
     private Long reply_no;
     private Long member_no;
     private String memberName;
     private String deptName;
     private Long board_no;
-    // 부모 댓글 번호 (대댓글일 경우)
     private Long parent_reply_no;
     private String reply_content;
-    // 댓글 상태 (ex. 정상 N, 삭제 D 등)
     private String reply_status;
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
-    // 새로 수정될 댓글 내용 (수정 시 사용)
     private String newContent;
-    // 프로필 이미지 경로
     private String attachPath;
-    // 등록일 포맷된 문자열 (ex. 2024-04-29 14:30)
+    
+    // 등록일 포맷된 문자열
     private String regDateFormatted;
-    // 대댓글 리스트
+    private boolean isModifiedFlag;  // 수정된 상태 여부를 추적하는 변수
+
     private List<ReplyDto> subReplies = new ArrayList<>();
     private Member member;
-    // 대댓글 수
     private int subReplyCount;
-    // 프로필 이미지 경로 캐시 (회원 번호 기반)
-    private static final Map<Long, String> profileImageCache = new ConcurrentHashMap<>();
 
-    // 부서명과 이름을 포맷해서 반환 (ex. [총무팀]홍길동)
-    public String getFormattedMemberInfo() {
-        return String.format("[%s]%s", deptName != null ? deptName : "부서 미정", memberName);
-    }
+    private static final Map<Long, String> profileImageCache = new ConcurrentHashMap<>();
 
     // 댓글이 수정되었는지 여부 표시 문자열
     public String getModifiedStatus() {
-        return isModified() ? "(수정됨)" : "";
+        return isModifiedFlag ? "(수정됨)" : "";
     }
 
-    // 포맷된 등록일 반환
+    // 등록일 포맷된 날짜 한 번만 계산하고 이후 저장된 값을 사용
     public String getRegDateFormatted() {
-        return reg_date != null ? formatDate(reg_date) : "";
+        if (regDateFormatted == null) {
+            regDateFormatted = formatDate(reg_date);  // 최초 한 번만 포맷
+        }
+        return isModifiedFlag ? regDateFormatted + " (수정됨)" : regDateFormatted;
     }
 
     // DTO → Entity 변환 메서드
@@ -89,6 +83,7 @@ public class ReplyDto {
                 .reg_date(reply.getRegDate())
                 .mod_date(reply.getModDate())
                 .regDateFormatted(reply.getRegDate() != null ? formatDate(reply.getRegDate()) : null)
+                .isModifiedFlag(reply.getModDate() != null)  // 수정 여부 체크
                 .member(reply.getMember())
                 .subReplyCount(reply.getChildReplies().size())
                 .attachPath(getCachedProfileImagePath(reply))
