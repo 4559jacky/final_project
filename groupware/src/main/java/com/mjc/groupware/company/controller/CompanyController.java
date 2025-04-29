@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.dto.CompanyRuleDto;
 import com.mjc.groupware.company.dto.FuncDetailResponseDto;
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.dto.FuncMappingRequestDto;
@@ -59,6 +61,8 @@ public class CompanyController {
 					.new_name(latest.getNewName())
 					.attach_path(latest.getAttachPath())
 					.theme_color(latest.getThemeColor())
+					.company_initial(latest.getCompanyInitial())
+					.rule_status(latest.getRuleStatus())
 					.build();
 			
 			if (companyDto.getProfile_image_path() != null) {
@@ -279,6 +283,34 @@ public class CompanyController {
 	        resultMap.put("res_msg", "접근 권한 설정 중 알 수 없는 오류가 발생했습니다.");
 		}
 		
+		return resultMap;
+	}
+	
+	@PostMapping("/admin/company/rule/update")
+	@ResponseBody
+	public Map<String, String> updateRuleApi(@ModelAttribute CompanyRuleDto dto) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "규칙 설정 중 알 수 없는 오류가 발생했습니다.");
+		
+        logger.info("CompanyRuleDto: {}", dto);
+        
+        try {
+        	service.updateRule(dto);
+        	
+        	resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "규칙 설정이 성공적으로 반영되었습니다.");
+        } catch(IllegalArgumentException e) {
+        	logger.error("규칙 설정 중 오류 발생", e);
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+        } catch(Exception e) {
+        	logger.error("규칙 설정 중 예외 발생", e);
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "규칙 설정 중 알 수 없는 오류가 발생했습니다.");
+        }
+        
 		return resultMap;
 	}
 	

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.dto.CompanyRuleDto;
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.entity.Func;
@@ -170,6 +171,29 @@ public class CompanyService {
 	    }
 		
 		return resultList;
+	}
+	
+	public void updateRule(CompanyRuleDto dto) {
+		Company target = repository.findById(dto.getCompany_no()).orElseThrow(() -> new IllegalArgumentException("회사 정보가 존재하지 않습니다."));
+		
+		String companyInitial = dto.getCompany_initial();
+		int ruleStatus;
+		
+	    try {
+	        ruleStatus = Integer.parseInt(dto.getRule_status());
+	    } catch (NumberFormatException e) {
+	        throw new IllegalArgumentException("rule_status는 숫자만 입력 가능합니다. 유효하지 않은 값입니다.");
+	    }
+
+	    if (ruleStatus < 0 || ruleStatus > 1) {
+	        throw new IllegalArgumentException("rule_status는 0 또는 1만 가능합니다.");
+	    }
+		
+		target.changeCompanyInitial(companyInitial);
+	    target.changeRuleStatus(ruleStatus);
+		
+	    repository.save(target);
+		
 	}
 	
 }
