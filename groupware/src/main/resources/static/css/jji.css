@@ -107,3 +107,14 @@ figure.table table, figure.table th, figure.table td {
 figure.table td {
   padding: 8px;
 }
+
+.table {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.table {
+  display: table;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
