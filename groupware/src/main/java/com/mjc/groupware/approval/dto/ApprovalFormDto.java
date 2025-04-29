@@ -21,6 +21,7 @@ public class ApprovalFormDto {
 	private String approval_form_name;
 	private String approval_form;
 	private String approval_form_status;
+	private int approval_form_type;
 	
 	// 1. ApprovalFormDto -> ApprovalForm(Entity)
 		public ApprovalForm toEntity() {
@@ -29,6 +30,7 @@ public class ApprovalFormDto {
 					.approvalFormName(approval_form_name)
 					.approvalForm(approval_form)
 					.approvalFormStatus(approval_form_status)
+					.approvalFormType(approval_form_type)
 					.build();
 		}
 		
@@ -40,6 +42,7 @@ public class ApprovalFormDto {
 					.approval_form_name(approvalForm.getApprovalFormName())
 					.approval_form(approvalForm.getApprovalForm())
 					.approval_form_status(approvalForm.getApprovalFormStatus())
+					.approval_form_type(approvalForm.getApprovalFormType())
 					.build();
 		}
 

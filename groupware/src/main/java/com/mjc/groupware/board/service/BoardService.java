@@ -95,6 +95,7 @@ public class BoardService {
      */
     @Transactional(readOnly = true)
     public Optional<Board> selectBoardOne(Long boardNo) {
+    	updateViews(boardNo); // 조회수 증가
         return repository.findById(boardNo);
     }
 
@@ -105,12 +106,11 @@ public class BoardService {
     public void updateViews(Long boardNo) {
         repository.updateViews(boardNo);
     }
-
-    /**
-     * 게시글 목록 조회 (검색 및 페이징 포함)
-     */
+    
+    
+ // 게시글 목록 조회 (검색 및 페이징 포함)
     public Page<Board> selectBoardAll(SearchDto searchDto, PageDto pageDto) {
-        // 🔽 정렬 조건 설정
+        // 정렬 조건 설정
         Sort sort;
         if (searchDto.getOrder_type() == 1) { // 최신순
             sort = Sort.by(Sort.Direction.DESC, "regDate");
@@ -122,42 +122,36 @@ public class BoardService {
             sort = Sort.by(Sort.Direction.DESC, "regDate"); // 기본: 최신순
         }
 
-        // 🔽 페이징 처리
+        // 페이징 처리
         Pageable pageable = PageRequest.of(pageDto.getNowPage() - 1, pageDto.getNumPerPage(), sort);
 
-        // 🔽 기본 조건: 게시 상태 = 'N' && 고정글 아님
+        // 기본 조건: 게시 상태 = 'N'
         Specification<Board> spec = Specification.where(
-            (root, query, cb) -> cb.and(
-                cb.equal(root.get("boardStatus"), "N"),
-                cb.isFalse(root.get("isFixed"))
-            )
+            (root, query, cb) -> cb.equal(root.get("boardStatus"), "N")
         );
 
-        // 🔽 검색 조건
+        // 고정글 제외 조건: isFixed 필드를 명시적으로 검사하여 제외
+        spec = spec.and((root, query, cb) -> cb.isFalse(root.get("isFixed")));  // 고정글 제외
+
+        // 검색 조건 처리
         String keyword = searchDto.getSearch_text();
         int searchType = searchDto.getSearch_type();
+        
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             switch (searchType) {
-                case 1:
-                    spec = spec.and(BoardSpecification.boardTitleContains(keyword));
-                    break;
-                case 2:
-                    spec = spec.and(BoardSpecification.boardContentContains(keyword));
-                    break;
-                case 3:
-                    spec = spec.and(
-                        BoardSpecification.boardTitleContains(keyword)
+                case 1: spec = spec.and(BoardSpecification.boardTitleContains(keyword)); break; // 제목 검색
+                case 2: spec = spec.and(BoardSpecification.boardContentContains(keyword)); break; // 내용 검색
+                case 3: spec = spec.and(BoardSpecification.boardTitleContains(keyword)
                             .or(BoardSpecification.boardContentContains(keyword))
-                    );
-                    break;
+                );
+                break; // 제목+내용 검색
             }
         }
 
-        // 🔽 최종 조회
+        // 최종 조회
         return repository.findAll(spec, pageable);
     }
-
     /**
      * 게시글 수정
      */
@@ -202,9 +196,14 @@ public class BoardService {
         board.setModDate(LocalDateTime.now());
 
         repository.save(board);
+
+        // 고정글 목록 갱신 (고정글에서 삭제된 게시글을 제외)
+        List<Board> fixedList = repository.findByIsFixedTrueOrderByRegDateDesc();
+        // fixedList에서 삭제된 boardNo를 제외하고 업데이트
+        fixedList.removeIf(fixedBoard -> fixedBoard.getBoardNo().equals(boardNo));
     }
-    
+    // 고정글 삭제를 하면 목록에서 삭제 될수있게 코드 수정
     public List<Board> selectFixedBoardList() {
-        return repository.findByIsFixedTrueOrderByRegDateDesc();
+        return repository.findByIsFixedTrueAndBoardStatusNot("Y", Sort.by(Sort.Order.desc("regDate")));
     }
 }

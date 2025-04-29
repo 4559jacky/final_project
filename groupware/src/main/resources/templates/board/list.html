@@ -30,20 +30,23 @@
     <div class="d-flex align-items-center gap-2">
         <!-- 검색 타입 -->
        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
-    		<option th:value="1" th:selected="${searchDto.search_type == 1}">선택</option>
-    		<option th:value="2" th:selected="${searchDto.search_type == 2}">제목</option>
-    		<option th:value="3" th:selected="${searchDto.search_type == 3}">내용</option>
-    		<option th:value="4" th:selected="${searchDto.search_type == 4}">제목+내용</option>
+    		<option th:value="0" th:selected="${searchDto.search_type == 0}">선택</option>
+    		<option th:value="1" th:selected="${searchDto.search_type == 1}">제목</option>
+    		<option th:value="2" th:selected="${searchDto.search_type == 2}">내용</option>
+    		<option th:value="3" th:selected="${searchDto.search_type == 3}">제목+내용</option>
 	  </select>
-
-        <!-- 검색창(고침) -->
-	 <div class="position-relative" style="max-width: 350px;">
-          <input type="text" name="search_text" th:value="${searchDto.search_text}"
-                 class="form-control search-chat py-2 ps-5" id="search_text" placeholder="Search Contact" />
-          <button type="submit" class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
-            <i class="ti ti-search fs-6 text-dark"></i>
-          </button>
-   	</div>
+<!-- 검색창 옆에 X표시로 만든 이유는 검색어를 입력하면 원래대로 돌아갈수가없어서 X표시 추가하고 초기화 해주면서 다시 목록으로 돌아갈수있게 코드 추가 -->
+<div class="position-relative" style="max-width: 350px;">
+    <input type="text" name="search_text" th:value="${searchDto.search_text}"
+           class="form-control search-chat py-2 ps-5" id="search_text" placeholder="검색어를 입력하세요." />
+    <button type="submit" class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+        <i class="ti ti-search fs-6 text-dark"></i>
+    </button>
+    <!-- 초기화 버튼 추가 -->
+    <button type="button" class="btn position-absolute top-50 start-100 translate-middle-y bg-transparent border-0 p-0 ms-3" onclick="resetSearch()">
+        <i class="ti ti-x fs-6 text-dark"></i>
+    </button>
+</div>
 </div>
 
     <!-- 오른쪽: 정렬 드롭다운 -->
@@ -76,29 +79,29 @@
                     <th>제목</th>
                     <th>작성자</th>
                     <th>등록일</th>
-                    <th>수정일</th>
+<!--                     <th>수정일</th> -->
                     <th>조회수</th>
                 </tr>
             </thead>
           <tbody>
           
-          <!-- 게시글 목록에서 게시글이 없을경우 게시글이 없습니다라는 글을 달아줌 -->
-    <th:block th:if="${#lists.isEmpty(boardList)}">
-    	<tr>
-      		<td colspan="6" class="text-center text-muted">게시글이 없습니다.</td>
-    	</tr>
-  	</th:block>
+<!-- 게시글이 없을 경우, 고정글과 일반글이 모두 없을 때만 "게시글이 없습니다" 문구가 보이게 처리 -->
+<th:block th:if="${#lists.isEmpty(boardList) and #lists.isEmpty(fixedList)}">
+    <tr>
+        <td colspan="5" class="text-center text-muted">게시글이 없습니다.</td>
+    </tr>
+</th:block>
           
 <!-- 고정글 목록 출력 -->
 <tr th:each="board : ${fixedList}" 
     th:data-board-no="${board.boardNo}"
     th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
-    class="fixed-row">
+    class="fixed-row" style="cursor:pointer;">
     <td><span>📌</span></td>
     <td class="text-center"><span th:text="${board.boardTitle}">제목</span></td>
     <td th:text="${board.member.memberName}">작성자</td>
     <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+<!--     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td> -->
     <td th:text="${board.views}">조회수</td>
 </tr>
 
@@ -107,11 +110,13 @@
     th:data-board-no="${board.boardNo}"
     th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
     style="cursor:pointer;">
-    <td th:text="${(searchDto.order_type == 1) ? (pageDto.totalPage - pageDto.nowPage) * pageDto.numPerPage + (pageDto.numPerPage - stat.index) : (pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1}">번호</td>
+<td th:text="${(searchDto.order_type == 1) ? 
+    (pageDto.totalCount - ((pageDto.nowPage - 1) * pageDto.numPerPage + stat.index)) 
+    : ((pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1)}">번호</td>
     <td class="text-center" th:text="${board.boardTitle}">제목</td>
     <td th:text="${board.member.memberName}">작성자</td>
     <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-    <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td>
+<!--     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td> -->
     <td th:text="${board.views}">조회수</td>
 </tr>
     </tbody>
@@ -167,6 +172,14 @@
   </th:block>
 
 </div>
+
+	<script>
+    // 검색어 초기화 함수
+    function resetSearch() {
+        document.getElementById('search_text').value = ''; // 검색어 입력 필드 초기화
+        window.location.href = window.location.pathname; // 페이지 새로고침
+    }
+	</script>
 
     <!-- Bootstrap Common JS Files Start -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>

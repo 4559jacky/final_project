@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,19 +30,20 @@ public class ChatController {
 
 	private final ChatRoomService chatRoomService;
 	private final ChatMsgService chatMsgService;
+	private final SimpMessagingTemplate messagingTemplate;
 	
 	// 채팅방 페이지 전환
 	@GetMapping("/chat")
 	public String meetingRoomView(HttpSession session,Model model) {
 		
-		List<ChatRoom> resultList = chatRoomService.selectChatRoomAll();
+		List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
 		model.addAttribute("chatRoomList",resultList);
 		
 		return "/chat/chat";
 	}
 	
 	// 채팅방 생성
-	@PostMapping("/create")
+	@PostMapping("/create") 
 	@ResponseBody
 	public Map<String,String> createChatRoom(ChatRoomDto dto) {
 		Map<String,String> resultMap = new HashMap<String,String>();
@@ -83,6 +86,20 @@ public class ChatController {
 		
 		return chatMsgDtoList;
 	}
+	
+	// 실시간 채팅
+	@MessageMapping("/chat/msg")
+	public void message(ChatMsgDto dto) {
+		
+		 chatMsgService.createChatMsg(dto);
+	  
+	    // 채팅방에 메시지를 한 번만 전송 (모든 사용자에게 전송)
+	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), dto);
+	}
+
+	
+
+	
 	
 	
 }

@@ -36,8 +36,7 @@ public class PlanController {
 	// HTML리턴(페이지 이동용)
 	@GetMapping("/calendar")
 	public String calendarView(Model model) {
-		List<Plan> resultList = planService.selectPlanAll();
-		model.addAttribute("resultList",resultList);
+		List<Plan> planList = planService.selectPlanAll();
 		return "plan/calendar";
 	}
 	
@@ -52,6 +51,11 @@ public class PlanController {
 		List<Map<String, Object>> events = new ArrayList<>();
 		
 		for(Plan plan : plans) {
+			// 삭제 여부 체크 추가 (delYn = 'N'인 경우만 처리)
+			if(!"N".equals(plan.getDelYn())) {
+				continue;
+			}
+			
 			String planType = plan.getPlanType();
 	        Long regMemberNo = plan.getMember().getMemberNo();
 	        // 방어적 null 체크 및 trim 처리
@@ -107,7 +111,6 @@ public class PlanController {
 	@PostMapping("/plan/create")
 	@ResponseBody
 	public Map<String,String> createPlanApi(PlanDto dto){
-		System.out.println(dto);
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "일정 등록중 오류가 발생했습니다.");
@@ -136,11 +139,10 @@ public class PlanController {
 		Member loginMember = memberDetails.getMember();
 //		Long memberId = member.getMemberNo();
 //		Long deptNo = member.getDept().getDeptNo();
-//		System.out.println("로그인한 memberId 확인 :"+memberId);
-//		System.out.println("로그인한 deptNo 확인 :"+deptNo);
 		Map<String, String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "403"); // 기본 권한 없음
 	    resultMap.put("res_msg", "수정 권한이 없습니다.");
+	    System.out.println("확인 : "+dto.getLast_update_member());
 	    
 		 Plan plan = planService.findPlanById(id);
 		    if (plan == null) {
@@ -150,7 +152,6 @@ public class PlanController {
 
 		    boolean canEdit = planService.canEditPlan(plan, loginMember);
 		    if (!canEdit) return resultMap;
-
 
 	    //수정처리
 	    Plan result = planService.updatePlanOne(id, dto);
@@ -165,19 +166,21 @@ public class PlanController {
 	}
 
 	// 상세모달창 삭제
-	@DeleteMapping("plan/{id}")
+	@PostMapping("plan/{id}")
 	@ResponseBody
-	public Map<String,String> deletePlanApi(@PathVariable("id") Long id){
+	public Map<String,String> deletePlanApi(@PathVariable("id") Long id,@AuthenticationPrincipal MemberDetails memberDetails){
 		Map<String,String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "500");
 	    resultMap.put("res_msg", "일정 삭제중 오류가 발생했습니다.");
 	    
-	    int result = planService.deletePlan(id);
+	    Member member = memberDetails.getMember();
+		Long memberId = member.getMemberNo();
+	    
+	    int result = planService.deletePlan(id,memberId);
 	    if(result > 0) {
 	    	 resultMap.put("res_code", "200");
 		     resultMap.put("res_msg", "일정이 정상적으로 삭제되었습니다.");
 	    }
-	    
 	    return resultMap;
 	}
 

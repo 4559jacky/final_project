@@ -33,4 +33,7 @@ public class ApprovalForm {
 	@Column(name="approval_form_status")
 	private String approvalFormStatus;
 	
+	@Column(name="approval_form_type")
+	private int approvalFormType;
+	
 }

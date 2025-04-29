@@ -54,10 +54,6 @@ public class ChatRoom {
 	@CreationTimestamp
 	@Column(updatable=false, name="reg_date")
 	private LocalDateTime regDate;
-	
-	@Builder.Default
-	@Column(name="chat_room_status")
-	private String chatRoomstatus = "Y";
 
 	@OneToMany(mappedBy = "chatRoomNo")
     private List<ChatMapping> mappings; 

@@ -147,11 +147,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			            return response.json();
 			        })
 			        .then(data => {
-						console.log("이벤트데이터:"+data);
 			            successCallback(data); // FullCalendar에 이벤트 전달
 			        })
 			        .catch(error => {
-			            console.error("Error fetching calendar events:", error);
 			            failureCallback(); // 오류 처리
 			        });
 			}
@@ -237,10 +235,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			
 			// 고정값
 			document.getElementById("detail-event-id").value = data.plan_id;
-			document.getElementById("detail-event-writer").value = data.member_name;
-		    document.getElementById("detail-event-department").value = data.dept_name;
+			document.getElementById("detail-event-writer").value = `${data.member_name} (${data.dept_name})`;
 			document.getElementById("detail-event-created-date").value = data.reg_date;
-			document.getElementById("detail-event-modified-date").value = data.mod_date;
+			/*document.getElementById("detail-event-modified-date").value = data.mod_date;*/
 			// 수정가능값
 		    document.getElementById("detail-event-title").value = data.plan_title;
 		    document.getElementById("detail-event-description").value = data.plan_content;
@@ -256,6 +253,13 @@ document.addEventListener("DOMContentLoaded", function () {
 			    } else if (planType === "휴가") {
 			      document.getElementById("detail-type-leave").checked = true;
 			    }
+			/*document.getElementById("detail-event-modified-date").value = data.mod_date;*/
+			
+			/*document.getElementById("detail-event-modified-date").innerHTML = `
+				  <ul>
+				    <li>${data.member_name} : ${data.mod_date}</li>
+				  </ul>
+				`;*/
 		  })
 		  .catch(err => console.error("디테일 로딩 실패", err));
 	},
@@ -317,11 +321,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	},
 	// 일정바앞 부서명 넣어주는 코드
 	eventContent: function(arg) {
+	   const planType = arg.event.extendedProps.planType;
 	   const department = arg.event.extendedProps.deptName || "";
 	   const title = arg.event.title;
 		console.log("부서 확인 : ", arg.event.extendedProps.deptName);
-	   return {
-	     html: `<div><strong>[${department}]</strong> ${title}</div>`
+	   
+		// 부서 일정일 때만 부서명을 앞에 붙임
+		   const displayTitle = (planType === "부서" || planType ==='휴가')
+		     ? `<strong>[${department}]</strong> ${title}`
+		     : title;
+		   return {
+		     html: `<div>${displayTitle}</div>`
 	   };
 	 }
   });
@@ -336,6 +346,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		  var newStartDate = document.getElementById("detail-event-start-date").value;
 		  var newEndDate = document.getElementById("detail-event-end-date").value;
 		  var newCalendarType = document.querySelector('input[name="plan_type"]:checked')?.value;
+		  var lastUpdateMember = document.querySelector('input[name="last_update_member"]').value;
 		  console.log("value값 확인:",newCalendarType);
 
 	  // 날짜 포맷 수정
@@ -363,7 +374,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			        plan_type: newCalendarType,
 			        start_date: formattedStartDate,
 			        end_date: formattedEndDate,
-			        mod_date: formattedDateTime
+			        mod_date: formattedDateTime,
+					last_update_member: lastUpdateMember
 		          };
 	
 		    fetch("/plan/"+planId+"/update", {
@@ -400,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var description = document.getElementById("event-description").value;
     var writer = document.getElementById("event-writer").value;
     var department = document.getElementById("event-department").value;
-
+	var del_yn = document.getElementById("del_yn").value;
 	// 서버에 보낼 데이터
 	 var requestData = {
 	   plan_title: getTitleValue,
@@ -408,7 +420,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	   plan_type: getModalCheckedRadioBtnValue,
 	   start_date: setModalStartDateValue,
 	   end_date: setModalEndDateValue,
-	   reg_member_no: 1 // 로그인된 사용자 번호 (임시)
+	   reg_member_no: 1, // 로그인된 사용자 번호 (임시)
+	   del_yn: del_yn
 	 };
 
 	 // 서버로 저장 요청 보내기

@@ -1,5 +1,6 @@
 package com.mjc.groupware.approval.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.mapper.ApprovalMapper;
+import com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
 import com.mjc.groupware.approval.repository.ApprAgreementerRepository;
 import com.mjc.groupware.approval.repository.ApprApproverRepository;
@@ -34,7 +36,11 @@ import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
 import com.mjc.groupware.approval.specification.ApprovalSpecification;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.plan.dto.PlanDto;
+import com.mjc.groupware.plan.entity.Plan;
+import com.mjc.groupware.plan.repository.PlanRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,8 +54,9 @@ public class ApprovalService {
 	private final ApprApproverRepository apprApproverRepository;
 	private final ApprAgreementerRepository apprAgreementerRepository;
 	private final ApprReferencerRepository apprReferencerRepository;
-	private final ApprovalMapper approvalMapper;
+	private final PlanRepository planRepository;
 	private final MemberRepository memberRepository;
+	private final ApprovalMapper approvalMapper;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
@@ -193,15 +200,31 @@ public class ApprovalService {
 		}
 		
 		Specification<Approval> spec = (root, query, criteriaBuilder) -> null;
-		if("appr_title".equals(searchDto.getSearch_type())) {
-			spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
-					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
-		} else if("approval_form_name".equals(searchDto.getSearch_type())) {
-			spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
-					.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+		if(searchDto.getSearch_status() == null) {
+			if("appr_title".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else {
+				spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			}
 		} else {
-			spec = spec.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			if("appr_title".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalTitleContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else if("approval_form_name".equals(searchDto.getSearch_type())) {
+				spec = spec.and(ApprovalSpecification.approvalFormNameContains(searchDto.getSearch_text()))
+						.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			} else {
+				spec = spec.and(ApprovalSpecification.approvalStatusContains(searchDto.getSearch_status()))
+						.and(ApprovalSpecification.approvalSenderContains(member.getMember_no()));
+			}
 		}
+		
 		
 		Page<Approval> list = approvalRepository.findAll(spec, pageable);
 		
@@ -228,10 +251,21 @@ public class ApprovalService {
 		paramMap.put("search_type", searchDto.getSearch_type());
 		paramMap.put("search_text", searchDto.getSearch_text());
 		paramMap.put("order_type", searchDto.getOrder_type());
+		paramMap.put("search_status", searchDto.getSearch_status());
 		
 		approvalVoList = approvalMapper.selectApprovalAllByMemberNo(paramMap);
 
 		return approvalVoList;
+	}
+	
+	public ApprovalStatusVo selectApprovalStatusByApproverId(MemberDto member) {
+		ApprovalStatusVo approvalStatusVo = new ApprovalStatusVo();
+		Map<String,Object> paramMap = new HashMap<String,Object>();
+		paramMap.put("member_no", member.getMember_no());
+		
+		approvalStatusVo = approvalMapper.selectApprovalStatusByMemberNo(paramMap);
+		
+		return approvalStatusVo;
 	}
 
 	public Approval selectApprovalOneByApprovalNo(Long id) {
@@ -280,10 +314,10 @@ public class ApprovalService {
 				ApprApprover approverEntity = apprApproverRepository.save(approverParam);
 				
 				
-				// 모든 합의자맵핑 데이터 찾기
+				// 모든 결재자맵핑 데이터 찾기
 				List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(id);
 				
-				boolean vali = true;
+				boolean vali = false;
 				int max = 0;
 				
 				for(ApprApprover a : approverList) {
@@ -292,20 +326,69 @@ public class ApprovalService {
 					}
 				}
 				
+				// 모든 결재자보다 결재순서가 더 높으면
 				if(max < approvalEntity.getApprOrderStatus()) {
-					vali = false;
+					vali = true;
 				}
 				
-				if(vali == false) {
+				// 최종 결재자가 승인을 했을 때
+				if(vali == true) {
 					ApprovalDto approvalDto2 = new ApprovalDto().toDto(approvalEntity);
 					approvalDto2.setAppr_status("C");
 					approvalDto2.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
 					
 					Approval approvalParam2 = approvalDto2.toEntity();
+					if(approval.getApprovalForm().getApprovalFormType() == 1) {
+						// 결재 최종 승인
+						if(approval.getMember().getAnnualLeave() - approval.getUseAnnualLeave() >= 0) {
+							approvalRepository.save(approvalParam2);
+						}
+					} else {
+						approvalRepository.save(approvalParam2);
+					}
 					
-					approvalRepository.save(approvalParam2);
+					// 연차결재 승인 시 휴가 일정에 반영될 수 있도록 휴가 일정 데이터 저장
+						
+						
+					// Trigger 사용으로 대체
+//						PlanDto planDto = new PlanDto();
+//						
+//						String annualLeaveType = "";
+//						LocalDate start_date = approvalParam2.getStartDate();
+//						LocalDate end_date = approvalParam2.getEndDate();
+//						
+//						if(approvalParam2.getAnnualLeaveType() == 0) {
+//							annualLeaveType = "연차";
+//							planDto.setStart_date(start_date != null ? start_date.atTime(9, 0, 0) : null);
+//							planDto.setEnd_date(end_date != null ? end_date.atTime(18, 0, 0) : null);
+//						} else if(approvalParam2.getAnnualLeaveType() == 1) {
+//							annualLeaveType = "오전반차";
+//							planDto.setStart_date(start_date != null ? start_date.atTime(9, 0, 0) : null);
+//							planDto.setEnd_date(end_date != null ? end_date.atTime(13, 0, 0) : null);
+//						} else if(approvalParam2.getAnnualLeaveType() == 2) {
+//							annualLeaveType = "오후반차";
+//							planDto.setStart_date(start_date != null ? start_date.atTime(14, 0, 0) : null);
+//							planDto.setEnd_date(end_date != null ? end_date.atTime(18, 0, 0) : null);
+//						}
+//						
+//						planDto.setPlan_title(approval.getMember().getMemberName()+"["+annualLeaveType+"]");
+//						planDto.setPlan_content(approval.getMember().getMemberName()+"["+annualLeaveType+"]");
+//						planDto.setPlan_type("휴가");
+//						planDto.setReg_member_no(approval.getMember().getMemberNo());
+//						
+//						Plan planEntity = planDto.toEntity();
+//						
+//						planRepository.save(planEntity);
+//						
+//						Member mem = memberRepository.findById(approval.getMember().getMemberNo()).orElse(null);
+//						MemberDto md = new MemberDto().toDto(mem);
+//						md.setAnnual_leave(md.getAnnual_leave()-approval.getUseAnnualLeave());
+//						
+//						Member memberEntity = md.toEntity();
+//						
+//						memberRepository.save(memberEntity);
+//					}
 				}
-				
 			}
 			result = 1;
 		} catch(Exception e) {

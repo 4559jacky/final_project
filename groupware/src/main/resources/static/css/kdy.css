@@ -1,91 +1,131 @@
 @charset "UTF-8";
+
+/* 기존 스타일 유지 */
 .table td {
-		color: black !important;
-	}
- #start-editor img {
-            max-width: 50%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .file-link {
-            display: inline-block;
-            color: #007bff;
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-        
-
-        .file-link:hover {
-            color: #000;
-            text-decoration: underline;
-        }
-
-        .file-preview img {
-            margin-top: 10px;
-            max-width: 200px;
-            height: auto;
-            display: block;
-        }
-
-       
-        .toastui-editor-contents img {
-    		max-width: 100%;
-    		height: auto;
-    		display: block;
- 
-		}
-
-		.toastui-editor-contents{
-	 		color: black !important;
-		}
-		
-		/* 고정된 게시글에 적용될 스타일 */
-		.fixed-row td {
-  			background-color: #f3e5f5 !important;  /* 연보라 */
-  			color: black !important;
-  			font-weight: bold;
-		}
-		.fixed-row {
-  			background-color: #e8d9ff !important;
-  			color: black !important;
-		}
-		
-		/* 댓글 작성 영역 */
-.comment-write {
-    position: sticky;
-    top: 75px; /* 네비바 높이만큼 띄우기 */
-    z-index: 1000;
-    background-color: #ffffff;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    margin-bottom: 1.5rem;
+    color: black !important;
 }
 
-.comment-write label {
-    font-weight: 700;
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
+#start-editor img {
+    max-width: 50%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.file-link {
+    display: inline-block;
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.file-link:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+.file-preview img {
+    margin-top: 10px;
+    max-width: 200px;
+    height: auto;
     display: block;
 }
 
-.comment-write textarea {
+.toastui-editor-contents img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.toastui-editor-contents {
+    color: black !important;
+}
+
+.fixed-row td {
+    background-color: #f3e5f5 !important;
+    color: black !important;
+    font-weight: bold;
+}
+
+.fixed-row {
+    background-color: #e8d9ff !important;
+    color: black !important;
+}
+
+/* 게시글 상세 영역 스크롤 제한 */
+#board-detail {
+    max-height: 100vh; /* 화면 높이의 60%로 제한 */
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+/* 댓글 컨테이너 */
+#comment-container {
+    position: relative; /* 댓글창 고정의 기준점 */
+    max-height: 60vh; /* 화면 높이의 60%로 제한 */
+    overflow-y: auto; /* 독립 스크롤 */
+    padding: 20px;
+    margin-bottom: 80px; /* 댓글창 높이만큼 여백 */
+}
+
+/* 댓글 작성 영역 고정 */
+.comment-write {
+    position: sticky; /* #comment-container 내에서 하단 고정 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 1260px;
+    margin: 0 auto;
+    padding: 15px 20px;
+    background-color: white;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* 대댓글 작성 영역 */
+.sub-reply-write {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+/* 댓글/대댓글 작성 텍스트 영역 */
+.comment-write textarea,
+.sub-reply-write textarea {
     resize: none;
-    height: 60px;
-    flex-grow: 1;
+    height: 40px; /* 버튼 높이와 동일 */
+    width: 100%;
     border: 1px solid #ced4da;
     border-radius: 0.375rem;
     padding: 0.5rem;
     font-size: 1rem;
+    box-sizing: border-box;
 }
 
-.comment-write button {
+/* 댓글/대댓글 작성 버튼 */
+.comment-write button,
+.sub-reply-write button {
     min-width: 80px;
-    height: 60px;
+    height: 40px; /* 텍스트 영역과 동일 */
+    font-size: 1rem;
+}
+
+/* 로그인 후 댓글 작성 안내 메시지 */
+.comment-write .text-muted {
+    font-size: 0.875rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* 페이지 컨텐츠 여백 */
+body {
+    padding-bottom: 20px; /* 불필요한 여백 최소화 */
 }
 
 /* 댓글 아이템 */
@@ -113,200 +153,61 @@
     flex-shrink: 0;
 }
 
-/* 댓글 상단 정보 */
-.reply-item > div.d-flex.align-items-start > div.flex-grow-1 > div.d-flex.justify-content-between {
-    align-items: center;
+/* 댓글 수정 폼 */
+.reply-edit-form {
+    display: none;
 }
 
-.reply-author strong {
-    font-weight: 700;
-    color: #212529;
-}
-
-.reply-author small.text-muted {
-    margin-left: 0.5rem;
-    color: #6c757d;
-    font-size: 0.875rem;
-}
-
-/* 버튼 그룹 */
-.reply-actions button,
-.reply-actions > button {
-    min-width: 60px;
-    font-size: 0.85rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.375rem;
-}
-
-/* 버튼 색상 */
-.btn-outline-primary {
-    color: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.btn-outline-primary:hover {
-    background-color: #0d6efd;
-    color: #fff;
-    border-color: #0d6efd;
-}
-
-.btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
-}
-
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
-    border-color: #dc3545;
-}
-
-.btn-outline-secondary {
-    color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #6c757d;
-    color: #fff;
-    border-color: #6c757d;
-}
-
-/* 댓글 내용 */
-.reply-content {
-    margin-top: 0.5rem;
+/* 대댓글 아이템 */
+.sub-reply-item {
+    background-color: #f1f3f5;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
     margin-bottom: 0.75rem;
-    font-size: 1rem;
-    white-space: pre-line;
-    color: #343a40;
-}
-
-/* 수정 폼 */
-#reply-edit-form textarea {
-    resize: none;
-    height: 60px;
-    border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    padding: 0.5rem;
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-#reply-edit-form .btn {
-    min-width: 60px;
-}
-
-/* 답글 버튼 */
-.reply-item > div > div > div.mb-2 > button.btn-sm {
-    font-size: 0.85rem;
-    padding: 0.25rem 0.75rem;
 }
 
 /* 대댓글 리스트 */
 .sub-reply-list {
-    margin-top: 1rem;
-    padding-left: 1rem;
-    border-left: 3px solid #dee2e6;
+    padding-left: 30px;
 }
 
-.sub-reply-item {
-    background-color: #f8f9fa;
-    border-radius: 0.375rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ccc;
-    margin-bottom: 0.75rem;
-    position: relative;
+/* 대댓글 리스트 접기/펴기 */
+.sub-reply-list.collapsed {
+    display: none;
 }
 
-/* 대댓글 프로필 아이콘 */
-.sub-reply-item .profile-icon {
-    width: 30px;
-    height: 30px;
-    font-size: 1rem;
-}
-
-/* 대댓글 상단 정보 */
-.sub-reply-item div.d-flex.align-items-start > div.flex-grow-1 > div.d-flex.justify-content-between {
-    align-items: center;
-}
-
-.sub-reply-item strong {
-    font-weight: 700;
-    color: #212529;
-}
-
-.sub-reply-item small.text-muted {
-    margin-left: 0.5rem;
-    color: #6c757d;
-    font-size: 0.8rem;
-}
-
-/* 대댓글 내용 */
-.sub-reply-item .reply-content {
-    margin-top: 0.4rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-    white-space: pre-line;
-    color: #495057;
-}
-
-/* 대댓글 수정 폼 */
-.sub-reply-item #reply-edit-form textarea {
-    resize: none;
-    height: 50px;
-    border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    padding: 0.5rem;
+/* 답글 버튼 스타일 */
+.reply-action-text {
+    color: #000000;
+    cursor: pointer;
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
 }
 
-/* 대댓글 수정 버튼 */
-.sub-reply-item #reply-edit-form .btn {
-    min-width: 60px;
-    font-size: 0.85rem;
+.reply-action-text.has-sub-replies {
+    font-weight: bold;
 }
 
-/* 댓글 폼, 대댓글 폼 공통 */
-.reply-form {
-    margin-top: 0.75rem;
+/* 댓글 내용 */
+.reply-content {
+    white-space: pre-wrap; /* 긴 텍스트 줄바꿈 처리 */
 }
 
-.reply-form textarea {
-    resize: none;
-    height: 60px;
-    border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    padding: 0.5rem;
-    font-size: 1rem;
-}
-
-.reply-form button {
-    min-width: 80px;
-    font-size: 1rem;
-}
-
-/* 반응형: 작은 화면에서 댓글/대댓글 프로필 아이콘 크기 조정 */
-@media (max-width: 576px) {
-    .profile-icon {
-        width: 32px;
-        height: 32px;
-        font-size: 1rem;
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    #board-detail,
+    #comment-container {
+        max-height: 50vh; /* 모바일에서 높이 조정 */
     }
-    
-    .sub-reply-item .profile-icon {
-        width: 24px;
-        height: 24px;
-        font-size: 0.85rem;
+    .comment-write {
+        padding: 10px;
+    }
+    .comment-write textarea,
+    .sub-reply-write textarea {
+        height: 35px;
+    }
+    .comment-write button,
+    .sub-reply-write button {
+        height: 35px;
+        min-width: 70px;
     }
 }
-.scroll-to-top-icon {
-    color: #0d6efd; /* Bootstrap primary color */
-    transition: color 0.3s ease;
-}
-
-.scroll-to-top-icon:hover {
-    color: #0a58ca;
-}
-
-  

@@ -66,6 +66,12 @@ public class Approval {
 	@Column(name="end_date")
 	private LocalDate endDate;
 	
+	@Column(name="use_annual_leave")
+	private Double useAnnualLeave;
+	
+	@Column(name="annual_leave_type")
+	private Integer annualLeaveType;
+	
 	@ManyToOne
 	@JoinColumn(name="appr_sender")
 	private Member member;
