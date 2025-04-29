@@ -1,11 +1,10 @@
 @charset "UTF-8";
 
-/* 테이블 셀 색상 */
+/* 기존 스타일 유지 */
 .table td {
     color: black !important;
 }
 
-/* 에디터 이미지 크기 */
 #start-editor img {
     max-width: 50%;
     height: auto;
@@ -13,7 +12,6 @@
     margin: 0 auto;
 }
 
-/* 파일 링크 스타일 */
 .file-link {
     display: inline-block;
     color: #007bff;
@@ -28,7 +26,6 @@
     text-decoration: underline;
 }
 
-/* 파일 미리보기 이미지 스타일 */
 .file-preview img {
     margin-top: 10px;
     max-width: 200px;
@@ -36,7 +33,6 @@
     display: block;
 }
 
-/* 에디터 이미지 크기 */
 .toastui-editor-contents img {
     max-width: 100%;
     height: auto;
@@ -47,9 +43,8 @@
     color: black !important;
 }
 
-/* 고정된 게시글 스타일 */
 .fixed-row td {
-    background-color: #f3e5f5 !important;  /* 연보라 */
+    background-color: #f3e5f5 !important;
     color: black !important;
     font-weight: bold;
 }
@@ -59,64 +54,78 @@
     color: black !important;
 }
 
-/* 댓글 목록이 스크롤될 때 댓글 작성 영역이 겹치지 않도록 아래 여백 추가 */
-.reply-item:last-child {
-    padding-bottom: 130px; /* 댓글 작성 영역이 덮지 않도록 충분한 여백을 확보 */
+/* 게시글 상세 영역 스크롤 제한 */
+#board-detail {
+    max-height: 100vh; /* 화면 높이의 60%로 제한 */
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+/* 댓글 컨테이너 */
+#comment-container {
+    position: relative; /* 댓글창 고정의 기준점 */
+    max-height: 60vh; /* 화면 높이의 60%로 제한 */
+    overflow-y: auto; /* 독립 스크롤 */
+    padding: 20px;
+    margin-bottom: 80px; /* 댓글창 높이만큼 여백 */
 }
 
 /* 댓글 작성 영역 고정 */
 .comment-write {
-    position: fixed;
+    position: sticky; /* #comment-container 내에서 하단 고정 */
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
+    left: 0;
+    right: 0;
+    width: 100%;
     max-width: 1260px;
-    padding: 20px;
+    margin: 0 auto;
+    padding: 15px 20px;
     background-color: white;
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 9999;
+    z-index: 1000;
     border-radius: 8px;
     border: 1px solid #ddd;
 }
 
-
-/* 댓글 작성 영역의 레이블 */
-.comment-write label {
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-    display: block;
+/* 대댓글 작성 영역 */
+.sub-reply-write {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
 }
 
-/* 댓글 작성 텍스트 영역 */
-.comment-write textarea {
+/* 댓글/대댓글 작성 텍스트 영역 */
+.comment-write textarea,
+.sub-reply-write textarea {
     resize: none;
-    height: 60px; /* 높이를 설정하여 댓글 입력창처럼 만듬 */
-    width: 100%; /* 가로 크기를 100%로 맞춤 */
+    height: 40px; /* 버튼 높이와 동일 */
+    width: 100%;
     border: 1px solid #ced4da;
     border-radius: 0.375rem;
     padding: 0.5rem;
     font-size: 1rem;
+    box-sizing: border-box;
 }
 
-/* 댓글 작성 버튼 */
-.comment-write button {
+/* 댓글/대댓글 작성 버튼 */
+.comment-write button,
+.sub-reply-write button {
     min-width: 80px;
-    height: 40px; /* 버튼 크기 맞춤 */
+    height: 40px; /* 텍스트 영역과 동일 */
     font-size: 1rem;
-    margin-top: 10px;
 }
 
 /* 로그인 후 댓글 작성 안내 메시지 */
 .comment-write .text-muted {
     font-size: 0.875rem;
     margin-top: 10px;
+    text-align: center;
 }
 
-/* 페이지 컨텐츠 영역 */
+/* 페이지 컨텐츠 여백 */
 body {
-    padding-bottom: 100px; /* 댓글 작성 영역을 고려한 여백 추가 */
+    padding-bottom: 20px; /* 불필요한 여백 최소화 */
 }
 
 /* 댓글 아이템 */
@@ -144,15 +153,12 @@ body {
     flex-shrink: 0;
 }
 
-/* 답글 작성 폼 */
-.reply-form {
-    margin-top: 1rem;
-}
-
+/* 댓글 수정 폼 */
 .reply-edit-form {
     display: none;
 }
 
+/* 대댓글 아이템 */
 .sub-reply-item {
     background-color: #f1f3f5;
     border-radius: 0.5rem;
@@ -160,10 +166,48 @@ body {
     margin-bottom: 0.75rem;
 }
 
+/* 대댓글 리스트 */
 .sub-reply-list {
-    padding-left: 30px; /* 대댓글을 조금 들여서 보여주기 */
+    padding-left: 30px;
 }
-/* 새로 추가 */
+
+/* 대댓글 리스트 접기/펴기 */
+.sub-reply-list.collapsed {
+    display: none;
+}
+
+/* 답글 버튼 스타일 */
+.reply-action-text {
+    color: #000000;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.reply-action-text.has-sub-replies {
+    font-weight: bold;
+}
+
+/* 댓글 내용 */
 .reply-content {
-    white-space: pre-wrap;
+    white-space: pre-wrap; /* 긴 텍스트 줄바꿈 처리 */
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    #board-detail,
+    #comment-container {
+        max-height: 50vh; /* 모바일에서 높이 조정 */
+    }
+    .comment-write {
+        padding: 10px;
+    }
+    .comment-write textarea,
+    .sub-reply-write textarea {
+        height: 35px;
+    }
+    .comment-write button,
+    .sub-reply-write button {
+        height: 35px;
+        min-width: 70px;
+    }
 }
