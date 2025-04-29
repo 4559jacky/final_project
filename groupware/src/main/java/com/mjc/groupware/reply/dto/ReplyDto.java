@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.MemberAttach;
 import com.mjc.groupware.reply.entity.Reply;
 
 import lombok.*;
@@ -41,8 +42,8 @@ public class ReplyDto {
     
     // 새로운 내용 (수정할 때 사용)
     private String newContent;
-    // 작성자의 사진 (첨부파일이 있을 경우)
-    private String memberPhoto;
+    // 파일 경로 추가
+    private String attachPath;
     // 등록일을 포맷팅한 문자열 (수정된 날짜도 이 방식으로 처리)
     private String regDateFormatted;
     // 대댓글 목록
@@ -96,7 +97,6 @@ public class ReplyDto {
      * Reply 엔티티 객체를 ReplyDto 객체로 변환하여 반환
      */
     public static ReplyDto toDto(Reply reply) {
-        // Reply 엔티티를 기반으로 ReplyDto 객체를 생성
         ReplyDto dto = ReplyDto.builder()
                 .reply_no(reply.getReplyNo())
                 .member_no(reply.getMember() != null ? reply.getMember().getMemberNo() : null)
@@ -110,11 +110,27 @@ public class ReplyDto {
                 .mod_date(reply.getModDate()) // 수정일 그대로 복사
                 .regDateFormatted(reply.getRegDate() != null ? formatDate(reply.getRegDate()) : null)
                 .member(reply.getMember())
-                .memberPhoto(reply.getMember() != null && reply.getMember().getMemberAttachs() != null && !reply.getMember().getMemberAttachs().isEmpty() ? reply.getMember().getMemberAttachs().get(0).getAttachPath() : null)
+                .subReplyCount(reply.getChildReplies().size()) // 대댓글 수 처리
+                .attachPath(getProfileImagePath(reply)) // 프로필 이미지 경로
                 .build();
-        
-        dto.setSubReplyCount(0); // 초기 대댓글 수는 0
         return dto;
+    }
+
+    /**
+     * 댓글 작성자의 프로필 이미지 경로를 반환
+     * MemberAttach에서 가장 최신 이미지를 가져옴
+     * @param reply 댓글
+     * @return 프로필 이미지 경로 (기본 이미지를 반환할 경우도 있음)
+     */
+    private static String getProfileImagePath(Reply reply) {
+        if (reply.getMember() != null && reply.getMember().getMemberAttachs() != null && !reply.getMember().getMemberAttachs().isEmpty()) {
+            // MemberAttach의 리스트에서 최신 이미지를 가져오기
+            List<MemberAttach> attaches = reply.getMember().getMemberAttachs();
+            attaches.sort((a, b) -> b.getRegDate().compareTo(a.getRegDate())); // 최신 이미지를 우선으로 정렬
+            return attaches.get(0).getAttachPath(); // 최신 이미지 경로를 반환
+        } else {
+            return "/img/default_profile.png"; // 기본 이미지 경로
+        }
     }
 
     // 대댓글 수를 증가시키는 코드
@@ -122,25 +138,19 @@ public class ReplyDto {
         this.subReplyCount++;
     }
 
-    
-     // LocalDateTime을 "yyyy-MM-dd HH:mm" 형식의 문자열로 변환하는 메소드
-     
+    // LocalDateTime을 "yyyy-MM-dd HH:mm" 형식의 문자열로 변환하는 메소드
     private static String formatDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return dateTime.format(formatter);
     }
 
-    
-     // 댓글이 수정되었는지 여부를 반환
-     // 수정일이 존재하면 수정된 것으로 간주
-     
+    // 댓글이 수정되었는지 여부를 반환
+    // 수정일이 존재하면 수정된 것으로 간주
     public boolean isModified() {
         return mod_date != null;
     }
 
-    
-     // 수정된 날짜를 반환하는 메소드 (중복된 코드 처리용)
-     
+    // 수정된 날짜를 반환하는 메소드 (중복된 코드 처리용)
     public Object getModDateFormatted() { 
         return null; // 중복 코드 처리용
     }
