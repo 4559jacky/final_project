@@ -1,13 +1,25 @@
 package com.mjc.groupware.shared.service;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.dto.SharedFileDto;
 import com.mjc.groupware.shared.entity.SharedFile;
 import com.mjc.groupware.shared.entity.SharedFolder;
@@ -19,78 +31,107 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SharedFileService {
+	
+	private final FolderRepository folderRepository;
+	private final FileRepository fileRepository;
+	
+	@Value("${ffupload.location}")
+	private String filePath;
+	
+	public void saveFiles(List<MultipartFile> files, Long folderId) {
+		SharedFolder folder = folderRepository.findById(folderId).orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
 
-    @Value("${ffupload.location}") // 📁 실제 파일이 저장될 루트 경로 (yml에서 설정)
-    private String fileDir;
+		for (MultipartFile file : files) {
+			try{
+				String oriName = file.getOriginalFilename();
+				String uuid = UUID.randomUUID().toString();
+				String newName = uuid + "_" + oriName;
+			
+			Path savePath = Paths.get(filePath, newName);
+			file.transferTo(savePath.toFile());
+			
+			SharedFileDto dto = SharedFileDto.builder()
+					.file_name(oriName)
+					.file_path(newName)
+					.file_size(file.getSize())
+					.file_status("N")
+					.file_shared("N")
+					.member_no(folder.getMember().getMemberNo()) //로그인 사용자
+					.build();
+			
+			SharedFile entity = dto.toEntity();
+			entity.setFolder(folder);
+			
+			fileRepository.save(entity);
+			
+			}catch(IOException e) {
+				throw new RuntimeException("파일 업로드 실패: "+file.getOriginalFilename(), e);
+			}
+		}
+	}
+	
+	
+	// 파일/폴더 리스트 조회
+	public List<Map<String, Object>> getFolderContent(Long folderId) {
+		List<Map<String, Object>> result = new ArrayList<>();
+		
+		List<SharedFolder> subFolders;
+		
+		if(folderId == null) {
+			subFolders = folderRepository.findByParentFolderIsNull();
+		}else {
+			subFolders = folderRepository.findByParentFolderFolderNo(folderId);
+		}
+		
+		for(SharedFolder folder : subFolders) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("type", "folder");
+			map.put("id", folder.getFolderNo());
+			map.put("name", folder.getFolderName());
+			map.put("regDate", folder.getRegDate());
+			result.add(map);
+		}
+		
+		// 파일은 폴더 선택했을 때만 표시
+		if(folderId != null) {
+			List<SharedFile> files = fileRepository.findByFolderFolderNo(folderId);
+			for(SharedFile file : files) {
+				Map<String, Object> map = new HashMap<>();
+				map.put("type", "file");
+				map.put("id", file.getFileNo());
+				map.put("name", file.getFileName());
+				map.put("size", file.getFileSize());
+				map.put("regDate", file.getRegDate());
+				result.add(map);
+			}
+		
+		}
+		
+		return result;
+	}
+	
+	// 파일 다운로드
+	public ResponseEntity<Resource> downloadFile(Long fileId) {
+		SharedFile fileEntity = fileRepository.findById(fileId)
+				.orElseThrow(() -> new RuntimeException("파일을 찾을 수 없습니다."));
+		
+		String fullPath = filePath + "/" + fileEntity.getFilePath(); // 실제 저장된 파일 경로
+		FileSystemResource resource = new FileSystemResource(fullPath);
+		
+		if(!resource.exists()) {
+			throw new RuntimeException("파일이 존재하지 않습니다:"+fullPath);
+		}
+		
+		// 한글 파일명 처리(UTF-8 인코딩)
+		String encodedName = URLEncoder.encode(fileEntity.getFileName(), StandardCharsets.UTF_8);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedName +"\"");
+		
+		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+	}
 
-    private final FileRepository fileRepository; //  DB 저장용 JPA 리포지토리
-    private final FolderRepository folderRepository;
-    
-    public SharedFileDto uploadFile(MultipartFile file, Member member) {
-    	SharedFileDto dto = new SharedFileDto(); //  반환할 DTO 객체 준비
 
-        try {
-            // 1. 파일 유효성 검사
-            if (file == null || file.isEmpty()) {
-                throw new Exception("존재하지 않는 파일입니다.");
-            }
-
-            // 2. 파일 용량 체크 (1MB 제한)
-            long fileSize = file.getSize();
-            if (fileSize > 1048576) {
-                throw new Exception("허용 용량을 초과한 파일입니다.");
-            }
-
-            // 3. 원본 파일명, 확장자 추출
-            String oriName = file.getOriginalFilename();
-            String fileExt = oriName.substring(oriName.lastIndexOf("."));
-            
-            System.out.println("파일명: " + file.getOriginalFilename());
-            // 4. 새로운 고유 파일명 생성 (UUID 사용)
-            String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            String newName = uuid + fileExt;
-
-            // 5. 저장 경로 설정
-            String saveDir = fileDir + "shared/";
-            String fullPath = saveDir + newName;
-
-            // 6. 저장 경로 없으면 생성
-            File dir = new File(saveDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            // 7. 실제 파일 저장
-            File saveFile = new File(fullPath);
-            file.transferTo(saveFile);
-            
-            //폴더 정보 설정
-            SharedFolder folder = folderRepository.findById(1L)
-                    .orElseThrow(() -> new IllegalArgumentException("기본 폴더 없음"));
-            
-            // 8. Entity 생성 및 DB 저장
-            SharedFile entity = SharedFile.builder()
-                    .fileName(oriName)
-                    .filePath(fullPath)
-                    .member(member)
-                    .folder(folder)
-                    .build();
-
-            SharedFile saved = fileRepository.save(entity); // ✅ DB 저장
-
-            // 9. DTO로 반환
-            dto = SharedFileDto.builder()
-                    .file_no(saved.getFileNo())
-                    .file_name(saved.getFileName())             
-                    .file_path(saved.getFilePath())
-                    .build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            dto = null; // ❗ 실패 시 null 반환
-        }
-
-        return dto;
-    }
+	
 }
 

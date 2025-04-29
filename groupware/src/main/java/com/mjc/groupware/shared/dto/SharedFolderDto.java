@@ -2,9 +2,7 @@ package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
 
-import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
-import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.shared.entity.SharedFolder;
 
 import lombok.AllArgsConstructor;
@@ -24,7 +22,7 @@ public class SharedFolderDto {
 	private Long folder_no;
 	private String folder_name;
 	private String folder_status;
-	private String folder_shared;
+	private Integer folder_type;
 	private Long folder_parent_no;
 	private Long dept_no;
 	private Long pos_no;
@@ -43,7 +41,7 @@ public class SharedFolderDto {
 				.member(Member.builder().memberNo(member_no).build())
 				.parentFolder(folder_parent_no != null ? SharedFolder.builder().folderNo(folder_parent_no).build() : null)
 				.folderStatus(folder_status)
-				.folderShared(folder_shared)
+				.folderType(folder_type)
 				.build();
 	}
 	
@@ -58,7 +56,7 @@ public class SharedFolderDto {
 				 * .dept_no(folder.getDept() != null ? folder.getDept().getDeptNo() : null)
 				 */
 				.reg_date(folder.getRegDate())
-				.folder_shared(folder.getFolderShared())
+				.folder_type(folder.getFolderType())
 				.folder_status(folder.getFolderStatus())
 				.build();
 	}
