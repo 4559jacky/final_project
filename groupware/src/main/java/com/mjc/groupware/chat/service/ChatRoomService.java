@@ -1,5 +1,6 @@
 package com.mjc.groupware.chat.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.chat.dto.ChatRoomDto;
-import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.entity.ChatMapping;
+import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.repository.ChatMappingrepository;
 import com.mjc.groupware.chat.repository.ChatRoomRepository;
 import com.mjc.groupware.chat.specification.ChatRoomSpecification;
@@ -29,7 +30,7 @@ public class ChatRoomService {
 	
 	
 	// 채팅 화면 전환
-	public List<ChatRoom> selectChatRoomAll(){
+	public List<ChatRoomDto> selectChatRoomAll(){
 		
 		// 현재 로그인한 사용자의 인증정보를 SecurityContextHolder에서 꺼내옴
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -46,7 +47,36 @@ public class ChatRoomService {
 	    // 조회하고 조회결과 return 
 	    List<ChatRoom> list = chatRoomRepository.findAll(spec, sort);
 	    
-	    return list;
+	    List<ChatRoomDto> result = new ArrayList<>();
+	    
+	    for(ChatRoom room :list) {
+	    	String title = room.getChatRoomTitle();
+	    	
+	    	if(title.trim().isEmpty() || title.equals("")) {
+	    		List<String> nameList = new ArrayList<String>();
+	    		
+	    		for(ChatMapping mapping : room.getMappings()) {
+	    			Member member = mapping.getMemberNo();
+	    			
+	    			 if (!member.getMemberNo().equals(md.getMember().memberNo)) {
+	                     String pos = member.getPos() != null ? member.getPos().getPosName() : "";
+	                     nameList.add(member.getMemberName() + " " + pos);
+	                 }
+        		}
+	    		title = String.join(", ", nameList);
+	    	}
+	    
+	    	ChatRoomDto dto = ChatRoomDto.builder()
+	                .chat_room_no(room.getChatRoomNo())
+	                .chat_room_title(title)
+	                .last_msg(room.getLastMsg())
+	                .last_msg_date(room.getLastMsgDate())
+	                .build();
+
+	        result.add(dto);
+	    }
+	   
+	    return result;
 	}
 	
 	// 채팅방 생성
