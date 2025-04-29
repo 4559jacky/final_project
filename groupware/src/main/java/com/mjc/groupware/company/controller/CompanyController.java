@@ -148,7 +148,6 @@ public class CompanyController {
 			service.createCompany(param);
 			
 			if(previousFilePath != null) {
-				System.out.println(previousFilePath);
 				service.deleteFile(previousFilePath);
 			}
 			

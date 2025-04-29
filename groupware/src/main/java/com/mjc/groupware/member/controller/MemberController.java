@@ -416,12 +416,19 @@ public class MemberController {
 		
 		if(memberAttachDto != null) {
 			try {
+				MemberAttachDto existingProfile = memberAttachService.selectLatestMyProfile(Member.builder().memberNo(memberNo).build());
+		        String previousFilePath = (existingProfile != null) ? existingProfile.getAttach_path() : null;
+				
 				MultipartFile file = memberAttachDto.getProfile_image();
 				
 				MemberAttachDto param = memberAttachService.uploadFile(file);
 				param.setMember_no(memberNo);
 				
 				memberAttachService.updateMyProfile(param);
+				
+				if (previousFilePath != null) {
+	                memberAttachService.deleteFile(previousFilePath);
+	            }
 				
 				resultMap.put("res_code", "200");
 				resultMap.put("res_msg", "프로필 사진 수정이 성공적으로 완료되었습니다.");
