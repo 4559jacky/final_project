@@ -9,6 +9,6 @@ import com.mjc.groupware.shared.entity.SharedFile;
 
 public interface FileRepository extends JpaRepository<SharedFile, Long>, JpaSpecificationExecutor<SharedFile>{
 	
-	List<SharedFile> findByFolder_FolderNo(Long folderNo);
+	List<SharedFile> findByFolderFolderNo(Long folderNo);
 
 }

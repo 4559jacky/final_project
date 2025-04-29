@@ -1,7 +1,5 @@
 package com.mjc.groupware.shared.service;
 
-
-
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.member.entity.Member;
@@ -41,6 +39,7 @@ public class SharedFolderService {
 
 		 folderRepository.save(folder);
 	}
+	
 }
 
 
