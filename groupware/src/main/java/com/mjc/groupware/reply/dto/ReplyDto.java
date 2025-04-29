@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.member.entity.Member;
@@ -19,68 +21,49 @@ import lombok.*;
 @Builder
 public class ReplyDto {
 
-    // 댓글의 고유 번호
+    
     private Long reply_no;
-    // 댓글 작성자의 회원 번호
     private Long member_no;
-    // 댓글 작성자의 이름
     private String memberName;
-    // 댓글 작성자의 부서 이름
     private String deptName;
-    // 댓글이 달린 게시글의 고유 번호
     private Long board_no;
-    // 부모 댓글의 번호 (대댓글을 위해 사용)
+    // 부모 댓글 번호 (대댓글일 경우)
     private Long parent_reply_no;
-    // 댓글 내용
     private String reply_content;
-    // 댓글 상태 (Y: 삭제, N: 정상)
+    // 댓글 상태 (ex. 정상 N, 삭제 D 등)
     private String reply_status;
-    // 댓글 등록일
     private LocalDateTime reg_date;
-    // 댓글 수정일 (수정이 된 경우만 존재)
     private LocalDateTime mod_date;
-    
-    // 새로운 내용 (수정할 때 사용)
+    // 새로 수정될 댓글 내용 (수정 시 사용)
     private String newContent;
-    // 파일 경로 추가
+    // 프로필 이미지 경로
     private String attachPath;
-    // 등록일을 포맷팅한 문자열 (수정된 날짜도 이 방식으로 처리)
+    // 등록일 포맷된 문자열 (ex. 2024-04-29 14:30)
     private String regDateFormatted;
-    // 대댓글 목록
+    // 대댓글 리스트
     private List<ReplyDto> subReplies = new ArrayList<>();
-    
-    // 댓글 작성자 객체 (회원 정보)
     private Member member;
     // 대댓글 수
     private int subReplyCount;
+    // 프로필 이미지 경로 캐시 (회원 번호 기반)
+    private static final Map<Long, String> profileImageCache = new ConcurrentHashMap<>();
 
-    /**
-     * 댓글 작성자의 부서 이름과 이름을 포맷해서 반환
-     * 예: "[부서명]작성자명"
-     */
+    // 부서명과 이름을 포맷해서 반환 (ex. [총무팀]홍길동)
     public String getFormattedMemberInfo() {
         return String.format("[%s]%s", deptName != null ? deptName : "부서 미정", memberName);
     }
 
-    /**
-     * 댓글이 수정되었는지 확인하여 "(수정됨)"을 반환
-     * 수정되었으면 "(수정됨)", 아니면 빈 문자열 반환
-     */
+    // 댓글이 수정되었는지 여부 표시 문자열
     public String getModifiedStatus() {
         return isModified() ? "(수정됨)" : "";
     }
 
-    /**
-     * 댓글 등록일을 포맷하여 반환 (yyyy-MM-dd HH:mm 형식)
-     */
+    // 포맷된 등록일 반환
     public String getRegDateFormatted() {
         return reg_date != null ? formatDate(reg_date) : "";
     }
 
-    /**
-     * DTO -> Entity 변환
-     * ReplyDto 객체를 Reply 엔티티로 변환하여 반환
-     */
+    // DTO → Entity 변환 메서드
     public Reply toEntity() {
         return Reply.builder()
                 .replyNo(reply_no)
@@ -92,10 +75,7 @@ public class ReplyDto {
                 .build();
     }
 
-    /**
-     * Entity -> DTO 변환
-     * Reply 엔티티 객체를 ReplyDto 객체로 변환하여 반환
-     */
+    // Entity → DTO 변환 메서드
     public static ReplyDto toDto(Reply reply) {
         ReplyDto dto = ReplyDto.builder()
                 .reply_no(reply.getReplyNo())
@@ -106,52 +86,72 @@ public class ReplyDto {
                 .parent_reply_no(reply.getParentReply() != null ? reply.getParentReply().getReplyNo() : null)
                 .reply_content(reply.getReplyContent())
                 .reply_status(reply.getReplyStatus())
-                .reg_date(reply.getRegDate()) // 등록일 그대로 복사
-                .mod_date(reply.getModDate()) // 수정일 그대로 복사
+                .reg_date(reply.getRegDate())
+                .mod_date(reply.getModDate())
                 .regDateFormatted(reply.getRegDate() != null ? formatDate(reply.getRegDate()) : null)
                 .member(reply.getMember())
-                .subReplyCount(reply.getChildReplies().size()) // 대댓글 수 처리
-                .attachPath(getProfileImagePath(reply)) // 프로필 이미지 경로
+                .subReplyCount(reply.getChildReplies().size())
+                .attachPath(getCachedProfileImagePath(reply))
                 .build();
         return dto;
     }
 
-    /**
-     * 댓글 작성자의 프로필 이미지 경로를 반환
-     * MemberAttach에서 가장 최신 이미지를 가져옴
-     * @param reply 댓글
-     * @return 프로필 이미지 경로 (기본 이미지를 반환할 경우도 있음)
-     */
+    // 캐시된 프로필 이미지 경로를 가져오거나 새로 생성
+    private static String getCachedProfileImagePath(Reply reply) {
+        if (reply == null || reply.getMember() == null) {
+            return "/img/default_profile.png";
+        }
+        Long memberNo = reply.getMember().getMemberNo();
+        if (profileImageCache.containsKey(memberNo)) {
+            String cachedPath = profileImageCache.get(memberNo);
+            return cachedPath;
+        }
+        String attachPath = getProfileImagePath(reply);
+        profileImageCache.put(memberNo, attachPath);
+        return attachPath;
+    }
+
+    // 실제 프로필 이미지 경로를 추출
     private static String getProfileImagePath(Reply reply) {
-        if (reply.getMember() != null && reply.getMember().getMemberAttachs() != null && !reply.getMember().getMemberAttachs().isEmpty()) {
-            // MemberAttach의 리스트에서 최신 이미지를 가져오기
+        try {
+            if (reply.getMember() == null || reply.getMember().getMemberAttachs() == null || reply.getMember().getMemberAttachs().isEmpty()) {
+                return "/img/default_profile.png";
+            }
             List<MemberAttach> attaches = reply.getMember().getMemberAttachs();
-            attaches.sort((a, b) -> b.getRegDate().compareTo(a.getRegDate())); // 최신 이미지를 우선으로 정렬
-            return attaches.get(0).getAttachPath(); // 최신 이미지 경로를 반환
-        } else {
-            return "/img/default_profile.png"; // 기본 이미지 경로
+            attaches.sort((a, b) -> b.getRegDate().compareTo(a.getRegDate())); // 최신 등록 순 정렬
+            String attachPath = attaches.get(0).getAttachPath();
+            if (attachPath == null || attachPath.isEmpty()) {
+                return "/img/default_profile.png";
+            }
+            // 윈도우 경로를 웹 접근 경로로 변환
+            if (attachPath.startsWith("C:/upload/groupware/")) {
+                attachPath = attachPath.replace("C:/upload/groupware/", "/uploads/");
+            }
+            return attachPath;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return "/img/default_profile.png";
         }
     }
 
-    // 대댓글 수를 증가시키는 코드
+    // 대댓글 수 증가 메서드
     public void incrementSubReplyCount() {
         this.subReplyCount++;
     }
 
-    // LocalDateTime을 "yyyy-MM-dd HH:mm" 형식의 문자열로 변환하는 메소드
+    // 날짜 포맷 공통 처리
     private static String formatDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return dateTime.format(formatter);
     }
 
-    // 댓글이 수정되었는지 여부를 반환
-    // 수정일이 존재하면 수정된 것으로 간주
+    // 댓글이 수정된 경우 true 반환
     public boolean isModified() {
         return mod_date != null;
     }
 
-    // 수정된 날짜를 반환하는 메소드 (중복된 코드 처리용)
-    public Object getModDateFormatted() { 
-        return null; // 중복 코드 처리용
+    // 포맷된 수정일 반환
+    public String getModDateFormatted() {
+        return mod_date != null ? formatDate(mod_date) : "";
     }
 }
