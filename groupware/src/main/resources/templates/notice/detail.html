@@ -14,24 +14,25 @@
 <th:block layout:fragment="content">
     <script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<link rel="stylesheet" th:href="@{/css/hjh/hjh.css}">
-
-    <div class="col-lg-8 col-md-6 col-12 align-self-center">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb align-items-center">
-                <li class="breadcrumb-item">
-                    <a class="text-muted text-decoration-none" th:href="@{/home}">
-                        <i class="ti ti-home fs-5"></i>
-                    </a>
-                </li>
-                <li class="breadcrumb-item" aria-current="page">공지사항 게시판</li>
-                <li class="breadcrumb-item active" aria-current="page">게시글 상세</li>
-            </ol>
-        </nav>
-        <br>
-        <h2 class="mb-0 fw-bolder fs-8">공지사항 게시글 상세</h2>
-    </div>
-    <br>
-
+	
+	<div class="page-titles mb-7 mb-md-5">
+    	<div class="row">
+        	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">게시판 / 공지사항</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">공지사항 상세</h2>
+			</div><br>
+		</div>
+	</div>
+	
      <div class="card shadow-sm p-4">
          <div class="d-flex justify-content-between align-items-center mb-3">
     			<h3 th:text="${notice.noticeTitle}" class="fw-semibold mb-0"></h3>
@@ -69,9 +70,11 @@
 
             <div class="mt-4 text-end">
                 <a th:href="@{/notice}" class="btn btn-primary px-3 py-1">목록으로</a>
-                <a th:href="@{/notice/update(noticeNo=${notice.noticeNo})}" class="btn btn-primary px-3 py-1">수정</a>
-                <a th:href="@{/notice/delete(noticeNo=${notice.noticeNo})}" class="btn btn-danger px-3 py-1"
-                   onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+                <th:block th:if="${notice.member.memberNo == #authentication.principal.member.memberNo}">
+	                <a th:href="@{/notice/update(noticeNo=${notice.noticeNo}, memberNo=${notice.member.memberNo})}" class="btn btn-primary px-3 py-1">수정</a>
+	                <a th:href="@{/notice/delete(noticeNo=${notice.noticeNo}, memberNo=${notice.member.memberNo})}" class="btn btn-danger px-3 py-1"
+	                   onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>                
+                </th:block>
             </div>
         </div>
     </div>

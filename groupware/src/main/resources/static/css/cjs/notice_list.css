@@ -1,0 +1,6 @@
+@charset "UTF-8";
+
+/* 다크모드에서 placeholder 톤 다운 */
+[data-bs-theme="dark"] input::placeholder {
+	color: #aaa; /* 연한 회색으로 눈에 부담 없게 */
+}

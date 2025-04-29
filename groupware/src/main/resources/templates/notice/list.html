@@ -6,42 +6,48 @@
   layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
   <link rel="stylesheet" th:href="@{/css/hjh.css}">
+  <link rel="stylesheet" th:href="@{/css/cjs/notice_list.css}">
+  
   <script th:src="@{/js/jquery-3.7.1.js}"></script>
-
-  <div class="container-fluid px-4">
+	
+	<div class="page-titles mb-7 mb-md-5">
+    	<div class="row">
+        	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">게시판 / 공지사항</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">공지사항</h2>
+			</div><br>
+		</div>
+	</div>
+  	<div class="container-fluid px-0">
     <!-- 제목 & 경로 -->
-    <div class="col-lg-8 col-md-6 col-12 align-self-center">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb align-items-center">
-          <li class="breadcrumb-item">
-            <a class="text-muted text-decoration-none" th:href="@{/home}">
-              <i class="ti ti-home fs-5"></i>
-            </a>
-          </li>
-          <li class="breadcrumb-item" aria-current="page">공지사항 게시판</li>
-        </ol>
-      </nav><br>
-      <h2 class="mb-0 fw-bolder fs-8">공지사항 게시판</h2>
-    </div><br>
 
     <!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
       <!-- 왼쪽: 검색 조건 + 검색창 -->
       <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
-        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+        <select name="search_type" class="form-select w-auto border-1" style="width: 120px;">
           <option th:value="''" th:selected="${search_type == null}">선택</option>
           <option th:value="1" th:selected="${search_type == 1}">제목</option>
           <option th:value="2" th:selected="${search_type == 2}">내용</option>
           <option th:value="3" th:selected="${search_type == 3}">제목+내용</option>
         </select>
-
+	
         <div class="position-relative" style="max-width: 350px;">
           <input type="text"
                  name="keyword"
                  th:value="${keyword}"
                  class="form-control search-chat py-2 ps-5"
                  id="text-srh"
-                 placeholder="Search Contact" />
+                 placeholder="검색어를 입력하세요." />
           <button type="submit"
                   class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
             <i class="ti ti-search fs-6 text-dark"></i>
@@ -52,7 +58,7 @@
       <!-- 오른쪽: 정렬 -->
       <form th:action="@{/notice}" method="get">
         <select name="sort"
-                class="form-select w-auto bg-primary-subtle border-0"
+                class="form-select w-auto border-1"
                 onchange="this.form.submit()"
                 aria-label="정렬 선택">
           <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
@@ -66,6 +72,15 @@
     <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
       <div class="table-responsive">
         <table class="table align-middle text-center">
+          <colgroup>
+		    <col style="width: 10%;">   <!-- 번호 -->
+		    <col style="width: 40%;">  <!-- 제목 (넓게) -->
+		    <col style="width: 12%;">  <!-- 작성자 -->
+		    <col style="width: 14%;">  <!-- 등록일 -->
+		    <col style="width: 14%;">  <!-- 수정일 -->
+		    <col style="width: 10%;">  <!-- 조회수 -->
+		  </colgroup>
+        
           <thead class="bg-light">
             <tr>
               <th>번호</th>
@@ -80,10 +95,10 @@
           	<th:block th:with="totalCount=${noticeList.totalElements}"></th:block>
          	<tbody>
          	
-         		<tr th:if="${noticeList.content.isEmpty()}">
+         		<tr th:if="${noticeList.content.isEmpty() and (fixedList == null or fixedList.isEmpty())}">
     				<td colspan="6" class="text-center text-muted">게시글이 없습니다.</td>
   				</tr>
-         	
+         		
   				<!-- ✅ 고정글 먼저 표시 -->
   				<tr th:each="notice : ${fixedList}"
     				th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|"
@@ -125,14 +140,18 @@
     </div>
 
     <!-- 게시글 작성 버튼: 오른쪽 위 -->
-    <div class="d-flex justify-content-end mt-4">
-      <button type="button"
-              class="btn btn-primary"
-              onclick="location.href='/notice/create'">
-        게시글 작성
-      </button>
-    </div>
-
+    <th:block th:each="funcNo : ${accessibleFuncNoList}">
+    	<th:block th:if="${funcNo == 16}">
+	        <div class="d-flex justify-content-end mt-4">
+		      <button type="button"
+		              class="btn btn-primary"
+		              onclick="location.href='/notice/create'">
+		        게시글 작성
+		      </button>
+		    </div>
+	    </th:block>
+    </th:block>
+	
     <!-- 페이징바: 한 줄 아래 중앙 정렬 -->
     <div class="d-flex justify-content-center mt-2">
       <nav th:if="${noticeList.totalPages > 0}">
