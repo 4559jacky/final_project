@@ -68,7 +68,10 @@ public class Plan {
 	@Column(name = "plan_type")
     private String planType;
 
+	@Column(name = "last_update_member")
+	private Long lastUpdateMember;
+
+	@Column(name = "del_yn")
+	private String delYn;
 	
-
-
 }
