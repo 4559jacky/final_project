@@ -115,9 +115,16 @@ public class CompanyController {
 		try {
 			MultipartFile file = dto.getProfile_image();
 			CompanyDto param = new CompanyDto();
+			CompanyDto latest = service.selectLatestCompanyProfile();
+			
+			String previousFilePath = null;
+			
+			if(latest != null) {
+				previousFilePath = service.selectLatestCompanyProfile().getAttach_path();
+			}
 			
 			if (file == null || file.isEmpty()) {
-				CompanyDto latest = service.selectLatestCompanyProfile();
+				latest = service.selectLatestCompanyProfile();
 				
 				if(latest != null) {
 					param.setOri_name(latest.getOri_name());
@@ -139,6 +146,11 @@ public class CompanyController {
 	        param.setCompany_name(dto.getCompany_name());
 			
 			service.createCompany(param);
+			
+			if(previousFilePath != null) {
+				System.out.println(previousFilePath);
+				service.deleteFile(previousFilePath);
+			}
 			
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "프로필 정보 수정이 정상적으로 완료되었습니다.");

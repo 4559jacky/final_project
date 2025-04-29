@@ -31,10 +31,10 @@ layout:decorate="~{/include/layout}">
 							
 						    <div class="text-center mb-3">
 						        <th:block th:if="${latestMyProfile != null}">
-						            <img th:src="@{|/uploads/${latestMyProfile.new_name}|}" width="120" height="120" alt="profile-img" />
+						            <img th:src="@{|/uploads/${latestMyProfile.new_name}|}" width="120" height="160" alt="profile-img" />
 						        </th:block>
 						        <th:block th:if="${latestMyProfile == null}">
-						            <img th:src="@{/img/default_profile.png}" width="120" height="120" alt="default-profile" />
+						            <img th:src="@{/img/default_profile.png}" width="120" height="120" style="margin-top:20px; margin-bottom:20px;" alt="default-profile" />
 						        </th:block>
 						    </div>
 							
@@ -113,7 +113,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 첫 번째 박스 (공지사항) -->
 			        <div class="col-md-4">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 300px; max-height: 300px; overflow-y:auto;">
+			                <div class="card-body" style="height: 320px; max-height: 320px; overflow-y:auto;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-bell"></i>
@@ -135,7 +135,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 두 번째 박스 (자유게시판) -->
 			        <div class="col-md-4">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 300px; max-height: 300px; overflow-y:auto;">
+			                <div class="card-body" style="height: 320px; max-height: 320px; overflow-y:auto;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="fa fa-newspaper"></i>
@@ -157,7 +157,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 세 번째 박스 (오늘의 할 일) -->
 			        <div class="col-md-4">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 300px; max-height: 300px; overflow-y:auto;">
+			                <div class="card-body" style="height: 320px; max-height: 320px; overflow-y:auto;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-calendar"></i>
@@ -174,7 +174,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 네 번째 박스 (결재) -->
 			        <div class="col-md-4">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 300px; max-height: 300px; overflow-y:auto;">
+			                <div class="card-body" style="height: 320px; max-height: 320px; overflow-y:auto;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-check"></i>
@@ -193,7 +193,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 다섯 번째 박스 (공유문서함) -->
 			        <div class="col-md-4">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 300px; max-height: 300px; overflow-y:auto;">
+			                <div class="card-body" style="height: 320px; max-height: 320px; overflow-y:auto;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-file"></i>
@@ -215,7 +215,7 @@ layout:decorate="~{/include/layout}">
 			        <!-- 여섯 번째 박스 (채팅) -->
 			        <div class="col-md-4">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 300px; max-height: 300px; overflow-y:auto;">
+			                <div class="card-body" style="height: 320px; max-height: 320px; overflow-y:auto;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-message-circle"></i>

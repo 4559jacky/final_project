@@ -76,6 +76,19 @@ public class CompanyService {
 		return dto;
 	}
 	
+	public void deleteFile(String filePath) throws Exception {
+	    File file = new File(filePath);
+	    
+	    if (file.exists()) {
+	        boolean deleted = file.delete();
+	        if (!deleted) {
+	            throw new Exception("파일 삭제 실패: " + filePath);
+	        }
+	    } else {
+	        throw new Exception("파일이 존재하지 않습니다: " + filePath);
+	    }
+	}
+	
 	public void createCompany(CompanyDto dto) {
 		try {
 			Company param = Company.builder()
