@@ -813,71 +813,70 @@
 		
 		
 		// 채팅 인원 선택
-		document.addEventListener("DOMContentLoaded",function(){
-			const addBtn = document.querySelectorAll(".addBtn");
-			const addUserList = document.getElementById("addMemberList");
-			const addUsersInputs = document.getElementById("addUsersInputs");
+		
+		const addBtn = document.querySelectorAll(".addBtn");
+		const addUserList = document.getElementById("addMemberList");
+		const addUsersInputs = document.getElementById("addUsersInputs");
+		
+		document.addEventListener("click", function (e) {
+		    if (e.target.classList.contains("addBtn")) {
+		        const memberNo = e.target.getAttribute("data-id");
+		        const memberName = e.target.getAttribute("data-name");
+		        const memberPos = e.target.getAttribute("data-pos");
+		        
+		        // 중복 방지 
+		        const result = Array.from(addUserList.querySelectorAll("input[data-id]"))
+	                .some(input => input.getAttribute("data-id") === memberNo);
 
-			
-			document.addEventListener("click", function (e) {
-			    if (e.target.classList.contains("addBtn")) {
-			        const memberNo = e.target.getAttribute("data-id");
-			        const memberName = e.target.getAttribute("data-name");
-			        const memberPos = e.target.getAttribute("data-pos");
-			        
-			        // 중복 방지 
-			        const result = Array.from(addUserList.querySelectorAll("input[data-id]"))
-		                .some(input => input.getAttribute("data-id") === memberNo);
-	
-		            if (result) {
-		                return;
-		            }
-			        
-			        const li = document.createElement("li");
-			        li.className = "list-group-item";
-			        li.innerHTML = `
-					    <input 
-					        type="button" 
-					        value="-"  
-					        data-id="${memberNo}" 
-					        class="outBtn btn-sm btn btn-rounded btn-light">
-					    ${memberName} (${memberPos})
-					`;
+	            if (result) {
+	                return;
+	            }
+		        
+		        const li = document.createElement("li");
+		        li.className = "list-group-item";
+		        li.innerHTML = `
+				    <input 
+				        type="button" 
+				        value="-"  
+				        data-id="${memberNo}" 
+				        class="outBtn btn-sm btn btn-rounded btn-light">
+				    ${memberName} (${memberPos})
+				`;
 
-					    
-			     // 함께 숨은 input 생성
-			        const hiddenInput = document.createElement("input");
-			        hiddenInput.type = "hidden";
-			        hiddenInput.name = "member_no"; // 백엔드에서 이 name으로 받아요!
-			        hiddenInput.value = memberNo;
-			        hiddenInput.setAttribute("data-id", memberNo);
-			        hiddenInput.setAttribute("data-pos", memberPos);
-			        hiddenInput.setAttribute("data-name", memberName);
+				    
+		     // 함께 숨은 input 생성
+		        const hiddenInput = document.createElement("input");
+		        hiddenInput.type = "hidden";
+		        hiddenInput.name = "member_no"; // 백엔드에서 이 name으로 받아요!
+		        hiddenInput.value = memberNo;
+		        hiddenInput.setAttribute("data-id", memberNo);
+		        hiddenInput.setAttribute("data-pos", memberPos);
+		        hiddenInput.setAttribute("data-name", memberName);
 
-			        // 리스트와 숨은 input 추가
-			        addUserList.appendChild(li);
-			        addUsersInputs.appendChild(hiddenInput);
-			        
-			    }
-			});
-			
+		        // 리스트와 숨은 input 추가
+		        addUserList.appendChild(li);
+		        addUsersInputs.appendChild(hiddenInput);
+		        
+		    }
 		});
+			
+		
 		
 		// 채팅방 추가 인원 삭제 
-		document.addEventListener("DOMContentLoaded",function(){
-			document.addEventListener("click", function (e) {
-			    if (e.target.classList.contains("outBtn")) {
-			    	  const memberNo = e.target.getAttribute("data-id"); // 👈 삭제 대상 ID
-			            const li = e.target.closest("li");
-			            if (li) li.remove();
+	
+		document.addEventListener("click", function (e) {
+		    if (e.target.classList.contains("outBtn")) {
+		    	  const memberNo = e.target.getAttribute("data-id"); // 👈 삭제 대상 ID
+		            const li = e.target.closest("li");
+		            if (li) li.remove();
 
-			            // 해당 memberNo를 가진 hidden input 삭제
-			            const hiddenInput = document.querySelector(`#addUsersInputs input[data-id='${memberNo}']`);
-			            if (hiddenInput) hiddenInput.remove();
-			    }
-			});
-			
+		            // 해당 memberNo를 가진 hidden input 삭제
+		            const hiddenInput = document.querySelector(`#addUsersInputs input[data-id='${memberNo}']`);
+		            if (hiddenInput) hiddenInput.remove();
+		    }
 		});
+			
+		
 
 		 // *******************************************************************
 		 // Email Application
