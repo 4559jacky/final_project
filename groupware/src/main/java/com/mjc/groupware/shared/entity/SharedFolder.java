@@ -39,10 +39,16 @@ public class SharedFolder {
 	private String folderName;
 	
 	@Column(name="folder_status")
-	private String folderStatus;
+	private String folderStatus = "N";
 	
-	@Column(name="folder_shared")
-	private String folderShared;
+	@Column(name="folder_type")
+	private Integer folderType;
+	
+	@Column(name="folder_deleted_by")
+	private Long folderDeletedBy;
+
+	@Column(name="folder_deleted_at")
+	private LocalDateTime folderDeletedAt;
 	
 	@ManyToOne
 	@JoinColumn(name="member_no", nullable = false)

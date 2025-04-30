@@ -121,8 +121,8 @@ layout:decorate="~{/include/layout}">
 		                </div>
 						
 		                <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
-		                  <button type="submit" class="btn btn-primary px-4">등록</button>
-		                  <button type="reset" class="btn bg-danger-subtle text-danger px-4" onclick="location.reload();">취소</button>
+		                  <button type="submit" class="btn btn-primary">등록</button>
+		                  <button type="reset" class="btn bg-danger-subtle text-danger" onclick="location.reload();">취소</button>
 		                </div>
 		              </div>
 		            </div>
@@ -315,6 +315,70 @@ layout:decorate="~{/include/layout}">
                   
                 </div>
 				
+				<!-- 네 번째 탭 -->
+                <div class="tab-pane fade" id="pills-security" role="tabpanel" aria-labelledby="pills-security-tab" tabindex="0">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="card border shadow-none">
+                        <div class="card-body p-4">
+                          <h4 class="card-title">규칙 설정</h4>
+                          <p class="card-subtitle mb-4">Set the rule to generate IDs and passwords.</p>
+                          
+                          <form name="create_rule_form" id="create_rule_form" method="post">
+                          	  <th:block th:if="${companyDto != null}">
+	                          	<input type="hidden" name="company_no" th:value="${companyDto.company_no}">
+                          	  </th:block>
+                          
+	                          <div class="mb-4">
+							    <label for="company_initial" class="form-label fw-semibold">회사 이니셜</label>
+							    <input type="text"
+							    		name="company_initial"
+							    		id="company_initial"
+							    		th:value="${companyDto != null && companyDto.company_initial != null ? companyDto.company_initial : ''}"
+							    		class="form-control"
+							    		placeholder="예: mjc"
+							    		maxlength="10">
+							  </div>
+							
+							  <div class="form-check form-switch mb-4">
+							    <input class="form-check-input"
+							    		type="checkbox"
+							    		name="rule_status"
+							    		id="rule_status"
+							    		th:checked="${companyDto != null && companyDto.rule_status == 1}">
+							    <label class="form-check-label" for="rule_status">아이디/비밀번호 생성 규칙 사용</label>
+							  </div>
+							  
+							  <div class="d-flex align-items-start gap-3" role="alert">
+								  <div>
+								    <div class="fw-bold mb-1">[규칙 안내]</div>
+								    <div class="small">
+								      <div><span class="fw-semibold">아이디</span>: 이니셜(소문자) + 입사년도 4자리 + 사번 뒤 5자리</div>
+								      <div><span class="fw-semibold">비밀번호</span>: 이니셜(대문자) + '@' + 입사년도 2자리 + 사번 뒤 2자리</div>
+								    </div>
+								  </div>
+								</div>
+							  
+							  <div class="d-flex align-items-center justify-content-end gap-3">
+							    <button type="submit" class="btn btn-primary">등록</button>
+			                  	<button type="reset" class="btn bg-danger-subtle text-danger" onclick="location.reload();">취소</button>
+							  </div>
+                          </form>
+                          
+                          <th:block th:if="${companyDto != null}">
+	                      	<span th:attr="data-company-flag=${'false'}"></span>                
+ 						  </th:block>
+ 						  <th:block th:if="${companyDto == null}">
+							<span th:attr="data-company-flag=${'true'}"></span>
+ 						  </th:block>
+						  
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+				
                 <!-- 다섯 번째 탭 -->
                 <div class="tab-pane fade" id="pills-bills" role="tabpanel" aria-labelledby="pills-bills-tab" tabindex="0">
                   <div class="row justify-content-center">
@@ -359,97 +423,12 @@ layout:decorate="~{/include/layout}">
                 </div>
                 
                 <!-- 다섯 번째 탭 :: 끝 -->                
-                
-                <!-- 네 번째 탭 -->
-                <div class="tab-pane fade" id="pills-security" role="tabpanel" aria-labelledby="pills-security-tab" tabindex="0">
-                  <div class="row">
-                    <div class="col-lg-8">
-                      <div class="card border shadow-none">
-                        <div class="card-body p-4">
-                          <h4 class="card-title mb-3">Two-factor Authentication</h4>
-                          <div class="d-flex align-items-center justify-content-between pb-7">
-                            <p class="card-subtitle mb-0">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corporis sapiente
-                              sunt earum officiis laboriosam ut.</p>
-                            <button class="btn btn-primary">Enable</button>
-                          </div>
-                          <div class="d-flex align-items-center justify-content-between py-3 border-top">
-                            <div>
-                              <h5 class="fs-4 fw-semibold mb-0">Authentication App</h5>
-                              <p class="mb-0">Google auth app</p>
-                            </div>
-                            <button class="btn bg-primary-subtle text-primary">Setup</button>
-                          </div>
-                          <div class="d-flex align-items-center justify-content-between py-3 border-top">
-                            <div>
-                              <h5 class="fs-4 fw-semibold mb-0">Another e-mail</h5>
-                              <p class="mb-0">E-mail to send verification link</p>
-                            </div>
-                            <button class="btn bg-primary-subtle text-primary">Setup</button>
-                          </div>
-                          <div class="d-flex align-items-center justify-content-between py-3 border-top">
-                            <div>
-                              <h5 class="fs-4 fw-semibold mb-0">SMS Recovery</h5>
-                              <p class="mb-0">Your phone number or something</p>
-                            </div>
-                            <button class="btn bg-primary-subtle text-primary">Setup</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-4">
-                      <div class="card">
-                        <div class="card-body p-4">
-                          <div class="text-bg-light rounded-1 p-6 d-inline-flex align-items-center justify-content-center mb-3">
-                            <i class="ti ti-device-laptop text-primary d-block fs-7" width="22" height="22"></i>
-                          </div>
-                          <h4 class="card-title mb-0">Devices</h4>
-                          <p class="mb-3">Lorem ipsum dolor sit amet consectetur adipisicing elit Rem.</p>
-                          <button class="btn btn-primary mb-4">Sign out from all devices</button>
-                          <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
-                            <div class="d-flex align-items-center gap-3">
-                              <i class="ti ti-device-mobile text-dark d-block fs-7" width="26" height="26"></i>
-                              <div>
-                                <h5 class="fs-4 fw-semibold mb-0">iPhone 14</h5>
-                                <p class="mb-0">London UK, Oct 23 at 1:15 AM</p>
-                              </div>
-                            </div>
-                            <a class="text-dark fs-6 d-flex align-items-center justify-content-center bg-transparent p-2 fs-4 rounded-circle" href="javascript:void(0)">
-                              <i class="ti ti-dots-vertical"></i>
-                            </a>
-                          </div>
-                          <div class="d-flex align-items-center justify-content-between py-3">
-                            <div class="d-flex align-items-center gap-3">
-                              <i class="ti ti-device-laptop text-dark d-block fs-7" width="26" height="26"></i>
-                              <div>
-                                <h5 class="fs-4 fw-semibold mb-0">Macbook Air</h5>
-                                <p class="mb-0">Gujarat India, Oct 24 at 3:15 AM</p>
-                              </div>
-                            </div>
-                            <a class="text-dark fs-6 d-flex align-items-center justify-content-center bg-transparent p-2 fs-4 rounded-circle" href="javascript:void(0)">
-                              <i class="ti ti-dots-vertical"></i>
-                            </a>
-                          </div>
-                          <button class="btn bg-primary-subtle text-primary w-100 py-1">Need Help ?</button>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="d-flex align-items-center justify-content-end gap-6">
-                        <button class="btn btn-primary">Save</button>
-                        <button class="btn bg-danger-subtle text-danger">Cancel</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
               </div>
         	</div>
     	</div>
 	</div>
 
-
-
-
-	
 	<script>
 		// 로컬 스토리지에서 마지막 선택된 탭 가져오는 로직 - UX 개선
 	    document.addEventListener("DOMContentLoaded", function () {
@@ -482,7 +461,7 @@ layout:decorate="~{/include/layout}">
 			let vali_msg = "";
 			
 			if(!infoForm.company_name.value) {
-				vali_msg += "회사명을 입력하세요.";
+				vali_msg += "회사명을 입력해주세요.";
 				infoForm.company_name.focus();
 			} else {
 				vali_chk = true;
@@ -649,7 +628,7 @@ layout:decorate="~{/include/layout}">
 		        const subList = document.getElementById("func_sub_list");
 		        subList.innerHTML = "";
 				
-		        // 상위 항목 렌더링
+ 		        // 상위 항목 렌더링
 		        if (data.funcDto) {
 		            const parentLi = document.createElement("li");
 
@@ -692,7 +671,7 @@ layout:decorate="~{/include/layout}">
 		            parentLi.querySelector('.func-item').addEventListener("click", function (e) {
 		                e.stopPropagation(); // 필수
 		                const funcNo = this.getAttribute("data-func-no");
-		                toggleCheckboxVisibility(funcNo);
+		                // toggleCheckboxVisibility(funcNo);
 		            });
 		        }
 				
@@ -780,7 +759,7 @@ layout:decorate="~{/include/layout}">
 		    })
 		    .then(response => response.json())
 		    .then(data => {
-				alert(data.res_msg);
+				// alert(data.res_msg);
 				if (data.res_code === '200') {
 					
 				}
@@ -789,6 +768,50 @@ layout:decorate="~{/include/layout}">
 		        console.log(error);
 		    });
 		}
+	</script>
+	
+	<script>
+		// 규칙 등록하는 로직
+		const ruleForm = document.create_rule_form;
+		ruleForm.addEventListener('submit',(event) => {
+			event.preventDefault();
+			
+			const flagElement = document.querySelector('span[data-company-flag]'); // CompanyDto가 없을 때 문제 해결하기 위해 flag 하나 숨겨둠
+		    if (flagElement && flagElement.getAttribute('data-company-flag') === 'true') {
+		        alert('먼저 프로필을 등록해주세요.');
+				
+		        return;
+		    }
+			
+			if(!confirm("규칙을 설정하시겠습니까?")) {
+				return;
+			} else {
+				const payload = new FormData();
+				
+				payload.append('company_no', ruleForm.company_no.value);
+				payload.append('company_initial', ruleForm.company_initial.value.trim().toLowerCase());
+			    payload.append('rule_status', ruleForm.rule_status.checked ? 1 : 0);
+			    
+				fetch("/admin/company/rule/update", {
+					method : "post",
+					headers : {
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body : payload
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/company";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
+			}
+		});
 	</script>
 	
 	<script>

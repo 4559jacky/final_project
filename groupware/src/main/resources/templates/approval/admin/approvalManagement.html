@@ -36,7 +36,7 @@
 							<h6 class="text-center text-primary">사용 중</h6>
 							<th:block th:each="form : ${formList}"
 								th:if="${form.approvalFormStatus} == 'Y'">
-								<button class="btn btn-primary form-btn"
+								<button class="btn bg-primary-subtle text-primary form-btn"
 									th:value="${form.approvalFormNo}"
 									th:text="${form.approvalFormName}"
 									th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
@@ -54,7 +54,7 @@
 							<h6 class="text-center text-secondary">보관 중</h6>
 							<th:block th:each="form : ${formList}"
 								th:if="${form.approvalFormStatus} == 'N'">
-								<button class="btn btn-primary form-btn"
+								<button class="btn bg-primary-subtle text-primary form-btn"
 									th:value="${form.approvalFormNo}"
 									th:text="${form.approvalFormName}"
 									th:onclick="|javascript:viewForm('${form.approvalFormNo}')|">양식</button>
@@ -129,7 +129,9 @@
 			  .then(res => res.json())
 			  .then(data => {
 			    const html = `
-			      <h4>${data.approval_form_name}</h4>
+			      <br>
+			      <h4 style="text-align:center">${data.approval_form_name}</h4>
+			      <br><br>
 			      <div>${data.approval_form}</div>
 			    `;
 			    document.getElementById('approval-content').innerHTML = html;

@@ -12,8 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.entity.ChatMsg;
@@ -36,14 +38,14 @@ public class ChatController {
 	@GetMapping("/chat")
 	public String meetingRoomView(HttpSession session,Model model) {
 		
-		List<ChatRoom> resultList = chatRoomService.selectChatRoomAll();
+		List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
 		model.addAttribute("chatRoomList",resultList);
 		
 		return "/chat/chat";
 	}
 	
 	// 채팅방 생성
-	@PostMapping("/create")
+	@PostMapping("/create") 
 	@ResponseBody
 	public Map<String,String> createChatRoom(ChatRoomDto dto) {
 		Map<String,String> resultMap = new HashMap<String,String>();
@@ -90,19 +92,33 @@ public class ChatController {
 	// 실시간 채팅
 	@MessageMapping("/chat/msg")
 	public void message(ChatMsgDto dto) {
-	    // 하나의 메시지를 모든 사용자가 받을 수 있도록 전송
-	    ChatMsgDto msgdto = new ChatMsgDto();
-	    msgdto.setChat_room_no(dto.getChat_room_no());
-	    msgdto.setMember_no(dto.getMember_no());
-	    msgdto.setChat_msg_content(dto.getChat_msg_content());
-	    msgdto.setMember_no_list(dto.getMember_no_list());
-
+		
+		 chatMsgService.createChatMsg(dto);
+	  
 	    // 채팅방에 메시지를 한 번만 전송 (모든 사용자에게 전송)
-	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), msgdto);
+	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), dto);
 	}
 
-	
+	// 채팅방 나가기
+	@PostMapping("/updateStatus")
+	@ResponseBody
+	public Map<String, String> updateStatus(@RequestBody ChatMappingDto dto) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "채팅방 나가기 중 오류가 발생하였습니다.");
 
+		int result = chatRoomService.updateStatus(dto);
+
+		if (result > 0) {
+	
+			chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
+		}
+
+		return resultMap;
+	}
 	
 	
 	

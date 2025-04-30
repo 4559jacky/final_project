@@ -1,18 +1,21 @@
 package com.mjc.groupware.shared.controller;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
-import com.mjc.groupware.shared.dto.SharedFileDto;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.service.SharedFileService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,8 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SharedFileController {
 	
-	private final SharedFileService fileService;
-	
+	private final SharedFileService sharedFileService;
 	
 	// 공유문서함 메인화면 view
 	@GetMapping("/shared")
@@ -30,30 +32,33 @@ public class SharedFileController {
 		return "/shared/main";
 	}
 	
-	@PostMapping("/shared/file/upload")
+	// 파일 업로드
+	@PostMapping("/shared/files/upload")
 	@ResponseBody
-	public Map<String,String> uploadFile(@RequestParam("file") MultipartFile file,
-							 @AuthenticationPrincipal(expression = "member") Member member) {
-		Map<String,String> result = new HashMap<>();
-		result.put("res_code", "500");
-		result.put("res_msg", "파일 업로드 실패");
+	public Map<String, String> uploadFiles(@RequestParam("files") List<MultipartFile> files,
+										   @RequestParam("folderId") Long folderId){
+		sharedFileService.saveFiles(files,folderId);
 		
-		try {
-	        // 서비스에 파일과 사용자 정보를 넘겨 저장 처리
-	        SharedFileDto uploaded = fileService.uploadFile(file, member);
-
-	        if (uploaded != null) {
-	            result.put("res_code", "200");
-	            result.put("res_msg", "파일 업로드 성공!");
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        result.put("res_msg", "서버 오류 발생!");
-	    }
-
-	    return result; 
-		
-		
-		
+		return Map.of("message","파일이 성공적으로 업로드 되었습니다.");
 	}
+	
+	// 파일/목록 리스트
+	@GetMapping("/shared/files/list")
+	@ResponseBody
+	public Map<String, Object> getFolderContent(
+			@RequestParam(value = "folderId", required = false) Long folderId,
+			Authentication auth){
+		MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
+		Member member = memberDetails.getMember();
+		
+		
+		return sharedFileService.getFolderContent(folderId, member);
+	}
+	
+	// 파일 다운로드
+	@GetMapping("/shared/files/download/{fileId}")
+	public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId){
+		return sharedFileService.downloadFile(fileId);
+	}
+	
 }

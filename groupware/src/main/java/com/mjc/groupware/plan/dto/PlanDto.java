@@ -49,6 +49,8 @@ public class PlanDto {
     private String dept_name;
     private String member_no;
     private Long dept_no;
+    private Long last_update_member;
+    private String del_yn;
     
     // DB저장
 	public Plan toEntity() {
@@ -63,6 +65,8 @@ public class PlanDto {
 				.member(Member.builder().memberNo(reg_member_no).build())
 				.planType(plan_type)
 				.color(color)
+				.lastUpdateMember(last_update_member)
+				.delYn(del_yn)
 				.build();
 	}
 	
@@ -81,6 +85,8 @@ public class PlanDto {
 				.member_name(plan.getMember() != null ? plan.getMember().getMemberName() : null)
 				.dept_name(plan.getMember().getDept() != null ? plan.getMember().getDept().getDeptName() : null)
 				.dept_no(plan.getMember().getDept() != null ? plan.getMember().getDept().getDeptNo() : null)
+				.last_update_member(plan.getLastUpdateMember())
+				.del_yn(plan.getDelYn())
 				.build();
 	}
 	

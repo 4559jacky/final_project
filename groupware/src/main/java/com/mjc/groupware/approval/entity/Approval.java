@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.mjc.groupware.member.entity.Member;
 
@@ -22,7 +23,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name="approval")
@@ -72,6 +72,9 @@ public class Approval {
 	@Column(name="annual_leave_type")
 	private Integer annualLeaveType;
 	
+	@Column(name="return_reason")
+	private String returnReason;
+	
 	@ManyToOne
 	@JoinColumn(name="appr_sender")
 	private Member member;
@@ -89,6 +92,8 @@ public class Approval {
 	@OneToMany(mappedBy="approval")
 	private List<ApprReferencer> referencers;
 	
-	
+	@ManyToOne
+	@JoinColumn(name="parent_approval")
+	private Approval parentApproval;
 	
 }

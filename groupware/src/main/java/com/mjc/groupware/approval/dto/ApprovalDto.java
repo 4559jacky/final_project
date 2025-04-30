@@ -32,6 +32,7 @@ public class ApprovalDto {
 	private String appr_reason;
 	private Long appr_sender;
 	private Long approval_type_no;
+	private String return_reason;
 	
 	// 연차 신청서 주요정보
 	private LocalDate start_date;
@@ -43,6 +44,8 @@ public class ApprovalDto {
 	private List<Long> approver_no;
 	private List<Long> agreementer_no;
 	private List<Long> referencer_no;
+	
+	private Long parent_approval;
 	
 	public Approval toEntity() {
 		return Approval.builder()
@@ -58,8 +61,30 @@ public class ApprovalDto {
 				.endDate(end_date)
 				.useAnnualLeave(use_annual_leave)
 				.annualLeaveType(annual_leave_type)
+				.returnReason(return_reason)
 				.member(Member.builder().memberNo(appr_sender).build())
 				.approvalForm(ApprovalForm.builder().approvalFormNo(approval_type_no).build())
+				.build();
+	}
+	
+	public Approval toReturnEntity(Approval approval) {
+		return Approval.builder()
+				.apprNo(appr_no)
+				.apprRegDate(appr_reg_date)
+				.apprResDate(appr_res_date)
+				.apprTitle(appr_title)
+				.apprText(appr_text)
+				.apprStatus(appr_status)
+				.apprOrderStatus(appr_order_status)
+				.apprReason(appr_reason)
+				.startDate(start_date)
+				.endDate(end_date)
+				.useAnnualLeave(use_annual_leave)
+				.annualLeaveType(annual_leave_type)
+				.returnReason(return_reason)
+				.member(Member.builder().memberNo(appr_sender).build())
+				.approvalForm(ApprovalForm.builder().approvalFormNo(approval_type_no).build())
+				.parentApproval(approval)
 				.build();
 	}
 	
@@ -77,8 +102,10 @@ public class ApprovalDto {
 				.end_date(approval.getEndDate())
 				.use_annual_leave(approval.getUseAnnualLeave())
 				.annual_leave_type(approval.getAnnualLeaveType())
+				.return_reason(approval.getReturnReason())
 				.appr_sender(approval.getMember().getMemberNo())
 				.approval_type_no(approval.getApprovalForm().getApprovalFormNo())
+				.parent_approval(approval.getParentApproval() != null ? approval.getParentApproval().getApprNo() : null)
 				.build();
 	}
 }

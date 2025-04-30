@@ -1,6 +1,5 @@
 package com.mjc.groupware.approval.service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,10 +35,7 @@ import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
 import com.mjc.groupware.approval.specification.ApprovalSpecification;
 import com.mjc.groupware.member.dto.MemberDto;
-import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
-import com.mjc.groupware.plan.dto.PlanDto;
-import com.mjc.groupware.plan.entity.Plan;
 import com.mjc.groupware.plan.repository.PlanRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -338,14 +334,7 @@ public class ApprovalService {
 					approvalDto2.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
 					
 					Approval approvalParam2 = approvalDto2.toEntity();
-					if(approval.getApprovalForm().getApprovalFormType() == 1) {
-						// 결재 최종 승인
-						if(approval.getMember().getAnnualLeave() - approval.getUseAnnualLeave() >= 0) {
-							approvalRepository.save(approvalParam2);
-						}
-					} else {
-						approvalRepository.save(approvalParam2);
-					}
+					approvalRepository.save(approvalParam2);
 					
 					// 연차결재 승인 시 휴가 일정에 반영될 수 있도록 휴가 일정 데이터 저장
 						
@@ -400,6 +389,7 @@ public class ApprovalService {
 	
 	
 	// 결재자 - 결재 반려(Dto에 Setter)
+	@Transactional(rollbackFor = Exception.class)
 	public int approvalFailApi(Long id, String reason, MemberDto member) {
 		int result = 0;
 		
@@ -492,6 +482,7 @@ public class ApprovalService {
 
 	
 	// 합의자 - 결재 거절(Dto에 Setter)
+	@Transactional(rollbackFor = Exception.class)
 	public int approvalRejectApi(Long id, String reason, MemberDto member) {
 		
 		int result = 0;
@@ -525,6 +516,101 @@ public class ApprovalService {
 			e.printStackTrace();
 		}
 		
+		return result;
+	}
+	
+	
+	// 결재 회수
+	@Transactional(rollbackFor = Exception.class)
+	public int approvalReturnApi(Long id, String reason) {
+		
+		int result = 0;
+		
+		try {
+			
+			Approval approvalParam = approvalRepository.findById(id).orElse(null);
+			List<ApprApprover> approvers = apprApproverRepository.findAllByApproval_ApprNo(approvalParam.getApprNo());
+			int lastApproverId = 0;
+			ApprApprover approver = null;
+			for(ApprApprover a : approvers) {
+				if(lastApproverId < a.getApproverOrder()) {
+					lastApproverId = a.getApproverOrder();
+				}
+			}
+			for(ApprApprover a : approvers) {
+				if(lastApproverId == a.getApproverOrder()) {
+					approver = a;
+				}
+			}
+			System.out.println("dto 저장전 : "+reason);
+			// 결재자 찾음
+			// 결재를 재생성 하고, 결재자(ApprApprover) 재생성
+			ApprovalDto approvalDto = ApprovalDto.builder()
+					.appr_title("[결재 회수]"+approvalParam.getApprTitle())
+					.appr_text(approvalParam.getApprText())
+					.appr_status("D")
+					.appr_order_status(1)
+					.start_date(approvalParam.getStartDate())
+					.end_date(approvalParam.getEndDate())
+					.use_annual_leave(approvalParam.getUseAnnualLeave())
+					.annual_leave_type(approvalParam.getAnnualLeaveType())
+					.return_reason(reason)
+					.appr_sender(approvalParam.getMember().getMemberNo())
+					.approval_type_no(approvalParam.getApprovalForm().getApprovalFormNo())
+					.parent_approval(approvalParam.getApprNo())
+					.build();
+			System.out.println("dto 저장후 : "+approvalDto.getReturn_reason());
+			Approval newApproval = approvalDto.toReturnEntity(approvalParam);
+			
+			System.out.println("entity 저장후 : "+newApproval.getReturnReason());
+			Approval entity = approvalRepository.save(newApproval);
+			System.out.println("데이터 저장후 : "+entity.getReturnReason());
+			
+			ApprApproverDto apprApproverDto = ApprApproverDto.builder()
+					.approver_order(1)
+					.approver_decision_status("W")
+					.appr_no(entity.getApprNo())
+					.approver(approver.getMember().getMemberNo())
+					.build();
+			
+			ApprApprover approverEntity = apprApproverDto.toEntity();
+			apprApproverRepository.save(approverEntity);
+			
+			result = 1;
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return result;
+	}
+	
+	
+	// 결재 중 회수 대기나 회수 승인이 있는 결재
+	public int selectReturnApprovalByApprovalNo(Long id) {
+		
+		int result = 0;
+		
+		List<Approval> childApproval = approvalRepository.findAllByParentApproval_ApprNo(id);
+//		Specification<Approval> spec = (root, query, criteriaBuilder) -> null;
+//		spec = spec.and(ApprovalSpecification.approvalReturnApprovalContains(id));
+//
+//		childApproval = approvalRepository.findAll(spec);
+		
+		
+		for(Approval a : childApproval) {
+			System.out.println("자식결재 : "+a.getApprNo());
+		}
+		if(childApproval != null) {
+			for(Approval a : childApproval) {
+				if("C".equals(a.getApprStatus()) || "D".equals(a.getApprStatus())) {
+					result = 1;
+				}
+			}
+		}
+		
+		// result가 1이면 회수버튼이 생기면 안되고 0일 때 생겨야함
 		return result;
 	}
 

@@ -47,9 +47,23 @@
 					th:value="${approval.apprNo}">
 				<h4 id="approval_form_name" class="fw-bold text-center mb-4"
 					th:text="${approval.approvalForm.approvalFormName}">양식 제목</h4>
-				<div class="text-end" style="min-width: 180px;">
-					작성일 : <span id="reg_date"
-						th:text="${#temporals.format(approval.apprRegDate,'yyyy.MM.dd HH:mm')}"></span>
+				
+				<div class="d-flex justify-content-between align-items-center mb-3" style="min-width: 180px;">
+					<div>
+						<th:block th:if="${approval.apprStatus == 'C' and approval.returnReason == null and return_result == 0}">
+							<button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+										data-bs-target="#approvalReturnModal">결재 회수</button>
+						</th:block>
+						<th:block th:unless="${approval.apprStatus == 'C'}">
+							<!-- 버튼 자리에 빈 공간 유지 -->
+							<span style="display: inline-block; width: 88px;"></span>
+							<!-- 버튼의 실제 너비만큼 (btn-sm 기준 약 88px) -->
+						</th:block>
+					</div>
+					<div class="text-end">
+						작성일 : <span id="reg_date"
+							th:text="${#temporals.format(approval.apprRegDate,'yyyy.MM.dd HH:mm')}"></span>
+					</div>
 				</div>
 				<table class="table table-bordered align-middle">
 					<tbody>
@@ -179,15 +193,43 @@
 				<div id="approval-content" class="mb-4"
 					th:utext="${approval.apprText}"></div>
 					
-				<th:block th:if="${approval.apprStatus == 'R'}">
+				<th:block th:if="${approval.returnReason != null}">
 					<hr>
 					<div class="mb-4">
-						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
+						<h5>회수 사유</h5>
+						<!-- <span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span> -->
 					</div>
 					<div class="mb-4" id="appr_reason">
-						<span th:text="${approval.apprReason}">반려 사유</span>
+						<span th:text="${approval.returnReason}">회수 사유</span>
 					</div>
 				</th:block>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 기안자 결재 회수 모달창 -->
+	<div class="modal fade" id="approvalReturnModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				<div class="modal-header border-bottom">
+					<h5 class="modal-title fw-bold fs-4">결재 회수 사유</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<form name="return_form" method="post" th:action="@{'/approval/return/' + ${approval.apprNo}}">
+					<div class="modal-body">
+						<div class="row mb-4">
+							<textarea class="form-control shadow-sm rounded-3" rows="8"
+								placeholder="결재 회수 사유를 입력해주세요.(1000자 이내)" name="return_reason"
+								style="resize: none; font-size: 1rem;" id="approvalReturnReason"></textarea>
+						</div>
+					</div>
+					<div class="modal-footer justify-content-end">
+						<button type="submit" class="btn btn-danger">회수하기</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -220,6 +262,47 @@
 			});
 			
 		});
+		
+		const returnForm = document.return_form;
+
+		// 결재 회수
+		returnForm.addEventListener('submit', (e) => {
+		    e.preventDefault();
+
+		    const apprNo = document.getElementById('approvalNo').value;
+		    const returnReason = document.getElementById('approvalReturnReason').value;
+
+		    if (returnReason) {
+		        if (confirm('결재를 회수요청하시겠습니까?')) {
+		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
+		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		            const payload = new FormData(returnForm);
+
+		            fetch('/approval/return/' + apprNo, {
+		                method: 'post',
+		                headers: {
+		                    [csrfHeaderName]: csrfToken
+		                },
+		                body: payload
+		            })
+		                .then(response => response.json())
+		                .then(data => {
+		                    alert(data.res_msg);
+		                    if (data.res_code == '200') {
+		                        console.log('성공');
+		                        location.href = '/approval/send/detail/' + apprNo;
+		                    }
+		                })
+		                .catch(error => {
+		                    console.error("에러 발생:", error);
+		                    alert("에러 발생: " + error.message);
+		                });
+		        }
+		    } else {
+		        alert('사유를 입력해주세요.');
+		    }
+		});
+		
 	</script>
 
 

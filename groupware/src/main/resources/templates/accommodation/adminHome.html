@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="horizontal"
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<div class="container-fluid px-4">
+		<!-- 제목 & 경로 -->
+	    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+	      <nav aria-label="breadcrumb">
+	        <ol class="breadcrumb align-items-center">
+	          <li class="breadcrumb-item">
+	            <a class="text-muted text-decoration-none" th:href="@{/home}">
+	              <i class="ti ti-home fs-5"></i>
+	            </a>
+	          </li>
+	          <li class="breadcrumb-item" aria-current="page">사내복지 / 제휴숙소 관리</li>
+	        </ol>
+	      </nav><br>
+	      <h2 class="mb-0 fw-bolder fs-8">제휴숙소 관리</h2>
+	    </div><br>
+    	<!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
+	    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+	      <!-- 왼쪽: 검색 조건 + 검색창 -->
+	      <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
+	        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+	          <option th:value="''" th:selected="${search_type == null}">선택</option>
+	          <option th:value="1" th:selected="${search_type == 1}">숙소명</option>
+	          <option th:value="2" th:selected="${search_type == 2}">예약현황</option>
+	        </select>
+	
+	        <div class="position-relative" style="max-width: 350px;">
+	          <input type="text"
+	                 name="keyword"
+	                 th:value="${keyword}"
+	                 class="form-control search-chat py-2 ps-5"
+	                 id="text-srh"
+	                 placeholder="Search Contact" />
+	          <button type="submit"
+	                  class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+	            <i class="ti ti-search fs-6 text-dark"></i>
+	          </button>
+	        </div>
+	      </form>
+	      
+	      
+	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
+		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
+			  <!-- 숙소등록 버튼 -->
+			  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/create}">숙소등록</a>
+			  <!-- 삭제 버튼 -->
+			  <a href="javascript:void(0)" class="btn btn-primary">삭제</a>
+	      <!-- 오른쪽: 정렬 -->
+	      <form th:action="@{/notice}" method="get"> 
+	        <select name="sort"
+	                class="form-select w-auto bg-primary-subtle border-0"
+	                onchange="this.form.submit()"
+	                aria-label="정렬 선택">
+	          <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
+	          <option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+	        </select>
+	      </form>
+	      </div>
+	    </div>
+	
+	    <!-- 테이블 -->
+	    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+	      <div class="table-responsive">
+	        <table class="table align-middle text-center">
+	          <thead class="bg-light align-middle">
+	            <tr>
+	              <!-- 전체 선택 체크박스 -->
+	              <th style="width: 50px;">
+	              	<input type="checkbox" id="checkAll">
+	              </th>
+	              <th>숙소명</th>
+	              <th>등록일</th>
+	              <th>가격</th>
+	              <th>예약현황</th>
+	              <th>수정</th>
+	            </tr>
+	          </thead>
+	         	<tbody>
+	    			<tr>
+	  					<td>
+	  						<input type="checkbox" name="listIds" class="checkItem">
+	  					</td>
+	    				<td>신라호텔</td>
+	    				<td>2025-04-29</td>
+	    				<td>200,000원</td>
+	    				<td class="text-center">
+	    					<a th:href="@{/adminList}"
+								class="btn btn-primary d-inline-flex align-items-center justify-content-center px-3">
+								<i class="ti me-1"></i>
+				                	예약현황
+							</a>
+	    				</td>
+	   					<td>
+	   						<input type="button" class="btn btn-primary" value="수정">
+	   					</td>
+	  				</tr>
+				</tbody>
+	        </table>
+	      </div>
+	    </div>
+    
+	</div>
+	
+	<!-- Scripts -->
+  <script th:src="@{/assets/js/vendor.min.js}"></script>
+  <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  <script th:src="@{/assets/js/theme/app.init.js}"></script>
+  <script th:src="@{/assets/js/theme/theme.js}"></script>
+  <script th:src="@{/assets/js/theme/app.min.js}"></script>
+  <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+	
+</th:block>
+</html>

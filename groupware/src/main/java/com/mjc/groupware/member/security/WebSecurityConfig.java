@@ -43,7 +43,7 @@ public class WebSecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
 		http.userDetailsService(customUserDetailsService)
 		.authorizeHttpRequests(requests -> requests
-				.requestMatchers("/login","/logout").permitAll()
+				.requestMatchers("/login","/logout", "/forgetPassword/**").permitAll()
 				.requestMatchers("/admin/company/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
