@@ -100,7 +100,8 @@
     <!-- 댓글 + 대댓글 리스트 -->
     <div th:each="reply : ${replyList}" class="reply-item mb-3">
       <div class="d-flex align-items-start mb-2">
-		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 -->
+		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 권한이 막혀있어서 프로필 이미지 등록이 안되는거였음
+		이중 파싱을 하든 그냥 일반 파싱을 해도 권한을 설정해준다면 정상적으로 일반사용자도 프로필이 나오게 할수있음 -->
 		<div class="profile-icon rounded-circle me-3">
   			<img th:src="@{${reply.attachPath != null && !reply.attachPath.isEmpty() ? reply.attachPath : '/img/default_profile.png'}}" 
        			alt="Profile Image" 
@@ -138,7 +139,7 @@
           <span th:id="'reply-toggle-' + ${reply.reply_no}"
                 th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
                 th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
-                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개(▼)' : '답글 달기'"
+                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개()' : '답글 달기'"
                 onclick="toggleSubReply(this)"
                 style="cursor: pointer;"></span>
 

@@ -2,7 +2,6 @@ package com.mjc.groupware.vote.dto;
 
 import java.time.LocalDateTime;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,12 +15,11 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class VoteDto {
+public class VoteResultDto {
+	
+	private Long result_no; // 투표 결과
 	private Long vote_no; // 투표 번호
-	private Long board_no; // 게시판 번호
-	private String vote_title; // 투표 제목
-	private String is_multiple; // 복수 선택 가능 여부
-	private String is_anonymous; // 익명 투표 여부
-	private LocalDateTime end_date; // 투표 마감일
-	private LocalDateTime reg_date; // 등록일
+	private Long option_no; // 선택한 옵션
+	private Long member_no; // 투표한 사용자(익명일 경우 NULL)
+	private LocalDateTime vote_time; // 투표 시간
 }

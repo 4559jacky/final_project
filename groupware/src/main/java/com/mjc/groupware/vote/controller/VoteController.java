@@ -3,6 +3,7 @@ package com.mjc.groupware.vote.controller;
 import org.springframework.stereotype.Controller;
 
 
+
 @Controller
 public class VoteController {
 	
@@ -14,10 +15,12 @@ public class VoteController {
 //	
 //	// 투표 작성
 //	@PostMapping("/vote")
+//	@ResponseBody
 //	public Map<String, String> createVote(VoteDto dto){
 //		Map<String,String> resultMap = new HashMap<>();
 //		resultMap.put("res_code", "500");
 //		resultMap.put("res_msg", "투표 등록 중 오류가 발생하였습니다.");
+//		
 //		return resultMap;
 //	}
 	
