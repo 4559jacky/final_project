@@ -35,6 +35,8 @@ public class ChatMsgDto {
 	 private String member_dept_name;
 	 
 	 private List<Long> member_no_list;
+	 
+	 private String chat_msg_type;
 	
 	 // 변환 메서드 (Entity → DTO)
     public ChatMsgDto toDto(ChatMsg msg) {
@@ -43,10 +45,11 @@ public class ChatMsgDto {
                 .chat_msg_content(msg.getChatMsgContent())
                 .send_date(msg.getSendDate()) // sendDate가 String일 경우 변환
                 .chat_room_no(msg.getChatRoomNo().getChatRoomNo())
-                .member_no(msg.getMemberNo().getMemberNo())
+                .member_no(msg.getMemberNo().getMemberNo()!= null ? msg.getMemberNo().getMemberNo() : null)
                 .member_name(msg.getMemberNo().getMemberName())
                 .member_pos_name(msg.getMemberNo().getPos() != null? msg.getMemberNo().getPos().getPosName() : null)
                 .member_dept_name(msg.getMemberNo().getDept()  != null? msg.getMemberNo().getDept().getDeptName() : null)
+                .chat_msg_type(msg.getChatMsgType())
                 .build();
     }
 }

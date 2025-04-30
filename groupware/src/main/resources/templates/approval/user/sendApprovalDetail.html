@@ -50,7 +50,7 @@
 				
 				<div class="d-flex justify-content-between align-items-center mb-3" style="min-width: 180px;">
 					<div>
-						<th:block th:if="${approval.apprStatus == 'C'}">
+						<th:block th:if="${approval.apprStatus == 'C' and approval.returnReason == null and return_result == 0}">
 							<button class="btn btn-sm btn-primary" data-bs-toggle="modal"
 										data-bs-target="#approvalReturnModal">결재 회수</button>
 						</th:block>
@@ -193,20 +193,21 @@
 				<div id="approval-content" class="mb-4"
 					th:utext="${approval.apprText}"></div>
 					
-				<th:block th:if="${approval.apprStatus == 'R'}">
+				<th:block th:if="${approval.returnReason != null}">
 					<hr>
 					<div class="mb-4">
-						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
+						<h5>회수 사유</h5>
+						<!-- <span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span> -->
 					</div>
 					<div class="mb-4" id="appr_reason">
-						<span th:text="${approval.apprReason}">반려 사유</span>
+						<span th:text="${approval.returnReason}">회수 사유</span>
 					</div>
 				</th:block>
 			</div>
 		</div>
 	</div>
 	
-	<!-- 합의자 결재 거절 모달창 -->
+	<!-- 기안자 결재 회수 모달창 -->
 	<div class="modal fade" id="approvalReturnModal" tabindex="-1"
 		aria-hidden="true">
 		<div class="modal-dialog" style="max-width: 1000px;">
@@ -264,7 +265,7 @@
 		
 		const returnForm = document.return_form;
 
-		// 합의자 거절
+		// 결재 회수
 		returnForm.addEventListener('submit', (e) => {
 		    e.preventDefault();
 
@@ -272,7 +273,7 @@
 		    const returnReason = document.getElementById('approvalReturnReason').value;
 
 		    if (returnReason) {
-		        if (confirm('결재를 거절하시겠습니까?')) {
+		        if (confirm('결재를 회수요청하시겠습니까?')) {
 		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
 		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 		            const payload = new FormData(returnForm);

@@ -8,21 +8,19 @@ public class AccommodationController {
 
 	// HTML리턴(home 페이지로 이동)
 	@GetMapping("/accommodation")
-	public String accommodationView() {
+	public String showHomeView() {
 		return "accommodation/home";
 	}
 	
-	// HTML리턴(adminHome 페이지로 이동)
-	@GetMapping("/adminHome")
-	public String adminHomeView() {
-		return "accommodation/adminHome";
-	}
-	
-	// 
-	@GetMapping("/admin/create")
-	public String adminCreateView() {
-	    return "accommodation/adminCreate";
+	//
+	@GetMapping("/accommodation/detail")
+	public String showDetailView() {
+		return "accommodation/detail";
 	}
 
+	@GetMapping("/accommodation/list")
+	public String showListView() {
+		return "accommodation/list";
+	}
 	
 }

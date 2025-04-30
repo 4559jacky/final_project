@@ -61,6 +61,8 @@
          style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
          th:utext="${board.boardContent ?: '내용 없음'}">
     </div>
+    
+    <!--투표 상세 추가-->
     <hr>
 
 <!-- 첨부파일 -->
@@ -91,6 +93,8 @@
     </th:block>
 </div>
 
+<!--th:if를 추가해주니까 빈창이 나왔던게 hidden 되면서 댓글 등록을 하면 뜰수있게 할수있다-->
+<div class="custom-padding bg-white rounded-4 shadow-sm mb-5" th:if="${not #lists.isEmpty(replyList)}">
   <!-- 댓글 및 대댓글 영역 -->
   <div id="comment-container" class="container my-4">
     <!-- 댓글 + 대댓글 리스트 -->
@@ -134,7 +138,7 @@
           <span th:id="'reply-toggle-' + ${reply.reply_no}"
                 th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
                 th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
-                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개(>)' : '답글 달기'"
+                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개(▼)' : '답글 달기'"
                 onclick="toggleSubReply(this)"
                 style="cursor: pointer;"></span>
 
@@ -189,7 +193,8 @@
         </div>
       </div>
     </div>
-
+  </div>
+</div>    
     <!-- 댓글 작성 영역 (하단 고정) -->
     <div class="comment-write">
       <th:block sec:authorize="isAuthenticated()">
@@ -203,9 +208,7 @@
       <th:block sec:authorize="isAnonymous()">
         <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
       </th:block>
-    </div>
-  </div>
-            
+    </div>        
   <!-- JavaScript -->
   <script>
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
@@ -349,7 +352,7 @@
       const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
       if (subReplyList) {
         subReplyList.classList.toggle('collapsed');
-        element.innerText = isCollapsed ? `답글 ${subReplyCount}개(>)` : `답글 ${subReplyCount}개(<)`;
+        element.innerText = isCollapsed ? `답글 ${subReplyCount}개(▼)` : `답글 ${subReplyCount}개(▲)`;
       }
       document.querySelectorAll('.sub-reply-write').forEach(form => {
         form.style.display = 'none';
@@ -377,7 +380,7 @@
             subReplyCount++;
             toggleButton.setAttribute('data-sub-reply-count', subReplyCount);
             toggleButton.classList.add('has-sub-replies');
-            toggleButton.innerText = `답글 ${subReplyCount}개(>)`;
+            toggleButton.innerText = `답글 ${subReplyCount}개(▼)`;
             this.closest('.sub-reply-write').style.display = 'none';
             this.reset();
             fetch(`/replies/count/${replyNo}`, {
@@ -387,7 +390,7 @@
             .then(data => {
               if (data.count !== undefined) {
                 toggleButton.setAttribute('data-sub-reply-count', data.count);
-                toggleButton.innerText = `답글 ${data.count}개(>)`;
+                toggleButton.innerText = `답글 ${data.count}개(▲)`;
               }
             });
             location.reload();
