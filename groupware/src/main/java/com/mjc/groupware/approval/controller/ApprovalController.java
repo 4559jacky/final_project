@@ -426,4 +426,35 @@ public class ApprovalController {
 	}
 	
 	
+	@PostMapping("/approval/return/{id}")
+	@ResponseBody
+	public Map<String,String> approvalReturnApi(@PathVariable("id") Long id, @RequestParam("agree_reason") String reason) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 회수에 실패하였습니다.");
+		
+//		String userId = userDetails.getUsername();
+//		
+//
+//	    MemberDto memberDto = new MemberDto();
+//	    memberDto.setMember_id(userId);
+//	    Member entity = memberService.selectMemberOne(memberDto);
+//	    MemberDto member = new MemberDto().toDto(entity);
+//	    
+//	    System.out.println(member);
+//	    
+//	    int result = service.approvalRejectApi(id, reason, member);
+//	    
+//	    System.out.println(result);
+//	    
+//		if(result > 0) {
+//			resultMap.put("res_code", "200");
+//			resultMap.put("res_msg", "결재가 거절되었습니다.");
+//		}
+	    
+	    return resultMap;
+	}
+	
+	
 }

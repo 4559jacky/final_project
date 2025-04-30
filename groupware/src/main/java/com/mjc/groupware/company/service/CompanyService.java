@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.dto.CompanyRuleDto;
 import com.mjc.groupware.company.dto.FuncDto;
 import com.mjc.groupware.company.entity.Company;
 import com.mjc.groupware.company.entity.Func;
@@ -76,6 +77,19 @@ public class CompanyService {
 		return dto;
 	}
 	
+	public void deleteFile(String filePath) throws Exception {
+	    File file = new File(filePath);
+	    
+	    if (file.exists()) {
+	        boolean deleted = file.delete();
+	        if (!deleted) {
+	            throw new Exception("파일 삭제 실패: " + filePath);
+	        }
+	    } else {
+	        throw new Exception("파일이 존재하지 않습니다: " + filePath);
+	    }
+	}
+	
 	public void createCompany(CompanyDto dto) {
 		try {
 			Company param = Company.builder()
@@ -109,6 +123,8 @@ public class CompanyService {
 				.new_name(latest.getNewName())
 				.attach_path(latest.getAttachPath())
 				.theme_color(latest.getThemeColor())
+				.company_initial(latest.getCompanyInitial())
+				.rule_status(latest.getRuleStatus())
 				.reg_date(latest.getRegDate())
 				.mod_date(latest.getModDate())
 				.light_logo_path("/uploads/" + latest.getNewName())
@@ -157,6 +173,29 @@ public class CompanyService {
 	    }
 		
 		return resultList;
+	}
+	
+	public void updateRule(CompanyRuleDto dto) {
+		Company target = repository.findById(dto.getCompany_no()).orElseThrow(() -> new IllegalArgumentException("회사 정보가 존재하지 않습니다."));
+		
+		String companyInitial = dto.getCompany_initial();
+		int ruleStatus;
+		
+	    try {
+	        ruleStatus = Integer.parseInt(dto.getRule_status());
+	    } catch (NumberFormatException e) {
+	        throw new IllegalArgumentException("rule_status는 숫자만 입력 가능합니다. 유효하지 않은 값입니다.");
+	    }
+
+	    if (ruleStatus < 0 || ruleStatus > 1) {
+	        throw new IllegalArgumentException("rule_status는 0 또는 1만 가능합니다.");
+	    }
+		
+		target.changeCompanyInitial(companyInitial);
+	    target.changeRuleStatus(ruleStatus);
+		
+	    repository.save(target);
+		
 	}
 	
 }

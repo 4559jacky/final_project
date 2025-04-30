@@ -5,7 +5,9 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-
+	
+	<link th:href="@{/css/cjs/member_create.css}" rel="stylesheet">
+	
 	<div class="page-titles mb-7 mb-md-5">
     	<div class="row">
         	<div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -34,18 +36,34 @@ layout:decorate="~{/include/layout}">
                         			<div class="card-body p-4">
                           				<h4 class="card-title" style="font-weight: bold;">계정 정보 등록</h4>
                           				<p class="card-subtitle mb-4">To register a new account, please confirm account info.</p>
-                            			<div class="mb-3">
-                              				<label for="member_id" class="form-label">아이디*</label>
-                              				<input type="text" class="form-control" id="member_id" name="member_id">
-                            			</div>
-                            			<div class="mb-3">
-                              				<label for="member_pw" class="form-label">비밀번호*</label>
-                              				<input type="password" class="form-control" id="member_pw" name="member_pw">
-                            			</div>
-                            			<div>
-                              				<label for="member_pw_check" class="form-label">비밀번호 확인*</label>
-                              				<input type="password" class="form-control" id="member_pw_check" name="member_pw_check">
-                            			</div>
+                          				<th:block th:if="${companyDto != null && companyDto.rule_status == 1 && memberCreationDto != null}">
+	                            			<div class="mb-3">
+	                              				<label for="member_id" class="form-label">아이디*</label>
+	                              				<input type="text" class="form-control" id="member_id" name="member_id" th:value="${memberCreationDto.defaultMemberId}" readonly>
+	                            			</div>
+	                            			<div class="mb-3">
+	                              				<label for="member_pw" class="form-label">비밀번호*</label>
+	                              				<input type="password" class="form-control" id="member_pw" name="member_pw" th:value="${memberCreationDto.defaultMemberPw}" readonly>
+	                            			</div>
+	                            			<div>
+	                              				<label for="member_pw_check" class="form-label">비밀번호 확인*</label>
+	                              				<input type="password" class="form-control" id="member_pw_check" name="member_pw_check" th:value="${memberCreationDto.defaultMemberPw}" readonly>
+	                            			</div>
+                          				</th:block>
+                          				<th:block th:if="${companyDto == null || companyDto.rule_status == 0 || memberCreationDto == null}">
+	                            			<div class="mb-3">
+	                              				<label for="member_id" class="form-label">아이디*</label>
+	                              				<input type="text" class="form-control" id="member_id" name="member_id">
+	                            			</div>
+	                            			<div class="mb-3">
+	                              				<label for="member_pw" class="form-label">비밀번호*</label>
+	                              				<input type="password" class="form-control" id="member_pw" name="member_pw">
+	                            			</div>
+	                            			<div>
+	                              				<label for="member_pw_check" class="form-label">비밀번호 확인*</label>
+	                              				<input type="password" class="form-control" id="member_pw_check" name="member_pw_check">
+	                            			</div>
+                          				</th:block>
                         			</div>
                       			</div>
                    			</div>
@@ -72,7 +90,8 @@ layout:decorate="~{/include/layout}">
                             				<select class="form-select" id="pos_no" name="pos_no" aria-label="position-select">
                             					<option th:value="0" th:selected>-</option>
                             					<th:block th:if="${!#lists.isEmpty(posList)}" th:each="pos : ${posList}">
-                            						<option th:value="${pos.posNo}" th:text="${pos.posName}" th:selected="${pos.posNo == selectedPosNo}"></option>
+                            						<!-- <option th:value="${pos.posNo}" th:text="${pos.posName}" th:selected="${pos.posNo == selectedPosNo}"></option> -->
+                            						<option th:value="${pos.posNo}" th:text="${pos.posName}"></option>
                             					</th:block>
                             				</select>
                             			</div>

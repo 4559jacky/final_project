@@ -45,7 +45,7 @@ public class Reply {
 
     @Column(name = "reply_status", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'N'")
     private String replyStatus;  // 'N' = 정상, 'Y' = 삭제됨
-
+    
     @CreationTimestamp
     @Column(name = "reg_date", updatable = false)
     private LocalDateTime regDate;

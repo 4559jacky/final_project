@@ -41,8 +41,8 @@ layout:decorate="~{/include/layout}">
             </li>
             <li class="nav-item" role="presentation">
             	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#pills-notifications" type="button" role="tab" aria-controls="pills-notifications" aria-selected="false">
-                	<i class="ti ti-bell me-2 fs-6"></i>
-                	<span class="d-none d-md-block">Notifications</span>
+                	<i class="ti ti-signature me-2 fs-6"></i>
+                	<span class="d-none d-md-block">전자서명 관리</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -71,7 +71,7 @@ layout:decorate="~{/include/layout}">
 							      <h4 class="card-title">프로필 사진 변경</h4>
 							      <p class="card-subtitle mb-4">Click the image to change my profile.</p>
 								  
-							      <div class="text-center pt-4">
+							      <div class="text-center pt-2">
 							        <!-- 업로드 이미지 (클릭 이벤트용) -->
 							        <img id="preview_image"
 							        	 alt="profile-img"
@@ -79,7 +79,7 @@ layout:decorate="~{/include/layout}">
              									 @{/uploads/{image}(image=${memberAttachDto.new_name})} :
               									@{/img/default_profile.png}"
 							             class="img-fluid rounded"
-							             style="width: 240px; height: 240px; object-fit: cover; cursor: pointer; transition: 0.2s;"
+							             style="width: 210px; height: 280px; object-fit: cover; cursor: pointer; transition: 0.2s;"
 							             onclick="document.getElementById('profile_image').click();">
 									
 							        <!-- 숨겨진 파일 인풋 -->
@@ -87,8 +87,8 @@ layout:decorate="~{/include/layout}">
 							               id="profile_image" class="d-none" onchange="previewSelectedImage(this)">
 							        <input type="text" name="member_no" id="member_no" th:value="${member.memberNo}" class="d-none">
 									
-							        <p class="mt-3 pt-4 mb-3 text-muted small" onclick="document.getElementById('profile_image').click()" style="cursor: pointer;">
-									    JPG, JPEG, PNG 형식만 허용되며,<br>최대 2MB까지 업로드할 수 있습니다.
+							        <p class="mt-3 pt-2 mb-3 text-muted small" onclick="document.getElementById('profile_image').click()" style="cursor: pointer;">
+									     **3:4 비율(증명사진 규격)**<br>JPG, JPEG, PNG 형식만 허용되며,<br>최대 2MB까지 업로드할 수 있습니다.
 									</p>
 									<button type="submit" class="btn btn-sm btn-outline-secondary mt-1" id="saveImageBtn" style="visibility: hidden;">
 									  Save
@@ -177,7 +177,7 @@ layout:decorate="~{/include/layout}">
 	                                <!-- 연락처 -->
 	                                <div class="mb-3">
 	                                  <th:block th:if="${member != null}">
-		                                  <label for="member_phone" class="form-label">연락처<span class="text-muted small"> (10~11자리)</span></label>
+		                                  <label for="member_phone" class="form-label">연락처<span class="text-muted small"> (휴대전화)</span></label>
 		                                  <input type="text" class="form-control" id="member_phone" name="member_phone" th:value="${member.memberPhone}" placeholder="010-XXXX-XXXX"/>
 	                                  </th:block>
 	                                </div>
@@ -235,8 +235,8 @@ layout:decorate="~{/include/layout}">
 								    <!-- 이메일 -->
 	                                <div class="mb-3">
 	                                  <th:block th:if="${member != null}">
-		                                  <label for="member_email" class="form-label">이메일</label>
-		                                  <input type="email" class="form-control" id="member_email" name="member_email" th:value="${member.memberEmail}"/>
+		                                  <label for="member_email" class="form-label">이메일<span class="text-muted small"> (gmail 필수)</span></label>
+		                                  <input type="email" class="form-control" id="member_email" name="member_email" th:value="${member.memberEmail}" placeholder="example@gmail.com"/>
 	                                  </th:block>
 	                                </div>
 								    
@@ -826,6 +826,25 @@ layout:decorate="~{/include/layout}">
 		infoForm.addEventListener('submit',(event) => {
 			event.preventDefault();
 			
+			const birth = document.getElementById('member_birth').value.trim();
+			const phone = document.getElementById('member_phone').value.trim();
+			const email = document.getElementById('member_email').value.trim();
+			
+			if (!isValidDate(birth)) {
+				alert('생년월일은 yyyy-mm-dd 형식으로, 실제 존재하는 날짜로 입력해 주세요.');
+				return;
+			}
+			
+			if (!isValidPhone(phone)) {
+				alert('연락처는 010, 011 등으로 시작하는 10자리 또는 11자리 숫자만 가능합니다.');
+				return;
+			}
+			
+			if (!isValidEmail(email)) {
+				alert('gmail 계정만 등록할 수 있습니다. (예: example@gmail.com)');
+				return;
+			}
+			
 			if(confirm("개인정보를 정말 수정하시겠습니까?")) {
 				const payload = new FormData(infoForm);
 				
@@ -849,6 +868,41 @@ layout:decorate="~{/include/layout}">
 				})
 			}
 		});
+		
+		// 생년월일 유효성 검사
+		function isValidDate(dateString) {
+			const regex = /^\d{4}-\d{2}-\d{2}$/;
+			if (!regex.test(dateString)) {
+				return false;
+			}
+			
+			const [year, month, day] = dateString.split('-').map(Number);
+			const date = new Date(year, month - 1, day);
+			
+			return date.getFullYear() === year && 
+				   date.getMonth() === (month - 1) && 
+				   date.getDate() === day;
+		}
+		
+		// 연락처 유효성 검사
+		function isValidPhone(phoneString) {
+			const digits = phoneString.replace(/[^0-9]/g, '');
+
+			if (!(digits.length === 10 || digits.length === 11)) {
+				return false;
+			}
+
+			const validPrefixes = ['010', '011', '016', '017', '018', '019'];
+			const prefix = digits.substring(0, 3);
+
+			return validPrefixes.includes(prefix);
+		}
+		
+		// 이메일 유효성 검사
+		function isValidEmail(emailString) {
+			const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+			return regex.test(emailString);
+		}
 	</script>
 	
 	<!-- ---------------------------------------------------------------------------- -->
