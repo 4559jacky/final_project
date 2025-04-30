@@ -26,19 +26,25 @@ layout:decorate="~{/include/layout}">
                     <input type="text" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="검색어를 입력해주세요">
                     <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                 </form>
-                <!-- 관리자와 사용자에따라 검색버튼 분리 -->
-                <a th:if="${#authentication.name == 'admin'}"
-                   th:href="@{/adminHome}"
-                   class="btn btn-primary d-flex align-items-center ms-2">
-                	<i class="ti me-1"></i>
-                	숙소관리
-                </a>
-                <a th:if="${#authentication.name != 'admin'}"
-                   href="javascript:void(0)"
-                   class="btn btn-primary d-flex align-items-center ms-2">
-                   	<i class="ti me-1"></i>
-               		검색
-                </a>
+            <!-- 관리자와 사용자에따라 검색버튼 분리(검색,숙소관리) -->
+			<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				<th:block th:if="${funcNo != 30 && funcNo == 31}">
+					<a href="javascript:void(0)"
+			                   class="btn btn-primary d-flex align-items-center ms-2">
+			                   	<i class="ti me-1"></i>
+			               		검색
+			                </a>
+				</th:block>
+			</th:block>
+			<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				<th:block th:if="${funcNo == 30}">
+					<a th:href="@{/adminHome}"
+						class="btn btn-primary d-flex align-items-center ms-2">
+						<i class="ti me-1"></i>
+			                	숙소관리
+					</a>
+				</th:block>
+			</th:block>
               </div>
             </div>
           </div>
@@ -54,17 +60,17 @@ layout:decorate="~{/include/layout}">
                   </li>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
                     <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
-                      <i class="ti ti-hanger fs-5"></i>서울
+                      <i class="ti ti-map-pin fs-5"></i>서울
                     </a>
                   </li>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
                     <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
-                      <i class="ti ti-notebook fs-5"></i>부산
+                      <i class="ti ti-map-pin fs-5"></i>부산
                     </a>
                   </li>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
                     <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
-                      <i class="ti ti-mood-smile fs-5"></i>제주도
+                      <i class="ti ti-map-pin fs-5"></i>제주도
                     </a>
                   </li>
                 </ul>
@@ -125,7 +131,19 @@ layout:decorate="~{/include/layout}">
                   <a class="btn btn-primary d-lg-none d-flex" data-bs-toggle="offcanvas" href="#filtercategory" role="button" aria-controls="filtercategory">
                     <i class="ti ti-menu-2 fs-6"></i>
                   </a>
-                  <h5 class="fs-5 mb-0 d-none d-lg-block">리조트 및 호텔</h5>
+                  <!-- <h5 class="fs-5 mb-0 d-none d-lg-block">리조트 및 호텔</h5> -->
+	              
+		        <!-- 예약내역조회 -->
+				<th:block th:each="funcNo : ${accessibleFuncNoList}">
+					<th:block th:if="${funcNo == 31}">
+						<a th:href="@{/accommodation/list}"
+				            class="btn btn-primary d-flex align-items-center ms-2">
+				         		<i class="ti me-1"></i>
+				              		예약내역조회
+				        </a>
+					</th:block>
+				</th:block>
+				
                   <!-- 날짜 검색창 -->
                   <form class="d-flex align-items-center gap-2">
                     <input type="date" class="form-control search-chat py-2 ps-3" id="date-srh-start">
@@ -140,47 +158,20 @@ layout:decorate="~{/include/layout}">
                   <div class="col-sm-6 col-xxl-4">
                     <div class="card hover-img overflow-hidden">
                       <div class="position-relative">
-                        <a href="../main/eco-shop-detail.html">
-                          <img src="../assets/images/products/s11.jpg" class="card-img-top" alt="flexy-img">
+                        <a href="/accommodation/detail">
+                          <img src="/img/신라호텔_제주도.jpg" class="card-img-top" alt="flexy-img">
                         </a>
                         <a href="javascript:void(0)" class="text-bg-primary rounded-circle p-2 text-white d-inline-flex position-absolute bottom-0 end-0 mb-n3 me-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Add To Cart">
                           <i class="ti ti-basket fs-4"></i>
                         </a>
                       </div>
                       <div class="card-body pt-3 p-4">
-                        <h6 class="fs-4">Super Games</h6>
+                        <h6 class="fs-4">신라호텔</h6>
                         <div class="d-flex align-items-center justify-content-between">
-                          <h6 class="fs-4 mb-0">$285 <span class="ms-2 fw-normal text-muted fs-3">
-                              <del>$345</del>
+                          <h6 class="fs-4 mb-0">200,000원 <span class="ms-2 fw-normal text-muted fs-3">
+                              <del>400,000원</del>
                             </span>
                           </h6>
-                          <ul class="list-unstyled d-flex align-items-center mb-0">
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                          </ul>
                         </div>
                       </div>
                     </div>
@@ -729,20 +720,9 @@ layout:decorate="~{/include/layout}">
               </div>
             </div>
           </div>
-        </div>
-        <!----Footer--->
-        <!-- -------------------------------------------------------------- -->
-        <!-- footer -->
-        <!-- -------------------------------------------------------------- -->
-        <footer class="footer py-3 bg-white border-top text-center">
-          2024© All Rights Reserved by Wrappixel
-        </footer>
-        <!-- -------------------------------------------------------------- -->
-        <!-- End footer -->
-        <!-- -------------------------------------------------------------- -->
-        <!----Footer End--->
-      </div>
-      <script>
+       
+      
+<script>
   function handleColorTheme(e) {
     document.documentElement.setAttribute("data-color-theme", e);
   }
@@ -893,7 +873,7 @@ layout:decorate="~{/include/layout}">
           </div>
         </div>
       </div>
-    </div>
+
 
     <!--  Search Bar -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
