@@ -49,4 +49,7 @@ public class ChatMsg {
 	@JoinColumn(name="member_no")
 	private Member memberNo;
 	
+	@Builder.Default
+	@Column(name="chat_msg_type")
+	private String chatMsgType = "N";
 }

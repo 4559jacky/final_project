@@ -12,8 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.entity.ChatMsg;
@@ -97,8 +99,26 @@ public class ChatController {
 	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), dto);
 	}
 
-	
+	// 채팅방 나가기
+	@PostMapping("/updateStatus")
+	@ResponseBody
+	public Map<String, String> updateStatus(@RequestBody ChatMappingDto dto) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "채팅방 나가기 중 오류가 발생하였습니다.");
 
+		int result = chatRoomService.updateStatus(dto);
+
+		if (result > 0) {
+	
+			chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
+			
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
+		}
+
+		return resultMap;
+	}
 	
 	
 	
