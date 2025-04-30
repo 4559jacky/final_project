@@ -35,4 +35,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
 	
 	Member findTopByOrderByMemberNoDesc();
 	
+	Member findByMemberIdAndMemberEmail(String memberId, String memberEmail);
+	
 }
