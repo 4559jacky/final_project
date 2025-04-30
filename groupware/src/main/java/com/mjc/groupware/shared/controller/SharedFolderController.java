@@ -65,4 +65,14 @@ public class SharedFolderController {
 		return Map.of("message", "📁 폴더가 생성되었습니다.");
 	}
 	
+	// 부모 폴더 타입 상속.
+	@GetMapping("/shared/folder/type")
+	@ResponseBody
+	public Map<String, Integer> getFolderType(@RequestParam("folderId") Long folderId) {
+	    SharedFolder folder = folderRepository.findById(folderId)
+	        .orElseThrow(() -> new RuntimeException("상위 폴더를 찾을 수 없습니다."));
+	    return Map.of("folderType", folder.getFolderType());
+	}
+	
+	
 }
