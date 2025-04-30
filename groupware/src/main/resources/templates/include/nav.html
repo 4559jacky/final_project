@@ -526,52 +526,57 @@
               <!-- =================== -->
               <!-- 접근 :: 인사담당자, 최고관리자 -->
               <!-- =================== -->
-              <th:block th:each="funcNo : ${accessibleFuncNoList}">
-              	<th:block th:if="${funcNo == 1}">
-	              <li class="sidebar-item">
-	                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-	                  <span class="rounded-3">
-	                    <i class="ti ti-layout"></i>
-	                  </span>
-	                  <span class="hide-menu">인사담당자 메뉴</span>
+              <th:block th:if="${showHrMenu}">
+	          	<li class="sidebar-item">
+	            	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+	                	<span class="rounded-3">
+	                    	<i class="ti ti-layout"></i>
+	                  	</span>
+	                  	<span class="hide-menu">인사담당자 메뉴</span>
 	                </a>
 	                <ul aria-expanded="false" class="collapse first-level">
-	                  <li class="sidebar-item">
-	                    <a th:href="@{/admin/member/create}" class="sidebar-link">
-	                      <i class="ti ti-id"></i>
-	                      <span class="hide-menu">사원 등록</span>
-	                    </a>
-	                  </li>
-	                  <li class="sidebar-item">
-	                    <a th:href="@{/admin/dept/create}" class="sidebar-link">
-	                      <i class="ti ti-building"></i>
-	                      <span class="hide-menu">부서 관리</span>
-	                    </a>
-	                  </li>
-	                  <li class="sidebar-item">
-	                    <a th:href="@{/admin/pos/create}" class="sidebar-link">
-	                      <i class="ti ti-badge"></i>
-	                      <span class="hide-menu">직급 관리</span>
-	                    </a>
-	                  </li>
-	                  <li class="sidebar-item">
-	                    <a th:href="@{/admin/member}" class="sidebar-link">
-	                      <i class="ti ti-users"></i>
-	                      <span class="hide-menu">인사 관리</span>
-	                    </a>
-	                  </li>
-	                  <!--
-	                  <li class="sidebar-item">
-	                    <a th:href="@{/}" class="sidebar-link">
-	                      <i class="ti ti-address-book"></i>
-	                      <span class="hide-menu">조직도 및 주소록</span>
-	                    </a>
-	                  </li>
-	                  -->
-	                  
+		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                	<th:block th:if="${funcNo == 12}">
+			                	<li class="sidebar-item">
+			                    	<a th:href="@{/admin/member/create}" class="sidebar-link">
+			                      		<i class="ti ti-id"></i>
+			                      		<span class="hide-menu">사원 등록</span>
+			                    	</a>
+			                  	</li>
+		                	</th:block>
+		                </th:block>
+		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                	<th:block th:if="${funcNo == 13}">
+			                  	<li class="sidebar-item">
+			                    	<a th:href="@{/admin/dept/create}" class="sidebar-link">
+			                     		<i class="ti ti-building"></i>
+			                      		<span class="hide-menu">부서 관리</span>
+			                    	</a>
+			                  	</li>
+		                	</th:block>
+		                </th:block>
+		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                	<th:block th:if="${funcNo == 14}">
+			                  	<li class="sidebar-item">
+			                    	<a th:href="@{/admin/pos/create}" class="sidebar-link">
+			                      		<i class="ti ti-badge"></i>
+			                      		<span class="hide-menu">직급 관리</span>
+			                    	</a>
+			                  	</li>
+		                	</th:block>
+		                </th:block>
+		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                	<th:block th:if="${funcNo == 15}">
+			                  	<li class="sidebar-item">
+			                    	<a th:href="@{/admin/member}" class="sidebar-link">
+			                      		<i class="ti ti-users"></i>
+			                      		<span class="hide-menu">인사 관리</span>
+			                    	</a>
+			                  	</li>
+		                	</th:block>
+		                </th:block>
 	                </ul>
-	              </li>
-	          	</th:block>
+	          	</li>
               </th:block>
               <th:block th:if="${#authentication.principal.member.role.roleNo == 1}">
               	<li class="sidebar-item">

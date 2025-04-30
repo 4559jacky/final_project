@@ -14,6 +14,7 @@
 <th:block layout:fragment="content">
     <script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<link rel="stylesheet" th:href="@{/css/hjh/hjh.css}">
+	<link rel="stylesheet" th:href="@{/css/cjs/notice.css}">
 	
 	<div class="page-titles mb-7 mb-md-5">
     	<div class="row">
@@ -52,14 +53,14 @@
             <div class="border-top pt-3">
                 <!-- 이미지 스타일이 적용될 수 있도록 클래스명 수정 -->
                 <div th:utext="${notice.noticeContent}" class="toastui-editor-contents"
-                     style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;" ></div>
+                     style="min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 0.7rem;" ></div>
                
             <div class="mt-4">
   				<hr>
   					<h5 class="fw-semibold">첨부파일</h5>
  					<ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
   						<li th:each="attach : ${attachList}" class="mb-1">
-    						<i class="bi bi-file-earmark-image me-1 text-secondary"></i>
+    						<i class="bi bi-file-earmark-image me-1 text-primary"></i>
     						<a th:href="@{/notice/download(fileNo=${attach.attachNo})}"
        					  	   th:text="${attach.oriName}"
       					  	   class="file-link"></a>

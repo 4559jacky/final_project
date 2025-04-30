@@ -1,0 +1,6 @@
+@charset "UTF-8";
+
+/* 다크모드에서 레이블 폰트 색상 적용 */
+[data-bs-theme="dark"] label, [data-bs-theme="dark"] .form-label, [data-bs-theme="dark"] .form-control {
+	color: #f5f5f5 !important;
+}

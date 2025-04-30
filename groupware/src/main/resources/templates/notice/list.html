@@ -6,7 +6,7 @@
   layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
   <link rel="stylesheet" th:href="@{/css/hjh.css}">
-  <link rel="stylesheet" th:href="@{/css/cjs/notice_list.css}">
+  <link rel="stylesheet" th:href="@{/css/cjs/notice.css}">
   
   <script th:src="@{/js/jquery-3.7.1.js}"></script>
 	
@@ -141,7 +141,7 @@
 
     <!-- 게시글 작성 버튼: 오른쪽 위 -->
     <th:block th:each="funcNo : ${accessibleFuncNoList}">
-    	<th:block th:if="${funcNo == 16}">
+    	<th:block th:if="${funcNo == 23}">
 	        <div class="d-flex justify-content-end mt-4">
 		      <button type="button"
 		              class="btn btn-primary"
