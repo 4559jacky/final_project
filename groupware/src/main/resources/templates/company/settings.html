@@ -628,7 +628,7 @@ layout:decorate="~{/include/layout}">
 		        const subList = document.getElementById("func_sub_list");
 		        subList.innerHTML = "";
 				
-		        // 상위 항목 렌더링
+ 		        // 상위 항목 렌더링
 		        if (data.funcDto) {
 		            const parentLi = document.createElement("li");
 
@@ -671,7 +671,7 @@ layout:decorate="~{/include/layout}">
 		            parentLi.querySelector('.func-item').addEventListener("click", function (e) {
 		                e.stopPropagation(); // 필수
 		                const funcNo = this.getAttribute("data-func-no");
-		                toggleCheckboxVisibility(funcNo);
+		                // toggleCheckboxVisibility(funcNo);
 		            });
 		        }
 				
@@ -759,7 +759,7 @@ layout:decorate="~{/include/layout}">
 		    })
 		    .then(response => response.json())
 		    .then(data => {
-				alert(data.res_msg);
+				// alert(data.res_msg);
 				if (data.res_code === '200') {
 					
 				}

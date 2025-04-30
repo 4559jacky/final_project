@@ -96,7 +96,7 @@ public class GlobalModelAttribute {
 	    // 인사관리자인 경우에 HR메뉴가 보일 수 있게 플래그를 뿌려줌
 	    boolean showHrMenu = accessibleFuncNoList.stream()
 	    	    .anyMatch(no -> no == 12 || no == 13 || no == 14 || no == 15);
-
+	    
 	    model.addAttribute("showHrMenu", showHrMenu);
 	}
 	

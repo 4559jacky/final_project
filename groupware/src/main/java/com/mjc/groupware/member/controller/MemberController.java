@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.common.annotation.CheckPermission;
@@ -52,6 +54,7 @@ import com.mjc.groupware.pos.service.PosService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -89,6 +92,213 @@ public class MemberController {
 		System.out.println("MemberController - 로그인 연속 실패 횟수 : "+cnt+"회");
 		
 		return "member/login";
+	}
+	
+	@GetMapping("/forgetPassword")
+	public String forgetPasswordView() {
+		return "member/forgetPassword";
+	}
+	
+	@PostMapping("/forgetPassword")
+	@ResponseBody
+	public Map<String, String> checkUsernameAndEmail(MemberDto dto, HttpSession session) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "계정 조회 중 알 수 없는 오류가 발생하였습니다.");
+		
+		try {
+			Member member = service.selectMemberOneByMemberIdAndMemberEmail(dto);
+			
+			if(member != null) {
+				// 인증을 위한 코드를 만드는 부분
+				String verificationCode = generateVerificationCode();
+
+				// 실제로 SMTP를 통해 이메일을 보내는 부분
+				service.sendVerificationEmail(dto.getMember_email(), verificationCode);
+				
+				// 인증코드를 세션에 저장하는 부분 - 예시: session.setAttribute("verificationCode", verificationCode);
+				session.setAttribute("verificationCode", verificationCode);
+				session.setAttribute("verificationCodeCreatedAt", System.currentTimeMillis());
+				
+				session.setAttribute("target_member_id", dto.getMember_id());
+				session.setAttribute("target_member_email", dto.getMember_email());
+				session.setAttribute("target_member_created_at", System.currentTimeMillis());
+				
+				resultMap.put("res_code", "200");
+				resultMap.put("res_msg", "이메일이 성공적으로 발송되었습니다.");
+			} else {
+	            resultMap.put("res_code", "404");
+	            resultMap.put("res_msg", "일치하는 계정을 찾을 수 없습니다.");
+	        }
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "계정 조회 중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	private String generateVerificationCode() {
+	    Random random = new Random();
+	    StringBuilder code = new StringBuilder();
+	    
+	    // 6자리 랜덤 숫자 생성
+	    for(int i = 0; i < 6; i++) {
+	        code.append(random.nextInt(10));
+	    }
+	    
+	    return code.toString();
+	}
+	
+	@GetMapping("/forgetPassword/verifyCode")
+	public String verifyCodeView(HttpSession session, RedirectAttributes redirectAttributes) {
+		Object memberId = session.getAttribute("target_member_id");
+	    Object memberEmail = session.getAttribute("target_member_email");
+	    Long memberTimestamp = (Long) session.getAttribute("target_member_created_at");
+	    
+	    if(memberId == null || memberEmail == null) {
+	        redirectAttributes.addFlashAttribute("error_msg", "인증되지 않은 접근입니다.");
+	        return "redirect:/forgetPassword";
+	    }
+	    
+	    long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - memberTimestamp;
+        
+        if(elapsedTime > 5 * 60 * 1000) {
+        	redirectAttributes.addFlashAttribute("error_msg", "요청한 비밀번호 재설정 시간이 만료되었습니다. 다시 시도해주세요.");
+	        return "redirect:/forgetPassword";
+        }
+        
+        session.setAttribute("target_member_created_at", System.currentTimeMillis());
+		
+		return "member/verifyCode";
+	}
+	
+	@PostMapping("/forgetPassword/verifyCode")
+	@ResponseBody
+	public Map<String, String> verifyCodeApi(@RequestParam("auth_code") String authCode, HttpSession session) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "코드 인증 중 알 수 없는 오류가 발생하였습니다.");
+		
+		try {
+			String verificationCode = (String) session.getAttribute("verificationCode");
+			Long verificationCodeCreatedAt = (Long) session.getAttribute("verificationCodeCreatedAt");
+			
+			if (verificationCode == null || verificationCodeCreatedAt == null) {
+	            throw new IllegalArgumentException("인증번호가 존재하지 않거나 만료되었습니다.");
+	        }
+			
+			long now = System.currentTimeMillis();
+	        long elapsed = now - verificationCodeCreatedAt;
+	        
+	        if (elapsed > 5 * 60 * 1000) { // 인증 코드는 5분간만 유효함.
+	            session.removeAttribute("verificationCode");
+	            session.removeAttribute("verificationCodeCreatedAt");
+	            throw new IllegalArgumentException("인증번호가 만료되었습니다. 다시 요청해주세요.");
+	        }
+	        
+	        if (!verificationCode.equals(authCode)) {
+	            throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+	        }
+			
+	        session.removeAttribute("verificationCode");
+	        session.removeAttribute("verificationCodeCreatedAt");
+	        
+	        resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "인증번호가 확인되었습니다.");
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "코드 인증 중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	@GetMapping("/forgetPassword/changePassword")
+	public String changePasswordView(HttpSession session, RedirectAttributes redirectAttributes) {
+		Object memberId = session.getAttribute("target_member_id");
+	    Object memberEmail = session.getAttribute("target_member_email");
+	    Long memberTimestamp = (Long) session.getAttribute("target_member_created_at");
+	    
+	    if (memberId == null || memberEmail == null) {
+	        redirectAttributes.addFlashAttribute("error_msg", "인증되지 않은 접근입니다.");
+	        return "redirect:/forgetPassword";
+	    }
+	    
+	    long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - memberTimestamp;
+        
+        if(elapsedTime > 5 * 60 * 1000) {
+        	redirectAttributes.addFlashAttribute("error_msg", "요청한 비밀번호 재설정 시간이 만료되었습니다. 다시 시도해주세요.");
+	        return "redirect:/forgetPassword";
+        }
+        
+        session.removeAttribute("target_member_created_at");
+		
+		return "member/changePassword";
+	}
+	
+	@PostMapping("/forgetPassword/changePassword")
+	@ResponseBody
+	public Map<String, String> changePasswordApi(@RequestParam("member_pw") String memberPw, HttpSession session) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "비밀번호 변경 중 알 수 없는 오류가 발생하였습니다.");
+		
+		try {
+			// 서버단에서의 복잡도 검증
+			String newPw = memberPw;
+			
+			if (!isValidPassword(newPw)) {
+	            throw new IllegalArgumentException("비밀번호는 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.");
+	        }
+			
+			String memberId = (String) session.getAttribute("target_member_id");
+			String memberEmail = (String) session.getAttribute("target_member_email");
+			
+			Member target = service.selectMemberOneByMemberIdAndMemberEmail(MemberDto.builder()
+					.member_id(memberId)
+					.member_email(memberEmail)
+					.build());
+			
+			if(target != null) {
+				// 실질적인 비밀번호 수정 로직
+				MemberDto dto = MemberDto.builder()
+										.member_no(target.getMemberNo())
+										.member_pw(memberPw)
+										.build();
+				
+				service.updateMemberForgetPw(dto);
+				
+				// 세션을 지워주는 로직
+				session.removeAttribute("target_member_id");
+	            session.removeAttribute("target_member_email");
+				
+				resultMap.put("res_code", "200");
+		        resultMap.put("res_msg", "비밀번호 변경이 성공적으로 완료되었습니다.");
+			} else {
+				resultMap.put("res_code", "404");
+	            resultMap.put("res_msg", "일치하는 계정을 찾을 수 없습니다.");
+			}
+		} catch(IllegalArgumentException e) {
+			resultMap.put("res_code", "400");
+	        resultMap.put("res_msg", e.getMessage());
+		} catch(Exception e) {
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "비밀번호 변경 중 알 수 없는 오류가 발생하였습니다.");
+		}
+		
+		return resultMap;
 	}
 	
 	@CheckPermission("MEMBER_ADMIN_C")

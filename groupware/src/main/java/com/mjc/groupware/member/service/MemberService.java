@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +34,8 @@ import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.member.specification.MemberSpecification;
 import com.mjc.groupware.pos.entity.Pos;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
 
@@ -44,6 +48,8 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final DataSource dataSource;
 	private final UserDetailsService userDetailsService;
+	
+	private final JavaMailSender mailSender;
 	
 	public Member selectMemberOne(MemberDto dto) {
 		Member result = repository.findByMemberId(dto.getMember_id());
@@ -167,6 +173,31 @@ public class MemberService {
 		}
 	}
 	
+	public void updateMemberForgetPw(MemberDto dto) {
+		try {
+			Specification<Member> spec = (root, query, criteriaBuilder) -> null;
+			spec = spec.and(MemberSpecification.equalMemberNo(dto.getMember_no()));
+			
+			Member target = repository.findOne(spec).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다"));
+			
+			target.changePassword(passwordEncoder.encode(dto.getMember_pw()));
+			
+			repository.save(target);
+			
+			// 비밀번호 수정 후 -> 자동로그인이 있다면 자동로그인을 해제
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+			String sql = "DELETE FROM persistent_logins WHERE username = ?";
+			jdbcTemplate.update(sql, dto.getMember_id());
+			
+			// 비밀번호 수정 후 -> 로그인 된 사원의 인증 상태를 해제 (즉, 인증이 풀리면서 /login 으로 강제로 끌려들어감)
+			SecurityContextHolder.getContext().setAuthentication(null);
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		} catch(Exception e) {
+			throw new RuntimeException("비밀번호 수정 중 알 수 없는 문제가 발생했습니다.");
+		}
+	}
+	
 	@Transactional(rollbackFor = Exception.class)
 	public void updateMemberInfo(MemberDto dto) {
 		// 앞서 많이 썼지만 @Transaction + 도메인메소드 응용해서 바뀐 부분만 수정하는 로직 - 이렇게 안 하면 데이터로 넣지 않는 부분에 null이 들어감
@@ -245,6 +276,39 @@ public class MemberService {
 	// 가장 마지막 pk를 가지고 있는 member 추출
 	public Member selectMemberOneByLastNo() {
 	    return repository.findTopByOrderByMemberNoDesc();
+	}
+	
+	// 아이디와 이메일을 기준으로 계정이 존재하는지 확인 
+	public Member selectMemberOneByMemberIdAndMemberEmail(MemberDto dto) {
+		return repository.findByMemberIdAndMemberEmail(dto.getMember_id(), dto.getMember_email());
+	}
+	
+	// 비밀번호 재설정을 위한 인증번호 이메일을 보내는 로직
+	public void sendVerificationEmail(String toEmail, String verificationCode) {
+		String subject = "[회사명] 비밀번호 재설정 인증번호 안내";
+        String content = """
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>비밀번호 재설정 요청</h2>
+                    <p>요청하신 인증번호는 아래와 같습니다.</p>
+                    <div style="font-size: 24px; font-weight: bold; color: #2d3748;">
+                        %s
+                    </div>
+                    <p style="margin-top: 20px;">인증번호는 5분간 유효합니다.</p>
+                </div>
+                """.formatted(verificationCode);
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new IllegalArgumentException("이메일 전송에 실패했습니다.", e);
+        }
 	}
 	
 	// 결재라인 부서의 속한 사원들select
