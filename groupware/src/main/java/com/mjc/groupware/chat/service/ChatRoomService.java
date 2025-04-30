@@ -10,11 +10,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.entity.ChatMapping;
 import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.repository.ChatMappingrepository;
 import com.mjc.groupware.chat.repository.ChatRoomRepository;
+import com.mjc.groupware.chat.specification.ChatMappingSpecification;
 import com.mjc.groupware.chat.specification.ChatRoomSpecification;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -115,4 +117,28 @@ public class ChatRoomService {
 	public ChatRoom selectChatRoomOne(Long chatRoomNo) {
 		return chatRoomRepository.findById(chatRoomNo).orElse(null);
 	}
+	
+	// 채팅방 나가기 
+	public int updateStatus(ChatMappingDto dto) {
+	    int result = 0;
+	    
+	    try {
+	        Specification<ChatMapping> spec = ChatMappingSpecification.ChatRoomNoEqualsAndMemberNoEquals(dto);
+	        List<ChatMapping> list = mappingRepository.findAll(spec);
+
+	       
+	        for (ChatMapping mapping : list) {
+	            mapping.setMemberStatus("N");
+	        }
+
+	        mappingRepository.saveAll(list);
+	        result = list.size();
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return result;
+	}
+
 }
