@@ -93,7 +93,8 @@
     </th:block>
 </div>
 
-<div class="custom-padding bg-white rounded-4 shadow-sm mb-5">
+<!--th:if를 추가해주니까 빈창이 나왔던게 hidden 되면서 댓글 등록을 하면 뜰수있게 할수있다-->
+<div class="custom-padding bg-white rounded-4 shadow-sm mb-5" th:if="${not #lists.isEmpty(replyList)}">
   <!-- 댓글 및 대댓글 영역 -->
   <div id="comment-container" class="container my-4">
     <!-- 댓글 + 대댓글 리스트 -->
