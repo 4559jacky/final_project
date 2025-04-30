@@ -72,6 +72,9 @@ public class Approval {
 	@Column(name="annual_leave_type")
 	private Integer annualLeaveType;
 	
+	@Column(name="return_reason")
+	private String returnReason;
+	
 	@ManyToOne
 	@JoinColumn(name="appr_sender")
 	private Member member;

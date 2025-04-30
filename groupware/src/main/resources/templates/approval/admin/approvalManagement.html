@@ -129,7 +129,9 @@
 			  .then(res => res.json())
 			  .then(data => {
 			    const html = `
-			      <h4>${data.approval_form_name}</h4>
+			      <br>
+			      <h4 style="text-align:center">${data.approval_form_name}</h4>
+			      <br><br>
 			      <div>${data.approval_form}</div>
 			    `;
 			    document.getElementById('approval-content').innerHTML = html;
