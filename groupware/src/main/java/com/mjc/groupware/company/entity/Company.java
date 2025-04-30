@@ -44,6 +44,12 @@ public class Company {
 	@Column(name="theme_color")
 	private String themeColor;
 	
+	@Column(name="company_initial")
+	private String companyInitial;
+	
+	@Column(name="rule_status")
+	private int ruleStatus;
+	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
 	private LocalDateTime regDate;
@@ -52,8 +58,19 @@ public class Company {
 	@Column(insertable=false,name="mod_date")
 	private LocalDateTime modDate;
 	
+	// 테마 색상을 변경하는 도메인 메소드
 	public void updateThemeColor(String themeColor) {
 		this.themeColor = themeColor;
 	}
+	
+	// 회사 이니셜을 변경하는 도메인 메소드
+    public void changeCompanyInitial(String companyInitial) {
+        this.companyInitial = companyInitial;
+    }
+
+    // 규칙 상태를 변경하는 도메인 메소드
+    public void changeRuleStatus(int ruleStatus) {
+        this.ruleStatus = ruleStatus;
+    }
 	
 }

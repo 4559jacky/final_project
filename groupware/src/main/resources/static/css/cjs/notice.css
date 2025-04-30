@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+/* 다크모드에서 placeholder 톤 다운 */
+[data-bs-theme="dark"] input::placeholder {
+	color: #aaa; /* 연한 회색으로 눈에 부담 없게 */
+}
+
+/* 다크모드에서 레이블 폰트 색상 적용 */
+[data-bs-theme="dark"] label, [data-bs-theme="dark"] .form-label, [data-bs-theme="dark"] .form-control {
+	color: #f5f5f5 !important;
+}
+
+/* 다크모드에서 에디터 폰트 색상 적용 */
+[data-bs-theme="dark"] .toastui-editor-contents {
+	color: #f5f5f5 !important;
+}
+
+[data-bs-theme="dark"] .toastui-editor-contents * {
+	color: #f5f5f5 !important;
+}

@@ -25,6 +25,8 @@ public class CompanyDto {
 	private String new_name;
 	private String attach_path;
 	private String theme_color;
+	private String company_initial;
+	private int rule_status;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	

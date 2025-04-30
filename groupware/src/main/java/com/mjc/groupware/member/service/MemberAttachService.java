@@ -102,4 +102,18 @@ public class MemberAttachService {
 				.build();
 	}
 	
+	public void deleteFile(String filePath) {
+	    if (filePath == null || filePath.isEmpty()) {
+	        return;
+	    }
+	    
+	    File file = new File(filePath);
+	    if (file.exists()) {
+	        boolean deleted = file.delete();
+	        if (!deleted) {
+	            logger.warn("파일 삭제 실패: {}", filePath);
+	        }
+	    }
+	}
+	
 }

@@ -9,28 +9,33 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
     <link rel="stylesheet" th:href="@{/css/hjh.css}">
+    <link rel="stylesheet" th:href="@{/css/cjs/notice_editor.css}">
 </head>
 
 <th:block layout:fragment="content">
-    <div class="col-lg-8 col-md-6 col-12 align-self-center">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb align-items-center">
-                <li class="breadcrumb-item">
-                    <a class="text-muted text-decoration-none" th:href="@{/home}">
-                        <i class="ti ti-home fs-5"></i>
-                    </a>
-                </li>
-                <li class="breadcrumb-item" aria-current="page">공지사항 게시판</li>
-            </ol>
-        </nav>
-        <br>
-        <h2 class="mb-0 fw-bolder fs-8">공지사항 게시판 게시글 수정</h2>
-    </div>
-    <br>
+	
+	<div class="page-titles mb-7 mb-md-5">
+    	<div class="row">
+        	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">게시판 / 공지사항</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">공지사항 수정</h2>
+			</div><br>
+		</div>
+	</div>
 
     <form name="update_notice_form" method="post" enctype="multipart/form-data">
         <input type="hidden" name="notice_no" th:value="${notice.notice_no}">
         <input type="hidden" name="notice_content" id="notice_content" />
+        <input type="hidden" name="member_no" th:value="${notice.member_no}">
 
         <div class="container mt-4">
             <div class="card shadow-sm p-4">
@@ -92,7 +97,7 @@
 
 <th:block layout:fragment="scripts">
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
-
+	
     <script th:inline="javascript">
         const initialContent = /*[[${notice.notice_content}]]*/ '';
     </script>

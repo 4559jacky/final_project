@@ -33,4 +33,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
 	
 	int countByRole(Role role);
 	
+	Member findTopByOrderByMemberNoDesc();
+	
 }

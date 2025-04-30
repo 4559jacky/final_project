@@ -85,12 +85,19 @@ public class GlobalModelAttribute {
 	        return;
 	    }
 		
+		// 접근가능한 기능번호 목록을 뿌려줌
 		Set<Long> accessibleFuncNoList = new HashSet<>();
 	    for (FuncMapping mapping : mappings) {
 	        accessibleFuncNoList.add(mapping.getFunc().getFuncNo());
 	    }
 	    
 	    model.addAttribute("accessibleFuncNoList", accessibleFuncNoList);
+	    
+	    // 인사관리자인 경우에 HR메뉴가 보일 수 있게 플래그를 뿌려줌
+	    boolean showHrMenu = accessibleFuncNoList.stream()
+	    	    .anyMatch(no -> no == 12 || no == 13 || no == 14 || no == 15);
+
+	    model.addAttribute("showHrMenu", showHrMenu);
 	}
 	
 }
