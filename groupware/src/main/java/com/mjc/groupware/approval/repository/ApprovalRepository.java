@@ -16,5 +16,8 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
 	// Approval 엔티티에서 member.memberNo가 일치하는 모든 데이터 찾기
 	
 	List<Approval> findAllByMember_MemberNo(Long member_no);
+	
+	// List<Approval> findAll(Specification<Approval> spec);
+	List<Approval> findAllByParentApproval_ApprNo(Long parentApprNo);
 
 }

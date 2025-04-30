@@ -190,10 +190,14 @@ public class ApprovalController {
 	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
 	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
 	    
+	    int return_result = service.selectReturnApprovalByApprovalNo(id);
+	    System.out.println(return_result);
+	    
 	    model.addAttribute("approval", approval);
 	    model.addAttribute("approverList", approverList);
 	    model.addAttribute("agreementerList", agreementerList);
 	    model.addAttribute("referencerList", referencerList);
+	    model.addAttribute("return_result", return_result);
 		
 		return "/approval/user/sendApprovalDetail";
 	}
@@ -428,30 +432,22 @@ public class ApprovalController {
 	
 	@PostMapping("/approval/return/{id}")
 	@ResponseBody
-	public Map<String,String> approvalReturnApi(@PathVariable("id") Long id, @RequestParam("agree_reason") String reason) {
+	public Map<String,String> approvalReturnApi(@PathVariable("id") Long id, @RequestParam("return_reason") String reason) {
 		Map<String,String> resultMap = new HashMap<String,String>();
 		
 		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "결재 회수에 실패하였습니다.");
+		resultMap.put("res_msg", "결재 회수요청에 실패하였습니다.");
 		
-//		String userId = userDetails.getUsername();
-//		
-//
-//	    MemberDto memberDto = new MemberDto();
-//	    memberDto.setMember_id(userId);
-//	    Member entity = memberService.selectMemberOne(memberDto);
-//	    MemberDto member = new MemberDto().toDto(entity);
-//	    
-//	    System.out.println(member);
-//	    
-//	    int result = service.approvalRejectApi(id, reason, member);
-//	    
-//	    System.out.println(result);
-//	    
-//		if(result > 0) {
-//			resultMap.put("res_code", "200");
-//			resultMap.put("res_msg", "결재가 거절되었습니다.");
-//		}
+		System.out.println("회수 사유:"+reason);
+		
+	    int result = service.approvalReturnApi(id, reason);
+	    
+	    System.out.println(result);
+	    
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 회수요청되었습니다.");
+		}
 	    
 	    return resultMap;
 	}

@@ -31,4 +31,11 @@ public class ApprovalSpecification {
 		return (root, query, criteriaBuilder) -> 
 			criteriaBuilder.like(root.get("apprStatus"), "%"+keyword+"%");
 	}
+	
+	public static Specification<Approval> approvalReturnApprovalContains(Long keyword) {
+		return (root, query, criteriaBuilder) -> {
+			Join<Object, Object> memberJoin = root.join("parentApproval");
+	        return criteriaBuilder.equal(memberJoin.get("apprNo"), keyword);
+		};
+	}
 }
