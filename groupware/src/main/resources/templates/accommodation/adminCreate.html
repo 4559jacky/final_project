@@ -5,7 +5,11 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+	<!-- Toast UI Editor CSS & JS -->
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
+	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+	
 	<div class="container-fluid px-4">
 		<!-- 제목 & 경로 -->
 	    <div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -36,9 +40,9 @@ layout:decorate="~{/include/layout}">
 		  <div class="row justify-content-center">
 		    <!-- 왼쪽: 이미지 업로드 -->
 		    <div class="col-md-5 mb-4">
-		      <label class="form-label fw-bold">숙소 이미지</label>
 		      <div class="border p-5 bg-light text-center rounded" style="height: 300px;">
-		        <p>@이곳에 파일을 드래그 하세요. 또는 <a href="#">파일선택</a></p>
+		        <span>@이곳에 파일을 드래그 하세요.</span><br>
+		        <span> 또는 파일 업로드를 클릭하세요</span><br>
 		        <!-- 실제 업로드 input은 숨기고 라벨로 연결 -->
 		        <input type="file" id="imageUpload" class="d-none">
 		        <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
@@ -50,7 +54,7 @@ layout:decorate="~{/include/layout}">
 		      <table class="table table-borderless align-middle">
 		        <tbody>
 		          <tr>
-		            <td class="text-end"><label for="type" class="form-label">숙소 타입</label></td>
+		            <td class="text-end"><label for="type" class="form-label">숙소 타입 : </label></td>
 		            <td class="text-start">
 		              <select id="type" name="type" class="form-select w-75">
 		                <option selected>숙소타입</option>
@@ -60,27 +64,27 @@ layout:decorate="~{/include/layout}">
 		            </td>
 		          </tr>
 		          <tr>
-		            <td class="text-end"><label for="name" class="form-label">숙소명</label></td>
+		            <td class="text-end"><label for="name" class="form-label">숙소명 : </label></td>
 		            <td class="text-start"><input type="text" id="name" class="form-control w-75" placeholder="숙소명을 입력해주세요."></td>
 		          </tr>
 		          <tr>
-		            <td class="text-end"><label for="address" class="form-label">주소</label></td>
+		            <td class="text-end"><label for="address" class="form-label">주소 : </label></td>
 		            <td class="text-start"><input type="text" id="address" class="form-control w-75" placeholder="숙소 주소를 입력해주세요."></td>
 		          </tr>
 		          <tr>
-		            <td class="text-end"><label for="phone" class="form-label">연락처</label></td>
+		            <td class="text-end"><label for="phone" class="form-label">연락처 : </label></td>
 		            <td class="text-start"><input type="text" id="phone" class="form-control w-75" placeholder="숙소 연락처를 입력해주세요."></td>
 		          </tr>
 		          <tr>
-		            <td class="text-end"><label for="email" class="form-label">이메일</label></td>
+		            <td class="text-end"><label for="email" class="form-label">이메일 : </label></td>
 		            <td class="text-start"><input type="email" id="email" class="form-control w-75" placeholder="숙소 이메일을 입력해주세요."></td>
 		          </tr>
 		          <tr>
-		            <td class="text-end"><label for="site" class="form-label">공식 사이트</label></td>
+		            <td class="text-end"><label for="site" class="form-label">공식 사이트 : </label></td>
 		            <td class="text-start"><input type="url" id="site" class="form-control w-75" placeholder="공식 사이트 주소를 입력해주세요."></td>
 		          </tr>
 		          <tr>
-		            <td class="text-end"><label for="price" class="form-label">가격</label></td>
+		            <td class="text-end"><label for="price" class="form-label">가격 : </label></td>
 		            <td class="text-start"><input type="text" id="price" class="form-control w-75" placeholder="가격을 입력해주세요."></td>
 		          </tr>
 		        </tbody>
@@ -91,18 +95,74 @@ layout:decorate="~{/include/layout}">
 	</div>
 </div>
 	<br>
+	
 		<!-- 2번째 테이블 -->
-		<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+		<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm mt-1">
 	    <div class="table-responsive">
+	   		<!-- 에디터 삽입 -->
+			<div class="post-form mt-3">
+      			<h6 class="fw-semibold mb-2" style="font-size: 1.2rem;">숙소 상세 설명</h6>
+			    <div id="editor" style="margin-top: 25px;"></div>
+			    <textarea id="content" name="content" hidden></textarea>
+			</div>
 	    </div>
 	    </div>
-
-		<br>
+	    <script>
+			document.addEventListener("DOMContentLoaded", function () {
+			    const editor = new toastui.Editor({
+			        el: document.querySelector('#editor'),
+			        height: '400px',
+			        initialEditType: 'wysiwyg',
+			        previewStyle: 'vertical'
+			    });
+			
+			    const submitBtn = document.querySelector("button[type='submit']");
+			    submitBtn.addEventListener("click", function (e) {
+			        e.preventDefault();
+			
+			        const content = editor.getHTML();
+			        document.getElementById("content").value = content;
+			
+			        // 유효성 검사 예시
+			        const name = document.getElementById("name").value.trim();
+			        if (!name || content === '<p><br></p>') {
+			            alert("숙소명과 내용을 모두 입력하세요.");
+			            return;
+			        }
+			
+			        // 전송 (폼 요소 전체 감싸져 있어야 함)
+			        const form = new FormData();
+			        form.append("name", name);
+			        form.append("content", content);
+			        // 필요한 다른 데이터들도 추가...
+			
+			        fetch("/your-post-url", {
+			            method: "POST",
+			            body: form,
+			            headers: {
+			                "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+			            }
+			        })
+			        .then(res => res.json())
+			        .then(data => {
+			            alert(data.res_msg || "등록되었습니다.");
+			            if (data.res_code === "200") {
+			                location.href = "/your-success-url";
+			            }
+			        })
+			        .catch(err => {
+			            console.error(err);
+			            alert("오류 발생");
+			        });
+			    });
+			});
+			</script>
+		
         <!-- 등록 버튼 -->
         <div class="d-flex justify-content-end mt-3">
-		  <button type="button" class="btn btn-primary me-2">임시저장</button>
 		  <button type="submit" class="btn btn-primary me-2">등록</button>
 		</div>
+		<br><br>
 	</div>
 	<!-- Scripts -->
   <script th:src="@{/assets/js/vendor.min.js}"></script>

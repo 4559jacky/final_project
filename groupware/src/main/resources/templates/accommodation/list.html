@@ -16,10 +16,10 @@ layout:decorate="~{/include/layout}">
 	              <i class="ti ti-home fs-5"></i>
 	            </a>
 	          </li>
-	          <li class="breadcrumb-item" aria-current="page">사내복지 / 제휴숙소 관리</li>
+	          <li class="breadcrumb-item" aria-current="page">사내복지 / 예약 내용 조회</li>
 	        </ol>
 	      </nav><br>
-	      <h2 class="mb-0 fw-bolder fs-8">제휴숙소 관리</h2>
+	      <h2 class="mb-0 fw-bolder fs-8">예약 내용 조회</h2>
 	    </div><br>
     	<!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
 	    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
@@ -28,7 +28,7 @@ layout:decorate="~{/include/layout}">
 	        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
 	          <option th:value="''" th:selected="${search_type == null}">선택</option>
 	          <option th:value="1" th:selected="${search_type == 1}">숙소명</option>
-	          <option th:value="2" th:selected="${search_type == 2}">예약현황</option>
+	          <option th:value="2" th:selected="${search_type == 2}">예약신청일</option>
 	        </select>
 	
 	        <div class="position-relative" style="max-width: 350px;">
@@ -48,10 +48,6 @@ layout:decorate="~{/include/layout}">
 	      
 	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
 		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
-			  <!-- 숙소등록 버튼 -->
-			  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/create}">숙소등록</a>
-			  <!-- 삭제 버튼 -->
-			  <a href="javascript:void(0)" class="btn btn-primary">삭제</a>
 	      <!-- 오른쪽: 정렬 -->
 	      <form th:action="@{/notice}" method="get"> 
 	        <select name="sort"
@@ -76,10 +72,12 @@ layout:decorate="~{/include/layout}">
 	              	<input type="checkbox" id="checkAll">
 	              </th>
 	              <th>숙소명</th>
-	              <th>등록일</th>
-	              <th>가격</th>
-	              <th>예약현황</th>
-	              <th>수정</th>
+	              <th>예약신청일</th>
+	              <th>체크인</th>
+	              <th>체크아웃</th>
+	              <th>상태</th>
+	              <th>결제금액</th>
+	              <th>예약취소</th>
 	            </tr>
 	          </thead>
 	         	<tbody>
@@ -87,18 +85,14 @@ layout:decorate="~{/include/layout}">
 	  					<td>
 	  						<input type="checkbox" name="listIds" class="checkItem">
 	  					</td>
-	    				<td>신라호텔</td>
-	    				<td>2025-04-29</td>
-	    				<td>200,000원</td>
-	    				<td class="text-center">
-	    					<a th:href="@{/adminList}"
-								class="btn btn-primary d-inline-flex align-items-center justify-content-center px-3">
-								<i class="ti me-1"></i>
-				                	예약현황
-							</a>
-	    				</td>
+	    				<td>한화 리조트</td>
+	    				<td>2023-05-04</td>
+	    				<td>2023-07-12</td>
+	    				<td>2023-07-13</td>
+	    				<td>승인/대기</td>
+	    				<td>270,000원</td>
 	   					<td>
-	   						<input type="button" class="btn btn-primary" value="수정">
+	   						<input type="button" class="btn btn-primary" value="예약취소">
 	   					</td>
 	  				</tr>
 				</tbody>
