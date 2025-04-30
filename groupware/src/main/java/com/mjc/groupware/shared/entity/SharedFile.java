@@ -56,6 +56,15 @@ public class SharedFile {
 	@Column(updatable=false,name="reg_date")
 	private LocalDateTime regDate;
 	
+	@Column(name="file_deleted_by")
+	private Long fileDeletedBy;
+
+	@Column(name="file_deleted_at")
+	private LocalDateTime fileDeletedAt;
+
+	@Column(name="original_folder_no")
+	private Long originalFolderNo;
+	
 	@ManyToOne
 	@JoinColumn(name="folder_no", nullable = false)
 	private SharedFolder folder;

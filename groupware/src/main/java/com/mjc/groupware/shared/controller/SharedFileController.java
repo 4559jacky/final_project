@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.service.SharedFileService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,8 +45,14 @@ public class SharedFileController {
 	// 파일/목록 리스트
 	@GetMapping("/shared/files/list")
 	@ResponseBody
-	public List<Map<String, Object>>getFolderContent(@RequestParam(value = "folderId", required = false) Long folderId){
-		return sharedFileService.getFolderContent(folderId);
+	public Map<String, Object> getFolderContent(
+			@RequestParam(value = "folderId", required = false) Long folderId,
+			Authentication auth){
+		MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
+		Member member = memberDetails.getMember();
+		
+		
+		return sharedFileService.getFolderContent(folderId, member);
 	}
 	
 	// 파일 다운로드

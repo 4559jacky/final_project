@@ -1,9 +1,12 @@
-let selectedParentNo = null;
+// 기존 selectedParentNo 초기화 유지
+if (typeof selectedParentNo === 'undefined') {
+  var selectedParentNo = null;
+}
 
 $(document).ready(function () {
-  console.log("✅ jstree.js 로딩됨");
+  console.log("jstree.js 로딩됨");
 
-  // 1. 공유 트리
+  // 1. 공유 트리 초기화
   $('#shared-tree').jstree({
     core: {
       data: {
@@ -19,34 +22,28 @@ $(document).ready(function () {
       }
     }
   });
-  
-  // 사용자가 처음 메인화면 진입했을 때, 최상위 트리 일단 확인.
-  $('#shared-tree').on('ready.jstree', function (e, data) {
-      loadFolderList(null);
+
+  $('#shared-tree').on('ready.jstree', function () {
+    loadFolderList(null); // 최상위 진입 시 리스트 로딩
   });
 
   $('#shared-tree').on("changed.jstree", function (e, data) {
     const folderId = data.selected[0];
-	if (folderId) {
-	       loadFolderList(folderId);
-	   } else {
-	       loadFolderList(null); // 선택 안했으면 최상위
-	   }
+    loadFolderList(folderId ?? null);
   });
 
-  // 2. 폴더 모달창
+  // 2. 폴더 생성 모달 열릴 때 트리 초기화
   $('#folderModal').on('shown.bs.modal', function (){
-    $('#new-folder-name').val('');    // 폴더 이름 초기화
-    $('#folder-type').val('1');        // 폴더 타입 초기화
-    selectedParentNo = null;           // 선택 초기화
-	
-	$('#folder-type-group').show(); // ✅ 기본: 셀렉창 보이기
-	 
-    // 트리 초기화
+    $('#new-folder-name').val('');
+    $('#folder-type').val('1');
+    selectedParentNo = null;
+    $('#folder-type-group').show();
+
+    // 트리 다시 그리기
     $('#modal-folder-tree').jstree("destroy").empty();
     $('#modal-folder-tree').jstree({
       core: {
-        multiple: false,  // 핵심 추가: 하나만 선택
+        multiple: false,
         data: {
           url: '/shared/main/tree',
           dataType: 'json',
@@ -57,34 +54,55 @@ $(document).ready(function () {
         }
       }
     });
+
+    // 폴더 선택 시 상위 folder_type 자동 상속
+    $('#modal-folder-tree')
+      .off('select_node.jstree')
+      .on('select_node.jstree', function (e, data) {
+        const nodeId = data.node.id;
+        const nodeElement = $('#' + nodeId + '_anchor');
+
+        $('.jstree-anchor').removeClass('selected-button');
+        nodeElement.addClass('selected-button');
+
+        selectedParentNo = nodeId;
+        console.log("폴더 선택됨 (selectedParentNo):", selectedParentNo);
+
+        // AJAX로 상위 폴더 타입 가져오기
+        fetch("/shared/folder/type?folderId=" + nodeId)
+          .then(res => res.json())
+          .then(data => {
+            const folderType = data.folderType;
+            document.querySelector(`input[name="folder_type"][value="${folderType}"]`).checked = true;
+            $('#folder-type-group').hide();
+          })
+          .catch(err => {
+            console.error("상위 folder_type 가져오기 실패", err);
+            $('#folder-type-group').show();
+          });
+      });
+
+    // 선택 해제 시 라디오 다시 보여줌
+    $('#modal-folder-tree')
+      .off('deselect_all.jstree')
+      .on('deselect_all.jstree', function () {
+        console.log("✅ 트리 선택 해제됨 → 라디오 show");
+        $('#folder-type-group').show();
+        selectedParentNo = null;
+      });
   });
 
-  // 3. 폴더 클릭 (선택/해제)
-  $('#modal-folder-tree')
-    .on('select_node.jstree', function (e, data) {
-	  $('#folder-type-group').hide();
-      const nodeId = data.node.id;
-      const nodeElement = $('#' + nodeId + '_anchor');
-
-      $('.jstree-anchor').removeClass('selected-button'); // 이전 선택 삭제
-      nodeElement.addClass('selected-button');             // 새 선택 표시
-      selectedParentNo = nodeId;
-      console.log("폴더 선택됨 (selectedParentNo):", selectedParentNo);
-    });
-
-  // 4. 빈 공간 클릭하면 전체 선택 해제
+  // 빈 공간 클릭 시 전체 선택 해제
   $('#modal-folder-tree').on('click', function (e) {
     const target = $(e.target);
-
     if (!target.closest('.jstree-anchor').length && !target.closest('.jstree-icon').length) {
-      console.log("빈 공간 클릭됨 -> 전체 선택 해제");
-
       $('#modal-folder-tree').jstree('deselect_all');
       $('.jstree-anchor').removeClass('selected-button');
       selectedParentNo = null;
     }
   });
-  
+
+
   //  폴더 선택 시 셀렉창 숨기기
   $('#modal-folder-tree').on('select_node.jstree', function (e, data) {
     $('#folder-type-group').hide();
@@ -100,7 +118,7 @@ $(document).ready(function () {
 function createNewFolder() {
   const folderName = document.getElementById("new-folder-name").value;
   const memberNo = document.getElementById("member-no-hidden").value;
-  const folderType = document.getElementById("folder-type").value;
+  const folderType = document.querySelector('input[name="folder_type"]:checked').value;
 
   if (!folderName) {
     alert("폴더 이름을 입력해주세요.");
@@ -165,9 +183,10 @@ function uploadFiles(){
 	  .then(res => res.json())
 	  .then(data => {
 		alert(data.message || "파일 업로드 완료!")
-		
 		const currentFolderId = $('#shared-tree').jstree('get_selected')[0];
 		loadFolderList(currentFolderId); // 리스트 갱신
+		
+		document.querySelector('input[type="file"]').value = ''; // 파일 초기화.
 	  })
 	  .catch(err => {
 	        console.error("업로드 실패", err);
@@ -180,11 +199,11 @@ function loadFolderList(folderId){
 	if(folderId){
 		url +=  "?folderId="+folderId;
 	}
-	
+		
 	fetch(url)
 		.then(response => response.json())
 		.then(data => {
-			renderFolderTable(data); // 테이블 그리기 함수 호출
+			renderFolderTable(data.items, data.parentFolderNo, folderId ?? null); // 테이블 그리기 함수 호출
 		})
 		.catch(error => {
 			console.error("목록 조회 실패 :", error);
@@ -193,14 +212,31 @@ function loadFolderList(folderId){
 }
 
 // 폴더 리스트 출력.
-function renderFolderTable(data){
+function renderFolderTable(data, parentFolderNo, currentFolderId){
 	const tbody = document.querySelector("#folder-table tbody");
 	tbody.innerHTML = ""; // 기존 테이블 비우기
 	
-	if(data.length === 0){
-		tbody.innerHTML = "<tr><td colspan='4'>폴더/파일이 없습니다.</td></tr>";
-		return;	
+	if (currentFolderId !== null && currentFolderId !== undefined) {
+	  const backRow = document.createElement('tr');
+	  backRow.innerHTML = `
+	    <td colspan="4" class="text-start folder-name-wrapper" style="cursor:pointer;">
+	      <span style="display:flex; align-items:center;">
+	        <span>📁..</span>
+	      </span>
+	    </td>
+	  `;
+	  backRow.addEventListener('click', () => {
+		onFolderClick(parentFolderNo);  // ✅ 부모 폴더로 이동
+	  });
+	  tbody.appendChild(backRow);
 	}
+	
+	if (data.length === 0) {
+	   const emptyRow = document.createElement('tr');
+	   emptyRow.innerHTML = `<td colspan='4'>폴더/파일이 없습니다.</td>`;
+	   tbody.appendChild(emptyRow);
+	   return;
+	 }
 	
 	data.forEach(item => {
 		const tr = document.createElement("tr");
