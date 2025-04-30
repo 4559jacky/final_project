@@ -5,172 +5,143 @@
       layout:decorate="~{/include/layout}">
 
 <th:block layout:fragment="content">
-
-  <!-- jQuery 명시적 로드 -->
+<head>
+  <link rel="stylesheet" th:href="@{/css/hjh/sharedMain.css}">
   <script th:src="@{/js/jquery-3.7.1.js}"></script>
 
   <!-- jsTree CSS + JS -->
   <link href="https://cdn.jsdelivr.net/npm/jstree@3.3.12/dist/themes/default/style.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/jstree@3.3.12/dist/jstree.min.js"></script>
 
-  <!-- jstree.js -->
   <script src="/js/hjh/jstree.js"></script>
+</head>
 
-  <div class="container-fluid">
-    <div class="col-lg-8 col-md-6 col-12 align-self-center">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb align-items-center">
-          <li class="breadcrumb-item">
-            <a class="text-muted text-decoration-none" th:href="@{/home}">
-              <i class="ti ti-home fs-5"></i>
-            </a>
-          </li>
-          <li class="breadcrumb-item" aria-current="page">공유문서함</li>
-        </ol>
-      </nav>
-      <br>
-      <h2 class="mb-0 fw-bolder fs-8">공유문서함</h2>
-    </div>
+<div class="container-fluid">
+  <div class="col-lg-8 col-md-6 col-12 align-self-center">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb align-items-center">
+        <li class="breadcrumb-item">
+          <a class="text-muted text-decoration-none" th:href="@{/home}">
+            <i class="ti ti-home fs-5"></i>
+          </a>
+        </li>
+        <li class="breadcrumb-item" aria-current="page">공유문서함</li>
+      </ol>
+    </nav>
     <br>
+    <h2 class="mb-0 fw-bolder fs-8">공유문서함</h2>
+  </div>
+  <br>
 
-    <div class="row">
+  <div class="row">
+    <!-- 왼쪽 사이드바 -->
+    <div class="col-md-3 mb-4">
+      <div class="bg-white p-3 rounded-3 shadow-sm mb-3">
+        <h5 class="fw-bold mb-2">📁 공유 폴더</h5>
+        <div id="shared-tree" style="min-height: 200px;"></div>
+      </div>
+    </div>
 
-      
-     <!-- 왼쪽 사이드바: 두 개의 트리로 분할 -->
-	<div class="col-md-3 mb-4">
-  	<!-- 공유 폴더 트리 -->
-  	<div class="bg-white p-3 rounded-3 shadow-sm mb-3">
-    	<h5 class="fw-bold mb-2">📁 공유 폴더</h5>
-    	<div id="shared-tree" style="min-height: 200px;"></div>
-  	</div>
-  	<!-- 개인 폴더 트리 -->
-  	<div class="bg-white p-3 rounded-3 shadow-sm">
-    	<h5 class="fw-bold mb-2">👤 내 폴더</h5>
-    	<div id="personal-tree" style="min-height: 200px;"></div>
-  	</div>
-	</div>
-      
-      <!-- 오른쪽 메인 콘텐츠 -->
-      <div class="col-md-9">
-        <div class="card mt-4 p-4 shadow-sm">
+    <!-- 오른쪽 메인 테이블 -->
+    <div class="col-md-9 mb-4">
+      <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+        <div class="table-responsive">
 
           <!-- 테이블 상단 버튼 영역 -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-              <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#topFolderModal"
-              		  th:if="${#authentication.principal.member.role.roleNo == 1}">🧱 최상위 폴더 생성</button>
               <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#folderModal">📁 새폴더</button>
               <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#folderUpdateModal">📁 수정</button>
-            </div>     
+              
+              <input type="file" id="fileUpload" multiple>
+              <button class="btn btn-sm btn-primary me-2" onclick="uploadFiles()">업로드</button>
+            </div>
           </div>
 
           <!-- 테이블 -->
-          <table class="table table-hover">
-            <thead class="table-light">
+          <table class="table align-middle text-center" id="folder-table">
+            <thead class="bg-light">
               <tr>
-                <th>📁 폴더/파일명</th>
-                <th>공유여부</th>
+                <th>이름</th>
+                <th>종류</th>
                 <th>크기</th>
                 <th>등록일</th>
               </tr>
             </thead>
             <tbody>
-              <!-- TODO: 여기에 서버에서 불러온 폴더/파일 목록을 출력할 예정 -->
+            	<!-- js로 그릴 예정 -->
             </tbody>
           </table>
-        </div>
-        <!-- 📁 최상위 폴더 생성 모달 -->
-<div class="modal fade" id="topFolderModal" tabindex="-1">
-  <div class="modal-dialog">
+
+        </div> <!-- table-responsive 끝 -->
+      </div> <!-- table-wrapper 끝 -->
+    </div> <!-- col-md-9 끝 -->
+
+  </div> <!-- row 끝 -->
+</div> <!-- container-fluid 끝 -->
+
+<!-- 📁 새 폴더 생성 모달 -->
+<div class="modal fade" id="folderModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content p-4">
       <div class="modal-header border-0">
-        <h5 class="modal-title fw-bold">🧱 최상위 폴더 생성</h5>
+        <h5 class="modal-title fw-bold">📁 새 폴더 생성</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <div class="modal-body row">
+        <div class="col-md-6 border-end">
+          <div id="modal-folder-tree" style="min-height: 200px;"></div>
+        </div>
+        <div class="col-6">
+          <input type="hidden" id="member-no-hidden" th:value="${#authentication.principal.member.memberNo}">
+          <input type="text" id="new-folder-name" class="form-control mb-3" placeholder="폴더 이름">
+       <div id="folder-type-group">
+  <label for="folder-type" class="form-label">폴더 타입</label>
+  <select id="folder-type" class="form-select mb-3">
+    <option value="1">개인 폴더</option>
+    <option value="2">부서 폴더</option>
+    <option value="3">공용 폴더</option>
+  </select>
+</div>
+          <button class="btn btn-primary" onclick="createNewFolder()">📁 폴더 생성</button>
+        </div>
 
-      <div class="modal-body">
-        <label class="form-label fw-semibold">폴더 이름</label>
-        <input type="text" id="top-folder-name" class="form-control mb-3" placeholder="예: 회계문서, 프로젝트 자료 등">
-        <input type="hidden" id="admin-member-no" th:value="${#authentication.principal.member.memberNo}">
+      </div>
+    </div>
+  </div>
+</div>
 
-        <div class="text-end">
-          <button class="btn btn-primary" onclick="createTopFolder()">📁 생성</button>
+<!-- 📁 폴더 수정 모달 -->
+<div class="modal fade" id="folderUpdateModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold">📁 폴더 수정</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row">
+        <div class="col-6">
+          <input type="hidden" id="member-no-hidden" th:value="${#authentication.principal.member.memberNo}">
+          <input type="text" id="new-folder-name" class="form-control mb-3" placeholder="폴더 이름">
+          <button class="btn btn-primary" onclick="createNewFolder()">📁 폴더 생성</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-        
-        
-        
-        <!-- 📁 새 폴더 생성 모달 -->
-        <div class="modal fade" id="folderModal" tabindex="-1">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content p-4">
-              <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">📁 새 폴더 생성</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body row">
 
-                <!-- 트리 (폴더 위치 선택용) -->
-                <div class="col-md-6 border-end">
-                  <div id="modal-folder-tree" style="min-height: 200px; background-color: #f0f0f0;"></div>
-                </div>
-
-                <!-- 폴더 이름 입력 -->
-                <div class="col-6">
-                  <input type="hidden" id="member-no-hidden" th:value="${#authentication.principal.member.memberNo}">
-                  <input type="text" id="new-folder-name" class="form-control mb-3" placeholder="폴더 이름">
-                  <button class="btn btn-primary" onclick="createNewFolder()">📁 폴더 생성</button>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 모달 끝 -->
-		<!-- 📁 폴더 수정 모달 -->
-        <div class="modal fade" id="folderUpdateModal" tabindex="-1">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content p-4">
-              <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">📁 폴더 수정</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body row">
-
-                <!-- 트리 (수정할 폴더 선택용) -->
-               
-
-                <!-- 폴더 이름 입력 -->
-                <div class="col-6">
-                  <input type="hidden" id="member-no-hidden" th:value="${#authentication.principal.member.memberNo}">
-                  <input type="text" id="new-folder-name" class="form-control mb-3" placeholder="폴더 이름">
-                  <button class="btn btn-primary" onclick="createNewFolder()">📁 폴더 생성</button>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 수정 모달 끝 -->
-      </div> <!-- col-md-9 끝 -->
-    </div> <!-- row 끝 -->
-  </div> <!-- container 끝 -->
-
-  <!-- 공통 JS -->
-  <script th:src="@{/assets/js/vendor.min.js}"></script>
-  <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-  <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-  <script th:src="@{/assets/js/theme/app.init.js}"></script>
-  <script th:src="@{/assets/js/theme/theme.js}"></script>
-  <script th:src="@{/assets/js/theme/app.min.js}"></script>
-  <script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-  <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-  <script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+<!-- 공통 JS -->
+<script th:src="@{/assets/js/vendor.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+<script th:src="@{/assets/js/theme/app.init.js}"></script>
+<script th:src="@{/assets/js/theme/theme.js}"></script>
+<script th:src="@{/assets/js/theme/app.min.js}"></script>
+<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
 
 </th:block>
 </html>

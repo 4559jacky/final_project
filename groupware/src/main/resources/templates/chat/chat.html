@@ -63,14 +63,14 @@
 					<div data-simplebar style="height: 100%;">
 						<ul th:if="${!#lists.isEmpty(chatRoomList)}"
 							th:each="chatRoom : ${chatRoomList}"
-							th:attr="data-room-no=${chatRoom.chatRoomNo}"
+							th:attr="data-room-no=${chatRoom.chat_room_no}"
 							class="chat-users mb-0">
 							
 							<li>
 								<a href="javascript:void(0)"
 									class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
 									id="chat_user_3"
-									th:attr="data-room-id=${chatRoom.chatRoomNo}">
+									th:attr="data-room-id=${chatRoom.chat_room_no}">
 									
 									<div class="d-flex align-items-center">
 										<span class="position-relative">
@@ -81,18 +81,18 @@
 											</span>
 										</span>
 										<div class="ms-3 d-inline-block w-75">
-											<h6 th:text="${chatRoom.chatRoomTitle}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
-											<span th:text="${chatRoom.lastMsg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
+											<h6 th:text="${chatRoom.chat_room_title}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
+											<span th:text="${chatRoom.last_msg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
 										</div>
 									</div>
-									<p th:text="${#temporals.format(chatRoom.lastMsgDate, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
+									<p th:text="${#temporals.format(chatRoom.last_msg_date, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
 								</a>
 							</li>
 						</ul>
 						<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0">
 							<li>
 								<div class="ms-3 d-inline-block w-75 text-center">
-									<h6 class="mb-1 fw-semibold chat-title">채팅 중인 방이 없습니다.</h6>
+									<h6 class="mb-1 fw-semibold chat-title">현재 채팅 중인 방이 없습니다.</h6>
 								</div>
 							</li>
 						</ul>
@@ -157,6 +157,9 @@
 										</div>
 										<input type= hidden id="chatRoomNo">
 										<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
+										<input type= hidden id="sendMemberName" th:value="${#authentication.principal.member.memberName}">
+										<input type= hidden id="sendMemberPos" th:value="${#authentication.principal.member.pos.posName}">
+										<input type= hidden id="sendMemberDept" th:value="${#authentication.principal.member.dept.deptName}">
 										<ul class="list-unstyledn mb-0 d-flex align-items-center">
 											<li><a
 												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
@@ -178,66 +181,74 @@
 									</div>
 								</div>
 							</div>
-							<div class="app-chat-offcanvas border-start">
-							    <div class="custom-app-scroll mh-n100" data-simplebar>
-							        <div class="p-3 d-flex align-items-center justify-content-end">
-							            <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
-							                href="javascript:void(0)"> <i class="ti ti-x"></i> </a>
-							        </div>
-							
-							        <!-- 참여자 -->
-							        <div class="offcanvas-body px-9 pt-0">
-							            <div class="section-block mb-5">
-							                <h6 class="fw-semibold mb-3 text-nowrap">
-							                    참여자 <span class="text-muted" id="memberCount">참여자 수</span>
-							                </h6>
-							                <div class="d-flex flex-wrap gap-2" id="memberInfo">
-							                </div>
-							            </div>
-							
-							            <!-- 이미지 -->
-							            <div class="section-block mb-5">
-							                <h6 class="fw-semibold mb-3 text-nowrap">
-							                    이미지 <span class="text-muted">(36)</span>
-							                </h6>
-							                <div class="row g-2">
-							                    <div class="col-4">
-							                        <img src="../assets/images/products/product-1.jpg" width="100%" class="rounded" alt="이미지" />
-							                    </div>
-							                    <div class="col-4">
-							                        <img src="../assets/images/products/product-2.jpg" width="100%" class="rounded" alt="이미지" />
-							                    </div>
-							                    <!-- ...반복 -->
-							                </div>
-							            </div>
-							
-							            <!-- 파일 -->
-							            <div class="section-block mb-5">
-							                <h6 class="fw-semibold mb-3 text-nowrap">
-							                    Files <span class="text-muted">(36)</span>
-							                </h6>
-							                <a href="javascript:void(0)"
-							                    class="hstack gap-3 file-chat-hover justify-content-between text-nowrap mb-3">
-							                    <div class="d-flex align-items-center gap-3">
-							                        <div class="rounded-1 text-bg-light p-6">
-							                            <img src="../assets/images/chat/icon-zip-folder.svg" alt="flexy-img" width="24"
-							                                height="24" />
-							                        </div>
-							                        <div>
-							                            <h6 class="fw-semibold">work-project.zip</h6>
-							                            <div class="d-flex align-items-center gap-3 fs-2 text-muted">
-							                                <span>2 MB</span> <span>2 Dec 2024</span>
-							                            </div>
-							                        </div>
-							                    </div>
-							                    <span class="position-relative nav-icon-hover download-file">
-							                        <i class="ti ti-download text-dark fs-6 bg-hover-primary"></i>
-							                    </span>
-							                </a>
-							            </div>
-							        </div>
-							    </div>
-							</div>
+							<div class="app-chat-offcanvas border-start d-flex flex-column" >
+    
+						    <!-- 스크롤되는 영역 -->
+						    <div class="flex-grow-1 overflow-auto" data-simplebar>
+						        <div class="p-3 d-flex align-items-center justify-content-end">
+						            <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
+						               href="javascript:void(0)">
+						                <i class="ti ti-x"></i>
+						            </a>
+						        </div>
+						
+						        <div class="offcanvas-body px-4 pt-0">
+						        
+						            <!-- 참여자 -->
+						            <div class="section-block mb-5">
+						                <h6 class="fw-semibold mb-3 text-nowrap">
+						                    참여자 <span class="text-muted" id="memberCount">참여자 수</span>
+						                </h6>
+						                <div class="d-flex flex-wrap gap-2" id="memberInfo"></div>
+						            </div>
+						
+						            <!-- 이미지 -->
+						            <div class="section-block mb-5">
+						                <h6 class="fw-semibold mb-3 text-nowrap">
+						                    이미지 <span class="text-muted">(36)</span>
+						                </h6>
+						                <div class="row g-2">
+						                    <div class="col-4">
+						                        <img src="../assets/images/products/product-1.jpg" width="100%" class="rounded" alt="이미지" />
+						                    </div>
+						                    <div class="col-4">
+						                        <img src="../assets/images/products/product-2.jpg" width="100%" class="rounded" alt="이미지" />
+						                    </div>
+						                </div>
+						            </div>
+						
+						            <!-- 파일 -->
+						            <div class="section-block mb-5">
+						                <h6 class="fw-semibold mb-3 text-nowrap">
+						                    Files <span class="text-muted">(36)</span>
+						                </h6>
+						                <a href="javascript:void(0)" class="hstack gap-3 file-chat-hover justify-content-between text-nowrap mb-3">
+						                    <div class="d-flex align-items-center gap-3">
+						                        <div class="rounded-1 text-bg-light p-6">
+						                            <img src="../assets/images/chat/icon-zip-folder.svg" alt="zip" width="24" height="24" />
+						                        </div>
+						                        <div>
+						                            <h6 class="fw-semibold">work-project.zip</h6>
+						                            <div class="d-flex align-items-center gap-3 fs-2 text-muted">
+						                                <span>2 MB</span> <span>2 Dec 2024</span>
+						                            </div>
+						                        </div>
+						                    </div>
+						                    <span class="position-relative nav-icon-hover download-file">
+						                        <i class="ti ti-download text-dark fs-6 bg-hover-primary"></i>
+						                    </span>
+						                </a>
+						            </div>
+						        </div>
+						    </div>
+						
+						    <!-- 항상 아래 고정되는 버튼 -->
+						    <div class="border-top px-4 py-3">
+						        <div class="d-flex justify-content-end">
+						            <button class="btn btn-danger px-4" id="out_btn" type="button">나가기</button>
+						        </div>
+						    </div>
+						</div>
 
 						</div>
 					</div>
@@ -274,7 +285,7 @@
 				<div class="app-chat">
 					<ul th:if="${!#lists.isEmpty(chatRoomList)}" 
 						th:each="chatRoom : ${chatRoomList}"
-						th:attr="data-room-no=${chatRoom.chatRoomNo}"
+						th:attr="data-room-no=${chatRoom.chat_room_no}"
 						class="class="chat-users p-0 m-0" style="padding-top: 0; padding-bottom: 0;"" data-simplebar>
 						<li><a href="javascript:void(0)"
 							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
@@ -288,11 +299,11 @@
 									</span>
 									</span>
 									<div class="ms-3 d-inline-block w-75">
-										<h6 th:text="${chatRoom.chatRoomTitle}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
-										<span th:text="${chatRoom.lastMsg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
+										<h6 th:text="${chatRoom.chat_room_title}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
+										<span th:text="${chatRoom.last_msg}" class="fs-3 text-truncate text-body-color d-block">마지막 메세지</span>
 									</div>
 								</div>
-								<p th:text="${#temporals.format(chatRoom.lastMsgDate, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
+								<p th:text="${#temporals.format(chatRoom.last_msg_date, 'yy-MM-dd mm:ss')}" class="fs-2 mb-0 text-muted">보낸 시간</p>
 						</a></li>
 					</ul>
 					<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0 mh-n100" data-simplebar>
@@ -461,24 +472,8 @@
 			    alert("채팅에 추가할 인원을 1명 이상 선택해주세요.");
 			    return;
 			}
-	
-			 let finalTitle = "";// 최종 제목 변수
 
-			  if (!chatRoomTitle) {
-			    // 제목이 비어있다면 참여자 이름+직급 조합으로 설정
-			    finalTitle = validSelectList
-			      .map(input => {
-			        const name = input.getAttribute("data-name");
-			        const position = input.getAttribute("data-pos");
-			        return `${name} ${position}`;
-			      })
-			      .join(", ");
-			  }else if(chatRoomTitle){
-				  // 제목이 비어있지 않다면 입력한 제목으로 설정
-				  finalTitle = chatRoomTitle;
-			  }
-
-			  chatRoomTitleInput.value = finalTitle;
+			  chatRoomTitleInput.value = chatRoomTitle;
 
 
 			const payload = new FormData(createForm);
@@ -524,264 +519,177 @@
 			});
 			 
 
-			// 채팅방 목록 클릭 시 해당 채팅창으로 이동
-			$(".app-chat .chat-user").on("click", function () {
-				  // 이미 열려 있는 채팅이면 return (optional)
-				  if ($(this).hasClass("active")) {
-				    return;
-				  }
-				  
-				  document.getElementById("msgContent").value = "";
-				
-				  // 유저 정보 추출
-				  var roomNo = $(this).attr("data-room-id");
-				  var memberName = $(this).find(".chat-title").text();
-				  var memberDept = $(this).find(".dept").text();
-				  var memberImage = $(this).find("img").attr("src");
-				  document.getElementById('chatRoomNo').value = roomNo;
-				  
-				  fetch("/selectChatRoom/"+roomNo,{
-					method:'post',
-					headers : {
-						'header': document.querySelector('meta[name="_csrf_header"]').content,
-					           	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						}
-				  })
-				  .then(response => response.json())
-				  .then(data => {
-					    document.getElementById("memberCount").textContent = "(" + data.memberInfos.length + ")";
-					    
-					    const memberInfoDiv = document.getElementById('memberInfo');
-					    memberInfoDiv.innerHTML = '';
-					
-					    data.memberInfos.forEach(member => { // data.memberInfos 로 접근!
-					        const memberHTML = `
-					            <div class="d-flex align-items-center justify-content-between mb-3">
-					                <div class="d-flex align-items-center">
-					                    <div class="ms-3">
-					                        <h6 class="fw-semibold mb-2">${member.memberName} ${member.positionName ?? ''}</h6>
-					                        <p class="mb-0 fs-2">${member.departmentName ?? ''}</p>
-					                    </div>
-					                </div>
-					            </div>
-					            <input type="hidden" class="receiverNoInput" value="${member.memberNo}" />
-					        `;
-					        memberInfoDiv.insertAdjacentHTML('beforeend', memberHTML);
-					    });
-					})
-				
-				  
-				  // 상단 이름/이미지 설정
-				  if (window.innerWidth <= 767) {
-				    $(".chat-container .current-chat-user-name .name").html(
-				      personName.split(" ")[0]
-				    );
-				  } else {
-				    $(".chat-container .current-chat-user-name .name").html(memberName);
-				  }
-				  $(".chat-container .current-chat-user-name img").attr("src", memberImage); 
-				
-				  // 메세지 조회
-				  fetch("/selectChatMsg/"+roomNo,{
-					method:'post',
-					headers : {
-						'header': document.querySelector('meta[name="_csrf_header"]').content,
-				            	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						}
-					})
-					.then(response => response.json())
-					.then(data => {
-						  const chatListContainer = document.querySelector(".chat-box-inner .chat.active-chat");
-						  chatListContainer.innerHTML = ""; // 기존 채팅 내용 비우기 
-						
-						  const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
-						  
-						  data.forEach(msg => {
-							    const userCheck = (msg.member_no == myMemberNo); // 여기로 이동
-							    
-							    const wrapper = document.createElement("div");
-							    wrapper.className = "d-flex mb-4";
-				
-							    if (userCheck) {
-							        // ✅ 내가 보낸 메시지 (오른쪽 정렬, 시간 → 메시지 순)
-							        wrapper.style.justifyContent = "flex-end";
-							        wrapper.innerHTML = `
-							            <div class="d-flex align-items-end mb-3" style="max-width: 70%;">
-							                <div class="text-muted fs-2 me-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
-							                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-							                    ${msg.chat_msg_content}
-							                </div>
-							            </div>
-							        `;
-							    } else {
-							        // ✅ 상대가 보낸 메시지 (왼쪽 정렬, 메시지 → 시간 순)
-							        wrapper.style.justifyContent = "flex-start";
-							        wrapper.innerHTML = `
-							            <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
-							            <div class="mb-3" style="max-width: 70%;">
-							                <div class="fw-bold fs-2">${msg.member_name} ${msg.member_pos_name} (${msg.member_dept_name})</div>
-							                <div class="d-flex align-items-end">
-							                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">
-							                        ${msg.chat_msg_content}
-							                    </div>
-							                    <div class="text-muted fs-2" style="white-space: nowrap;">${formatTime(msg.send_date)}</div>
-							                </div>
-							            </div>
-							        `;
-							    }
-				
-				
-				
-							    chatListContainer.appendChild(wrapper);
-							});
-				
-				
-					
-					    // 메시지 가장 아래로 스크롤
-						chatListContainer.scrollTop = chatListContainer.scrollHeight;
-					});
-				
-				  function formatTime(isoString) {
-					  const date = new Date(isoString);
-					  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-					}
-				  
-				
-				  // 모바일용 메뉴 닫기 처리
-				  if ($(this).parents(".user-chat-box").hasClass("user-list-box-show")) {
-				    $(this).parents(".user-chat-box").removeClass("user-list-box-show");
-				  }
-				
-				  // 하단 입력창 보이기
-				  $(".chat-meta-user").addClass("chat-active");
-				  $(".chat-send-message-footer").addClass("chat-active");
-				  
-				  
-				  let stompClient = null;
-				  
-				// 구독 끊고
-				  if (stompClient) {
-				      stompClient.disconnect(function() {
-				          console.log("Disconnected previous connection");
-				      });
-				  }
-				  
-				//  stomp 연결
-				
-				let senderNo = document.getElementById("sendMemberNo").value;
-				
-				let socket = new SockJS("/ws-chat");
-				stompClient = Stomp.over(socket);
-				
-				stompClient.connect({}, function (frame) {
-					console.log("STOMP 연결 성공: " + frame);
-				
-					// 채팅 메시지 수신 구독
-					stompClient.subscribe("/topic/chat/room/" + roomNo, function (message) {
-						let msgData = JSON.parse(message.body);
-				
-						console.log("Received message: ", msgData);	
-						
-						// Start getting time
-					    var now = new Date();
-						var hh = now.getHours();
-						var min = now.getMinutes();
-						
-						// 두 자릿수로 맞추기 위해 조건 추가
-						hh = hh < 10 ? "0" + hh : hh;
-						min = min < 10 ? "0" + min : min;
-						
-						// 원하는 형식으로 시간 만들기
-						var time = hh + ":" + min;
-					    // End
+	    // 채팅방 목록 클릭 시 실행되는 함수 
+		$(".app-chat .chat-user").on("click", function () {
+		    // 이미 클릭했을 때 return 
+			if ($(this).hasClass("active")) return;
+		    // 입력창 초기화 
+		    $("#msgContent").val("");
+		    // 채팅방 정보 세팅
+		    const roomNo = $(this).data("room-id");
+		    const memberName = $(this).find(".chat-title").text();
+		    const memberDept = $(this).find(".dept").text();
+		    const memberImage = $(this).find("img").attr("src");
+		
+		    $("#chatRoomNo").val(roomNo);
+		
+		    const csrfHeader = $('meta[name="_csrf_header"]').attr("content");
+		    const csrfToken = $('meta[name="_csrf"]').attr("content");
+		    const headers = { [csrfHeader]: csrfToken };
+		
+		    // 유저 정보 fetch
+		    fetch(`/selectChatRoom/${roomNo}`, { method: 'post', headers })
+		        .then(res => res.json())
+		        .then(data => {
+		            $("#memberCount").text(`(${data.memberInfos.length})`);
+		            const $memberInfo = $("#memberInfo").empty();
+		
+		            data.memberInfos.forEach(m => {
+		                const html = `
+		                    <div class="d-flex align-items-center justify-content-between mb-3">
+		                        <div class="d-flex align-items-center">
+		                            <div class="ms-3">
+		                                <h6 class="fw-semibold mb-2">${m.memberName} ${m.positionName ?? ''}</h6>
+		                                <p class="mb-0 fs-2">${m.departmentName ?? ''}</p>
+		                            </div>
+		                        </div>
+		                    </div>
+		                    <input type="hidden" class="receiverNoInput" value="${m.memberNo}" />
+		                `;
+		                $memberInfo.append(html);
+		            });
+		        });
+		
+		    // 상단 유저 정보
+		    const isMobile = window.innerWidth <= 767;
+		    $(".current-chat-user-name .name").text(isMobile ? memberName.split(" ")[0] : memberName);
+		    $(".current-chat-user-name img").attr("src", memberImage);
+		
+		    // 메시지 불러오기
+		    fetch(`/selectChatMsg/${roomNo}`, { method: 'post', headers })
+		        .then(res => res.json())
+		        .then(data => {
+		            const $chatList = $(".chat-box-inner .chat.active-chat").empty();
+		            const myMemberNo = $("#createMemberNo").val();
+		
+		            data.forEach(msg => {
+		                const isMine = msg.member_no == myMemberNo;
+		                $chatList.append(createMessageBubble(msg, isMine, memberImage));
+		            });
+		
+		            $chatList.scrollTop($chatList.prop("scrollHeight"));
+		        });
+		
+		    // 채팅 stomp 연결
+		    connectStomp(roomNo, memberImage, memberName);
+		
+		    $(".user-chat-box").removeClass("user-list-box-show");
+		    $(".chat-meta-user, .chat-send-message-footer").addClass("chat-active");
+		});
+		
+		function formatTime(isoString) {
+		    const date = new Date(isoString);
+		    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+		}
+		
+		function createMessageBubble(msg, isMine, memberImage) {
+		    const time = formatTime(msg.send_date);
+		    const wrapper = document.createElement("div");
+		    wrapper.className = "d-flex mb-4";
+		    wrapper.style.justifyContent = isMine ? "flex-end" : "flex-start";
+		
+		    wrapper.innerHTML = isMine
+		        ? `<div class="d-flex align-items-end mb-3" style="max-width: 70%;">
+		                <div class="text-muted fs-2 me-2">${time}</div>
+		                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">${msg.chat_msg_content}</div>
+		           </div>`
+		        : `<img src="${memberImage}" width="40" height="40" class="rounded-circle me-2" />
+		           <div class="mb-3" style="max-width: 70%;">
+		                <div class="fw-bold fs-2">${msg.member_name} ${msg.member_pos_name ?? ''} (${msg.member_dept_name ?? ''})</div>
+		                <div class="d-flex align-items-end">
+		                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">${msg.chat_msg_content}</div>
+		                    <div class="text-muted fs-2">${time}</div>
+		                </div>
+		           </div>`;
+		
+		    return wrapper;
+		}
+		
+		let stompClient = null;
+		
+		const senderNo = document.getElementById("sendMemberNo").value; // 현재 로그인한 사원 번호
+		const senderName = document.getElementById("sendMemberName").value;
+		const senderPos = document.getElementById("sendMemberPos").value;
+		const senderDept = document.getElementById("sendMemberDept").value;
+		
+		function connectStomp(roomNo, memberImage, memberName) {
+		
+		    if (stompClient) {
+		        stompClient.disconnect(() => {
+		            console.log("STOMP 연결 해제 후 재연결");
+		            doConnect();
+		        });
+		    } else {
+		        doConnect();
+		    }
+		
+		    function doConnect() {
+		        const socket = new SockJS("/ws-chat");
+		        stompClient = Stomp.over(socket);
+		
+		        stompClient.connect({}, () => {
+		            console.log("STOMP 연결 성공");
+		
+		            stompClient.subscribe(`/topic/chat/room/${roomNo}`, msg => {
+		                const data = JSON.parse(msg.body);
+		                const isMine = data.member_no == $("#createMemberNo").val();
+		                const chatList = $(".chat-box-inner .chat.active-chat");
+		
+		                chatList.append(createMessageBubble({
+		                    ...data,
+		                    send_date: new Date().toISOString()
+		                }, isMine, memberImage));
+		
+		                chatList.scrollTop(chatList.prop("scrollHeight"));
+		            });
+		
+		            setupSendEvents(roomNo, senderNo);
+		        });
+		    }
+		}
+		
+		function setupSendEvents(roomNo, senderNo) {
+		    $("#send_btn").off("click").on("click", sendMessage);
+		    $("#msgContent").off("keydown").on("keydown", function (e) {
+		        if (e.key === "Enter") {
+		            e.preventDefault();
+		            sendMessage();
+		        }
+		    });
+		
+		    function sendMessage() {
+		        const content = $("#msgContent").val().trim();
+		        if (!content) return;
+		
+		        const receiverNos = $(".receiverNoInput").map((_, el) => parseInt($(el).val())).get();
+		        
+		        if (stompClient?.connected) {
+		            stompClient.send("/app/chat/msg", {}, JSON.stringify({
+		                member_name: senderName,
+		                member_pos_name: senderPos,
+		                member_dept_name: senderDept,
+		                chat_room_no: roomNo,
+		                member_no: senderNo,
+		                member_no_list: receiverNos,
+		                chat_msg_content: content
+		            }));
+		            $("#msgContent").val("");
+		        } else {
+		            console.error("STOMP 미연결: 메시지 전송 실패");
+		        }
+		    }
+		}
 
-						 const chatListContainer = document.querySelector(".chat-box-inner .chat.active-chat");
-						
-						 const myMemberNo = document.querySelector("#createMemberNo").value; // 현재 로그인한 사원 번호
-						 
-						
-					    const userCheck = (msgData.member_no == myMemberNo); // 여기로 이동
-					    
-					    const wrapper = document.createElement("div");
-					    wrapper.className = "d-flex mb-4";
-					
-					    if (userCheck) {
-					        // ✅ 내가 보낸 메시지 (오른쪽 정렬, 시간 → 메시지 순)
-					        wrapper.style.justifyContent = "flex-end";
-					        wrapper.innerHTML = `
-					            <div class="d-flex align-items-end mb-3" style="max-width: 70%;">
-					                <div class="text-muted fs-2 me-2" style="white-space: nowrap;">`+time+`</div>
-					                <div class="p-2 bg-info-subtle text-dark rounded-1 d-inline-block fs-3">
-					                    ${msgData.chat_msg_content} 
-					                </div>
-					            </div>
-					        `;
-					    } else {
-					        // ✅ 상대가 보낸 메시지 (왼쪽 정렬, 메시지 → 시간 순)
-					        wrapper.style.justifyContent = "flex-start";
-					        wrapper.innerHTML = `
-					            <img src="${memberImage}" alt="${memberName}" width="40" height="40" class="rounded-circle me-2" />
-					            <div class="mb-3" style="max-width: 70%;">
-					                <div class="fw-bold fs-2">${msgData.member_no}</div>
-					                <div class="d-flex align-items-end">
-					                    <div class="p-2 text-bg-light rounded-1 d-inline-block text-dark fs-3 me-2">
-					                    	${msgData.chat_msg_content} 
-					                     </div>
-					                    <div class="text-muted fs-2" style="white-space: nowrap;">`+time+`</div>
-					                </div>
-					            </div>
-					        `;
-					    }		
-					
-					    chatListContainer.appendChild(wrapper);
-					    chatListContainer.scrollTop = chatListContainer.scrollHeight;
-					     
-					});
-				});
-				
-
-				let checkMsg = document.getElementById("msgContent").value;
-				
-				// send_btn 클릭 이벤트
-				document.getElementById("send_btn").addEventListener("click", function () {
-				    let checkMsg = document.getElementById("msgContent").value.trim();
-				    if (checkMsg !== "") {
-				        sendMessage();
-				    }
-				});
-
-				// 엔터 키 눌림 감지
-				document.getElementById("msgContent").addEventListener("keydown", function (event) {
-				    if (event.key === "Enter") {
-				        event.preventDefault();
-				        let checkMsg = document.getElementById("msgContent").value.trim();
-				        if (checkMsg !== "") {
-				            sendMessage();
-				        }
-				    }
-				});
-
-				// 메시지 전송 함수
-				function sendMessage() {
-				    let receiverNos = []; // 여러 명 받을 거니까 배열 준비
-				    document.querySelectorAll(".receiverNoInput").forEach(input => {
-				        receiverNos.push(parseInt(input.value)); // 예: 여러 input에서 수집 (숫자로 변환)
-				    });
-
-				    let msgContent = document.getElementById("msgContent").value;
-
-				    stompClient.send("/app/chat/msg", {}, JSON.stringify({
-				        member_no: senderNo,
-				        chat_room_no: roomNo,
-				        member_no_list: receiverNos,
-				        chat_msg_content: msgContent
-				    }));
-
-				    document.getElementById("msgContent").value = ""; // 메시지 입력창 비우기
-				}
-
-
-			});
 			
 
 			 // *******************************************************************
