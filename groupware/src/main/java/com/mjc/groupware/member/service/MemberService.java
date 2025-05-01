@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.repository.DeptRepository;
+import com.mjc.groupware.member.dto.MemberCreateRequestDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
@@ -96,7 +97,7 @@ public class MemberService {
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
-	public Member createMember(MemberDto dto) {
+	public Member createMember(MemberCreateRequestDto dto) {
 		Member result = null;
 		
 		try {
@@ -110,6 +111,7 @@ public class MemberService {
 					.dept(dto.getDept_no() != 0 ? Dept.builder().deptNo(dto.getDept_no()).build() : null)
 					.role(Role.builder().roleNo((long)2).build())
 					.status(100)
+					.regDate(dto.getReg_date())
 					.build());
 					
 		} catch(DataIntegrityViolationException e) {
