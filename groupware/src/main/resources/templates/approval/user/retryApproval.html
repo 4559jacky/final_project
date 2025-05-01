@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-bs-theme="light"
+	data-color-theme="Blue_Theme" data-layout="horizontal"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
+
+<th:block layout:fragment="content">
+	<link rel="stylesheet"
+		href="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.css"
+		crossorigin>
+	<!-- jQuery -->
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<!-- jsTree -->
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	<!-- <link th:href="@{/css/jji.css}" rel="stylesheet"> -->
+	<div class="container mt-5">
+		<div class="card p-4 shadow-sm">
+			<h3 class="fw-bold mb-4 text-center">재기안 작성</h3>
+
+			<div class="col-12" style="max-width: 1000px; margin: 0 auto;">
+				<form name="retry_approval_form" action="/approval/retry"
+					method="post">
+					<div class="card shadow-sm rounded-4 p-4 bg-white"
+						style="min-height: 600px; position: relative;" id="form_div">
+						<th:block>
+							<input type="hidden" name="appr_sender"
+								th:value="${member.memberNo}">
+							<input type="hidden" name="appr_no"
+								th:value="${approval.apprNo}">
+							<input type="hidden" name="approval_type_no"
+								th:value="${approval.approvalForm.approvalFormNo}">
+							<input type="hidden" id="approval_form_type" th:value="${approval.approvalForm.approvalFormType}">
+							<h4 id="approval_form_name" class="fw-bold text-center mb-4" th:text="${approval.approvalForm.approvalFormName}">양식
+								제목</h4>
+							<!-- <div class="text-end" style="min-width: 180px;">
+									작성일 : <span id="reg_date"></span>
+								</div> -->
+							<table class="table table-bordered align-middle">
+								<tbody>
+									<tr>
+										<th class="text-center bg-light" style="width: 15%;">기안자</th>
+										<td style="width: 20%;" th:text="${approval.member.memberName}"></td>
+										<th class="text-center bg-light" style="width: 15%;">부서</th>
+										<td style="width: 20%;"
+											th:text="${approval.member.dept.deptName}"></td>
+										<th class="text-center bg-light" style="width: 15%;">직급</th>
+										<td style="width: 20%;" th:text="${approval.member.pos.posName}"></td>
+									</tr>
+									<tr>
+										<th class="text-center bg-light">제목</th>
+										<td colspan="5"><input type="text" name="appr_title"
+											class="form-control w-100" th:value="${approval.apprTitle}"></td>
+									</tr>
+									<tr>
+										<th class="text-center bg-light">일시</th>
+										<td colspan="5">
+											<div class="d-flex align-items-center" style="gap: 8px;">
+												<input type="date" id="start_date" name="start_date"
+													class="form-control" style="width: 150px; height: 36px;" th:value="${approval.startDate}">
+												<span> ~ </span> <input type="date" id="end_date"
+													name="end_date" class="form-control"
+													style="width: 150px; height: 36px;" th:value="${approval.endDate}"> &nbsp; <span
+													id="annualInfoText" style="display: none;">남은 연차 : <span
+													th:text="${member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 :
+													<span id="use_annual_leave" th:text="${approval.useAnnualLeave}">0</span> &nbsp;<label><input
+														class="form-check-input" type="checkbox" th:checked="${approval.annualLeaveType == 1}"
+														name="annual_leave_type" id="am" value="1" disabled>&nbsp;오전</label>
+													&nbsp;&nbsp;<label><input class="form-check-input"
+														type="checkbox" th:checked="${approval.annualLeaveType == 2}" name="annual_leave_type" id="pm" value="2"
+														disabled>&nbsp;오후</label></span>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th class="text-center bg-light">결재자</th>
+										<td colspan="5"><table
+												class="table table-bordered text-center w-100">
+												<thead class="table-light">
+													<tr id="approver">
+														<th:block th:each="i : ${#numbers.sequence(0, 4)}">
+															<th class="text-center bg-light" style="width: 20%;"
+																name="approver"
+																th:text="${(i < approverList.size()) ? approverList[i].member.memberName : ''}">
+															</th>
+														</th:block>
+													</tr>
+												</thead>
+												<tbody>
+													<tr id="approver_signature">
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+														</tr>
+												</tbody>
+											</table></td>
+									</tr>
+									<tr>
+										<th class="text-center bg-light">합의자</th>
+										<td colspan="5">
+											<table class="table table-bordered text-center w-100">
+												<thead class="table-light">
+													<tr id="agreementer">
+														<th:block th:each="i : ${#numbers.sequence(0, 4)}">
+															<th class="text-center bg-light" style="width: 20%;"
+																name="agreementer"
+																th:text="${i < agreementerList.size()} ? ${agreementerList[i].member.memberName} : ''">
+															</th>
+														</th:block>
+													</tr>
+												</thead>
+												<tbody>
+													<tr id="agreementer_signature">
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+															<td class="text-center" style="height: 80px;"></td>
+														</tr>
+												</tbody>
+											</table>
+										</td>
+									</tr>
+									<tr>
+										<th class="text-center bg-light">참조자</th>
+										<td colspan="5"><th:block
+												th:if="${!#lists.isEmpty(referencerList)}"
+												th:each="referencer, status : ${referencerList}">
+												<th:block th:if="${referencerList.size() != status.count}">
+													<span th:text="|${referencer.member.memberName} /|"></span>
+												</th:block>
+												<th:block th:if="${referencerList.size() == status.count}">
+													<span th:text="${referencer.member.memberName}"></span>
+												</th:block>
+											</th:block></td>
+									</tr>
+									<tr>
+										<th class="text-center bg-light">첨부 파일</th>
+										<td colspan="5"></td>
+									</tr>
+								</tbody>
+							</table>
+						</th:block>
+						<!-- 여기에 동적 양식 들어감 -->
+						<div id="editor"></div>
+						<input type="hidden" id="appr_text" name="appr_text" th:value="${approval.apprText}">
+					</div>
+					<!-- 승인요청 버튼: div2 하단 오른쪽 정렬 -->
+					
+					<div class="d-flex justify-content-end mt-3">
+					    <button th:onclick="|sendApprovalDetail('${approval.apprNo}')|"
+					            class="btn btn-secondary me-2">돌아가기</button>
+					    <button type="submit" class="btn btn-primary">승인요청</button>
+					</div>
+					
+				</form>
+			</div>
+		</div>
+	</div>
+	<script
+		src="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.umd.js"
+		crossorigin></script>
+	<script>
+		
+		document.addEventListener("DOMContentLoaded", function () {
+			
+			document.getElementById("am").addEventListener('click', function(){
+				if(this.checked == true) {
+					if(document.getElementById("pm").checked == true) {
+						document.getElementById("pm").checked = false;
+					}
+					document.getElementById('use_annual_leave').innerText = 0.5;
+				} else {
+					document.getElementById('use_annual_leave').innerText = 1;
+				}
+			})
+			
+			document.getElementById("pm").addEventListener('click', function(){
+				if(this.checked == true) {
+					if(document.getElementById("am").checked == true) {
+						document.getElementById("am").checked = false;
+					}
+					document.getElementById('use_annual_leave').innerText = 0.5;
+				} else {
+					document.getElementById('use_annual_leave').innerText = 1;
+				}
+			})
+			
+			const startDateInput = document.getElementById('start_date');
+			const endDateInput = document.getElementById('end_date');
+			const useAnnualLeave = document.getElementById('use_annual_leave');  // 사용 연차 표시 요소
+			
+			// 시작일 변경 시 종료일 최소값 설정
+			  startDateInput.addEventListener('change', function () {
+			    if (startDateInput.value) {
+			      endDateInput.min = startDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      endDateInput.removeAttribute('min');
+			    }
+			  });
+	
+			  // 종료일 변경 시 시작일 최대값 설정
+			  endDateInput.addEventListener('change', function () {
+			    if (endDateInput.value) {
+			      startDateInput.max = endDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      startDateInput.removeAttribute('max');
+			    }
+			  });
+			  
+			  // 🔥 form이 미리 날짜 값을 가지고 있다면, 그걸로 min/max 세팅해줘야 함
+			  if (startDateInput.value) {
+			    endDateInput.setAttribute('min', startDateInput.value);
+			  }
+			  if (endDateInput.value) {
+			    startDateInput.setAttribute('max', endDateInput.value);
+			  }
+	
+			  // 시작일과 종료일의 날짜 차이를 계산하고 표시하는 함수
+			  function updateAnnualLeave() {
+			    const startDate = new Date(startDateInput.value);
+			    const endDate = new Date(endDateInput.value);
+	
+			    if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+			      const timeDifference = endDate - startDate; // 밀리초 단위 차이
+			      const dayDifference = timeDifference / (1000 * 3600 * 24) + 1; // 일 단위로 변환 (+1은 시작일 포함)
+					
+			      if(dayDifference == 1) {
+			    	  document.getElementById("am").disabled = false;
+			    	  document.getElementById("pm").disabled = false;
+			      } else {
+			    	  document.getElementById("am").disabled = true;
+			    	  document.getElementById("pm").disabled = true;
+			    	  document.getElementById("am").checked = false;
+			    	  document.getElementById("pm").checked = false;
+			      }
+			      
+			      if (dayDifference > 0) {
+			        useAnnualLeave.textContent = dayDifference;  // 사용 연차 표시
+			      } else {
+			        useAnnualLeave.textContent = 0; // 날짜 차이가 0일이면 0으로 표시
+			      }
+			    } else {
+			      useAnnualLeave.textContent = 0; // 유효한 날짜가 아닌 경우 0으로 표시
+			    }
+			  }
+			
+			if (document.getElementById('approval_form_type').value == 1) {
+		          document.getElementById('annualInfoText').style.display = '';
+		        } else {
+		          document.getElementById('annualInfoText').style.display = 'none';
+		        }
+			
+			updateAnnualLeave();
+			
+			// 체크박스 상태 보고 초기 연차 계산 강제 적용
+			if (document.getElementById('am').checked || document.getElementById('pm').checked) {
+			  document.getElementById('use_annual_leave').innerText = 0.5;
+			}
+		})
+	
+		
+		
+		
+	
+		function sendApprovalDetail(apprNo) {
+			if(confirm('재기안을 중지하고 상세페이지로 돌아가시겠습니까?')) {
+				location.href = '/approval/send/detail/'+apprNo;
+			}
+		}
+	    
+		
+		
+		
+	    let editorInstance;
+		
+		document.addEventListener("DOMContentLoaded", function () {
+			const {
+				ClassicEditor,
+				Alignment,
+				Autoformat,
+				AutoImage,
+				Autosave,
+				Base64UploadAdapter,
+				BlockQuote,
+				Bold,
+				CloudServices,
+				Emoji,
+				Essentials,
+				Heading,
+				ImageBlock,
+				ImageCaption,
+				ImageInline,
+				ImageInsert,
+				ImageInsertViaUrl,
+				ImageResize,
+				ImageStyle,
+				ImageTextAlternative,
+				ImageToolbar,
+				ImageUpload,
+				Indent,
+				IndentBlock,
+				Italic,
+				Link,
+				LinkImage,
+				List,
+				ListProperties,
+				MediaEmbed,
+				Mention,
+				Paragraph,
+				PasteFromOffice,
+				Table,
+				TableCaption,
+				TableCellProperties,
+				TableColumnResize,
+				TableProperties,
+				TableToolbar,
+				TextTransformation,
+				TodoList,
+				Underline
+			} = window.CKEDITOR;
+
+			const LICENSE_KEY =
+				'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3Nzc1MDcxOTksImp0aSI6ImNhNmQ1ZTQ0LTYyZTMtNGEwMC04MzhkLTkyYzFmZWEzMzIwZiIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIl0sInZjIjoiYjZmNzMxMTkifQ.NfQuYgUhx47Twoi6uFjRsx7PbJa-jIDx1hAYfsFHOU30umGCgXGcLquB6EH9diFdHlCEjGB-Cv0VBZySQo-BaA';
+
+			const editorConfig = {
+				toolbar: {
+					items: [
+						'heading',
+						'|',
+						'bold',
+						'italic',
+						'underline',
+						'|',
+						'emoji',
+						'link',
+						'insertImage',
+						'mediaEmbed',
+						'insertTable',
+						'blockQuote',
+						'|',
+						'alignment',
+						'|',
+						'bulletedList',
+						'numberedList',
+						'todoList',
+						'outdent',
+						'indent'
+					],
+					shouldNotGroupWhenFull: false
+				},
+				plugins: [
+					Alignment,
+					Autoformat,
+					AutoImage,
+					Autosave,
+					Base64UploadAdapter,
+					BlockQuote,
+					Bold,
+					CloudServices,
+					Emoji,
+					Essentials,
+					Heading,
+					ImageBlock,
+					ImageCaption,
+					ImageInline,
+					ImageInsert,
+					ImageInsertViaUrl,
+					ImageResize,
+					ImageStyle,
+					ImageTextAlternative,
+					ImageToolbar,
+					ImageUpload,
+					Indent,
+					IndentBlock,
+					Italic,
+					Link,
+					LinkImage,
+					List,
+					ListProperties,
+					MediaEmbed,
+					Mention,
+					Paragraph,
+					PasteFromOffice,
+					Table,
+					TableToolbar,
+					TableCaption,
+					TableCellProperties,
+					TableColumnResize,
+					TableProperties,
+					TableToolbar,
+					TextTransformation,
+					TodoList,
+					Underline
+				],
+				heading: {
+					options: [
+						{
+							model: 'paragraph',
+							title: 'Paragraph',
+							class: 'ck-heading_paragraph'
+						},
+						{
+							model: 'heading1',
+							view: 'h1',
+							title: 'Heading 1',
+							class: 'ck-heading_heading1'
+						},
+						{
+							model: 'heading2',
+							view: 'h2',
+							title: 'Heading 2',
+							class: 'ck-heading_heading2'
+						},
+						{
+							model: 'heading3',
+							view: 'h3',
+							title: 'Heading 3',
+							class: 'ck-heading_heading3'
+						},
+						{
+							model: 'heading4',
+							view: 'h4',
+							title: 'Heading 4',
+							class: 'ck-heading_heading4'
+						},
+						{
+							model: 'heading5',
+							view: 'h5',
+							title: 'Heading 5',
+							class: 'ck-heading_heading5'
+						},
+						{
+							model: 'heading6',
+							view: 'h6',
+							title: 'Heading 6',
+							class: 'ck-heading_heading6'
+						}
+					]
+				},
+				image: {
+					toolbar: [
+						'toggleImageCaption',
+						'imageTextAlternative',
+						'|',
+						'imageStyle:inline',
+						'imageStyle:wrapText',
+						'imageStyle:breakText',
+						'|',
+						'resizeImage'
+					]
+				},
+				initialData: document.getElementById('appr_text').value,
+				licenseKey: LICENSE_KEY,
+				link: {
+					addTargetToExternalLinks: true,
+					defaultProtocol: 'https://',
+					decorators: {
+						toggleDownloadable: {
+							mode: 'manual',
+							label: 'Downloadable',
+							attributes: {
+								download: 'file'
+							}
+						}
+					}
+				},
+				list: {
+					properties: {
+						styles: true,
+						startIndex: true,
+						reversed: true
+					}
+				},
+				mention: {
+					feeds: [
+						{
+							marker: '@',
+							feed: [
+								/* See: https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html */
+							]
+						}
+					]
+				},
+				placeholder: 'Type or paste your content here!',
+				table: {
+					contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+				}
+			};
+
+			ClassicEditor
+		    .create(document.querySelector('#editor'), editorConfig)
+		    .then(editor => {
+		      editorInstance = editor;
+		    })
+		    .catch(error => {
+		      console.error('Editor initialization error:', error);
+		    });
+		});
+		
+		
+		// 승인요청 버튼 클릭 시 결재 생성
+		const retryApprovalForm = document.retry_approval_form;
+		retryApprovalForm.addEventListener('submit', (e) => {
+			e.preventDefault();
+		
+			let valid = false;
+			let valid_msg = '';
+		
+			const approverThList = document.querySelectorAll('#approver th');
+			const hasApprover = Array.from(approverThList).some(th => th.textContent.trim() !== '');
+		
+			if (!retryApprovalForm.appr_title.value) {
+				valid_msg += '결재 제목을 입력해주세요.';
+			} else if (!retryApprovalForm.start_date.value) {
+				valid_msg += '시작일을 입력해주세요.';
+			} else if (!retryApprovalForm.end_date.value) {
+				valid_msg += '종료일을 입력해주세요.';
+			} else if (!hasApprover) {
+				valid_msg += '결재자는 한명이상 등록되어야합니다.';
+			} else {
+				valid = true;
+			}
+		
+			if (!valid) {
+				alert(valid_msg);
+			} else {
+				document.querySelector("input[name='appr_text']").value = editorInstance.getData();
+		
+				let payload = new FormData(retryApprovalForm);
+				let use_annual_leave = document.getElementById('use_annual_leave').innerText;
+				let annual_leave_type = 0;
+				if (document.getElementById('am').checked) {
+					annual_leave_type = 1;
+					payload.append('use_annual_leave', use_annual_leave);
+					payload.append('annual_leave_type', annual_leave_type);
+				}
+				if (document.getElementById('pm').checked) {
+					annual_leave_type = 2;
+					payload.append('use_annual_leave', use_annual_leave);
+					payload.append('annual_leave_type', annual_leave_type);
+				}
+		
+				const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+				const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+				payload.append('_csrf', csrfToken);
+		
+				fetch('/approval/retry', {
+					method: 'post',
+					body: payload,
+					headers: {
+						[csrfHeader]: csrfToken
+					},
+					credentials: 'include'
+				})
+				.then(response => response.json())
+				.then(data => {
+					alert(data.res_msg);
+					if (data.res_code === '200') {
+						location.href = '/approval';
+					}
+				});
+			}
+		});
+	</script>
+
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
+</th:block>
+</html>

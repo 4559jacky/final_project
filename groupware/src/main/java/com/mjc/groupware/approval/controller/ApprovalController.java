@@ -452,5 +452,50 @@ public class ApprovalController {
 	    return resultMap;
 	}
 	
+	@GetMapping("/approval/retry/{id}")
+	public String retryApprovalViewApi(@PathVariable("id") Long id, Model model,  @AuthenticationPrincipal UserDetails userDetails) {
+
+	    // 현재 로그인한 사용자 정보 불러오기
+		String userId = userDetails.getUsername();
+		
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+//	    MemberDto member = new MemberDto().toDto(entity);
+
+	    // 기존 결재 데이터 가져오기
+	    Approval approval = service.selectApprovalOneByApprovalNo(id);
+	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
+	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
+	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
+
+	    model.addAttribute("approval", approval);
+	    model.addAttribute("approverList", approverList);
+	    model.addAttribute("agreementerList", agreementerList);
+	    model.addAttribute("referencerList", referencerList);
+	    model.addAttribute("member", member);
+
+	    return "approval/user/retryApproval";
+	}
+	
+	@PostMapping("/approval/retry")
+	@ResponseBody
+	public Map<String,String> retryApprovalApi(ApprovalDto approvalDto) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 재요청에 실패하였습니다.");
+		
+	    int result = service.retryApprovalApi(approvalDto);
+	    
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 재요청되었습니다.");
+		}
+	    
+	    return resultMap;
+	}
+	
 	
 }

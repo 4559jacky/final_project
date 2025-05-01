@@ -1074,12 +1074,15 @@
 				let annual_leave_type = 0; // 기본값: 0 (선택 없음)
 		        if (document.getElementById('am').checked) {
 		            annual_leave_type = 1; // 오전
+		            payload.append('use_annual_leave', use_annual_leave);
+					payload.append('annual_leave_type', annual_leave_type);
 		        }
 		        if (document.getElementById('pm').checked) {
 		            annual_leave_type = 2; // 오후
+		            payload.append('use_annual_leave', use_annual_leave);
+					payload.append('annual_leave_type', annual_leave_type);
 		        }
-				payload.append('use_annual_leave', use_annual_leave);
-				payload.append('annual_leave_type', annual_leave_type);
+				
 				const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 				const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 				payload.append('_csrf', csrfToken);

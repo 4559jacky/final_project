@@ -1,5 +1,6 @@
 package com.mjc.groupware.approval.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -569,6 +570,43 @@ public class ApprovalService {
 		}
 		
 		// result가 1이면 회수버튼이 생기면 안되고 0일 때 생겨야함
+		return result;
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	public int retryApprovalApi(ApprovalDto approvalDto) {
+		int result = 0;
+		
+		try {
+			// 이전 결재 entity
+			Approval entity = approvalRepository.findById(approvalDto.getAppr_no()).orElse(null);
+			// 합의자 여부 확인
+			List<ApprAgreementer> agreementers = apprAgreementerRepository.findAllByApproval_ApprNo(entity.getApprNo());
+			
+			
+			// 합의자가 있으면 합의자 먼저, 없으면 바로 결재자로
+			if(agreementers.size() != 0) {
+				approvalDto.setAppr_status("A");
+				approvalDto.setAppr_order_status(0);
+			} else {
+				approvalDto.setAppr_status("D");
+				approvalDto.setAppr_order_status(1);
+			}
+			
+			approvalDto.setAppr_res_date(null);
+			approvalDto.setAppr_reason(null);
+			approvalDto.setAppr_reg_date(LocalDateTime.now());
+			
+			Approval newEntity = approvalDto.toEntity();
+			
+			approvalRepository.save(newEntity);
+			
+			result = 1;
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 		return result;
 	}
 
