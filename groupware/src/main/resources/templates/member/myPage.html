@@ -235,7 +235,7 @@ layout:decorate="~{/include/layout}">
 								    <!-- 이메일 -->
 	                                <div class="mb-3">
 	                                  <th:block th:if="${member != null}">
-		                                  <label for="member_email" class="form-label">이메일<span class="text-muted small"> (gmail 필수)</span></label>
+		                                  <label for="member_email" class="form-label">이메일</label>
 		                                  <input type="email" class="form-control" id="member_email" name="member_email" th:value="${member.memberEmail}" placeholder="example@gmail.com"/>
 	                                  </th:block>
 	                                </div>
@@ -898,10 +898,10 @@ layout:decorate="~{/include/layout}">
 			return validPrefixes.includes(prefix);
 		}
 		
-		// 이메일 유효성 검사
+		// 이메일 형식 유효성 검사
 		function isValidEmail(emailString) {
-			const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-			return regex.test(emailString);
+		    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		    return regex.test(emailString);
 		}
 	</script>
 	

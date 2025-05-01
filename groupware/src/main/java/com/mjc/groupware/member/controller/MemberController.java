@@ -1,6 +1,7 @@
 package com.mjc.groupware.member.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberAttachDto;
+import com.mjc.groupware.member.dto.MemberCreateRequestDto;
 import com.mjc.groupware.member.dto.MemberCreationDto;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberResponseDto;
@@ -340,13 +342,17 @@ public class MemberController {
 	@CheckPermission("MEMBER_ADMIN_C")
 	@PostMapping("/admin/member/create")
 	@ResponseBody
-	public Map<String, String> createMemberApi(MemberDto dto) {
+	public Map<String, String> createMemberApi(MemberCreateRequestDto dto) {
 		Map<String, String> resultMap = new HashMap<>();
 		
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "사원 등록 도중 알 수 없는 오류가 발생하였습니다.");
 		
 		try {
+			LocalDate regDate = dto.getHire_date();
+			LocalDateTime regDateTime = regDate.atStartOfDay();
+			dto.setReg_date(regDateTime);
+			
 			Member member = service.createMember(dto);
 			
 			if(member != null) {

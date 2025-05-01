@@ -120,6 +120,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	                alert(data.res_msg);
 	                if (data.res_code == '200') {
 	                    location.href = "/forgetPassword/changePassword";
+	                } else {
+	                	inputs.forEach(input => input.value = "");
+	                    inputs[0].focus();
 	                }
 	            })
 	            .catch(error => {

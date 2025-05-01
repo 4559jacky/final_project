@@ -73,8 +73,16 @@ layout:decorate="~{/include/layout}">
                           				<h4 class="card-title" style="font-weight: bold;">기본 정보 등록</h4>
                           				<p class="card-subtitle mb-4">To register a new account, please confirm employee info.</p>
                             			<div class="mb-3">
-                              				<label for="member_name" class="form-label">이름*</label>
-                              				<input type="text" class="form-control" id="member_name" name="member_name">
+                              				<div class="row">
+											    <div class="col-md-6">
+											      <label for="member_name" class="form-label">이름*</label>
+											      <input type="text" class="form-control" id="member_name" name="member_name">
+											    </div>
+											    <div class="col-md-6">
+											      <label for="hire_date" class="form-label">입사일*</label>
+											      <input type="date" class="form-control" id="hire_date" name="hire_date">
+											    </div>
+											  </div>
                             			</div>
                             			<div class="mb-3">
   											<label for="dept_no" class="form-label">부서</label>
@@ -135,6 +143,9 @@ layout:decorate="~{/include/layout}">
 			} else if(!form.member_name.value) {
 				vali_msg += "이름을 입력하세요";
 				form.member_name.focus();
+			} else if(!form.hire_date.value) {
+				vali_msg += "입사일을 선택하세요.";
+				form.hire_date.focus();
 			} else {
 				vali_chk = true;
 			}

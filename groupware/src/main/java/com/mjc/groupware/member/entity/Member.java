@@ -76,8 +76,7 @@ public class Member {
     @Column(name = "signature")
     private String signature;
 	
-	@CreationTimestamp
-	@Column(updatable=false,name="reg_date")
+	@Column(name="reg_date")
 	private LocalDateTime regDate;
 	
 	@UpdateTimestamp
