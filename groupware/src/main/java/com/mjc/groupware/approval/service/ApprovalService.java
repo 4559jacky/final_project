@@ -287,105 +287,58 @@ public class ApprovalService {
 	// 결재자 - 결재 승인(Dto에 Setter)
 	@Transactional(rollbackFor = Exception.class)
 	public int approvalSuccessApi(Long id, MemberDto member) {
-		
-		int result = 0;
-		
-		try {
-			// 결재와 결재자를 찾음
-			Approval approval = approvalRepository.findById(id).orElse(null);
-			ApprApprover approver = apprApproverRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
-			
-			// 결재의 순서와 결재자의 순서가 같을 때
-			if(approval.getApprOrderStatus() == approver.getApproverOrder()) {
-				
-				ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
-				ApprApproverDto approverDto = new ApprApproverDto().toDto(approver);
-				approvalDto.setAppr_order_status(approval.getApprOrderStatus()+1);
-				approverDto.setApprover_decision_status("C");
-				
-				Approval approvalParam = approvalDto.toEntity();
-				ApprApprover approverParam = approverDto.toEntity();
-				
-				Approval approvalEntity = approvalRepository.save(approvalParam);
-				ApprApprover approverEntity = apprApproverRepository.save(approverParam);
-				
-				
-				// 모든 결재자맵핑 데이터 찾기
-				List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(id);
-				
-				boolean vali = false;
-				int max = 0;
-				
-				for(ApprApprover a : approverList) {
-					if(max < a.getApproverOrder()) {
-						max = a.getApproverOrder();
-					}
-				}
-				
-				// 모든 결재자보다 결재순서가 더 높으면
-				if(max < approvalEntity.getApprOrderStatus()) {
-					vali = true;
-				}
-				
-				// 최종 결재자가 승인을 했을 때
-				if(vali == true) {
-					ApprovalDto approvalDto2 = new ApprovalDto().toDto(approvalEntity);
-					approvalDto2.setAppr_status("C");
-					approvalDto2.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
-					
-					Approval approvalParam2 = approvalDto2.toEntity();
-					approvalRepository.save(approvalParam2);
-					
-					// 연차결재 승인 시 휴가 일정에 반영될 수 있도록 휴가 일정 데이터 저장
-						
-						
-					// Trigger 사용으로 대체
-//						PlanDto planDto = new PlanDto();
-//						
-//						String annualLeaveType = "";
-//						LocalDate start_date = approvalParam2.getStartDate();
-//						LocalDate end_date = approvalParam2.getEndDate();
-//						
-//						if(approvalParam2.getAnnualLeaveType() == 0) {
-//							annualLeaveType = "연차";
-//							planDto.setStart_date(start_date != null ? start_date.atTime(9, 0, 0) : null);
-//							planDto.setEnd_date(end_date != null ? end_date.atTime(18, 0, 0) : null);
-//						} else if(approvalParam2.getAnnualLeaveType() == 1) {
-//							annualLeaveType = "오전반차";
-//							planDto.setStart_date(start_date != null ? start_date.atTime(9, 0, 0) : null);
-//							planDto.setEnd_date(end_date != null ? end_date.atTime(13, 0, 0) : null);
-//						} else if(approvalParam2.getAnnualLeaveType() == 2) {
-//							annualLeaveType = "오후반차";
-//							planDto.setStart_date(start_date != null ? start_date.atTime(14, 0, 0) : null);
-//							planDto.setEnd_date(end_date != null ? end_date.atTime(18, 0, 0) : null);
-//						}
-//						
-//						planDto.setPlan_title(approval.getMember().getMemberName()+"["+annualLeaveType+"]");
-//						planDto.setPlan_content(approval.getMember().getMemberName()+"["+annualLeaveType+"]");
-//						planDto.setPlan_type("휴가");
-//						planDto.setReg_member_no(approval.getMember().getMemberNo());
-//						
-//						Plan planEntity = planDto.toEntity();
-//						
-//						planRepository.save(planEntity);
-//						
-//						Member mem = memberRepository.findById(approval.getMember().getMemberNo()).orElse(null);
-//						MemberDto md = new MemberDto().toDto(mem);
-//						md.setAnnual_leave(md.getAnnual_leave()-approval.getUseAnnualLeave());
-//						
-//						Member memberEntity = md.toEntity();
-//						
-//						memberRepository.save(memberEntity);
-//					}
-				}
-			}
-			result = 1;
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return result;
+	    int result = 0;
+
+	    try {
+	        Approval approval = approvalRepository.findById(id).orElse(null);
+	        if (approval == null) return 0;
+
+	        Approval parentApproval = approval.getParentApproval() != null
+	                ? approvalRepository.findById(approval.getParentApproval().getApprNo()).orElse(null)
+	                : null;
+
+	        ApprApprover approver = apprApproverRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
+
+	        if (approval.getApprOrderStatus() == approver.getApproverOrder()) {
+
+	            ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
+	            ApprApproverDto approverDto = new ApprApproverDto().toDto(approver);
+
+	            approvalDto.setAppr_order_status(approval.getApprOrderStatus() + 1);
+	            approverDto.setApprover_decision_status("C");
+
+	            Approval approvalParam = approvalDto.toEntity(parentApproval);
+	            ApprApprover approverParam = approverDto.toEntity();
+
+	            Approval approvalEntity = approvalRepository.save(approvalParam);
+	            ApprApprover approverEntity = apprApproverRepository.save(approverParam);
+
+	            List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(id);
+	            boolean vali = false;
+	            int max = approverList.stream().mapToInt(ApprApprover::getApproverOrder).max().orElse(0);
+
+	            if (max < approvalEntity.getApprOrderStatus()) {
+	                vali = true;
+	            }
+
+	            if (vali) {
+	                ApprovalDto approvalDto2 = new ApprovalDto().toDto(approvalEntity);
+	                approvalDto2.setAppr_status("C");
+	                approvalDto2.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
+
+	                Approval approvalParam2 = approvalDto2.toEntity(parentApproval);
+	                approvalRepository.save(approvalParam2);
+	            }
+	        }
+
+	        result = 1;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return result;
 	}
+
 	
 	
 	// 결재자 - 결재 반려(Dto에 Setter)
@@ -407,6 +360,9 @@ public class ApprovalService {
 			ApprApprover approverEntity = apprApproverRepository.save(approvalParam);
 			
 			Approval approval = approvalRepository.findById(id).orElse(null);
+			Approval parentApproval = approval.getParentApproval() != null
+	                ? approvalRepository.findById(approval.getParentApproval().getApprNo()).orElse(null)
+	                : null;
 			
 			ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
 			
@@ -414,7 +370,8 @@ public class ApprovalService {
 			approvalDto.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
 			approvalDto.setAppr_reason(approverEntity.getDecisionReason());
 			
-			Approval approvalEntity = approvalDto.toEntity();
+			
+			Approval approvalEntity = approvalDto.toEntity(parentApproval);
 			
 			approvalRepository.save(approvalEntity);
 			
@@ -560,7 +517,7 @@ public class ApprovalService {
 					.parent_approval(approvalParam.getApprNo())
 					.build();
 			System.out.println("dto 저장후 : "+approvalDto.getReturn_reason());
-			Approval newApproval = approvalDto.toReturnEntity(approvalParam);
+			Approval newApproval = approvalDto.toEntity(approvalParam);
 			
 			System.out.println("entity 저장후 : "+newApproval.getReturnReason());
 			Approval entity = approvalRepository.save(newApproval);
@@ -602,6 +559,7 @@ public class ApprovalService {
 		for(Approval a : childApproval) {
 			System.out.println("자식결재 : "+a.getApprNo());
 		}
+		
 		if(childApproval != null) {
 			for(Approval a : childApproval) {
 				if("C".equals(a.getApprStatus()) || "D".equals(a.getApprStatus())) {

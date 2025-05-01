@@ -179,16 +179,6 @@
 				<div id="approval-content" class="mb-4"
 					th:utext="${approval.apprText}"></div>
 					
-				<th:block th:if="${approval.apprStatus == 'R'}">
-					<hr>
-					<div class="mb-4">
-						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
-					</div>
-					<div class="mb-4" id="appr_reason">
-						<span th:text="${approval.apprReason}">반려 사유</span>
-					</div>
-				</th:block>
-				
 				<th:block th:if="${approval.returnReason != null}">
 					<hr>
 					<div class="mb-4">
@@ -199,6 +189,16 @@
 						<span th:text="${approval.returnReason}">회수 사유</span>
 					</div>
 				</th:block>
+				<th:block th:if="${approval.apprStatus == 'R'}">
+					<hr>
+					<div class="mb-4">
+						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
+					</div>
+					<div class="mb-4" id="appr_reason">
+						<span th:text="${approval.apprReason}">반려 사유</span>
+					</div>
+				</th:block>
+				
 
 				<!-- 결재자 합의자 버튼 - 반려상태가 아닐때 -->
 				<th:block th:if="${approval.apprStatus != 'R'}">

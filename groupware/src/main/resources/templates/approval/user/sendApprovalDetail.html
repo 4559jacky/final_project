@@ -203,6 +203,20 @@
 						<span th:text="${approval.returnReason}">회수 사유</span>
 					</div>
 				</th:block>
+				<th:block th:if="${approval.apprStatus == 'R'}">
+					<hr>
+					<div class="mb-4">
+						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
+					</div>
+					<div class="mb-4" id="appr_reason">
+						<span th:text="${approval.apprReason}">반려 사유</span>
+					</div>
+				</th:block>
+				<th:block th:if="${approval.parentApproval == null and approval.apprStatus == 'R'}">
+				    <div class="d-flex justify-content-end">
+				        <button class="btn btn-primary" onclick="retryApproval()">재기안</button>
+				    </div>
+				</th:block>
 			</div>
 		</div>
 	</div>
@@ -302,6 +316,10 @@
 		        alert('사유를 입력해주세요.');
 		    }
 		});
+		
+		const retryApproval = function(){
+			console.log('test');
+		}
 		
 	</script>
 
