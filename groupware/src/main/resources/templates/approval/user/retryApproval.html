@@ -140,7 +140,23 @@
 									</tr>
 									<tr>
 										<th class="text-center bg-light">첨부 파일</th>
-										<td colspan="5"></td>
+										<td colspan="5">
+											<div class="mb-3 mt-3">
+							                    <label class="form-label fw-semibold">기존 첨부파일</label>
+							                    <div th:each="file : ${attachList}"
+							                         class="file-item d-flex align-items-center gap-2 mb-1"
+							                         th:attr="data-id=${file.attachNo}">
+							
+							                        <input type="hidden" name="deleteFiles" th:value="${file.attachNo}" disabled />
+							                        <input type="checkbox" class="form-check-input mt-0" checked onchange="toggleDeleteCheckbox(this)">
+							                        <span class="file-name flex-grow-1 mb-0" th:text="${file.oriName}"></span>
+							                    </div>
+							                    <div th:if="${#lists.isEmpty(attachList)}">첨부파일이 없습니다.</div>
+							                </div>
+							                <div class="mb-3">
+							                    <input type="file" class="form-control bg-white text-dark" id="notice_file" name="files" multiple>
+							                </div>
+										</td>
 									</tr>
 								</tbody>
 							</table>
@@ -263,10 +279,25 @@
 			if (document.getElementById('am').checked || document.getElementById('pm').checked) {
 			  document.getElementById('use_annual_leave').innerText = 0.5;
 			}
+			
+			
+			
+			// 체크가 해제될 때 삭제 처리
+	        function toggleDeleteCheckbox(checkbox) {
+	            const item = checkbox.closest('.file-item');
+	            const hidden = item.querySelector('input[type=hidden]');
+	            const filename = item.querySelector('.file-name');
+
+	            if (!checkbox.checked) {
+	                hidden.disabled = false;
+	                filename.classList.add('text-decoration-line-through');
+	            } else {
+	                hidden.disabled = true;
+	                filename.classList.remove('text-decoration-line-through');
+	            }
+	        }
 		})
 	
-		
-		
 		
 	
 		function sendApprovalDetail(apprNo) {
@@ -275,7 +306,6 @@
 			}
 		}
 	    
-		
 		
 		
 	    let editorInstance;
@@ -534,6 +564,15 @@
 				document.querySelector("input[name='appr_text']").value = editorInstance.getData();
 		
 				let payload = new FormData(retryApprovalForm);
+				document.querySelectorAll(".file-item").forEach(item => {
+					  const checkbox = item.querySelector("input[type='checkbox']");
+					  const hidden = item.querySelector("input[name='deleteFiles']");
+
+					  // 체크 해제된 항목만 추가
+					  if (checkbox && hidden && !checkbox.checked) {
+					    payload.append("deleteFiles", hidden.value);
+					  }
+					});
 				let use_annual_leave = document.getElementById('use_annual_leave').innerText;
 				let annual_leave_type = 0;
 				if (document.getElementById('am').checked) {
