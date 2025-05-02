@@ -29,6 +29,8 @@ public class WebSecurityConfig {
 	
 	private final DataSource dataSource;
 	private final AccountStatusFilter accountStatusFilter;
+	private final MyLoginSuccessHandler myLoginSuccessHandler;
+	private final MyLoginFailureHandler myLoginFailureHandler;
 	
 	// 정적 리소스 시큐리티 비활성화
 	@Bean
@@ -49,8 +51,8 @@ public class WebSecurityConfig {
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")
-				.successHandler(new MyLoginSuccessHandler())
-				.failureHandler(new MyLoginFailureHandler()))
+				.successHandler(myLoginSuccessHandler)
+				.failureHandler(myLoginFailureHandler))
 		.logout(logout -> logout
 				.clearAuthentication(true)
 				.logoutSuccessUrl("/login")

@@ -3,7 +3,6 @@ package com.mjc.groupware.member.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.mjc.groupware.dept.entity.Dept;
@@ -103,6 +102,9 @@ public class Member {
 
 	@OneToMany(mappedBy="member")
 	private List<MemberAttach> memberAttachs;
+	
+	@OneToMany(mappedBy="member")
+	private List<LoginLog> memberLoginLogs;
 	
 	public void changePassword(String newEncodedPw) {
 	    this.memberPw = newEncodedPw;
