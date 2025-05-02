@@ -75,6 +75,18 @@
 									<div th:text="${approval.startDate}"></div>
 									<span> ~ </span>
 									<div th:text="${approval.endDate}"></div>
+									<th:block th:if="${approval.useAnnualLeave > 0}">
+								    &nbsp;&nbsp;&nbsp;
+								    연차 종류 : 
+								    <span th:switch="${approval.annualLeaveType}">
+								        <span th:case="0">종일 연차</span>
+								        <span th:case="1">오전 반차</span>
+								        <span th:case="2">오후 반차</span>
+								        <span th:case="*">알 수 없음</span>
+								    </span>
+								    &nbsp;/&nbsp;
+								    사용 연차 : <span id="use_annual_leave" th:text="${approval.useAnnualLeave}">0</span>
+									</th:block>
 								</div>
 							</td>
 						</tr>
@@ -170,7 +182,16 @@
 						</tr>
 						<tr>
 							<th class="text-center bg-light">첨부 파일</th>
-							<td colspan="5">파일 내용 추가 예정</td>
+							<td colspan="5">
+								<ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+			  						<li th:each="attach : ${attachList}" class="mb-1">
+			    						<i class="bi bi-file-earmark-image me-1 text-primary"></i>
+			    						<a th:href="@{/notice/download(fileNo=${attach.attachNo})}"
+			       					  	   th:text="${attach.oriName}"
+			      					  	   class="file-link"></a>
+			  						</li>
+								</ul>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -179,16 +200,6 @@
 				<div id="approval-content" class="mb-4"
 					th:utext="${approval.apprText}"></div>
 					
-				<th:block th:if="${approval.apprStatus == 'R'}">
-					<hr>
-					<div class="mb-4">
-						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
-					</div>
-					<div class="mb-4" id="appr_reason">
-						<span th:text="${approval.apprReason}">반려 사유</span>
-					</div>
-				</th:block>
-				
 				<th:block th:if="${approval.returnReason != null}">
 					<hr>
 					<div class="mb-4">
@@ -199,6 +210,16 @@
 						<span th:text="${approval.returnReason}">회수 사유</span>
 					</div>
 				</th:block>
+				<th:block th:if="${approval.apprStatus == 'R'}">
+					<hr>
+					<div class="mb-4">
+						<h5>반려 사유</h5><span th:text="${#temporals.format(approval.apprResDate,'yyyy.MM.dd HH:mm')}"></span>
+					</div>
+					<div class="mb-4" id="appr_reason">
+						<span th:text="${approval.apprReason}">반려 사유</span>
+					</div>
+				</th:block>
+				
 
 				<!-- 결재자 합의자 버튼 - 반려상태가 아닐때 -->
 				<th:block th:if="${approval.apprStatus != 'R'}">
