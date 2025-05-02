@@ -48,18 +48,25 @@ layout:decorate="~{/include/layout}">
 		        <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
 		      </div>
 		    </div>
+		            <input type="hidden" id="accommodation_no" value="123">
+					<input type="hidden" id="room_count" value="10">
+					<input type="hidden" id="accommodation_location" value="서울 강남구">
+					<input type="datetime-local" id="reg_date" style="display: none;">
+					<input type="datetime-local" id="mod_date" style="display: none;">
+
 		
 		    <!-- 오른쪽: 숙소 정보 -->
 		    <div class="col-md-7">
 		      <table class="table table-borderless align-middle">
 		        <tbody>
 		          <tr>
+		          
 		            <td class="text-end"><label for="type" class="form-label">숙소 타입 : </label></td>
 		            <td class="text-start">
 		              <select id="type" name="type" class="form-select w-75">
 		                <option selected>숙소타입</option>
-		                <option value="리조트">리조트</option>
-		                <option value="호텔">호텔</option>
+		                <option value="1">리조트</option>
+		                <option value="2">호텔</option>
 		              </select>
 		            </td>
 		          </tr>
@@ -160,15 +167,32 @@ layout:decorate="~{/include/layout}">
 		
         <!-- 등록 버튼 -->
         <div class="d-flex justify-content-end mt-3">
-		  <button type="submit" class="btn btn-primary me-2" onclick="submitBtn();">등록</button>
+		  <button type="submit" class="btn btn-primary me-2" id="submitBtn">등록</button>
 		</div>
 		<br><br>
 		<!-- 등록버튼 클릭시 동작 -->
 		<script>
-			submitBtn.addEventListener("click", function(e){
-				e.preventDefault();
+			document.addEventListener("DOMContentLoaded", function(){
+				const editor = new toastui.Editor({
+			        el: document.querySelector('#editor'),
+			        height: '400px',
+			        initialEditType: 'wysiwyg',
+			        previewStyle: 'vertical'
+			    });
 				
-				const content = editor.getHtml();
+			// DateTime 타입 동적으로 처리
+			function getCurrentDateTimeLocal() {
+			   const now = new Date();
+			   const offset = now.getTimezoneOffset() * 60000;
+			   return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+			}
+			document.getElementById("reg_date").value = getCurrentDateTimeLocal();
+			document.getElementById("mod_date").value = getCurrentDateTimeLocal();	
+				
+			document.getElementById("submitBtn").addEventListener("click", function (e) {
+			    e.preventDefault();
+				
+				const content = editor.getHTML();
 				document.getElementById("content").value = content;
 				
 				const name = document.getElementById("name").value.trim();
@@ -178,24 +202,29 @@ layout:decorate="~{/include/layout}">
 				}
 				
 				const form = new FormData();
-				form.append("type",document.getElementById("type").value);
-				form.append("name",name);
-				form.append("content",content);
-				form.append("address",document.getElementById("address").value);
-				form.append("phone",document.getElementById("phone").value);
-				form.append("email",document.getElementById("email").value)
-				form.append("site",document.getElementById("site").value)
-				form.append("price",document.getElementById("price").value)
+				form.append("accommodation_type", document.getElementById("type").value);
+			    form.append("accommodation_name", name);
+			    form.append("accommodation_address", document.getElementById("address").value);
+			    form.append("accommodation_phone", document.getElementById("phone").value);
+			    form.append("accommodation_email", document.getElementById("email").value);
+			    form.append("accommodation_site", document.getElementById("site").value);
+			    form.append("room_price", document.getElementById("price").value);
+			    form.append("accommodation_content", content);
+			    form.append("accommodation_no", document.getElementById("accommodation_no").value);
+			    form.append("room_count", document.getElementById("room_count").value);
+			    form.append("accommodation_location", document.getElementById("accommodation_location").value);
+			    form.append("reg_date", document.getElementById("reg_date").value);
+			    form.append("mod_date", document.getElementById("mod_date").value);
 
-				const imageFile = document.getElementById("imageUpload").files[0];
+				/* const imageFile = document.getElementById("imageUpload").files[0];
 				if(imageFile){
 					form.append("image",imageFile);
-				}
+				} */
 				
 				fetch("/accommodation/register",{
 					method:"POST",
 					body:form,
-					header:{
+					headers:{
 						 "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
 					}
 				})
@@ -211,8 +240,7 @@ layout:decorate="~{/include/layout}">
 					alert("오류발생");
 				});
 			});
-			
-			
+		});
 		</script>
 	</div>
 	<!-- Scripts -->

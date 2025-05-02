@@ -35,7 +35,6 @@ public class AccommodationInfoDto {
 	
 	public AccommodationInfo toEntity() {
 		return AccommodationInfo.builder()
-				.accommodationNo(accommodation_no)
 				.accommodationType(accommodation_type)
 				.accommodationName(accommodation_name)
 				.accommodationAddress(accommodation_address)
@@ -53,7 +52,6 @@ public class AccommodationInfoDto {
 	
 	public AccommodationInfoDto toDto(AccommodationInfo accommodationInfo) {
 		return AccommodationInfoDto.builder()
-				.accommodation_no(accommodationInfo.getAccommodationNo())
 				.accommodation_type(accommodationInfo.getAccommodationType())
 				.accommodation_name(accommodationInfo.getAccommodationName())
 				.accommodation_address(accommodationInfo.getAccommodationAddress())
