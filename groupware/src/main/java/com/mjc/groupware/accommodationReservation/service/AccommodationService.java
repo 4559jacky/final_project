@@ -33,4 +33,8 @@ public class AccommodationService {
         return list;
     }
 
+    //
+    
+    
+    
 }

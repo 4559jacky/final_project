@@ -35,6 +35,7 @@ public class AccommodationInfoDto {
 	
 	public AccommodationInfo toEntity() {
 		return AccommodationInfo.builder()
+//				.accommodationNo(accommodation_no)
 				.accommodationType(accommodation_type)
 				.accommodationName(accommodation_name)
 				.accommodationAddress(accommodation_address)

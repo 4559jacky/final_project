@@ -50,7 +50,7 @@ public class AccommodationAttach {
 	
 	@ManyToOne
 	@JoinColumn(name="accommodation_no")
-	private AccommodationInfo accommodation_no;
+	private AccommodationInfo accommodationNo;
 	
 	
 }
