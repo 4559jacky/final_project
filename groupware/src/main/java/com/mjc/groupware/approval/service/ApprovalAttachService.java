@@ -3,6 +3,7 @@ package com.mjc.groupware.approval.service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.approval.entity.ApprovalAttach;
 import com.mjc.groupware.approval.repository.ApprovalAttachRepository;
+import com.mjc.groupware.notice.entity.Attach;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,5 +56,13 @@ public class ApprovalAttachService {
             approvalAttachRepository.deleteById(id);
         });
     }
+	
+	public List<ApprovalAttach> findByApproval(Approval approval) {
+		List<ApprovalAttach> attachList = approvalAttachRepository.findByApproval(approval);
+		for(ApprovalAttach a : attachList) {
+			System.out.println("원래 파일 이름 : "+a.getOriName());
+		}
+		return attachList;
+	}
 	
 }

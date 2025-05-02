@@ -1,5 +1,6 @@
 package com.mjc.groupware.approval.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.approval.dto.ApprAgreementerDto;
 import com.mjc.groupware.approval.dto.ApprApproverDto;
@@ -54,6 +56,7 @@ public class ApprovalService {
 	private final PlanRepository planRepository;
 	private final MemberRepository memberRepository;
 	private final ApprovalMapper approvalMapper;
+	private final ApprovalAttachService approvalAttachService;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
@@ -111,7 +114,7 @@ public class ApprovalService {
 	
 	// 결재 승인 요청
 	@Transactional(rollbackFor = Exception.class)
-	public int createApprovalApi(ApprovalDto approvalDto) {
+	public int createApprovalApi(ApprovalDto approvalDto , List<MultipartFile> files) {
 		int result = 0;
 		
 		try {
@@ -175,6 +178,19 @@ public class ApprovalService {
 					}
 				}
 			}
+			
+			 if (files != null && !files.isEmpty()) {
+		            for (MultipartFile file : files) {
+		                if (!file.isEmpty()) {
+		                    try {
+		                    	approvalAttachService.saveFile(file, saved);
+		                    } catch (IOException e) {
+		                        e.printStackTrace();
+		                        return 0;
+		                    }
+		                }
+		            }
+		        }
 
 			result = 1;
 		} catch(Exception e) {
@@ -574,7 +590,7 @@ public class ApprovalService {
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
-	public int retryApprovalApi(ApprovalDto approvalDto) {
+	public int retryApprovalApi(ApprovalDto approvalDto, List<MultipartFile> files, List<Long> deleteFiles) {
 		int result = 0;
 		
 		try {
@@ -600,6 +616,30 @@ public class ApprovalService {
 			Approval newEntity = approvalDto.toEntity();
 			
 			approvalRepository.save(newEntity);
+			
+			if (deleteFiles != null) {
+				System.out.println("test");
+		        for (Long id : deleteFiles) {
+		            try {
+		                approvalAttachService.deleteAttachById(id);  // 실제 삭제
+		            } catch (Exception e) {
+		                e.printStackTrace();
+		            }
+		        }
+		    }
+			
+			if (files != null && !files.isEmpty()) {
+		        for (MultipartFile file : files) {
+		            if (!file.isEmpty()) {
+		                try {
+		                	approvalAttachService.saveFile(file, newEntity);
+		                } catch (IOException e) {
+		                    e.printStackTrace();
+		                    return 0;
+		                }
+		            }
+		        }
+		    }
 			
 			result = 1;
 			
