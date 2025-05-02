@@ -62,8 +62,37 @@
          th:utext="${board.boardContent ?: '내용 없음'}">
     </div>
     
-    <!--투표 상세 추가-->
-    <hr>
+    <!-- 투표 정보 영역 추가 (상세내용과 첨부파일 사이에 삽입) -->
+<hr>
+<div th:if="${board.vote != null}" class="mt-4">
+  <h5 class="fw-bold">[투표] <span th:text="${board.vote.voteTitle}">투표 제목</span></h5>
+
+  <div class="mb-3">
+    <p>마감일시: <span th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}">2025-05-10</span></p>
+    <p>익명 여부: <span th:text="${board.vote.isAnonymous == 'Y' ? '익명' : '실명'}"></span></p>
+    <p>복수 선택 가능: <span th:text="${board.vote.isMultiple == 'Y' ? '예' : '아니오'}"></span></p>
+  </div>
+
+  <!-- ✅ 투표 폼 추가 -->
+  <form id="voteForm" th:data-vote-no="${board.vote.voteNo}">
+    <ul class="list-group mb-3">
+      <li class="list-group-item d-flex align-items-center"
+          th:each="option : ${board.vote.voteOptions}">
+        <input type="checkbox"
+               th:name="optionNos"
+               th:id="'option-' + ${option.optionNo}"
+               th:value="${option.optionNo}"
+               class="form-check-input me-2"
+               th:attr="type=${board.vote.isMultiple == 'Y' ? 'checkbox' : 'radio'}" />
+        <label class="form-check-label" th:for="'option-' + ${option.optionNo}"
+               th:text="${option.optionText}">항목</label>
+      </li>
+    </ul>
+
+    <button type="button" class="btn btn-primary" onclick="submitVote()">투표하기</button>
+  </form>
+</div>
+<hr>
 
 <!-- 첨부파일 -->
 <div class="pt-3">
@@ -405,7 +434,46 @@
         });
       });
     });
+    
   </script>
+  
+  <script th:inline="javascript">
+  function submitVote() {
+    const form = document.getElementById('voteForm');
+    const voteNo = form.getAttribute('data-vote-no');
+    const selectedOptions = Array.from(form.querySelectorAll("input[name='optionNos']:checked"))
+      .map(opt => opt.value);
+
+    if (selectedOptions.length === 0) {
+      alert("하나 이상의 항목을 선택해주세요.");
+      return;
+    }
+
+    // ✅ 로그인 사용자 번호를 안전하게 Thymeleaf로 주입 (null 대비 포함)
+    const memberNo = /*[[${#authentication != null and #authentication.principal != null and #authentication.principal.member != null ? #authentication.principal.member.memberNo : 0}]]*/ 0;
+
+    // ✅ CSRF 헤더값 처리
+    const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+    const csrfToken = /*[[${_csrf.token}]]*/ '';
+
+    fetch(`/vote/${voteNo}/submit?memberNo=${memberNo}&` + new URLSearchParams({
+      optionNos: selectedOptions
+    }), {
+      method: 'POST',
+      headers: {
+        [csrfHeader]: csrfToken
+      }
+    })
+      .then(res => res.ok ? res.text() : Promise.reject("투표 실패"))
+      .then(() => {
+        alert("투표 완료!");
+        location.reload();
+      })
+      .catch(err => {
+        alert("투표 중 오류 발생: " + err);
+      });
+  }
+</script>
 
   <!-- Start Editor JS -->
   <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>

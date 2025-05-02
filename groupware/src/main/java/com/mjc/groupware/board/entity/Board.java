@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.mjc.groupware.common.converter.BooleanYNConverter;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.vote.entity.Vote;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,10 +21,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,7 +55,7 @@ public class Board {
     private int views = 0;
 
     @Column(name = "board_status", nullable = false)
-    private String boardStatus = "N"; // 삭제되지 않은 상태 기본값 'N'
+    private String boardStatus = "N";
 
     @CreationTimestamp
     @Column(updatable = false, name = "reg_date")
@@ -75,17 +76,21 @@ public class Board {
     @Convert(converter = BooleanYNConverter.class)
     private Boolean isFixed;
 
+    // 변경된 부분: vote는 Vote 테이블에서 board_no를 참조하고 있음
+    @OneToOne(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Vote vote;
+
     @PrePersist
     public void prePersist() {
         if (isFixed == null) {
-            isFixed = false;  // 기본값 false로 설정
+            isFixed = false;
         }
     }
 
     @PreUpdate
     public void preUpdate() {
         if (isFixed == null) {
-            isFixed = false;  // 업데이트 전 null 값을 false로 설정
+            isFixed = false;
         }
     }
 }
