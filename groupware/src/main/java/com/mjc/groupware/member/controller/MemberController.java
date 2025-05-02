@@ -648,10 +648,6 @@ public class MemberController {
 		model.addAttribute("loginLogs", loginLogs);
 		model.addAttribute("pageDto", pageDto);
 		
-		System.out.println(pageDto.getNowPage());
-		System.out.println(pageDto.getPageBarStart());
-		System.out.println(pageDto.getPageBarEnd());
-		
 		List<String> loginLogWithBrowserInfo = new ArrayList<>();
 		for (LoginLog log : loginLogs) {
 	        String browserInfo = getBrowserInfo(log.getLoginAgent());
