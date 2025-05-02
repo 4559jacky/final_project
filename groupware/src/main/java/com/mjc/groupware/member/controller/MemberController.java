@@ -34,6 +34,7 @@ import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
+import com.mjc.groupware.member.dto.LogPageDto;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberCreateRequestDto;
 import com.mjc.groupware.member.dto.MemberCreationDto;
@@ -43,9 +44,11 @@ import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.dto.StatusDto;
+import com.mjc.groupware.member.entity.LoginLog;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;
+import com.mjc.groupware.member.service.LoginLogService;
 import com.mjc.groupware.member.service.MemberAttachService;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.member.service.RoleService;
@@ -54,6 +57,7 @@ import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.repository.PosRepository;
 import com.mjc.groupware.pos.service.PosService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -74,6 +78,7 @@ public class MemberController {
 	private final RoleService roleService;
 	private final AddressService addressService;
 	private final CompanyService companyService;
+	private final LoginLogService loginLogService;
 	private final PosRepository posRepository;
 	
 	@GetMapping("/login")
@@ -600,7 +605,7 @@ public class MemberController {
 	}
 	
 	@GetMapping("/member/{id}/update")
-	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model) {
+	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model, LogPageDto pageDto) {
 		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
@@ -617,6 +622,10 @@ public class MemberController {
 		
 		// 각각의 사원이 본인의 정보를 수정하는 페이지로 이동
 		Member member = service.selectMemberOneByMemberNo(MemberDto.builder().member_no(memberNo).build());
+		if (member == null) {
+		    throw new EntityNotFoundException("해당 회원을 찾을 수 없습니다.");
+		}
+		
 		List<String> addr1List = addressService.selectAddr1Distinct();
 		List<String> addr2List = addressService.selectAddr2ByAddr1(member.getMemberAddr1());
 		
@@ -629,7 +638,98 @@ public class MemberController {
 		model.addAttribute("selectedAddr2", member.getMemberAddr2());
 		model.addAttribute("memberAttachDto", memberAttachDto);
 		
+		// 로그인 이력 리스트를 조회해서 같이 넘겨주기 위함
+		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		
+		Page<LoginLog> loginLogs = loginLogService.findByMemberOrderByLoginTimeDesc(member, pageDto);
+		
+		pageDto.setTotalPage(loginLogs.getTotalPages());
+		
+		model.addAttribute("loginLogs", loginLogs);
+		model.addAttribute("pageDto", pageDto);
+		
+		System.out.println(pageDto.getNowPage());
+		System.out.println(pageDto.getPageBarStart());
+		System.out.println(pageDto.getPageBarEnd());
+		
+		List<String> loginLogWithBrowserInfo = new ArrayList<>();
+		for (LoginLog log : loginLogs) {
+	        String browserInfo = getBrowserInfo(log.getLoginAgent());
+	        loginLogWithBrowserInfo.add(browserInfo);
+	    }
+		
+		model.addAttribute("loginLogWithBrowserInfo", loginLogWithBrowserInfo);
+		
+		List<String> loginLogWithDeviceInfo = new ArrayList<>();
+		for (LoginLog log : loginLogs) {
+	        String deviceInfo = getDeviceType(log.getLoginAgent());
+	        loginLogWithDeviceInfo.add(deviceInfo);
+	    }
+
+		model.addAttribute("loginLogWithDeviceInfo", loginLogWithDeviceInfo);
+				
 		return "member/myPage";
+	}
+	
+	private String getBrowserInfo(String userAgent) {
+	    // 브라우저 정보에서 브라우저 이름만 파싱하는 메소드
+	    if (userAgent.contains("Edg")) {
+	        // "Edg/"로 정확한 버전 추출
+	        String[] edgeParts = userAgent.split("Edg/");
+	        if (edgeParts.length > 1) {
+	            String version = edgeParts[1].split(" ")[0];
+	            String[] versionParts = version.split("\\.");
+	            return "Edge " + versionParts[0] + "." + versionParts[1];
+	        }
+	    } else if (userAgent.contains("Chrome")) {
+	        // "Chrome/" 버전이 "Edg/"보다 뒤에 나오는 경우 처리
+	        String[] chromeParts = userAgent.split("Chrome/");
+	        if (chromeParts.length > 1) {
+	            String version = chromeParts[1].split(" ")[0];
+	            String[] versionParts = version.split("\\.");
+	            return "Chrome " + versionParts[0] + "." + versionParts[1];
+	        }
+	    } else if (userAgent.contains("Firefox")) {
+	        String version = userAgent.split("Firefox/")[1].split(" ")[0];
+	        String[] versionParts = version.split("\\.");
+	        return "Firefox " + versionParts[0] + "." + versionParts[1];
+	    } else if (userAgent.contains("Safari") && userAgent.contains("Version")) {
+	        String version = userAgent.split("Version/")[1].split(" ")[0];
+	        String[] versionParts = version.split("\\.");
+	        return "Safari " + versionParts[0] + "." + versionParts[1];
+	    } else if (userAgent.contains("Trident")) {
+	        String version = userAgent.split("rv:")[1].split(" ")[0];
+	        String[] versionParts = version.split("\\.");
+	        return "IE " + versionParts[0] + "." + versionParts[1];
+	    }
+	    return "Unknown";
+	}
+	
+	private String getDeviceType(String userAgent) {
+		// 브라우저 정보에서 디바이스 이름만 파싱하는 메소드
+	    if (userAgent == null) {
+	        return "Unknown";
+	    }
+	    
+	    if (userAgent.contains("iPhone")) {
+	        return "iPhone";
+	    } else if (userAgent.contains("Android")) {
+	        return "Android";
+	    } else if (userAgent.contains("Windows Phone")) {
+	        return "Windows Phone";
+	    } else if (userAgent.contains("iPad")) {
+	        return "iPad";
+	    } else if (userAgent.contains("Tablet")) {
+	        return "Tablet";
+	    } else if (userAgent.contains("Windows")) {
+	        return "Windows";
+	    } else if (userAgent.contains("Macintosh")) {
+	        return "Mac";
+	    } else if (userAgent.contains("Linux")) {
+	        return "Linux";
+	    }
+	    
+	    return "Unknown";
 	}
 	
 	@PostMapping("/member/{id}/update/image")
