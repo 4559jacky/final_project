@@ -65,7 +65,16 @@
     <!-- 투표 정보 영역 추가 (상세내용과 첨부파일 사이에 삽입) -->
 <hr>
 <div th:if="${board.vote != null}" class="mt-4">
-  <h5 class="fw-bold">[투표] <span th:text="${board.vote.voteTitle}">투표 제목</span></h5>
+  <h5 class="fw-bold">
+  [투표] <span th:text="${board.vote.voteTitle}">투표 제목</span>
+  <small class="text-muted ms-2" style="font-size: 0.9rem;">
+    [
+    <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
+    <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
+    <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
+    ]
+  </small>
+</h5>
 
   <div class="mb-3">
     <p>마감일시: <span th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}">2025-05-10</span></p>
@@ -73,7 +82,7 @@
     <p>복수 선택 가능: <span th:text="${board.vote.isMultiple == 'Y' ? '예' : '아니오'}"></span></p>
   </div>
 
-  <!-- ✅ 투표 폼 추가 -->
+  <!-- 투표 폼 추가 -->
   <form id="voteForm" th:data-vote-no="${board.vote.voteNo}">
     <ul class="list-group mb-3">
       <li class="list-group-item d-flex align-items-center"
@@ -90,6 +99,7 @@
     </ul>
 
     <button type="button" class="btn btn-primary" onclick="submitVote()">투표하기</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteResultModal">결과 차트 확인</button>
   </form>
 </div>
 <hr>
