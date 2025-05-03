@@ -168,6 +168,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				
 					setTimeout(function () {
 						alertBox.classList.add('d-none');
+						
+						// URL에서 에러 관련 파라미터를 제거(새로고침 했을 때는 안 떠야하기 때문)
+						const url = new URL(window.location);
+						url.searchParams.delete('error');
+						url.searchParams.delete('errorMsg');
+						window.history.replaceState({}, document.title, url.pathname);
 					}, 300);
 				}, 3000);
 			}

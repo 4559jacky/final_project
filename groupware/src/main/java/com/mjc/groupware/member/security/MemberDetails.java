@@ -35,7 +35,7 @@ public class MemberDetails implements UserDetails {
 	public String getPassword() {
 		return member.getMemberPw();
 	}
-
+	
 	// 사용자 ID 반환
 	@Override
 	public String getUsername() {
@@ -64,7 +64,10 @@ public class MemberDetails implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		// 계정이 사용 가능한지 확인하는 로직이 필요하다면 추가할 것
-		return true;
+		
+		// 로그인 직전 :: 로그인 하려는 멤버 객체의 상태를 뽑아서 400, 401, 402 || 900 일 경우 차단
+		int status = member.getStatus();
+	    return !(status >= 400 && status <= 402 || status == 900);
 	}
 	
 }

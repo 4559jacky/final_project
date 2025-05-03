@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.approval.dto.ApprovalDto;
 import com.mjc.groupware.approval.dto.ApprovalFormDto;
@@ -28,9 +29,11 @@ import com.mjc.groupware.approval.entity.ApprAgreementer;
 import com.mjc.groupware.approval.entity.ApprApprover;
 import com.mjc.groupware.approval.entity.ApprReferencer;
 import com.mjc.groupware.approval.entity.Approval;
+import com.mjc.groupware.approval.entity.ApprovalAttach;
 import com.mjc.groupware.approval.entity.ApprovalForm;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo;
 import com.mjc.groupware.approval.mybatis.vo.ApprovalVo;
+import com.mjc.groupware.approval.service.ApprovalAttachService;
 import com.mjc.groupware.approval.service.ApprovalService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
@@ -47,6 +50,7 @@ public class ApprovalController {
 	
 	private final ApprovalService service;
 	private final MemberService memberService;
+	private final ApprovalAttachService approvalAttachService;
 
 	// 관리자 : 관리자만 접근 가능한 url
 	
@@ -191,12 +195,14 @@ public class ApprovalController {
 	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
 	    
 	    int return_result = service.selectReturnApprovalByApprovalNo(id);
-	    System.out.println(return_result);
+	    
+	    List<ApprovalAttach> attachList= approvalAttachService.findByApproval(approval);
 	    
 	    model.addAttribute("approval", approval);
 	    model.addAttribute("approverList", approverList);
 	    model.addAttribute("agreementerList", agreementerList);
 	    model.addAttribute("referencerList", referencerList);
+	    model.addAttribute("attachList", attachList);
 	    model.addAttribute("return_result", return_result);
 		
 		return "/approval/user/sendApprovalDetail";
@@ -243,7 +249,10 @@ public class ApprovalController {
 	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
 	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
 	    
+	    List<ApprovalAttach> attachList= approvalAttachService.findByApproval(approval);
+	    
 	    model.addAttribute("approval", approval);
+	    model.addAttribute("attachList", attachList);
 	    model.addAttribute("approverList", approverList);
 	    model.addAttribute("agreementerList", agreementerList);
 	    model.addAttribute("referencerList", referencerList);
@@ -298,14 +307,15 @@ public class ApprovalController {
 	
 	@PostMapping("/approval/create")
 	@ResponseBody
-	public Map<String,String> createApprovalApi(ApprovalDto approvalDto) {
+	public Map<String,String> createApprovalApi(ApprovalDto approvalDto,
+												@RequestParam("files") List<MultipartFile> files) {
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "결재 요청에 실패하였습니다.");
 		
 		System.out.println("결재자 : "+approvalDto.getApprover_no().get(0));
 		
-		int result = service.createApprovalApi(approvalDto);
+		int result = service.createApprovalApi(approvalDto, files);
 		
 		if(result > 0) {
 			resultMap.put("res_code", "200");
@@ -447,6 +457,56 @@ public class ApprovalController {
 		if(result > 0) {
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "결재가 회수요청되었습니다.");
+		}
+	    
+	    return resultMap;
+	}
+	
+	@GetMapping("/approval/retry/{id}")
+	public String retryApprovalViewApi(@PathVariable("id") Long id, Model model,  @AuthenticationPrincipal UserDetails userDetails) {
+
+	    // 현재 로그인한 사용자 정보 불러오기
+		String userId = userDetails.getUsername();
+		
+
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+//	    MemberDto member = new MemberDto().toDto(entity);
+
+	    // 기존 결재 데이터 가져오기
+	    Approval approval = service.selectApprovalOneByApprovalNo(id);
+	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
+	    List<ApprAgreementer> agreementerList = service.selectApprAgreementerAllByApprovalNo(id);
+	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
+	    List<ApprovalAttach> attachList= approvalAttachService.findByApproval(approval);
+	    
+	    
+	    model.addAttribute("approval", approval);
+	    model.addAttribute("attachList", attachList);
+	    model.addAttribute("approverList", approverList);
+	    model.addAttribute("agreementerList", agreementerList);
+	    model.addAttribute("referencerList", referencerList);
+	    model.addAttribute("member", member);
+
+	    return "approval/user/retryApproval";
+	}
+	
+	@PostMapping("/approval/retry")
+	@ResponseBody
+	public Map<String,String> retryApprovalApi(ApprovalDto approvalDto,
+			@RequestParam(value = "files", required = false) List<MultipartFile> files,
+			   @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "결재 재요청에 실패하였습니다.");
+		
+	    int result = service.retryApprovalApi(approvalDto, files, deleteFiles);
+	    
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "결재가 재요청되었습니다.");
 		}
 	    
 	    return resultMap;
