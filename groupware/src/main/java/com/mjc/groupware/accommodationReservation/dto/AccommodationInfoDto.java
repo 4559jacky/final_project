@@ -1,6 +1,9 @@
 package com.mjc.groupware.accommodationReservation.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 
@@ -32,6 +35,8 @@ public class AccommodationInfoDto {
 	private String accommodation_content;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
+	
+	private List<MultipartFile> files;
 	
 	public AccommodationInfo toEntity() {
 		return AccommodationInfo.builder()

@@ -44,7 +44,7 @@ layout:decorate="~{/include/layout}">
 		        <span>@이곳에 파일을 드래그 하세요.</span><br>
 		        <span> 또는 파일 업로드를 클릭하세요</span><br>
 		        <!-- 실제 업로드 input은 숨기고 라벨로 연결 -->
-		        <input type="file" id="imageUpload" class="d-none">
+		        <input type="file" name="files" id="imageUpload" class="d-none" multiple>
 		        <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
 		      </div>
 		    </div>
@@ -53,7 +53,7 @@ layout:decorate="~{/include/layout}">
 					<input type="hidden" id="accommodation_location" value="서울 강남구">
 					<input type="datetime-local" id="reg_date" style="display: none;">
 					<input type="datetime-local" id="mod_date" style="display: none;">
-
+					
 		
 		    <!-- 오른쪽: 숙소 정보 -->
 		    <div class="col-md-7">
@@ -216,10 +216,10 @@ layout:decorate="~{/include/layout}">
 			    form.append("reg_date", document.getElementById("reg_date").value);
 			    form.append("mod_date", document.getElementById("mod_date").value);
 
-				/* const imageFile = document.getElementById("imageUpload").files[0];
+				const imageFile = document.getElementById("imageUpload").files[0];
 				if(imageFile){
-					form.append("profile_image",imageFile);
-				}  */
+					form.append("files",imageFile);
+				}  
 				
 				fetch("/accommodation/register",{
 					method:"POST",

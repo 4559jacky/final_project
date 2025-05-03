@@ -27,10 +27,6 @@ public class AccommodationAttachDto {
 	private String new_name;
 	private String attach_path;
 	private Long accommodation_no;
-	private LocalDateTime reg_date;
-	private LocalDateTime mod_date;
-	
-	private MultipartFile profile_image;
 	
 	public AccommodationAttach toEntity() {
         return AccommodationAttach.builder()
@@ -38,9 +34,7 @@ public class AccommodationAttachDto {
                 .oriName(ori_name)
                 .newName(new_name)
                 .attachPath(attach_path)
-                .accommodationNo(AccommodationInfo.builder().accommodationNo(accommodation_no).build())
-                .regDate(reg_date)
-                .modDate(mod_date)
+                .accommodationInfo(AccommodationInfo.builder().accommodationNo(accommodation_no).build())
                 .build();
     }
 	

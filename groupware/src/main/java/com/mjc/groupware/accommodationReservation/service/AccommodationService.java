@@ -13,18 +13,16 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AccommodationService {
-
+	
 	private final AccommodationInfoRepository accommodationInfoRepository;
-
 	// 숙소등록
-    public void register(AccommodationInfoDto dto) {
-        AccommodationInfo entity = dto.toEntity();
-        accommodationInfoRepository.save(entity);
-    }
+	public AccommodationInfo register(AccommodationInfoDto dto) {
+		AccommodationInfo entity = dto.toEntity();
+		return accommodationInfoRepository.save(entity);
+	}
     
     // 목록출력
     public List<AccommodationInfo> getAllAccommodations() {
-        //return accommodationInfoRepository.findAll();
     	List<AccommodationInfo> list = accommodationInfoRepository.findAll();
         System.out.println("조회된 숙소 수: " + list.size());
         for (AccommodationInfo info : list) {
@@ -32,9 +30,7 @@ public class AccommodationService {
         }
         return list;
     }
+    
 
-    //
-    
-    
-    
+
 }
