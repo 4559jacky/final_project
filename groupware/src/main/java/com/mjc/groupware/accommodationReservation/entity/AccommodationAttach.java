@@ -40,13 +40,13 @@ public class AccommodationAttach {
 	@Column(name="attach_path")
 	private String attachPath;
 	
-//	@CreationTimestamp
-//	@Column(updatable=false,name="reg_date")
-//	private LocalDateTime regDate;
-//	
-//	@UpdateTimestamp
-//	@Column(insertable=false,name="mod_date")
-//	private LocalDateTime modDate;
+	@CreationTimestamp
+	@Column(updatable=false,name="reg_date")
+	private LocalDateTime regDate;
+	
+	@UpdateTimestamp
+	@Column(insertable=false,name="mod_date")
+	private LocalDateTime modDate;
 	
 	@ManyToOne
 	@JoinColumn(name="accommodation_no")
