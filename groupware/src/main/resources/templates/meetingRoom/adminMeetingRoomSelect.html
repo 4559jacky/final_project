@@ -8,6 +8,7 @@ layout:decorate="~{/include/layout}">
 		<link rel="stylesheet"
 			href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 		<link th:href="@{/css/ysw.css}" rel="stylesheet">
+		<link th:href="@{/css/cjs/meeting_room.css}" rel="stylesheet">
 		
   		<!-- 상단 메뉴 표시  -->
         <div class="col-lg-8 col-md-6 col-12 align-self-center">
@@ -24,13 +25,14 @@ layout:decorate="~{/include/layout}">
           <h2 class="mb-0 fw-bolder fs-8">회의실 관리</h2>
         </div><br>
         
-        <div class="d-flex align-items-center mb-3">
-		    <button class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#meetingRoomModal">+ 회의실 등록</button>
-		</div>
-        
         <!-- 전체 회의실 조회 -->
         <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
-        	<h5 class="card-title" style="font-weight: bold; color: black;">전체 회의실 조회</h5><br>
+        	<div class="d-flex justify-content-between align-items-center mb-3">
+		        <h5 class="card-title mb-0 fw-bold">전체 회의실 조회</h5>
+		        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#meetingRoomModal">
+		            + 회의실 등록
+		        </button>
+		    </div>
 		    <div class="table-responsive">
 			    <table class="table align-middle text-center">
 			    	<thead class="table-light">

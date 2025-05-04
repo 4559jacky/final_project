@@ -278,20 +278,20 @@ public class MeetingRoomController {
 	}
 	
 	// 관리자 - 회의실 수정
-		@PostMapping("/admin/update")
-		@ResponseBody
-		public Map<String,String> adminUpdateMeetingRoom(MeetingRoomDto dto){
-			Map<String,String> resultMap = new HashMap<String,String>();
-			resultMap.put("res_code", "500");
-			resultMap.put("res_msg", "회의실 수정 중 오류가 발생하였습니다.");
-			
-			int result = service.adminUpdateMeetingRoom(dto);
-			
-			if(result > 0 ) {
-				resultMap.put("res_code","200");
-				resultMap.put("res_msg", "회의실 수정이 완료되었습니다.");
-			}
-			return resultMap;
+	@PostMapping("/admin/update")
+	@ResponseBody
+	public Map<String,String> adminUpdateMeetingRoom(MeetingRoomDto dto){
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "회의실 수정 중 오류가 발생하였습니다.");
+		
+		int result = service.adminUpdateMeetingRoom(dto);
+		
+		if(result > 0 ) {
+			resultMap.put("res_code","200");
+			resultMap.put("res_msg", "회의실 수정이 완료되었습니다.");
 		}
+		return resultMap;
+	}
 	
 }
