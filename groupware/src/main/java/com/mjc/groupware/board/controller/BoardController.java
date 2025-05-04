@@ -107,7 +107,11 @@ public class BoardController {
 
         if (board.getVote() != null) {
             model.addAttribute("vote", board.getVote());
-            model.addAttribute("voteOptions", board.getVote().getVoteOptions()); // ✅ 옵션 주입
+            model.addAttribute("voteOptions", board.getVote().getVoteOptions()); // 옵션 주입
+            
+         // 마감 여부 계산 후 모델에 추가
+            boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
+            model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
         return "board/detail";

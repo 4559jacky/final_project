@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -140,4 +143,20 @@ public class VoteService {
             resultRepo.save(result);
         }
     }
+    // 투표 차트 기능 추가
+    public List<Map<String, Object>> getVoteResultForChart(Long voteNo) {
+        List<VoteOption> options = optionRepo.findByVote_VoteNo(voteNo);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (VoteOption option : options) {
+            int count = resultRepo.countByOption_OptionNo(option.getOptionNo());
+            Map<String, Object> map = new HashMap<>();
+            map.put("optionText", option.getOptionText());
+            map.put("voteCount", count);
+            result.add(map);
+        }
+
+        return result;
+    }
+    
 }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface VoteOptionRepository extends JpaRepository<VoteOption, Long> {
     List<VoteOption> findByVote(Vote vote);
+
+    List<VoteOption> findByVote_VoteNo(Long voteNo); // ✅ 연관관계 경로에 맞게 수정
 }

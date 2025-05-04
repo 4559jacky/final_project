@@ -62,19 +62,19 @@
          th:utext="${board.boardContent ?: '내용 없음'}">
     </div>
     
-    <!-- 투표 정보 영역 추가 (상세내용과 첨부파일 사이에 삽입) -->
+<!-- 투표 정보 영역 -->
 <hr>
 <div th:if="${board.vote != null}" class="mt-4">
   <h5 class="fw-bold">
-  [투표] <span th:text="${board.vote.voteTitle}">투표 제목</span>
-  <small class="text-muted ms-2" style="font-size: 0.9rem;">
-    [
-    <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
-    <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
-    <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
-    ]
-  </small>
-</h5>
+    [투표] <span th:text="${board.vote.voteTitle}">투표 제목</span>
+    <small class="text-muted ms-2" style="font-size: 0.9rem;">
+      [
+      <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
+      <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
+      <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
+      ]
+    </small>
+  </h5>
 
   <div class="mb-3">
     <p>마감일시: <span th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}">2025-05-10</span></p>
@@ -82,13 +82,12 @@
     <p>복수 선택 가능: <span th:text="${board.vote.isMultiple == 'Y' ? '예' : '아니오'}"></span></p>
   </div>
 
-  <!-- 투표 폼 추가 -->
-  <form id="voteForm" th:data-vote-no="${board.vote.voteNo}">
+  <!-- ✅ 투표 가능한 경우 -->
+  <form th:if="${not isVoteClosed}" id="voteForm" th:data-vote-no="${board.vote.voteNo}">
     <ul class="list-group mb-3">
       <li class="list-group-item d-flex align-items-center"
           th:each="option : ${board.vote.voteOptions}">
-        <input type="checkbox"
-               th:name="optionNos"
+        <input th:name="optionNos"
                th:id="'option-' + ${option.optionNo}"
                th:value="${option.optionNo}"
                class="form-check-input me-2"
@@ -99,8 +98,37 @@
     </ul>
 
     <button type="button" class="btn btn-primary" onclick="submitVote()">투표하기</button>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteResultModal">결과 차트 확인</button>
   </form>
+
+  <!-- 투표 마감 안내 -->
+  <div th:if="${isVoteClosed}" class="alert alert-warning mt-3">
+    투표가 마감되었습니다.
+  </div>
+
+  <!-- 결과 차트는 항상 표시 -->
+  <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#voteResultModal">
+    결과 차트 확인
+  </button>
+
+  <!-- 결과 차트 모달 -->
+  <div class="modal fade"
+     id="voteResultModal"
+     th:attr="data-vote-no=${board.vote.voteNo}"
+     tabindex="-1"
+     aria-labelledby="voteResultModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="voteResultModalLabel">투표 결과</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+        <div class="modal-body">
+          <canvas id="voteResultChart" width="300" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <hr>
 
@@ -384,21 +412,30 @@
 
     // 답글 토글 및 대댓글 폼 표시
     function toggleSubReply(element) {
-      const replyNo = element.getAttribute('data-reply-no');
-      const boardNo = element.getAttribute('data-board-no');
-      const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
-      const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
-      const subReplyCount = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
-      const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
-      if (subReplyList) {
-        subReplyList.classList.toggle('collapsed');
-        element.innerText = isCollapsed ? `답글 ${subReplyCount}개(▼)` : `답글 ${subReplyCount}개(▲)`;
-      }
-      document.querySelectorAll('.sub-reply-write').forEach(form => {
-        form.style.display = 'none';
-      });
-      subReplyForm.style.display = subReplyForm.style.display === 'block' ? 'none' : 'block';
-    }
+  const replyNo = element.getAttribute('data-reply-no');
+  const boardNo = element.getAttribute('data-board-no');
+  const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
+  const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
+  const subReplyCount = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
+
+  // 현재 접힘 상태 판단 (리스트 기준으로 판단)
+  const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
+
+  // 리스트 접기/펼치기
+  if (subReplyList) {
+    subReplyList.classList.toggle('collapsed');
+  }
+
+  // 폼도 같이 접기/펼치기
+  if (subReplyForm) {
+    subReplyForm.style.display = isCollapsed ? 'block' : 'none';
+  }
+
+  // 텍스트 변경
+  element.innerText = isCollapsed
+    ? `답글 ${subReplyCount}개(▼)`
+    : `답글 ${subReplyCount}개(▲)`;
+}
 
     // 대댓글 폼 제출 처리
     document.querySelectorAll('.sub-reply-form-content').forEach(form => {
@@ -459,10 +496,10 @@
       return;
     }
 
-    // ✅ 로그인 사용자 번호를 안전하게 Thymeleaf로 주입 (null 대비 포함)
+    // 로그인 사용자 번호를 안전하게 Thymeleaf로 주입 (null 대비 포함)
     const memberNo = /*[[${#authentication != null and #authentication.principal != null and #authentication.principal.member != null ? #authentication.principal.member.memberNo : 0}]]*/ 0;
 
-    // ✅ CSRF 헤더값 처리
+    // CSRF 헤더값 처리
     const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
     const csrfToken = /*[[${_csrf.token}]]*/ '';
 
@@ -483,7 +520,67 @@
         alert("투표 중 오류 발생: " + err);
       });
   }
+  
+  // chart.js를 사용하기 위한 스크립트
+ document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
+  // voteNo를 모달의 data 속성에서 안전하게 가져옴
+  const voteNo = this.getAttribute('data-vote-no');
+
+  fetch(`/vote/${voteNo}/result`, {
+    headers: {
+      [csrfHeader]: csrfToken
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const labels = data.map(opt => opt.optionText);
+    const counts = data.map(opt => opt.voteCount);
+
+    const ctx = document.getElementById('voteResultChart').getContext('2d');
+
+    if (window.voteChart) {
+      window.voteChart.destroy();
+    }
+
+    window.voteChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '투표 수',
+          data: counts,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                const value = context.raw;
+                const percent = ((value / total) * 100).toFixed(1);
+                return `${context.label}: ${value}표 (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  })
+  .catch(err => {
+    alert("투표 결과를 불러오는 데 실패했습니다.");
+    console.error(err);
+  });
+});
 </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Start Editor JS -->
   <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>

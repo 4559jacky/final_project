@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -72,7 +73,7 @@ public class VoteController {
     }
     
 
-    // ✅ 게시글 번호로 투표 삭제
+    // 게시글 번호로 투표 삭제
     @DeleteMapping("/vote/delete/by-board/{boardNo}")
     @ResponseBody
     public ResponseEntity<String> deleteVoteByBoard(@PathVariable("boardNo") Long boardNo) {
@@ -82,5 +83,13 @@ public class VoteController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("삭제할 투표가 없습니다.");
         }
+    }
+    
+ // 투표 결과 조회 (Chart.js 용 데이터)
+    @GetMapping("/vote/{voteNo}/result")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getVoteResult(@PathVariable("voteNo") Long voteNo) {
+        List<Map<String, Object>> result = voteService.getVoteResultForChart(voteNo);
+        return ResponseEntity.ok(result);
     }
 }
