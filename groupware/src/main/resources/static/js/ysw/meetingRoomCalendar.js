@@ -150,7 +150,27 @@ document.addEventListener("DOMContentLoaded", function () {
     initialView: checkWidowWidth() ? "listWeek" : "dayGridMonth",
     initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
     headerToolbar: calendarHeaderToolbar,
-    events: '/selectReservation',
+	events: function (fetchInfo, successCallback, failureCallback) {
+	  fetch('/selectReservation', {
+	    method: 'GET',
+	    headers: {
+	      'X-Custom-Ajax': 'true'
+	    }
+	  })
+	  .then(response => {
+	    if (!response.ok) {
+	      throw new Error('네트워크 오류');
+	    }
+	    return response.json();
+	  })
+	  .then(data => {
+	    successCallback(data);
+	  })
+	  .catch(error => {
+	    console.error('이벤트 로딩 실패:', error);
+	    failureCallback(error);
+	  });
+	},
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
