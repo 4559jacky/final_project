@@ -343,6 +343,7 @@ public class MemberService {
 								.pos(Pos.builder().posNo(memberDto.getPos_no()).build())
 								.dept(Dept.builder().deptNo(memberDto.getDept_no()).build())
 								.role(Role.builder().roleNo(memberDto.getRole_no()).build())
+								.annualLeave(memberDto.getAnnual_leave())
 								.status(memberDto.getStatus())
 								.signature(signature)
 								.build();

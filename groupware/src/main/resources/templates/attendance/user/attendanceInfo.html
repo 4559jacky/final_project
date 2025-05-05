@@ -6,136 +6,165 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
 	
-	<!-- 페이지 레이아웃 -->
 	<div class="container-fluid">
-		<div class="d-flex justify-content-center align-items-center mb-4">
-		  <h4 class="fw-bold mb-0" id="current-date"></h4>
-		</div>
-		<div class="d-flex justify-content-end align-items-center mb-4" style="gap: 20px;">
-		  <div class="text-end">
-		    <h5 class="mb-0 fw-semibold" th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
-		    <p class="mb-0 text-muted" th:text="${#authentication.principal.member.dept.deptName}">부서</p>
-		  </div>
-		  <div>
-		    <th:block th:if="${latestMyProfile != null}">
-		      <img th:src="@{|/uploads/${latestMyProfile.new_name}|}" alt="profile" class="rounded-circle border shadow-sm" width="60" height="60">
-		    </th:block>
-		    <th:block th:if="${latestMyProfile == null}">
-		      <img th:src="@{/img/default_profile.png}" alt="default-profile" class="rounded-circle border shadow-sm" width="60" height="60">
-		    </th:block>
-		  </div>
-		</div>
-	  <div class="row flex-wrap">
+    <!-- 상단 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <h4 class="fw-bold mb-0" id="current-date"></h4>
+      <div class="d-flex align-items-center gap-3">
+        <div class="text-end">
+          <h5 class="mb-0 fw-semibold" th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
+          <p class="mb-0 text-muted" th:text="${#authentication.principal.member.dept.deptName}">부서</p>
+        </div>
+        <div>
+          <img th:src="@{${latestMyProfile != null} ? '/uploads/' + ${latestMyProfile.new_name} : '/img/default_profile.png'}"
+               alt="profile" class="rounded-circle border shadow-sm" width="60" height="60">
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- 왼쪽 카드 -->
+      <div class="col-lg-3">
+        <div class="card p-3 h-100">
+          <h5 class="fw-bold text-primary mb-3">근태관리</h5>
+          <h2 class="fw-bold" id="nowTime">08:45:42</h2>
+
+          <div class="mt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">출근시간</span>
+              <button class="btn btn-primary btn-sm">출근</button>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">퇴근시간</span>
+              <button class="btn btn-primary btn-sm">퇴근</button>
+            </div>
+          </div>
+
+          <hr>
+
+          <h6 class="fw-bold">현장출근일정</h6>
+          <div class="d-flex gap-2 mt-2 flex-wrap">
+            <button class="btn btn-outline-secondary btn-sm">2</button>
+            <button class="btn btn-outline-secondary btn-sm">3</button>
+            <button class="btn btn-outline-secondary btn-sm">4</button>
+            <button class="btn btn-outline-secondary btn-sm">5</button>
+          </div>
+          <ul class="list-unstyled mt-3 small">
+            <li>[대서울팀] 2차 현장미팅 - 화성 11시 출근</li>
+            <li>[지요팀] 인쇄소 방문 - 14시</li>
+            <li>[문서기안팀] 과제보고</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 가운데 근무시간 + 차트 -->
+      <div class="col-lg-9">
+        <div class="card p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+            <div>
+              <h6 class="mb-1">선택적 근로시간</h6>
+              <p class="text-muted mb-0">김세영 대리 / 마케팅팀</p>
+            </div>
+            <div class="text-end">
+              <h4 class="fw-bold">2024.04</h4>
+              <p class="text-muted">오늘</p>
+            </div>
+          </div>
+
+          <div class="progress mb-3" style="height: 25px;">
+            <div class="progress-bar bg-info" style="width: 47%">24h 30m</div>
+          </div>
+          <div class="d-flex justify-content-between small text-muted">
+            <span>최소 40h</span>
+            <span>52h 기준</span>
+            <span>최대 68h</span>
+          </div>
+
+          <ul class="mt-3 small">
+            <li>남은 근무시간 : 15h 30m</li>
+            <li>남은 연장 근무시간 : 12h</li>
+            <li>남은 휴일 연장 근무시간 : 16h</li>
+          </ul>
+        </div>
+
+        <div class="card p-4">
+          <h6 class="fw-bold mb-3">주간 근무시간 요약</h6>
+          <div id="weeklyHoursChart"></div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-4">
+            <div class="card p-3">
+              <h6 class="text-muted">잔여연차</h6>
+              <h5 class="fw-bold text-success">2d 3h</h5>
+              <small class="text-muted">만료 예정: 9d 4h 3m</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-3">
+              <h6 class="text-muted">지각</h6>
+              <h5 class="fw-bold text-danger">2회</h5>
+              <small class="text-muted">1년에 10회 중 2회 발생</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-3">
+              <h6 class="text-muted">조퇴</h6>
+              <h5 class="fw-bold text-primary">3회</h5>
+              <small class="text-muted">1개월에 10회 중 3회 발생</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+  	
+	  function updateTime() {
+		    const now = new Date();
+		    const hours = String(now.getHours()).padStart(2, '0');
+		    const minutes = String(now.getMinutes()).padStart(2, '0');
+		    const seconds = String(now.getSeconds()).padStart(2, '0');
+		    document.getElementById('nowTime').textContent = `${hours}:${minutes}:${seconds}`;
+		  }
 	
-	    <!-- 좌측 사이드바 -->
-	    <div class="col-12 col-lg-3 mb-4">
-	      <div class="card p-3">
-	        <h5 class="fw-bold text-primary mb-3">근태관리</h5>
-	        <h2 class="fw-bold" id="nowTime">08:45:42</h2>
+		  // 페이지 로드 후 매초마다 실행
+		  document.addEventListener("DOMContentLoaded", function () {
+		    updateTime(); // 초기 실행
+		    setInterval(updateTime, 1000); // 1초마다 업데이트
+		  });
+  	
+	    document.addEventListener("DOMContentLoaded", function () {
+	      const now = new Date();
+	      const days = ['일', '월', '화', '수', '목', '금', '토'];
+	      const formatted = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+	      document.getElementById("current-date").textContent = formatted;
 	
-	        <div class="mt-3">
-	          <div class="d-flex justify-content-between mb-2">
-	            <span class="text-muted">출근시간</span>
-	            <span>08:42:33</span>
-	          </div>
-	          <div class="d-flex justify-content-between">
-	            <span class="text-muted">퇴근시간</span>
-	            <button class="btn btn-primary btn-sm">퇴근하기</button>
-	          </div>
-	        </div>
+	      // 차트 그리기
+	      const options = {
+	        chart: { type: 'bar', height: 240 },
+	        series: [{
+	          name: '근무시간(h)',
+	          data: [7.5, 9, 8.5, 7, 6, 0, 0]
+	        }],
+	        xaxis: {
+	          categories: ['월', '화', '수', '목', '금', '토', '일'],
+	        },
+	        colors: ['#0d6efd'],
+	        plotOptions: {
+	          bar: {
+	            borderRadius: 5,
+	            columnWidth: '45%'
+	          }
+	        }
+	      };
 	
-	        <hr>
-	
-	        <h6 class="fw-bold">전체외근 및 현장출근일정</h6>
-	        <div class="d-flex gap-2 mt-2 flex-wrap">
-	          <button class="btn btn-outline-secondary btn-sm">2</button>
-	          <button class="btn btn-outline-secondary btn-sm">3</button>
-	          <button class="btn btn-outline-secondary btn-sm">4</button>
-	          <button class="btn btn-outline-secondary btn-sm">5</button>
-	          <button class="btn btn-outline-secondary btn-sm">6</button>
-	        </div>
-	
-	        <ul class="list-unstyled mt-3 small">
-	          <li>[대서울팀] 2차 현장미팅 <span class="text-muted">- 화성 11시 현장 출근</span></li>
-	          <li>[지요팀] 카톡공고 인쇄 <span class="text-muted">- 14시 인쇄소 방문</span></li>
-	          <li>[문서기안팀] 현장 <span class="text-muted">- 3-5회차 과제 보고</span></li>
-	        </ul>
-	      </div>
-	    </div>
-	
-	    <!-- 우측 본문 -->
-	    <div class="col-12 col-lg-9">
-	      <div class="card p-4 mb-4">
-	        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-	          <div>
-	            <h6 class="mb-1">선택적 근로시간</h6>
-	            <p class="text-muted mb-0">김세영 대리 / 마케팅팀</p>
-	          </div>
-	          <div class="text-end">
-	            <h4 class="fw-bold">2024.04</h4>
-	            <p class="text-muted">오늘</p>
-	          </div>
-	        </div>
-	
-	        <div class="progress mb-3" style="height: 25px;">
-	          <div class="progress-bar bg-info" style="width: 47%">24h 30m</div>
-	        </div>
-	        <div class="d-flex justify-content-between small text-muted">
-	          <span>최소 40h</span>
-	          <span>52h 기준</span>
-	          <span>최대 68h</span>
-	        </div>
-	
-	        <ul class="mt-3 small">
-	          <li>남은 근무시간 : 15h 30m</li>
-	          <li>남은 연장 근무시간 : 12h</li>
-	          <li>남은 휴일 연장 근무시간 : 16h</li>
-	        </ul>
-	      </div>
-	
-	      <!-- 근태 요약 박스 -->
-	      <div class="row g-3">
-	        <div class="col-md-4">
-	          <div class="card p-3">
-	            <h6 class="text-muted">잔여연차</h6>
-	            <h5 class="fw-bold text-success">2d 3h</h5>
-	            <small class="text-muted">만료 예정: 9d 4h 3m</small>
-	          </div>
-	        </div>
-	        <div class="col-md-4">
-	          <div class="card p-3">
-	            <h6 class="text-muted">지각</h6>
-	            <h5 class="fw-bold text-danger">2회</h5>
-	            <small class="text-muted">1년에 10회 중 2회 발생</small>
-	          </div>
-	        </div>
-	        <div class="col-md-4">
-	          <div class="card p-3">
-	            <h6 class="text-muted">조회</h6>
-	            <h5 class="fw-bold text-primary">3회</h5>
-	            <small class="text-muted">1개월에 10회 중 3회 발생</small>
-	          </div>
-	        </div>
-	      </div>
-	
-	    </div>
-	
-	  </div>
-	</div>
-	
-	<script>
-	  document.addEventListener("DOMContentLoaded", function () {
-	    const currentDateEl = document.getElementById("current-date");
-	    const now = new Date();
-	
-	    const days = ['일', '월', '화', '수', '목', '금', '토'];
-	    const formattedDate = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
-	
-	    if (currentDateEl) {
-	      currentDateEl.textContent = formattedDate;
-	    }
-	  });
-	</script>
+	      new ApexCharts(document.querySelector("#weeklyHoursChart"), options).render();
+	    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 	
 	<!-- Bootstrap Common JS Files Start -->
 	
