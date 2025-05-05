@@ -1,5 +1,6 @@
 package com.mjc.groupware.attendance.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -33,11 +34,14 @@ public class Attendance {
 	@Column(name="attendance_no")
 	private Long attendanceNo;
 	
-	@Column(name="check_in_time")
-	private LocalDateTime checkInTime;
+	@Column(name="attend_date")
+	private LocalDate attendDate;
 	
-	@Column(name="check_out_time")
-	private LocalDateTime checkOutTime;
+	@Column(name="check_in")
+	private LocalTime checkIn;
+	
+	@Column(name="check_out")
+	private LocalTime checkOut;
 	
 	@Column(name="working_time")
 	private LocalTime workingTime;

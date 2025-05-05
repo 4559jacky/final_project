@@ -1,13 +1,19 @@
 package com.mjc.groupware.attendance.service;
+import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendanceDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
+import com.mjc.groupware.attendance.entity.Attendance;
 import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
+import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
-import com.mjc.groupware.common.aspect.PermissionAspect;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
@@ -24,6 +30,7 @@ public class AttendanceService {
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
 	private final AnnualLeavePolicyRepository annualLeavePolicyRepository;
 	private final MemberRepository memberRepository;
+	private final AttendanceRepository attendanceRepository;
 
 	
 	// 근태 정책 변경
@@ -124,6 +131,41 @@ public class AttendanceService {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	
+	public Map<String, Object> saveStartTime(MemberDto member, AttendanceDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		try {
+			 // 정책 조회
+		    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+		    LocalTime checkInTime = dto.getCheck_in();
+
+		    if (wsp != null && checkInTime != null) {
+		        if (checkInTime.isAfter(wsp.getStartTimeMax())) {
+		            dto.setAttendance_status("L"); // 지각
+		        } else {
+		            dto.setAttendance_status("I"); // 정상 출근
+		        }
+		    }
+
+		    // 사원 저장
+		    dto.setMember_no(member.getMember_no());
+
+		    // DB 저장
+		    Attendance attendance = dto.toEntity();
+		    Attendance entity = attendanceRepository.save(attendance);
+		    
+		    resultMap.put("attendance", entity);
+		    resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "출근 정보 저장 성공");
+		} catch(Exception e) {
+			e.printStackTrace();
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "출근 정보 저장 실패");
+		}
+	   
+	    return resultMap;
 	}
 
 }

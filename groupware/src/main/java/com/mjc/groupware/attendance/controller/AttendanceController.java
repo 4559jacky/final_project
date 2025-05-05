@@ -1,29 +1,38 @@
 package com.mjc.groupware.attendance.controller;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendanceDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
+import com.mjc.groupware.attendance.entity.Attendance;
 import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
+import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
 import com.mjc.groupware.attendance.service.AttendanceService;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
+import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
@@ -45,6 +54,8 @@ public class AttendanceController {
 	private final AttendanceService attendanceService;
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
 	private final AnnualLeavePolicyRepository annualLeavePolicyRepository;
+	private final MemberService memberService;
+	private final AttendanceRepository attendanceRepository;
 	
 	// 근태 관리페이지로 이동
 	@GetMapping("/attendance/management")
@@ -161,10 +172,44 @@ public class AttendanceController {
 	
 	// 근태 페이지로 이동
 	@GetMapping("/attendance/info")
-	public String attendanceInfoViewApi() {
-	    return "/attendance/user/attendanceInfo"; // templates/AttendanceInfo.html 렌더링
+	public String attendanceInfoViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+		
+		String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+
+	    LocalDate today = LocalDate.now();
+
+	    Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMemberNo(), today);
+	    System.out.println("test : "+attendance);
+	    System.out.println("오늘 날짜: " + today);
+	    System.out.println("로그인한 사번: " + member.getMemberNo());
+	    if (attendance != null) {
+	        AttendanceDto dto = new AttendanceDto().toDto(attendance);
+	        model.addAttribute("todayAttendance", dto);
+	    }
+	    model.addAttribute("member", member);
+	    
+	    return "/attendance/user/attendanceInfo";
 	}
 	
-	
+	// 출근 시간 저장
+	@PostMapping("/attendance/saveStartTime")
+	@ResponseBody
+	public Map<String,Object> saveStartTime(@RequestBody AttendanceDto dto,
+	                            @AuthenticationPrincipal UserDetails userDetails) {
+
+	    // 유저 정보
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    Map<String,Object> resultMap = attendanceService.saveStartTime(member, dto);
+	    
+	    return resultMap;
+	}
 	
 }
