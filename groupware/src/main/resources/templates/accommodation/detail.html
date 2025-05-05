@@ -30,26 +30,26 @@ layout:decorate="~{/include/layout}">
 	        <div class="col-md-6">
 			  <div id="imageCarousel" class="owl-carousel owl-theme">
 			    <div th:each="attach : ${attachList}">
-			      <img th:src="@{'/uploads/' + ${attach.attachPath}}" class="img-fluid rounded-2" alt="숙소 이미지" />
+					<img th:src="@{'/uploads/accommodation/' + ${attach.newName}}" class="img-fluid rounded-2" alt="숙소 이미지" />
 			    </div>
 			  </div>
 			</div>
-
+		
         <!-- 숙소 정보 -->
-        <!-- <div class="col-md-6">
+        <div class="col-md-6">
           <div class="shop-content">
             <div class="d-flex align-items-center gap-2 mb-2">
               <span class="badge text-bg-success fs-2 fw-semibold">예약가능</span>
             </div>
             <h4 th:if="${accommodation != null}" th:text="${accommodation.accommodationName}" class="fw-semibold mb-3">숙소명</h4>
             <p><strong>주소:</strong> <span th:text="${accommodation.accommodationAddress}">주소</span></p>
-            <p><strong>연락처:</strong> <span th:text="${accommodation.accommodation_phone}">연락처</span></p>
-            <p><strong>이메일:</strong> <span th:text="${accommodation.accommodation_email}">이메일</span></p>
+            <p><strong>연락처:</strong> <span th:text="${accommodation.accommodationPhone}">연락처</span></p>
+            <p><strong>이메일:</strong> <span th:text="${accommodation.accommodationEmail}">이메일</span></p>
             <p><strong>공식사이트:</strong> 
-              <a th:href="${'http://' + accommodation.accommodation_site}" th:text="${accommodation.accommodation_site}" target="_blank"></a>
+              <a th:href="${'http://' + accommodation.accommodationSite}" th:text="${accommodation.accommodationSite}" target="_blank"></a>
             </p>
             <p><strong>가격:</strong>
-              <span th:text="${#numbers.formatInteger(accommodation.room_price, 3, 'COMMA')} + '원'"></span>
+              <span th:text="${#numbers.formatInteger(accommodation.roomPrice, 3, 'COMMA')} + '원'"></span>
             </p>
 
             예약 폼
@@ -64,7 +64,7 @@ layout:decorate="~{/include/layout}">
               <label class="fs-5 mb-0">방 갯수</label>
               <div class="input-group input-group-sm w-auto">
                 <button class="btn btn-outline-secondary" type="button">-</button>
-                <input type="text" class="form-control text-center" th:value="${accommodation.room_count}">
+                <input type="text" class="form-control text-center" th:value="${accommodation.roomCount}">
                 <button class="btn btn-outline-secondary" type="button">+</button>
               </div>
             </div>
@@ -84,7 +84,7 @@ layout:decorate="~{/include/layout}">
         숙소에 대한 설명이 들어갑니다.
       </div>
     </div>
-  </div> -->
+  </div>
 </th:block>
  
                
