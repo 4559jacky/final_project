@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,16 +18,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationAttachDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
+import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.service.AccommodationAttachService;
 import com.mjc.groupware.accommodationReservation.service.AccommodationService;
+import com.mjc.groupware.board.controller.BoardAttachController;
 import com.mjc.groupware.common.annotation.CheckPermission;
+import com.mjc.groupware.notice.entity.Notice;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 public class AccommodationAdminController {
+
+    private final BoardAttachController boardAttachController;
 	
 	private final AccommodationService accommodationService;
 	private final AccommodationAttachService accommodationAttachService;
@@ -90,7 +96,29 @@ public class AccommodationAdminController {
 		    return result;
 	}
 
+	// 숙소 수정
+//	@GetMapping("/admin/accommodation/update/{id}")
+//	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
+//		AccommodationInfo dto = accommodationService.findById(id);
+//		model.addAttribute("accommodation",dto);
+//		return "adminCreate";
+//	}
 
+	// 숙소 상세
+	@GetMapping("/accommodation/detail/{accommodationNo}")
+	public String viewAccommodation(@PathVariable("accommodationNo") Long accommodationNo, Model model) {
+	    AccommodationInfoDto dto = accommodationService.findById(accommodationNo);
+	    if (dto == null) {
+	        return "redirect:/accommodation/adminHome";
+	    }
+	    System.out.println("숙소 정보: " + dto);
+
+	    List<AccommodationAttach> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+	    
+	    model.addAttribute("accommodation", dto);
+	    model.addAttribute("attachList", attachList); // 이미지 리스트 전달
+	    return "accommodation/detail"; // detail.html로 이동
+	}
 
 	
 	

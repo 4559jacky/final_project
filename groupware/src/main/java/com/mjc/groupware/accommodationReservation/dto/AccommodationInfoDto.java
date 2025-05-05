@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
+import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,11 +37,12 @@ public class AccommodationInfoDto {
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
 	
+	private List<AccommodationAttach> attachList;
 	private List<MultipartFile> files;
 	
 	public AccommodationInfo toEntity() {
 		return AccommodationInfo.builder()
-//				.accommodationNo(accommodation_no)
+				.accommodationNo(this.accommodation_no != null && this.accommodation_no > 0 ? this.accommodation_no : null)
 				.accommodationType(accommodation_type)
 				.accommodationName(accommodation_name)
 				.accommodationAddress(accommodation_address)
@@ -58,6 +60,7 @@ public class AccommodationInfoDto {
 	
 	public AccommodationInfoDto toDto(AccommodationInfo accommodationInfo) {
 		return AccommodationInfoDto.builder()
+				.accommodation_no(accommodationInfo.getAccommodationNo())
 				.accommodation_type(accommodationInfo.getAccommodationType())
 				.accommodation_name(accommodationInfo.getAccommodationName())
 				.accommodation_address(accommodationInfo.getAccommodationAddress())

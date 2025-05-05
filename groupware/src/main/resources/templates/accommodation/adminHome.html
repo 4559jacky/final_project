@@ -51,7 +51,7 @@ layout:decorate="~{/include/layout}">
 			  <!-- 숙소등록 버튼 -->
 			  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/create}">숙소등록</a>
 			  <!-- 삭제 버튼 -->
-			  <a href="javascript:void(0)" class="btn btn-primary">삭제</a>
+			  <!-- <a href="javascript:void(0)" class="btn btn-primary">삭제</a> -->
 	      <!-- 오른쪽: 정렬 -->
 	      <form th:action="@{/notice}" method="get"> 
 	        <select name="sort"
@@ -70,24 +70,24 @@ layout:decorate="~{/include/layout}">
 		  <div class="table-responsive">
 		    <table class="table align-middle text-center">
 		      <colgroup>
-		        <col style="width: 5%;">   <!-- 체크박스 -->
+		        <col style="width: 10%;">   <!-- 번호 -->
 		        <col style="width: 25%;">  <!-- 숙소명 -->
+		        <col style="width: 10%;">  <!-- 숙소타입 -->
 		        <col style="width: 15%;">  <!-- 등록일 -->
 		        <col style="width: 15%;">  <!-- 수정일 -->
 		        <col style="width: 10%;">  <!-- 가격 -->
 		        <col style="width: 20%;">  <!-- 예약현황 버튼 -->
-		        <col style="width: 10%;">  <!-- 수정 버튼 -->
 		      </colgroup>
 		
 		      <thead class="bg-light">
 		        <tr>
-		          <th><input type="checkbox" id="checkAll"></th>
+		          <th>번호</th>
 		          <th>숙소명</th>
+		          <th>숙소타입</th>
 		          <th>등록일</th>
 		          <th>수정일</th>
 		          <th>가격</th>
 		          <th>예약현황</th>
-		          <th>수정</th>
 		        </tr>
 		      </thead>
 		
@@ -98,9 +98,12 @@ layout:decorate="~{/include/layout}">
 		        </tr>
 		
 		        <!-- 숙소 리스트 출력 -->
-		        <tr th:each="accom : ${accommodations}">
-		          <td><input type="checkbox" name="listIds" class="checkItem"></td>
+		        <tr th:each="accom : ${accommodations}"
+		        	th:onclick="|location.href='/accommodation/detail/${accom.accommodationNo}'|"
+			      style="cursor: pointer;">
+		          <td th:text="${accom.accommodationNo}">번호</td>
 		          <td th:text="${accom.accommodationName}">숙소명</td>
+		          <td th:text="${accom.accommodationType == '1' ? '호텔' : (accom.accommodationType == '2' ? '리조트' : '기타')}">숙소타입</td>
 		          <td th:text="${accom.regDate != null ? #temporals.format(accom.regDate, 'yyyy-MM-dd HH:mm') : ''}">등록일</td>
 		          <td th:text="${accom.modDate != null ? #temporals.format(accom.modDate, 'yyyy-MM-dd HH:mm') : ''}">수정일</td>
 		          <td th:text="${accom.roomPrice}+'원'">가격</td>
@@ -108,18 +111,56 @@ layout:decorate="~{/include/layout}">
 		            <a th:href="@{/adminList(accommodationNo=${accom.accommodationNo})}" 
 		               class="btn btn-primary px-3">예약현황</a>
 		          </td>
-		          <td>
-		            <a th:href="@{/admin/accommodation/edit(accommodationNo=${accom.accommodationNo})}" 
+		          <!-- <td>
+		            <a th:href="@{/admin/accommodation/update{id}(id=${accom.accommodationNo})}" 
 		               class="btn btn-outline-secondary">수정</a>
-		          </td>
+		          </td> -->
 		        </tr>
 		      </tbody>
 		    </table>
 		  </div>
 		</div>
-	    
-    
 	</div>
+	<script>
+	// 목록 행 클릭시 상세페이지로 이동
+		document.addEventListener("DOMContentLoaded", () => {
+		  const rows = document.querySelectorAll(".clickable-row");
+		
+		  rows.forEach(row => {
+		    row.addEventListener("click", function (event) {
+		      // 버튼, 체크박스 클릭 시는 무시
+		      if (event.target.tagName === "BUTTON" || 
+		          event.target.tagName === "A") return;
+		
+		      const id = this.getAttribute("data-id");
+		      if (id) {
+		        fetch(`/accommodation/detail/${id}`, {
+		          method: "GET",
+		          headers: {
+		            "Content-Type": "application/json",
+		            "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+		          }
+		        })
+		        .then(response => {
+		          if (!response.ok) throw new Error("서버 오류");
+		          return response.text(); // HTML 반환하는 경우
+		        })
+		        .then(html => {
+		          window.location.href = `/accommodation/detail/${id}`;
+		        })
+		        .catch(error => {
+		          console.error("에러:", error);
+		          alert("상세 정보를 불러오는 중 오류가 발생했습니다.");
+		        });
+		      }
+		    });
+		  });
+		});
+	</script>
+
+	
+	
+	
 	
 	<!-- Scripts -->
   <script th:src="@{/assets/js/vendor.min.js}"></script>
