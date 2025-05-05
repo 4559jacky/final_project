@@ -64,8 +64,6 @@
 /* 댓글 컨테이너 */
 #comment-container {
     position: relative; /* 댓글창 고정의 기준점 */
-    max-height: 60vh; /* 화면 높이의 60%로 제한 */
-    overflow-y: auto; /* 독립 스크롤 */
     padding: 20px;
     margin-bottom: 80px; /* 댓글창 높이만큼 여백 */
 }

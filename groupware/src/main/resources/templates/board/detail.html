@@ -82,7 +82,7 @@
     <p>복수 선택 가능: <span th:text="${board.vote.isMultiple == 'Y' ? '예' : '아니오'}"></span></p>
   </div>
 
-  <!-- ✅ 투표 가능한 경우 -->
+  <!-- 투표 가능한 경우 -->
   <form th:if="${not isVoteClosed}" id="voteForm" th:data-vote-no="${board.vote.voteNo}">
     <ul class="list-group mb-3">
       <li class="list-group-item d-flex align-items-center"
@@ -262,7 +262,9 @@
       </div>
     </div>
   </div>
-</div>    
+</div> 
+
+   
     <!-- 댓글 작성 영역 (하단 고정) -->
     <div class="comment-write">
       <th:block sec:authorize="isAuthenticated()">
@@ -277,7 +279,8 @@
         <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
       </th:block>
     </div>        
-  <!-- JavaScript -->
+
+
   <script>
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
@@ -411,31 +414,23 @@
     }
 
     // 답글 토글 및 대댓글 폼 표시
-    function toggleSubReply(element) {
-  const replyNo = element.getAttribute('data-reply-no');
-  const boardNo = element.getAttribute('data-board-no');
-  const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
-  const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
-  const subReplyCount = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
+  function toggleSubReply(element) {
+    const replyNo = element.getAttribute('data-reply-no');
+    const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
+    const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
+    const count = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
 
-  // 현재 접힘 상태 판단 (리스트 기준으로 판단)
-  const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
+    if (subReplyList) {
+      subReplyList.classList.toggle('collapsed');
+    }
 
-  // 리스트 접기/펼치기
-  if (subReplyList) {
-    subReplyList.classList.toggle('collapsed');
+    if (subReplyForm) {
+      subReplyForm.style.display = subReplyForm.style.display === 'block' ? 'none' : 'block';
+    }
+
+    const isOpen = subReplyForm && subReplyForm.style.display === 'block';
+    element.innerText = count > 0 ? `답글 ${count}개(${isOpen ? '▲' : '▼'})` : '답글 달기';
   }
-
-  // 폼도 같이 접기/펼치기
-  if (subReplyForm) {
-    subReplyForm.style.display = isCollapsed ? 'block' : 'none';
-  }
-
-  // 텍스트 변경
-  element.innerText = isCollapsed
-    ? `답글 ${subReplyCount}개(▼)`
-    : `답글 ${subReplyCount}개(▲)`;
-}
 
     // 대댓글 폼 제출 처리
     document.querySelectorAll('.sub-reply-form-content').forEach(form => {
@@ -481,7 +476,6 @@
         });
       });
     });
-    
   </script>
   
   <script th:inline="javascript">
@@ -523,7 +517,6 @@
   
   // chart.js를 사용하기 위한 스크립트
  document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
-  // voteNo를 모달의 data 속성에서 안전하게 가져옴
   const voteNo = this.getAttribute('data-vote-no');
 
   fetch(`/vote/${voteNo}/result`, {
@@ -538,25 +531,53 @@
 
     const ctx = document.getElementById('voteResultChart').getContext('2d');
 
+    // 색상 다양화 (항목 수에 따라 자동 순환됨)
+    const colors = [
+      'rgba(255, 99, 132, 0.5)',
+      'rgba(54, 162, 235, 0.5)',
+      'rgba(255, 206, 86, 0.5)',
+      'rgba(75, 192, 192, 0.5)',
+      'rgba(153, 102, 255, 0.5)',
+      'rgba(255, 159, 64, 0.5)'
+    ];
+    const borderColors = colors.map(c => c.replace('0.5', '1'));
+
     if (window.voteChart) {
       window.voteChart.destroy();
     }
 
     window.voteChart = new Chart(ctx, {
-      type: 'doughnut',
+      type: 'bar',
       data: {
         labels: labels,
         datasets: [{
-          label: '투표 수',
+          label: '득표 수',
           data: counts,
+          backgroundColor: colors,
+          borderColor: borderColors,
           borderWidth: 1
         }]
       },
       options: {
         responsive: true,
+        indexAxis: 'x', // 수직 막대 그래프 (기본값이므로 생략해도 됨)
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: '득표 수'
+            }
+          },
+          x: {
+            title: {
+              display: false // 항목명을 따로 표시하지 않고, x축만 항목명으로
+            }
+          }
+        },
         plugins: {
           legend: {
-            position: 'bottom'
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -577,6 +598,7 @@
     console.error(err);
   });
 });
+
 </script>
 
   <!-- Chart.js CDN -->
