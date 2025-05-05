@@ -1,5 +1,6 @@
 package com.mjc.groupware.attendance.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,37 +111,28 @@ public class AttendanceController {
 	// 연차 정책 업데이트
 	@PostMapping("/annualPolicy/update")
 	@ResponseBody
-	public Map<String,String> annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
-		Map<String,String> resultMap = new HashMap<String,String>();
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "연차 정책 변경에 실패하였습니다.");
+	public List<AnnualLeavePolicy> annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
 		
 		int result = attendanceService.annualPolicyUpdateApi(dto);
-		
 		if(result > 0) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "연차 정책이 변경되었습니다.");
+			return annualLeavePolicyRepository.findAllByOrderByYearAsc();
 		}
 		
-		return resultMap;
+		return new ArrayList<>();
 	}
 	
 	// 연차 정책 삭제
 	@DeleteMapping("/annualPolicy/delete/{year}")
 	@ResponseBody
-	public Map<String,String> annualPolicyDeleteApi(@PathVariable("year") int year) {
-		Map<String,String> resultMap = new HashMap<String,String>();
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "연차 정책 삭제에 실패하였습니다.");
+	public List<AnnualLeavePolicy> annualPolicyDeleteApi(@PathVariable("year") int year) {
 		
 		int result = attendanceService.annualPolicyDeleteApi(year);
 		
 		if(result > 0) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "연차 정책이 삭제되었습니다.");
+			return annualLeavePolicyRepository.findAllByOrderByYearAsc();
 		}
 		
-		return resultMap;
+		return new ArrayList<>();
 	}
 	
 	@PostMapping("/member/annual/update/{id}")
