@@ -2,7 +2,6 @@ package com.mjc.groupware.chat.controller;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +20,10 @@ import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.dto.ChatRoomReadDto;
+import com.mjc.groupware.chat.entity.ChatMapping;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
+import com.mjc.groupware.chat.service.ChatAlarmService;
 import com.mjc.groupware.chat.service.ChatMsgService;
 import com.mjc.groupware.chat.service.ChatRoomService;
 
@@ -35,6 +36,7 @@ public class ChatController {
 
 	private final ChatRoomService chatRoomService;
 	private final ChatMsgService chatMsgService;
+	private final ChatAlarmService chatAlarmService;
 	private final SimpMessagingTemplate messagingTemplate;
 	
 	// 채팅방 페이지 전환
@@ -104,19 +106,37 @@ public class ChatController {
 	// 실시간 채팅
 	@MessageMapping("/chat/msg")
 	public void message(ChatMsgDto dto) {
-		
-		chatMsgService.createChatMsg(dto);
-	  
-	    // 채팅방에 메시지를 한 번만 전송 (모든 사용자에게 전송)
+		ChatMsg saved = chatMsgService.createChatMsg(dto);
+	    
+	    // ✅ 수신자 리스트가 없으면 채팅방에서 꺼내기
+	    if (dto.getMember_no_list() == null || dto.getMember_no_list().isEmpty()) {
+	        ChatRoom chatRoom = chatRoomService.selectChatRoomOne(dto.getChat_room_no());
+	        List<Long> receiverNos = new ArrayList<>();
+
+	        for (ChatMapping mapping : chatRoom.getMappings()) {
+	            if (mapping.getMemberNo() != null) {
+	                receiverNos.add(mapping.getMemberNo().getMemberNo());
+	            }
+	        }
+
+	        dto.setMember_no_list(receiverNos);
+	    }
+
+	    // 메시지 전송 (각 채널로)
 	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), dto);
 	    
-	    // 채팅 목록 갱신용 메시지 (모두가 받도록 공통 채널)
+	    // 채팅 목록에 마지막 메세지 반영
 	    dto.setSend_date(LocalDateTime.now());
 	    messagingTemplate.convertAndSend("/topic/chat/room/update", dto);
 	    
-	    // 채팅방 안 읽은 메세지 개수 실시간 반영 
+	    // 안읽음 메세지 처리 
 	    messagingTemplate.convertAndSend("/topic/chat/unread", dto);
+	    
+	    // 알림 처리 
+	   // chatAlarmService.createChatAlarm(dto.getChat_room_no(), dto.getMember_no(), saved);
+	    
 	}
+
 	
 	// 읽음 시간 조회
 	@PostMapping("/chat/unread/count")
@@ -131,7 +151,12 @@ public class ChatController {
 	@ResponseBody
 	public String updateReadTime(@RequestBody ChatRoomReadDto dto) {
 	    chatRoomService.updateReadTime(dto);
-	    messagingTemplate.convertAndSend("/topic/chat/read", dto);
+	    messagingTemplate.convertAndSendToUser(
+	    	    String.valueOf(dto.getMember_no()), // 로그인한 유저의 식별자 (Principal name도 가능)
+	    	    "/queue/chat/read",
+	    	    dto
+	    	);
+
 
 	    return "updated";
 	}

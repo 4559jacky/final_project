@@ -189,16 +189,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			   // 안 읽은 메세지 수 실시간 반영 
 				stompClient.subscribe("/topic/chat/unread", (message) => {
 					  if (typeof onUnreadMessage === "function") {
-					    onUnreadMessage(JSON.parse(message.body));
+						  onUnreadMessage(JSON.parse(message.body));
 					  }
 					});
 				
-				stompClient.subscribe("/topic/chat/read", function (message) {
+			 	stompClient.subscribe("/user/queue/chat/read", function (message) {
 					  const dto = JSON.parse(message.body);
 					  if (typeof onChatReadUpdate === "function") {
 					    onChatReadUpdate(dto); 
 					  }
-					});
+					}); 
 
 				
 			}, (error) => {
