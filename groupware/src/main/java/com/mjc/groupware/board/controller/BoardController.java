@@ -41,6 +41,7 @@ public class BoardController {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
+    
 
     @PostMapping("/board")
     @ResponseBody
@@ -70,6 +71,7 @@ public class BoardController {
         }
         return resultMap;
     }
+    
 
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
@@ -89,6 +91,7 @@ public class BoardController {
 
         return "board/list";
     }
+    
 
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
@@ -131,6 +134,7 @@ public class BoardController {
             return "error";
         }
     }
+    
 
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
@@ -156,6 +160,7 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
     }
+    
 
     @DeleteMapping("/board/delete/{boardNo}")
     @ResponseBody

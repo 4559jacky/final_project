@@ -2,9 +2,12 @@ package com.mjc.groupware.reply.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.util.Streamable;
 
 import com.mjc.groupware.reply.entity.Reply;
 
@@ -23,4 +26,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     // 댓글을 부모 댓글 기준으로 계층 조회
     @Query("SELECT r FROM Reply r WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus ORDER BY r.regDate ASC")
     List<Reply> findByBoardNoAndReplyStatusOrderByRegDate(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
+
+	Streamable<Order> findByBoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String string, Pageable pageable);
 }

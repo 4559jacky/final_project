@@ -1,8 +1,10 @@
 package com.mjc.groupware.reply.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +32,12 @@ public class ReplyController {
         return memberDetails.getMember();  // MemberDetails 객체에서 회원 정보를 반환
     }
     
+    
     // 게시글 상세 페이지로 리다이렉트하는 메소드
     private String redirectToBoardDetail(Long boardNo) {
         return "redirect:/board/detail/" + boardNo;
     }
+    
     
     // 댓글 등록 API (게시글에 댓글을 달기 위한 POST 요청)
     @PostMapping("/replies/{boardNo}/create")
@@ -47,12 +51,13 @@ public class ReplyController {
         return redirectToBoardDetail(boardNo);  // 댓글이 작성된 후 게시글 상세 페이지로 리다이렉트
     }
     
+    
     // 대댓글 등록 API (댓글에 대한 대댓글을 달기 위한 POST 요청)
     @PostMapping("/replies/{boardNo}/{parentReplyNo}/create-sub")
     public String replyCreateSub(@ModelAttribute ReplyDto replyDto,
-                                @PathVariable("boardNo") Long boardNo,
-                                @PathVariable("parentReplyNo") Long parentReplyNo,
-                                @AuthenticationPrincipal MemberDetails memberDetails) {
+                                 @PathVariable("boardNo") Long boardNo,
+                                 @PathVariable("parentReplyNo") Long parentReplyNo,
+                                 @AuthenticationPrincipal MemberDetails memberDetails) {
         Member member = getLoginMember(memberDetails);  // 로그인된 사용자 정보 얻기
         replyDto.setMember_no(member.getMemberNo());  // 대댓글 작성자 회원 번호 설정
         replyDto.setBoard_no(boardNo);  // 대댓글이 달릴 게시글 번호 설정
@@ -63,18 +68,19 @@ public class ReplyController {
         return redirectToBoardDetail(boardNo);  // 대댓글 작성 후 게시글 상세 페이지로 리다이렉트
     }
     
+    
     // 댓글 수정 API (댓글 내용 수정)
     @PostMapping("/replies/{replyNo}/update")
     @ResponseBody
-    public Map<String, Object> updateReplyAjax(@PathVariable("replyNo") Long replyNo,
-                                               @RequestBody Map<String, String> payload,
-                                               @AuthenticationPrincipal MemberDetails memberDetails) {
+    public Map<String, Object> replyUpdate(@PathVariable("replyNo") Long replyNo,
+                                           @RequestBody Map<String, String> payload,
+                                           @AuthenticationPrincipal MemberDetails memberDetails) {
         String newContent = payload.get("reply_content");  // 수정된 댓글 내용 받기
         ReplyDto replyDto = new ReplyDto();
         replyDto.setReply_no(replyNo);  // 수정할 댓글 번호 설정
         replyDto.setReply_content(newContent);  // 수정된 댓글 내용 설정
 
-        ReplyDto updatedDto = replyService.updateReply(replyDto, getLoginMember(memberDetails));  // 댓글 수정 서비스 호출
+        ReplyDto updatedDto = replyService.replyUpdate(replyDto, getLoginMember(memberDetails));  // 댓글 수정 서비스 호출
         
         // 수정된 댓글 정보 반환
         Map<String, Object> result = new HashMap<>();
@@ -86,11 +92,12 @@ public class ReplyController {
         return result;  // JSON 형식으로 응답
     }
     
+    
     // 댓글 삭제 API (댓글 삭제)
     @PostMapping("/replies/{replyNo}/delete")
     @ResponseBody
     public Map<String, String> replyDelete(@PathVariable("replyNo") Long replyNo,
-                                          @AuthenticationPrincipal MemberDetails memberDetails) {
+                                           @AuthenticationPrincipal MemberDetails memberDetails) {
         Map<String, String> result = new HashMap<>();
         try {
             Member member = getLoginMember(memberDetails);  // 로그인된 사용자 정보 얻기
@@ -104,6 +111,7 @@ public class ReplyController {
         return result;  // 삭제 결과를 JSON 형식으로 응답
     }
     
+    
     // 새 API: 특정 댓글의 대댓글 수 조회
     @GetMapping("/replies/count/{replyNo}")
     @ResponseBody
@@ -113,4 +121,5 @@ public class ReplyController {
         result.put("count", count);  // 대댓글 수를 결과로 반환
         return result;  // JSON 형식으로 대댓글 수 반환
     }
+    
 }

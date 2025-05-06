@@ -48,6 +48,7 @@ public class ReplyDto {
     public String getModifiedStatus() {
         return isModifiedFlag ? "(수정됨)" : "";
     }
+    
 
     // 등록일 포맷된 날짜 한 번만 계산하고 이후 저장된 값을 사용
     public String getRegDateFormatted() {
@@ -56,6 +57,7 @@ public class ReplyDto {
         }
         return isModifiedFlag ? regDateFormatted + " (수정됨)" : regDateFormatted;
     }
+    
 
     // DTO → Entity 변환 메서드
     public Reply toEntity() {
@@ -68,6 +70,7 @@ public class ReplyDto {
                 .parentReply(parent_reply_no != null ? Reply.builder().replyNo(parent_reply_no).build() : null)
                 .build();
     }
+    
 
     // Entity → DTO 변환 메서드
     public static ReplyDto toDto(Reply reply) {
@@ -90,6 +93,7 @@ public class ReplyDto {
                 .build();
         return dto;
     }
+    
 
     // 캐시된 프로필 이미지 경로를 가져오거나 새로 생성
     private static String getCachedProfileImagePath(Reply reply) {
@@ -105,6 +109,7 @@ public class ReplyDto {
         profileImageCache.put(memberNo, attachPath);
         return attachPath;
     }
+    
 
     // 실제 프로필 이미지 경로를 추출
     private static String getProfileImagePath(Reply reply) {
@@ -128,11 +133,13 @@ public class ReplyDto {
             return "/img/default_profile.png";
         }
     }
+    
 
     // 대댓글 수 증가 메서드
     public void incrementSubReplyCount() {
         this.subReplyCount++;
     }
+    
 
     // 날짜 포맷 공통 처리
     private static String formatDate(LocalDateTime dateTime) {
@@ -140,10 +147,12 @@ public class ReplyDto {
         return dateTime.format(formatter);
     }
 
+    
     // 댓글이 수정된 경우 true 반환
     public boolean isModified() {
         return mod_date != null;
     }
+    
 
     // 포맷된 수정일 반환
     public String getModDateFormatted() {

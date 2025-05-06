@@ -6,6 +6,7 @@
 
 <head>
   <!-- head 내용은 레이아웃 템플릿에서 관리하므로 보통 비워둠 -->
+    <link rel="stylesheet" th:href="@{/css/kdy.css}">
 </head>
 
 <body>
@@ -65,7 +66,7 @@
   <div class="modal-dialog">
     <div class="modal-content rounded-4 shadow">
       <div class="modal-header border-0">
-        <h5 class="modal-title" id="voteModalLabel">자유게시판 투표 추가</h5>
+		<h5 class="modal-title" id="voteModalLabel" style="font-weight: bold; color: black;">자유게시판 투표 추가</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
       </div>
       <div class="modal-body">
@@ -77,10 +78,11 @@
         <div class="mb-3">
           <label class="form-label">항목</label>
 		<div id="optionsContainer">
-  		<div class="input-group mb-2 option-item">
-    		<input type="text" class="form-control" placeholder="항목을 입력하세요.">
-    		<button type="button" class="btn btn-outline-danger" onclick="removeOption(this)">×</button>
-  		</div>
+		
+<div class="input-group mb-2 option-item">
+  <input type="text" class="form-control" placeholder="항목을 입력하세요.">
+  <button type="button" class="x-remove-btn" onclick="removeOption(this)">x</button>
+</div>
 		</div>
           <!-- 항목 추가/제거 버튼 -->
           <div class="d-flex gap-2 mt-2">
@@ -203,27 +205,27 @@
       
       
    // 항목 추가
-      function addOption() {
-        const optionsContainer = document.getElementById('optionsContainer');
+  function addOption() {
+  const optionsContainer = document.getElementById('optionsContainer');
 
-        const optionDiv = document.createElement('div');
-        optionDiv.className = 'input-group mb-2 option-item';
+  const optionDiv = document.createElement('div');
+  optionDiv.className = 'input-group mb-2 option-item';
 
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'form-control';
-        input.placeholder = '항목을 입력하세요.';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'form-control';
+  input.placeholder = '항목을 입력하세요.';
 
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'btn btn-outline-danger';
-        removeBtn.textContent = '×';
-        removeBtn.onclick = () => removeOption(removeBtn);
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'x-remove-btn';
+  removeBtn.textContent = 'x';
+  removeBtn.onclick = () => removeOption(removeBtn);
 
-        optionDiv.appendChild(input);
-        optionDiv.appendChild(removeBtn);
-        optionsContainer.appendChild(optionDiv);
-      }
+  optionDiv.appendChild(input);
+  optionDiv.appendChild(removeBtn);
+  optionsContainer.appendChild(optionDiv);
+}
 
       // 항목 제거 (X 버튼 클릭 시)
       function removeOption(button) {

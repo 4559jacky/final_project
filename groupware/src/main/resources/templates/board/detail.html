@@ -599,6 +599,10 @@
   });
 });
 
+//다크 모드 토글 스위치가 있을 경우
+ document.getElementById('darkToggle').addEventListener('change', function () {
+   document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
+ });
 </script>
 
   <!-- Chart.js CDN -->
