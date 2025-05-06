@@ -28,3 +28,11 @@
 .table td {
 		color: black !important;
 	}
+	
+.unread-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  height: auto;
+  line-height: 1;
+  display: inline-block;
+}
