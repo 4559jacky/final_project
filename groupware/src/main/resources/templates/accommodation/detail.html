@@ -24,9 +24,9 @@ layout:decorate="~{/include/layout}">
             </div>
           </div>
         <!-- 상세 카드 -->
-	    <div class="card shadow-sm p-4">
+	    <!-- <div class="card shadow-sm p-4">
 	      <div class="row">
-	        <!-- 이미지 -->
+	        이미지
 	        <div class="col-md-6">
 			  <div id="imageCarousel" class="owl-carousel owl-theme">
 			    <div th:each="attach : ${attachList}">
@@ -35,7 +35,7 @@ layout:decorate="~{/include/layout}">
 			  </div>
 			</div>
 		
-        <!-- 숙소 정보 -->
+        숙소 정보
         <div class="col-md-6">
           <div class="shop-content">
             <div class="d-flex align-items-center gap-2 mb-2">
@@ -85,7 +85,103 @@ layout:decorate="~{/include/layout}">
       </div>
     </div>
   </div>
+</th:block> -->
+
+<!-- 상세 카드 -->
+    <div class="card shadow-sm p-4">
+      <div class="row">
+        <!-- 이미지 -->
+        <div class="col-md-6">
+          <div id="imageCarousel" class="owl-carousel owl-theme">
+            <div>
+              <img src="/uploads/accommodation/sample1.jpg" class="img-fluid rounded-2" alt="숙소 이미지 1" />
+            </div>
+            <div>
+              <img src="/uploads/accommodation/sample2.jpg" class="img-fluid rounded-2" alt="숙소 이미지 2" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 숙소 정보 -->
+        <div class="col-md-6">
+          <div class="shop-content">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="badge text-bg-success fs-2 fw-semibold">예약가능</span>
+            </div>
+            <h4 class="fw-semibold mb-3">파인 리조트</h4>
+            <p><strong>주소:</strong> 제주특별자치도 제주시 한림읍 산책길 77</p>
+            <p><strong>연락처:</strong> 064-123-4567</p>
+            <p><strong>이메일:</strong> resort@pine.com</p>
+            <p><strong>공식사이트:</strong>
+              <a href="http://pine-resort.com" target="_blank">pine-resort.com</a>
+            </p>
+            <p><strong>가격:</strong> 120,000원</p>
+
+            <!-- 예약 폼 -->
+            <form class="d-flex align-items-center gap-3 flex-wrap mt-3">
+              <label class="mb-0 fs-5">체크인</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+              <label class="mb-0 fs-5 ms-3">체크아웃</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+            </form>
+
+            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
+              <label class="fs-5 mb-0">방 갯수</label>
+              <div class="input-group input-group-sm w-auto">
+                <button class="btn btn-outline-secondary" type="button">-</button>
+                <input type="text" class="form-control text-center" value="2">
+                <button class="btn btn-outline-secondary" type="button">+</button>
+              </div>
+            </div>
+
+	<!-- 관리자와 사용자에따라 검색버튼 분리(검색,숙소관리) -->
+		<div class="d-flex align-items-center flex-nowrap gap-2 mt-3">
+			<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				<th:block th:if="${funcNo != 30 && funcNo == 31}">
+					<a href="javascript:void(0)"
+			                   class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 150px;">
+			                   	<i class="ti me-1"></i>
+			               		예약하기
+			                </a>
+				</th:block>
+			</th:block>
+			<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				<th:block th:if="${funcNo == 30}">
+					<a th:href="@{/admin/create}"
+						class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
+						<i class="ti me-1"></i>
+			                	수정
+					</a>
+					<a th:href="@{/adminHome}"
+						class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
+						<i class="ti me-1"></i>
+			                	삭제
+					</a>
+				</th:block>
+			</th:block>
+		</div>
+
+
+
+            <!-- <div class="text-end">
+              <a href="javascript:void(0)" class="btn btn-primary px-5 py-2">예약하기</a>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 설명 영역 -->
+    <div class="card mt-4 shadow-sm p-4">
+      <h5 class="fw-semibold mb-3">상세 설명</h5>
+      <div>
+        아름다운 오션뷰를 자랑하는 파인 리조트는 제주도의 자연을 온몸으로 느낄 수 있는 최고의 휴식 공간입니다.
+        전 객실은 최신 리모델링이 완료되었으며, 가족 단위 여행객에게 최적화된 편의 시설을 제공합니다.
+      </div>
+    </div>
+  </div>
 </th:block>
+
  
                
       

@@ -6,8 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +27,6 @@ import com.mjc.groupware.accommodationReservation.service.AccommodationAttachSer
 import com.mjc.groupware.accommodationReservation.service.AccommodationService;
 import com.mjc.groupware.board.controller.BoardAttachController;
 import com.mjc.groupware.common.annotation.CheckPermission;
-import com.mjc.groupware.notice.entity.Notice;
 
 import lombok.RequiredArgsConstructor;
 
@@ -97,12 +99,23 @@ public class AccommodationAdminController {
 	}
 
 	// 숙소 수정
+//	@CheckPermission("WELFARE_ADMIN")
 //	@GetMapping("/admin/accommodation/update/{id}")
 //	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
-//		AccommodationInfo dto = accommodationService.findById(id);
-//		model.addAttribute("accommodation",dto);
-//		return "adminCreate";
+//	    AccommodationInfoDto dto = accommodationService.findById(id);  // DTO로 받아야 Thymeleaf 사용이 편함
+//
+//	    if (dto == null) {
+//	        return "redirect:/adminHome";
+//	    }
+//
+//	    List<AccommodationAttach> attachList = accommodationService.findAttachList(id);
+//
+//	    model.addAttribute("accommodation", dto);
+//	    model.addAttribute("attachList", attachList);  // 기존 첨부 이미지도 전달
+//
+//	    return "accommodation/adminCreate";  // 수정과 생성 페이지 공유
 //	}
+
 
 	// 숙소 상세
 	@GetMapping("/accommodation/detail/{accommodationNo}")
@@ -120,7 +133,18 @@ public class AccommodationAdminController {
 	    return "accommodation/detail"; // detail.html로 이동
 	}
 
-	
+//	@CheckPermission("WELFARE_ADMIN")
+//	@DeleteMapping("/accommodation/delete/{id}")
+//	@ResponseBody
+//	public ResponseEntity<?> deleteAccommodation(@PathVariable Long id) {
+//	    try {
+//	        accommodationService.delete(id); // 이 내부에서 DB 삭제 처리
+//	        return ResponseEntity.ok().body("삭제 성공");
+//	    } catch (Exception e) {
+//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
+//	    }
+//	}
+
 	
 	
 	

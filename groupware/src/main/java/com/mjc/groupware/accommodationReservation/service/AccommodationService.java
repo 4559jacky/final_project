@@ -67,6 +67,11 @@ public class AccommodationService {
 		 return accommodationAttachRepository.findByAccommodationInfo_AccommodationNo(accommodationNo);
 	}
 
+//	public void delete(Long accommodationNo) {
+//		accommodationInfoRepository.deleteById(accommodationNo);
+//	}
+
+	
 
 
 }

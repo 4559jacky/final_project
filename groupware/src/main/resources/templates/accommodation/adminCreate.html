@@ -176,6 +176,10 @@ layout:decorate="~{/include/layout}">
 					form.append("files",imageFile);
 				}  
 				
+				/* const accommodationNo = document.getElementById("accommodation_no").value;
+				const isUpdate = accommodationNo !== "";
+				const fetchUrl = isUpdate ? "/accommodation/update" : "/accommodation/register"; */
+				
 				fetch("/accommodation/register",{
 					method:"POST",
 					body:form,
