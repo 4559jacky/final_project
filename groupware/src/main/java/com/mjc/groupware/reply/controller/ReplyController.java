@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -121,5 +120,15 @@ public class ReplyController {
         result.put("count", count);  // 대댓글 수를 결과로 반환
         return result;  // JSON 형식으로 대댓글 수 반환
     }
+    
+//    // 댓글에서 +더보기 버튼 추가 코드
+//    @GetMapping("/replies/{boardNo}")
+//    @ResponseBody
+//    public List<ReplyDto> getRepliesByBoardPaged(
+//            @PathVariable("boardNo") Long boardNo,
+//            @RequestParam(name = "page", defaultValue = "0") int page,
+//            @RequestParam(name = "size", defaultValue = "5") int size) {
+//        return replyService.getRepliesByBoardPaged(boardNo, page, size);
+//    }
     
 }

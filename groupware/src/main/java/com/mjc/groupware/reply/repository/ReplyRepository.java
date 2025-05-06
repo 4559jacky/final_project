@@ -2,12 +2,10 @@ package com.mjc.groupware.reply.repository;
 
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.util.Streamable;
+
 
 import com.mjc.groupware.reply.entity.Reply;
 
@@ -27,5 +25,7 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("SELECT r FROM Reply r WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus ORDER BY r.regDate ASC")
     List<Reply> findByBoardNoAndReplyStatusOrderByRegDate(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
 
-	Streamable<Order> findByBoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String string, Pageable pageable);
+    // 댓글 +더보기 버튼 추가 코드
+//	Page<Reply> findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String string, Pageable pageable);
+
 }
