@@ -46,8 +46,11 @@ public class Attendance {
 	@Column(name="working_time")
 	private LocalTime workingTime;
 	
-	@Column(name="attendance_status")
-	private String attendanceStatus;
+	@Column(name="late_yn")
+	private String lateYn;
+	
+	@Column(name="early_leave_yn")
+	private String earlyLeaveYn;
 	
 	@ManyToOne
 	@JoinColumn(name="member_no")

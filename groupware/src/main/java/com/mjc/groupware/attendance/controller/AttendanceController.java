@@ -182,14 +182,14 @@ public class AttendanceController {
 	    LocalDate today = LocalDate.now();
 
 	    Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMemberNo(), today);
-	    System.out.println("test : "+attendance);
-	    System.out.println("오늘 날짜: " + today);
-	    System.out.println("로그인한 사번: " + member.getMemberNo());
 	    if (attendance != null) {
 	        AttendanceDto dto = new AttendanceDto().toDto(attendance);
 	        model.addAttribute("todayAttendance", dto);
 	    }
 	    model.addAttribute("member", member);
+	    
+	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	    model.addAttribute("workPolicy", wsp);
 	    
 	    return "/attendance/user/attendanceInfo";
 	}
@@ -212,4 +212,20 @@ public class AttendanceController {
 	    return resultMap;
 	}
 	
+	// 퇴근 시간 저장
+	@PostMapping("/attendance/saveEndTime")
+	@ResponseBody
+	public Map<String,Object> saveEndTime(@RequestBody AttendanceDto dto,
+								@AuthenticationPrincipal UserDetails userDetails) {
+		// 유저 정보
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    Map<String,Object> resultMap = attendanceService.saveEndTime(member, dto);
+	    
+	    return resultMap;
+	}
 }

@@ -1,4 +1,5 @@
 package com.mjc.groupware.attendance.service;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -133,19 +134,19 @@ public class AttendanceService {
 		return result;
 	}
 
-	
+	// 근무 출근 저장
 	public Map<String, Object> saveStartTime(MemberDto member, AttendanceDto dto) {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		try {
 			 // 정책 조회
 		    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 		    LocalTime checkInTime = dto.getCheck_in();
-
+		    
 		    if (wsp != null && checkInTime != null) {
 		        if (checkInTime.isAfter(wsp.getStartTimeMax())) {
-		            dto.setAttendance_status("L"); // 지각
+		            dto.setLate_yn("Y"); // 지각여부
 		        } else {
-		            dto.setAttendance_status("I"); // 정상 출근
+		            dto.setLate_yn("N"); // 정상 출근
 		        }
 		    }
 
@@ -166,6 +167,40 @@ public class AttendanceService {
 		}
 	   
 	    return resultMap;
+	}
+
+	// 퇴근 시간 저장
+	public Map<String, Object> saveEndTime(MemberDto member, AttendanceDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		try {
+			// 오늘의 근무 정보 가져오기
+			Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMember_no(), dto.getAttend_date());
+			AttendanceDto oldAttendanceDto = new AttendanceDto().toDto(attendance);
+			oldAttendanceDto.setCheck_out(dto.getCheck_out());
+			oldAttendanceDto.setEarly_leave_yn(dto.getEarly_leave_yn());
+			
+			// 하루 일한 시간 구하기
+			LocalTime checkIn = oldAttendanceDto.getCheck_in();
+			LocalTime checkOut = dto.getCheck_out();
+			Duration duration = Duration.between(checkIn, checkOut);
+			LocalTime workingTime = LocalTime.ofSecondOfDay(duration.getSeconds());
+			oldAttendanceDto.setWorking_time(workingTime);
+			
+			Attendance updated = oldAttendanceDto.toEntity();
+	        attendanceRepository.save(updated);
+	        
+	        resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "퇴근 시간이 저장되었습니다.");
+	        resultMap.put("attendance", oldAttendanceDto);
+	        
+		} catch(Exception e) {
+			e.printStackTrace();
+			resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "퇴근 저장 실패");
+		}
+		
+		
+		return resultMap;
 	}
 
 }

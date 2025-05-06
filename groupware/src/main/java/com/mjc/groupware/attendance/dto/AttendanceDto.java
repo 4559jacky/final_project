@@ -25,7 +25,8 @@ public class AttendanceDto {
 	private LocalTime check_in;
 	private LocalTime check_out;
 	private LocalTime working_time;
-	private String attendance_status;
+	private String late_yn;
+	private String early_leave_yn;
 	private Long member_no;
 	
 	public Attendance toEntity () {
@@ -35,7 +36,8 @@ public class AttendanceDto {
 				.checkIn(this.check_in)
 				.checkOut(this.check_out)
 				.workingTime(this.working_time)
-				.attendanceStatus(this.attendance_status)
+				.lateYn(this.late_yn)
+				.earlyLeaveYn(this.early_leave_yn)
 				.member(Member.builder().memberNo(this.member_no).build())
 				.build();
 	}
@@ -47,7 +49,8 @@ public class AttendanceDto {
 				.check_in(entity.getCheckIn())
 				.check_out(entity.getCheckOut())
 				.working_time(entity.getWorkingTime())
-				.attendance_status(entity.getAttendanceStatus())
+				.late_yn(entity.getLateYn())
+				.early_leave_yn(entity.getEarlyLeaveYn())
 				.member_no(entity.getMember().memberNo)
 				.build();
 	}

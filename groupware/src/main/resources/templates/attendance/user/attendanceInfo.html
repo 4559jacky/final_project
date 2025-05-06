@@ -1,95 +1,150 @@
 <!DOCTYPE html>
-<html
-xmlns:th="http://www.thymeleaf.org"
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
-              	<ol class="breadcrumb align-items-center">
-              		<li class="breadcrumb-item">
-                  		<a class="text-muted text-decoration-none" href="/home">
-                   			<i class="ti ti-home fs-5"></i>
-                  		</a>
-                 	 	</li>
+			<ol class="breadcrumb align-items-center">
+				<li class="breadcrumb-item"><a
+					class="text-muted text-decoration-none" href="/home"> <i
+						class="ti ti-home fs-5"></i>
+				</a></li>
 				<li class="breadcrumb-item" aria-current="page">근태 / 근태 정보</li>
-                	</ol>
-		</nav><br>
+			</ol>
+		</nav>
+		<br>
 		<h2 class="mb-0 fw-bolder fs-8">근태 정보</h2>
 	</div>
 
 	<div class="container-fluid">
-    <!-- 상단 헤더 -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-      <h4 class="fw-bold mb-0" id="current-date"></h4>
-      <div class="d-flex align-items-center gap-3">
-        <div class="text-end">
-          <h5 class="mb-0 fw-semibold" th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
-          <p class="mb-0 text-muted" th:text="${#authentication.principal.member.dept.deptName}">부서</p>
-        </div>
-        <div>
-          <img th:src="@{${latestMyProfile != null} ? '/uploads/' + ${latestMyProfile.new_name} : '/img/default_profile.png'}"
-               alt="profile" class="rounded-circle border shadow-sm" width="60" height="60">
-        </div>
-      </div>
-    </div>
+		<!-- 상단 헤더 -->
+		<div
+			class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+			<h4 class="fw-bold mb-0" id="current-date"></h4>
+			<div class="d-flex align-items-center gap-3">
+				<div class="text-end">
+					<h5 class="mb-0 fw-semibold"
+						th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
+					<p class="mb-0 text-muted"
+						th:text="${#authentication.principal.member.dept.deptName}">부서</p>
+				</div>
+				<div>
+					<img
+						th:src="@{${latestMyProfile != null} ? '/uploads/' + ${latestMyProfile.new_name} : '/img/default_profile.png'}"
+						alt="profile" class="rounded-circle border shadow-sm" width="60"
+						height="60">
+				</div>
+			</div>
+		</div>
+		<input type="hidden" th:value="${workPolicy.workDuration}" id="work_duration">
+		<div class="row g-4">
+			<!-- 왼쪽 카드 -->
+			<div class="col-lg-3">
+				<!-- 근태관리 카드 -->
+				<div class="card p-3 mb-3">
+					<h5 class="fw-bold text-primary mb-3">근태관리</h5>
+					<h2 class="fw-bold" id="nowTime">03:05:20</h2>
+					<div class="mt-3 small">
+						<div class="d-flex justify-content-between mb-2">
+							<span class="text-muted">출근</span>
+							<th:block th:if="${todayAttendance == null}">
+								<div id="checkInWrap">
+									<button class="btn btn-primary btn-sm" onclick="startTime();">출근</button>
+								</div>
+							</th:block>
+							<th:block th:if="${todayAttendance != null}">
+								<div id="checkInWrap">
+									<span class="fw-bold text-success" id="start_time"
+										th:text="${todayAttendance.check_in}"></span>
+								</div>
+							</th:block>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span class="text-muted">퇴근</span>
+							<th:block th:if="${todayAttendance == null}">
+								<div id="checkOutWrap">
+									<button id="end_time_btn" class="btn btn-primary btn-sm"
+								onclick="endTime();" th:disabled="${todayAttendance == null}">퇴근</button>
+								</div>
+							</th:block>
+							<th:block th:if="${todayAttendance != null and todayAttendance.check_out == null}">
+								<div id="checkOutWrap">
+									<button id="end_time_btn" class="btn btn-primary btn-sm"
+								onclick="endTime();">퇴근</button>
+								</div>
+							</th:block>
+							<th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
+								<div id="checkOutWrap">
+									<span class="fw-bold text-success" id="end_time"
+										th:text="${todayAttendance.check_out}"></span>
+								</div>
+							</th:block>
+						</div>
+						<!-- 근무 상태 → 출근/퇴근 상태로 나눔 -->
+							<div class="mt-2 border-top pt-2">
+							  <!-- 출근 상태 -->
+							  <div class="d-flex justify-content-between mb-1">
+							    <span class="text-muted">출근 상태</span>
+							    <th:block th:if="${todayAttendance == null}">
+							      <span id="checkInStatus"
+							        class="badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded">-</span>
+							    </th:block>
+							    <th:block th:if="${todayAttendance != null}">
+							      <span th:if="${todayAttendance.late_yn == 'N'}"
+							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상</span>
+							      <span th:if="${todayAttendance.late_yn == 'Y'}"
+							        class="badge bg-warning-subtle text-warning fw-semibold px-2 py-1 rounded">지각</span>
+							    </th:block>
+							  </div>
+							
+							  <!-- 퇴근 상태 -->
+							  <div class="d-flex justify-content-between mb-1">
+							    <span class="text-muted">퇴근 상태</span>
+							    <th:block th:if="${todayAttendance == null or todayAttendance.check_out == null}">
+							      <span id="checkOutStatus"
+							        class="badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded">-</span>
+							    </th:block>
+							    <th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
+							      <span th:if="${todayAttendance.early_leave_yn == 'N'}"
+							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상</span>
+							      <span th:if="${todayAttendance.early_leave_yn == 'Y'}"
+							        class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1 rounded">조퇴</span>
+							    </th:block>
+							  </div>
+							</div>
+					</div>
+				</div>
 
-    <div class="row g-4">
-      <!-- 왼쪽 카드 -->
-      <div class="col-lg-3">
-	  <!-- 근태관리 카드 -->
-	  <div class="card p-3 mb-3">
-	    <h5 class="fw-bold text-primary mb-3">근태관리</h5>
-	    <h2 class="fw-bold" id="nowTime">03:05:20</h2>
-	    <div class="mt-3 small">
-	      <div class="d-flex justify-content-between mb-2">
-	        <span class="text-muted">출근</span>
-	        <div id="checkInWrap">
-	          <span class="fw-bold text-success">03:04:04</span>
-	        </div>
-	      </div>
-	      <div class="d-flex justify-content-between mb-2">
-	        <span class="text-muted">퇴근</span>
-	        <button class="btn btn-primary btn-sm">퇴근</button>
-	      </div>
-	      <div class="d-flex justify-content-between align-items-center mt-2 border-top pt-2">
-	        <span class="text-muted">근무 상태</span>
-	        <span id="attendanceStatus" class="badge bg-info-subtle text-info fw-semibold px-2 py-1 rounded">
-	          정상 출근
-	        </span>
-	      </div>
-	    </div>
-	  </div>
-	
-	  <!-- 잔여연차 카드 -->
-	  <div class="card p-3 mb-3">
-	    <h6 class="text-muted">잔여연차</h6>
-	    <h5 class="fw-bold text-success" th:text="|${member.annualLeave}일|">0일</h5>
-	    <small class="text-muted"></small>
-	  </div>
-	
-	  <!-- 지각 카드 -->
-	  <div class="card p-3 mb-3">
-	    <h6 class="text-muted">지각</h6>
-	    <h5 class="fw-bold text-danger">2회</h5>
-	    <small class="text-muted">1년에 10회 중 2회 발생</small>
-	  </div>
-	
-	  <!-- 조퇴 카드 -->
-	  <div class="card p-3">
-	    <h6 class="text-muted">조퇴</h6>
-	    <h5 class="fw-bold text-primary">3회</h5>
-	    <small class="text-muted">1개월에 10회 중 3회 발생</small>
-	  </div>
-	</div>
-          
-          <script>
+				<!-- 잔여연차 카드 -->
+				<div class="card p-3 mb-3">
+					<h6 class="text-muted">잔여연차</h6>
+					<h5 class="fw-bold text-success" th:text="|${member.annualLeave}일|">0일</h5>
+					<small class="text-muted"></small>
+				</div>
+
+				<!-- 지각 카드 -->
+				<div class="card p-3 mb-3">
+					<h6 class="text-muted">지각</h6>
+					<h5 class="fw-bold text-danger">2회</h5>
+					<small class="text-muted">1년에 10회 중 2회 발생</small>
+				</div>
+
+				<!-- 조퇴 카드 -->
+				<div class="card p-3">
+					<h6 class="text-muted">조퇴</h6>
+					<h5 class="fw-bold text-primary">3회</h5>
+					<small class="text-muted">1개월에 10회 중 3회 발생</small>
+				</div>
+			</div>
+
+			<script>
           	const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
           </script>
-          
-          <script>
+
+			<script>
 	          const startTime = function() {
 	        	  const now = new Date();
 	        	  const koreaOffset = 9 * 60; // KST: UTC+9
@@ -120,11 +175,38 @@ layout:decorate="~{/include/layout}">
 	        	      alert(data.res_msg);
 
 	        	      if (data.res_code === "200") {
-	        	        const checkInWrap = document.getElementById("checkInWrap");
-	        	        checkInWrap.innerHTML = `<span class="fw-bold text-success">${data.attendance.checkIn}</span>`;
-	        	        document.getElementById("attendanceStatus").innerText =
-	        	        	  data.attendance.attendanceStatus === "L" ? "지각 출근" : "정상 출근";
-	        	      }
+	        	    	  const checkInWrap = document.getElementById("checkInWrap");
+	        	    	  checkInWrap.innerHTML = `<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
+
+	        	    	  const statusSpan = document.getElementById("checkInStatus");
+	        	    	  document.getElementById('end_time_btn').disabled = false;
+	        	    	  // 상태 코드에 따라 텍스트/클래스 동적으로 반영
+	        	    	  let statusText = "";
+	        	    	  let bgClass = "";
+	        	    	  let textClass = "";
+
+	        	    	  switch (data.attendance.lateYn) {
+	        	    	    case "N":
+	        	    	      statusText = "정상 출근";
+	        	    	      bgClass = "bg-info-subtle";
+	        	    	      textClass = "text-info";
+	        	    	      break;
+	        	    	    case "Y":
+	        	    	      statusText = "지각";
+	        	    	      bgClass = "bg-warning-subtle";
+	        	    	      textClass = "text-warning";
+	        	    	      break;
+	        	    	      break;
+	        	    	    default:
+	        	    	      statusText = "출근전";
+	        	    	      bgClass = "bg-secondary-subtle";
+	        	    	      textClass = "text-secondary";
+	        	    	  }
+
+	        	    	  // 기존 클래스 싹 지우고 새로 적용
+	        	    	  statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+	        	    	  statusSpan.innerText = statusText;
+	        	    	}
 	        	    })
 	        	    .catch(err => {
 	        	      alert("출근 처리 중 오류 발생!");
@@ -132,52 +214,139 @@ layout:decorate="~{/include/layout}">
 	        	    });
 	        	}
           	
-          	const endTime = function(){
-          		
-          	}
+	          const endTime = function () {
+	        	  const now = new Date();
+
+	        	  const checkInStr = document.getElementById('start_time').innerHTML; // "08:30:00"
+	        	  const [inHour, inMin, inSec] = checkInStr.split(":").map(Number);
+	        	  const checkInTotalMin = inHour * 60 + inMin + inSec / 60;
+
+	        	  const workDuration = parseFloat(document.getElementById('work_duration').value); // 예: 8.5
+	        	  const requiredMin = checkInTotalMin + (workDuration * 60); // 출근시간 + 근무시간 (분)
+
+	        	  const nowTotalMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+
+	        	  const hours = String(now.getHours()).padStart(2, '0');
+	        	  const minutes = String(now.getMinutes()).padStart(2, '0');
+	        	  const seconds = String(now.getSeconds()).padStart(2, '0');
+	        	  const currentTimeStr = `${hours}:${minutes}:${seconds}`;
+
+	        	  const attendDate = now.toISOString().slice(0, 10);
+	        	  let earlyLeaveYn = 'N';
+	        	  let confirmMsg = "";
+
+	        	  if (nowTotalMin < requiredMin) {
+	        	    const requiredHour = Math.floor(requiredMin / 60);
+	        	    const requiredMinute = Math.floor(requiredMin % 60);
+	        	    confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
+	        	    earlyLeaveYn = 'Y';
+	        	  } else {
+	        	    confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
+	        	  }
+	        	  
+	        	  console.log("출근 문자열:", checkInStr);
+	        	  console.log("출근 시간:", inHour, inMin, inSec);
+	        	  console.log("출근 총 분:", checkInTotalMin);
+	        	  console.log("근무시간:", workDuration, "시간 →", workDuration * 60, "분");
+	        	  console.log("퇴근 기준 총 분:", requiredMin);
+	        	  console.log("현재 총 분:", nowTotalMin);
+
+	        	  if (!confirm(confirmMsg)) return;
+
+	        	  fetch('/attendance/saveEndTime', {
+	        	    method: 'POST',
+	        	    headers: {
+	        	      [csrfHeader]: csrfToken,
+	        	      'Content-Type': 'application/json'
+	        	    },
+	        	    body: JSON.stringify({
+	        	      attend_date: attendDate,
+	        	      check_out: currentTimeStr,
+	        	      early_leave_yn: earlyLeaveYn
+	        	    })
+	        	  })
+	        	    .then(response => response.json())
+	        	    .then(data => {
+	        	      alert(data.res_msg);
+
+	        	      if (data.res_code === "200") {
+	        	    	  
+        	    	  const checkOutWrap = document.getElementById("checkOutWrap");
+        	    	  checkOutWrap.innerHTML = `<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
+	        	    	  
+	        	        const statusSpan = document.getElementById("checkOutStatus");
+	        	        let statusText = "";
+	        	        let bgClass = "";
+	        	        let textClass = "";
+
+	        	        switch (data.attendance.early_leave_yn) {
+	        	          case "Y":
+	        	            statusText = "조퇴";
+	        	            bgClass = "bg-primary-subtle";
+	        	            textClass = "text-primary";
+	        	            break;
+	        	          case "N":
+	        	            statusText = "정상 퇴근";
+	        	            bgClass = "bg-success-subtle";
+	        	            textClass = "text-success";
+	        	            break;
+	        	          default:
+	        	            statusText = "퇴근";
+	        	            bgClass = "bg-secondary-subtle";
+	        	            textClass = "text-secondary";
+	        	        }
+
+	        	        statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+	        	        statusSpan.innerText = statusText;
+	        	      }
+	        	    })
+	        	    .catch(err => {
+	        	      alert("퇴근 처리 중 오류 발생!");
+	        	      console.error("퇴근 저장 실패", err);
+	        	    });
+	        	};
           </script>
 
 
-      <!-- 가운데 근무시간 + 차트 -->
-      <div class="col-lg-9">
-        <div class="card p-4 mb-4">
-          <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-            <div>
-              <h6 class="mb-1">선택적 근로시간</h6>
-              <p class="text-muted mb-0">김세영 대리 / 마케팅팀</p>
-            </div>
-            <div class="text-end">
-              <h4 class="fw-bold">2024.04</h4>
-              <p class="text-muted">오늘</p>
-            </div>
-          </div>
+			<!-- 가운데 근무시간 + 차트 -->
+			<div class="col-lg-9">
+				<div class="card p-4 mb-4">
+					<div
+						class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+						<div>
+							<h6 class="mb-1">선택적 근로시간</h6>
+							<p class="text-muted mb-0">김세영 대리 / 마케팅팀</p>
+						</div>
+						<div class="text-end">
+							<h4 class="fw-bold">2024.04</h4>
+							<p class="text-muted">오늘</p>
+						</div>
+					</div>
 
-          <div class="progress mb-3" style="height: 25px;">
-            <div class="progress-bar bg-info" style="width: 47%">24h 30m</div>
-          </div>
-          <div class="d-flex justify-content-between small text-muted">
-            <span>최소 40h</span>
-            <span>52h 기준</span>
-            <span>최대 68h</span>
-          </div>
+					<div class="progress mb-3" style="height: 25px;">
+						<div class="progress-bar bg-info" style="width: 47%">24h 30m</div>
+					</div>
+					<div class="d-flex justify-content-between small text-muted">
+						<span>최소 40h</span> <span>52h 기준</span> <span>최대 68h</span>
+					</div>
 
-          <ul class="mt-3 small">
-            <li>남은 근무시간 : 15h 30m</li>
-            <li>남은 연장 근무시간 : 12h</li>
-            <li>남은 휴일 연장 근무시간 : 16h</li>
-          </ul>
-        </div>
+					<ul class="mt-3 small">
+						<li>남은 근무시간 : 15h 30m</li>
+						<li>남은 연장 근무시간 : 12h</li>
+						<li>남은 휴일 연장 근무시간 : 16h</li>
+					</ul>
+				</div>
 
-        <div class="card p-4">
-          <h6 class="fw-bold mb-3">주간 근무시간 요약</h6>
-          <div id="weeklyHoursChart"></div>
-        </div>
+				<div class="card p-4">
+					<h6 class="fw-bold mb-3">주간 근무시간 요약</h6>
+					<div id="weeklyHoursChart"></div>
+				</div>
 
-      </div>
-    </div>
-  </div>
+			</div>
+		</div>
+	</div>
 
-  <script>
+	<script>
   	
 	  function updateTime() {
 		    const now = new Date();
@@ -221,28 +390,30 @@ layout:decorate="~{/include/layout}">
 	      new ApexCharts(document.querySelector("#weeklyHoursChart"), options).render();
 	    });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-	
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 	<!-- Bootstrap Common JS Files Start -->
-	
+
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
-	
-  	<!-- Import Js Files -->
-  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
-  	<script th:src="@{/assets/js/theme/theme.js}"></script>
-  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
-  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
 
-  	<!-- solar icons -->
-  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
-  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-  	
-  	<!-- Bootstrap Common JS Files End -->
-	
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
+
 </th:block>
 </html>
