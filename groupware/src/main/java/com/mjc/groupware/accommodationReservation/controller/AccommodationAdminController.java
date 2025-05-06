@@ -1,17 +1,50 @@
 package com.mjc.groupware.accommodationReservation.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.mjc.groupware.accommodationReservation.dto.AccommodationAttachDto;
+import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
+import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
+import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
+import com.mjc.groupware.accommodationReservation.service.AccommodationAttachService;
+import com.mjc.groupware.accommodationReservation.service.AccommodationService;
+import com.mjc.groupware.board.controller.BoardAttachController;
 import com.mjc.groupware.common.annotation.CheckPermission;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
+@RequiredArgsConstructor
 public class AccommodationAdminController {
+
+    private final BoardAttachController boardAttachController;
+	
+	private final AccommodationService accommodationService;
+	private final AccommodationAttachService accommodationAttachService;
 	
 	// HTML리턴(adminHome 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
 	@GetMapping("/adminHome")
-	public String adminHomeView() {
+	public String adminHomeView(Model model) {
+		List<AccommodationInfo> accommodations = accommodationService.getAllAccommodations();
+	    model.addAttribute("accommodations", accommodations);
 		return "accommodation/adminHome";
 	}
 		
@@ -27,6 +60,92 @@ public class AccommodationAdminController {
 	public String adminListView() {
 		return "accommodation/adminList";
 	}
+	
+	// 숙소등록
+	@PostMapping("/accommodation/register")
+	@ResponseBody
+	public Map<String, Object> registerAccommodation(
+		@ModelAttribute AccommodationInfoDto dto,
+		@RequestParam(value = "files", required = false) List<MultipartFile> files
+	) {
+		 Map<String, Object> result = new HashMap<>();
+		    try {
+		        dto.setReg_date(LocalDateTime.now());
+		        dto.setMod_date(LocalDateTime.now());
+
+		        AccommodationInfo savedInfo = accommodationService.register(dto);
+
+		     // 파일 저장
+		        if (files != null && !files.isEmpty()) {
+		            System.out.println("업로드된 파일 수: " + files.size());
+		            for (MultipartFile mf : files) {
+		                if (!mf.isEmpty()) {
+		                    AccommodationAttachDto attachDto = accommodationAttachService.uploadFile(mf);
+		                    if (attachDto != null) {
+		                        accommodationAttachService.saveAttach(attachDto, savedInfo);
+		                    }
+		                }
+		            }
+		        }
+
+		        result.put("res_code", "200");
+		        result.put("res_msg", "숙소 등록 성공");
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        result.put("res_code", "500");
+		        result.put("res_msg", "등록 중 오류 발생");
+		    }
+		    return result;
+	}
+
+	// 숙소 수정
+//	@CheckPermission("WELFARE_ADMIN")
+//	@GetMapping("/admin/accommodation/update/{id}")
+//	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
+//	    AccommodationInfoDto dto = accommodationService.findById(id);  // DTO로 받아야 Thymeleaf 사용이 편함
+//
+//	    if (dto == null) {
+//	        return "redirect:/adminHome";
+//	    }
+//
+//	    List<AccommodationAttach> attachList = accommodationService.findAttachList(id);
+//
+//	    model.addAttribute("accommodation", dto);
+//	    model.addAttribute("attachList", attachList);  // 기존 첨부 이미지도 전달
+//
+//	    return "accommodation/adminCreate";  // 수정과 생성 페이지 공유
+//	}
+
+
+	// 숙소 상세
+	@GetMapping("/accommodation/detail/{accommodationNo}")
+	public String viewAccommodation(@PathVariable("accommodationNo") Long accommodationNo, Model model) {
+	    AccommodationInfoDto dto = accommodationService.findById(accommodationNo);
+	    if (dto == null) {
+	        return "redirect:/accommodation/adminHome";
+	    }
+	    System.out.println("숙소 정보: " + dto);
+
+	    List<AccommodationAttach> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+	    
+	    model.addAttribute("accommodation", dto);
+	    model.addAttribute("attachList", attachList); // 이미지 리스트 전달
+	    return "accommodation/detail"; // detail.html로 이동
+	}
+
+//	@CheckPermission("WELFARE_ADMIN")
+//	@DeleteMapping("/accommodation/delete/{id}")
+//	@ResponseBody
+//	public ResponseEntity<?> deleteAccommodation(@PathVariable Long id) {
+//	    try {
+//	        accommodationService.delete(id); // 이 내부에서 DB 삭제 처리
+//	        return ResponseEntity.ok().body("삭제 성공");
+//	    } catch (Exception e) {
+//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
+//	    }
+//	}
+
+	
 	
 	
 }

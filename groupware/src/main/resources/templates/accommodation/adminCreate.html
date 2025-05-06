@@ -25,14 +25,7 @@ layout:decorate="~{/include/layout}">
 	      </nav><br>
 	      <h2 class="mb-0 fw-bolder fs-8">제휴 숙소 등록</h2>
 	    </div><br>
-	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
-		  <!-- <div class="d-flex justify-content-end align-items-center gap-2 p-4">
-			  숙소등록 버튼
-			  <a href="javascript:void(0)" class="btn btn-primary">숙소등록</a>
-			  삭제 버튼
-			  <a href="javascript:void(0)" class="btn btn-primary">삭제</a>
-	    </div> -->
-	
+
 	    <!-- 1번째 테이블 -->
 	    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
 	    <div class="table-responsive">
@@ -44,48 +37,55 @@ layout:decorate="~{/include/layout}">
 		        <span>@이곳에 파일을 드래그 하세요.</span><br>
 		        <span> 또는 파일 업로드를 클릭하세요</span><br>
 		        <!-- 실제 업로드 input은 숨기고 라벨로 연결 -->
-		        <input type="file" id="imageUpload" class="d-none">
+		        <input type="file" name="files" id="imageUpload" class="d-none" multiple>
 		        <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
 		      </div>
 		    </div>
+		            <input type="hidden" id="accommodation_no" value="123">
+					<input type="hidden" id="room_count" value="10">
+					<input type="hidden" id="accommodation_location" value="서울 강남구">
+					<input type="datetime-local" id="reg_date" style="display: none;">
+					<input type="datetime-local" id="mod_date" style="display: none;">
+					
 		
 		    <!-- 오른쪽: 숙소 정보 -->
 		    <div class="col-md-7">
 		      <table class="table table-borderless align-middle">
 		        <tbody>
 		          <tr>
+		          
 		            <td class="text-end"><label for="type" class="form-label">숙소 타입 : </label></td>
 		            <td class="text-start">
-		              <select id="type" name="type" class="form-select w-75">
+		              <select id="type" name="accommodation_type" class="form-select w-75">
 		                <option selected>숙소타입</option>
-		                <option value="리조트">리조트</option>
-		                <option value="호텔">호텔</option>
+		                <option value="1">리조트</option>
+		                <option value="2">호텔</option>
 		              </select>
 		            </td>
 		          </tr>
 		          <tr>
 		            <td class="text-end"><label for="name" class="form-label">숙소명 : </label></td>
-		            <td class="text-start"><input type="text" id="name" class="form-control w-75" placeholder="숙소명을 입력해주세요."></td>
+		            <td class="text-start"><input type="text" id="name"  name="accommodation_name" class="form-control w-75" placeholder="숙소명을 입력해주세요."></td>
 		          </tr>
 		          <tr>
 		            <td class="text-end"><label for="address" class="form-label">주소 : </label></td>
-		            <td class="text-start"><input type="text" id="address" class="form-control w-75" placeholder="숙소 주소를 입력해주세요."></td>
+		            <td class="text-start"><input type="text" id="address" name="accommodation_address" class="form-control w-75" placeholder="숙소 주소를 입력해주세요."></td>
 		          </tr>
 		          <tr>
 		            <td class="text-end"><label for="phone" class="form-label">연락처 : </label></td>
-		            <td class="text-start"><input type="text" id="phone" class="form-control w-75" placeholder="숙소 연락처를 입력해주세요."></td>
+		            <td class="text-start"><input type="text" id="phone" name="accommodation_phone" class="form-control w-75" placeholder="숙소 연락처를 입력해주세요."></td>
 		          </tr>
 		          <tr>
 		            <td class="text-end"><label for="email" class="form-label">이메일 : </label></td>
-		            <td class="text-start"><input type="email" id="email" class="form-control w-75" placeholder="숙소 이메일을 입력해주세요."></td>
+		            <td class="text-start"><input type="email" id="email" name="accommodation_email" class="form-control w-75" placeholder="숙소 이메일을 입력해주세요."></td>
 		          </tr>
 		          <tr>
 		            <td class="text-end"><label for="site" class="form-label">공식 사이트 : </label></td>
-		            <td class="text-start"><input type="url" id="site" class="form-control w-75" placeholder="공식 사이트 주소를 입력해주세요."></td>
+		            <td class="text-start"><input type="url" id="site" name="accommodation_site" class="form-control w-75" placeholder="공식 사이트 주소를 입력해주세요."></td>
 		          </tr>
 		          <tr>
 		            <td class="text-end"><label for="price" class="form-label">가격 : </label></td>
-		            <td class="text-start"><input type="text" id="price" class="form-control w-75" placeholder="가격을 입력해주세요."></td>
+		            <td class="text-start"><input type="text" id="price" name="room_price" class="form-control w-75" placeholder="가격을 입력해주세요."></td>
 		          </tr>
 		        </tbody>
 		      </table>
@@ -103,66 +103,104 @@ layout:decorate="~{/include/layout}">
 			<div class="post-form mt-3">
       			<h6 class="fw-semibold mb-2" style="font-size: 1.2rem;">숙소 상세 설명</h6>
 			    <div id="editor" style="margin-top: 25px;"></div>
-			    <textarea id="content" name="content" hidden></textarea>
+			    <textarea id="content" name="accommodation_content" hidden></textarea>
 			</div>
 	    </div>
 	    </div>
-	    <script>
-			document.addEventListener("DOMContentLoaded", function () {
-			    const editor = new toastui.Editor({
+	    
+		
+		<!-- 등록 버튼: accommodationNo가 없을 때만 보이게 -->
+		<div class="d-flex justify-content-end mt-3" 
+		     th:if="${accommodation == null or accommodation.accommodationNo == null}">
+		    <button type="submit" class="btn btn-primary me-2" id="submitBtn">등록</button>
+		    <a th:href="@{/adminHome}" class="btn btn-danger">취소</a>
+		</div>
+		
+		<!-- 수정 버튼: accommodationNo가 존재할 때만 보이게 -->
+		<div class="d-flex justify-content-end mt-3" 
+		     th:if="${accommodation != null and accommodation.accommodationNo != null}">
+		    <button type="submit" class="btn btn-primary me-2" id="updateBtn">수정 완료</button>
+		    <a th:href="@{/adminHome}" class="btn btn-danger">취소</a>
+		</div>
+		
+
+		<br><br>
+		<!-- 등록버튼 클릭시 동작 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function(){
+				const editor = new toastui.Editor({
 			        el: document.querySelector('#editor'),
 			        height: '400px',
 			        initialEditType: 'wysiwyg',
 			        previewStyle: 'vertical'
 			    });
-			
-			    const submitBtn = document.querySelector("button[type='submit']");
-			    submitBtn.addEventListener("click", function (e) {
-			        e.preventDefault();
-			
-			        const content = editor.getHTML();
-			        document.getElementById("content").value = content;
-			
-			        // 유효성 검사 예시
-			        const name = document.getElementById("name").value.trim();
-			        if (!name || content === '<p><br></p>') {
-			            alert("숙소명과 내용을 모두 입력하세요.");
-			            return;
-			        }
-			
-			        // 전송 (폼 요소 전체 감싸져 있어야 함)
-			        const form = new FormData();
-			        form.append("name", name);
-			        form.append("content", content);
-			        // 필요한 다른 데이터들도 추가...
-			
-			        fetch("/your-post-url", {
-			            method: "POST",
-			            body: form,
-			            headers: {
-			                "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-			            }
-			        })
-			        .then(res => res.json())
-			        .then(data => {
-			            alert(data.res_msg || "등록되었습니다.");
-			            if (data.res_code === "200") {
-			                location.href = "/your-success-url";
-			            }
-			        })
-			        .catch(err => {
-			            console.error(err);
-			            alert("오류 발생");
-			        });
-			    });
+				
+			// DateTime 타입 동적으로 처리
+			function getCurrentDateTimeLocal() {
+			   const now = new Date();
+			   const offset = now.getTimezoneOffset() * 60000;
+			   return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+			}
+			document.getElementById("reg_date").value = getCurrentDateTimeLocal();
+			document.getElementById("mod_date").value = getCurrentDateTimeLocal();	
+				
+			document.getElementById("submitBtn").addEventListener("click", function (e) {
+			    e.preventDefault();
+				
+				const content = editor.getHTML();
+				document.getElementById("content").value = content;
+				
+				const name = document.getElementById("name").value.trim();
+				if(!name || content === '<p><br></p>'){
+					alert("숙소명과 내용을 모두 입력하세요.");
+					return;
+				}
+				
+				const form = new FormData();
+				form.append("accommodation_name", document.getElementById("name").value);
+				form.append("accommodation_type", document.getElementById("type").value);
+				form.append("accommodation_address", document.getElementById("address").value);
+				form.append("accommodation_phone", document.getElementById("phone").value);
+				form.append("accommodation_email", document.getElementById("email").value);
+				form.append("accommodation_site", document.getElementById("site").value);
+				form.append("room_price", document.getElementById("price").value);
+				form.append("accommodation_content", content);
+				form.append("accommodation_location", document.getElementById("accommodation_location").value);
+				form.append("room_count", document.getElementById("room_count").value);
+				form.append("reg_date", document.getElementById("reg_date").value);
+				form.append("mod_date", document.getElementById("mod_date").value);
+
+
+				const imageFile = document.getElementById("imageUpload").files[0];
+				if(imageFile){
+					form.append("files",imageFile);
+				}  
+				
+				/* const accommodationNo = document.getElementById("accommodation_no").value;
+				const isUpdate = accommodationNo !== "";
+				const fetchUrl = isUpdate ? "/accommodation/update" : "/accommodation/register"; */
+				
+				fetch("/accommodation/register",{
+					method:"POST",
+					body:form,
+					headers:{
+						 "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+					}
+				})
+				.then(res => res.json())
+				.then(data =>{
+					alert(data.res_msg || "등록되었습니다.");
+					if(data.res_code == "200"){
+						location.href ="/adminHome";
+					}
+				})
+				.catch(err => {
+					console.log(err);
+					alert("오류발생");
+				});
 			});
-			</script>
-		
-        <!-- 등록 버튼 -->
-        <div class="d-flex justify-content-end mt-3">
-		  <button type="submit" class="btn btn-primary me-2">등록</button>
-		</div>
-		<br><br>
+		});
+		</script>
 	</div>
 	<!-- Scripts -->
   <script th:src="@{/assets/js/vendor.min.js}"></script>

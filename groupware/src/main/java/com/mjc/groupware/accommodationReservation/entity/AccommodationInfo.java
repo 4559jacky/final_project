@@ -2,6 +2,9 @@ package com.mjc.groupware.accommodationReservation.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -60,9 +63,11 @@ public class AccommodationInfo {
 	@Column(name = "accommodation_content")
 	private String accommodationContent;
 	
+	@CreationTimestamp
 	@Column(name ="reg_date")
 	private LocalDateTime regDate;
 	
+	@UpdateTimestamp
 	@Column(name ="mod_date")
 	private LocalDateTime modDate;
 }
