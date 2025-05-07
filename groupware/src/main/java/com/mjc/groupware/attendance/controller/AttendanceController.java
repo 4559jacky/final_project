@@ -1,7 +1,6 @@
 package com.mjc.groupware.attendance.controller;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
 import com.mjc.groupware.attendance.entity.Attendance;
@@ -227,5 +227,21 @@ public class AttendanceController {
 	    Map<String,Object> resultMap = attendanceService.saveEndTime(member, dto);
 	    
 	    return resultMap;
+	}
+	
+	
+	// 오늘 기준 이번주의 근무시간 가져오기
+	@GetMapping("/attendance/weeklyHours")
+	@ResponseBody
+	public List<WeeklyWorkDto> getWeeklyWorkTime( @RequestParam(name = "startDate") String startDate,
+		    @RequestParam(name = "endDate") String endDate, @AuthenticationPrincipal UserDetails userDetails) {
+		// 유저 정보
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    return attendanceService.getWeeklyWorkTime(startDate, endDate, member);
 	}
 }

@@ -1,13 +1,19 @@
 package com.mjc.groupware.attendance.service;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
 import com.mjc.groupware.attendance.entity.Attendance;
@@ -172,6 +178,8 @@ public class AttendanceService {
 	// 퇴근 시간 저장
 	public Map<String, Object> saveEndTime(MemberDto member, AttendanceDto dto) {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
+		System.out.println(">>> memberNo: " + member.getMember_no());
+		System.out.println(">>> attendDate: " + dto.getAttend_date());
 		try {
 			// 오늘의 근무 정보 가져오기
 			Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMember_no(), dto.getAttend_date());
@@ -201,6 +209,50 @@ public class AttendanceService {
 		
 		
 		return resultMap;
+	}
+
+
+	public List<WeeklyWorkDto> getWeeklyWorkTime(String startDate, String endDate, MemberDto memberDto) {
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    LocalDate start = LocalDate.parse(startDate, formatter);
+	    LocalDate end = LocalDate.parse(endDate, formatter);
+
+	    // MemberEntity 가져오기
+	    Member memberEntity = memberRepository.findById(memberDto.getMember_no()).orElse(null);
+	    if (memberEntity == null) return Collections.emptyList();
+
+	    List<Attendance> attendanceList = attendanceRepository.findByAttendDateBetweenAndMember(start, end, memberEntity);
+
+	    List<WeeklyWorkDto> result = new ArrayList<>();
+
+	    for (Attendance a : attendanceList) {
+	        double hours = 0.0;
+	        if (a.getWorkingTime() != null) {
+	            hours = convertTimeToHours(a.getWorkingTime());
+	        }
+
+	        WeeklyWorkDto dto = WeeklyWorkDto.builder()
+	            .attendDate(a.getAttendDate().toString())
+	            .workingHours(hours)
+	            .build();
+
+	        result.add(dto);
+	    }
+
+	    return result;
+	}
+	
+	// 일한시간 시간 소수점 한자리까지 반올림해서 실수로 계산
+	private double convertTimeToHours(LocalTime time) {
+	    int hour = time.getHour();
+	    int minute = time.getMinute();
+	    int second = time.getSecond();
+
+	    double totalMinutes = hour * 60 + minute + second / 60.0;
+	    double hours = totalMinutes / 60.0;
+
+	    // 소수점 한자리로 반올림
+	    return Math.round(hours * 10) / 10.0;
 	}
 
 }
