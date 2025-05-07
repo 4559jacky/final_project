@@ -558,6 +558,17 @@ layout:decorate="~{/include/layout}">
                         <div class="card-body p-4">
                           <h4 class="card-title">최근 로그인 이력</h4>
                           <p class="card-subtitle mb-4">You can check your recent login history.</p>
+						  <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+							<input type="date" id="loginDateStart" name="loginDateStart"
+								th:value="${loginDateStart != null} ? ${loginDateStart} : ''"
+								class="form-control form-control-sm" placeholder="시작일" style="max-width: 140px;">
+							~
+							<input type="date" id="loginDateEnd" name="loginDateEnd" 
+								th:value="${loginDateEnd != null} ? ${loginDateEnd} : ''"
+								class="form-control form-control-sm" placeholder="종료일" style="max-width: 140px;">
+							<button type="button" class="btn btn-sm btn-primary" onclick="filterLoginLogs()">조회</button>
+							<button type="button" class="btn btn-sm btn-secondary" id="resetBtn">초기화</button>
+						  </div>
 					      <div class="table-responsive mb-4 border rounded-1">
 					        <table class="table text-nowrap text-center mb-0 align-middle custom-table">
 					          <thead class="bg-body-secondary text-body">
@@ -588,7 +599,7 @@ layout:decorate="~{/include/layout}">
 							        <th:block th:with="memberPk=${#authentication.principal.member.memberNo}">
 									  <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
 									    <a class="page-link"
-									       th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${pageDto.pageBarStart - 1})}"
+									       th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${pageDto.pageBarStart - 1}, loginDateStart=${loginDateStart}, loginDateEnd=${loginDateEnd})}"
 									       aria-label="Previous">
 									      <span aria-hidden="true">&laquo;</span>
 									    </a>
@@ -601,7 +612,7 @@ layout:decorate="~{/include/layout}">
 									    <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
 									      <a class="page-link"
 									         th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
-									         th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${num})}"
+									         th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${num}, loginDateStart=${loginDateStart}, loginDateEnd=${loginDateEnd})}"
 									         th:text="${num}">페이지</a>
 									    </li>
 									  </th:block>
@@ -611,7 +622,7 @@ layout:decorate="~{/include/layout}">
 									<th:block th:with="memberPk=${#authentication.principal.member.memberNo}">
 									  <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
 									    <a class="page-link"
-									       th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${pageDto.pageBarEnd + 1})}"
+									       th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${pageDto.pageBarEnd + 1}, loginDateStart=${loginDateStart}, loginDateEnd=${loginDateEnd})}"
 									       aria-label="Next">
 									      <span aria-hidden="true">&raquo;</span>
 									    </a>
@@ -924,6 +935,56 @@ layout:decorate="~{/include/layout}">
 		    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		    return regex.test(emailString);
 		}
+	</script>
+	
+	<script>
+		// 로그인 이력 필터링 로직
+		function filterLoginLogs() {
+		    const loginDateStart = document.getElementById("loginDateStart").value;
+		    const loginDateEnd = document.getElementById("loginDateEnd").value;
+			
+		    // 두 날짜 중 하나만 입력된 경우
+		    if ((loginDateStart && !loginDateEnd) || (!loginDateStart && loginDateEnd)) {
+		        alert("시작일과 종료일을 모두 입력해주세요.");
+		        return; // 필터링을 진행하지 않음
+		    }
+			
+		   	// 시작일이 종료일보다 늦은 경우
+		    if (new Date(loginDateStart) > new Date(loginDateEnd)) {
+		        alert("시작일은 종료일보다 늦을 수 없습니다.");
+		        return;
+		    }
+		    
+		    // 현재 URL에서 memberNo 추출
+		    const currentPath = window.location.pathname;
+		    const memberIdMatch = currentPath.match(/\/member\/(\d+)\/update/);
+		
+		    if (!memberIdMatch) {
+		      alert("잘못된 접근입니다.");
+		      return;
+		    }
+		
+		    const memberId = memberIdMatch[1];
+		    let url = `/member/${memberId}/update?nowPage=1`;
+		
+		    if (loginDateStart) {
+		      url += `&loginDateStart=${loginDateStart}`;
+		    }
+		
+		    if (loginDateEnd) {
+		      url += `&loginDateEnd=${loginDateEnd}`;
+		    }
+		
+		    window.location.href = url;
+		}
+		
+		// 초기화 버튼: 날짜 비우고 다시 로딩
+		document.getElementById("resetBtn").addEventListener("click", function () {
+		  	document.getElementById("loginDateStart").value = "";
+		  	document.getElementById("loginDateEnd").value = "";
+			
+		  	filterLoginLogs();
+		});
 	</script>
 	
 	<!-- ---------------------------------------------------------------------------- -->
