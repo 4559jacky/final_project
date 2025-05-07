@@ -857,7 +857,7 @@
 	  } else {
 	    doConnect();
 	  }
-
+ 
 	  function doConnect() {
 	    const socket = new SockJS("/ws-chat");
 	    window.stompClient = Stomp.over(socket);

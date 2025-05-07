@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SessionRegistry {
+public class SessionRegistry { 
 	// 해당 멤버가 어떤 세션 ID로 접속했는지 확인하는 클래스
 	
 	// 멤버 번호 - 세션 ID	저장

@@ -171,7 +171,7 @@ public class ChatController {
 	    	);
 
 
-	    return "updated";
+	    return "updated"; 
 	}
 	
 	@MessageMapping("/chat/session-register")

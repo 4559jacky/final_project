@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ChatSessionTracker {
-	// 세션  ID 가 지금 어떤 채팅방에 들어가있는지 확인 
+	// 세션  ID 가 지금 어떤 채팅방에 들어가있는지 확인  
 	
 
 	// 채팅방 번호 - 그 방에 접속한 세션  ID 목록
