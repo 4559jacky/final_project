@@ -512,43 +512,37 @@
 		
 	// 안읽은 메세지 수 실시간 반영 
 	function onUnreadMessage(dto) {
-		
 	  const myNo = parseInt(document.getElementById("createMemberNo")?.value);
 	  const roomNo = dto.chat_room_no;
 	  const senderNo = parseInt(dto.member_no);
-	  
-	  if (senderNo === myNo) {
-	    return;
-	  }
-
+	
+	  const currentRoom = document.getElementById("chatRoomNo")?.value;
+	
+	  if (senderNo === myNo) return;
+	
 	  let receiverNos = dto.member_no_list;
-
-	  // 문자열이면 JSON 파싱
+	
 	  if (typeof receiverNos === "string") {
 	    try {
 	      receiverNos = JSON.parse(receiverNos);
-	      console.log("파싱된 수신자 리스트:", receiverNos);
 	    } catch (e) {
-	      console.error("member_no_list 파싱 실패", e);
 	      return;
 	    }
 	  }
-
-	  // 배열 아닌 경우 방어
-	  if (!Array.isArray(receiverNos)) {
-	    return;
-	  }
-
-	  // 요소가 string일 수도 있으니까 숫자 변환
+	
+	  if (!Array.isArray(receiverNos)) return;
 	  receiverNos = receiverNos.map(Number);
-
-	  //  내 번호 포함되어 있어야 실행
-	  if (!receiverNos.includes(myNo)) {
+	
+	  if (!receiverNos.includes(myNo)) return;
+	
+	  if (parseInt(currentRoom) === parseInt(roomNo)) {
 	    return;
 	  }
-
+	
 	  showUnreadBadge(roomNo, myNo);
 	}
+
+
 
 	// 1. 모달 이벤트 처리
 	function initModalEvents() {
@@ -669,7 +663,7 @@
 	}
 	
 	function formatTime(dateStr) {
-		  if (!dateStr) return "지금 생성됨";
+		  if (!dateStr) return "";
 
 		  const date = new Date(dateStr);
 		  const yy = String(date.getFullYear()).slice(2);
@@ -702,22 +696,26 @@
 	      data-room-id="${room.chat_room_no}">
 	      
 	      <div class="d-flex align-items-center">
-	        <span class="position-relative">
-	          <img src="../assets/images/profile/user-8.jpg" alt="user-8"
-	            width="48" height="48" class="rounded-circle" />
-	          <span class="position-absolute bottom-0 end-0 p-1 badge rounded-pill bg-warning">
-	            <span class="visually-hidden">New alerts</span>
-	          </span>
+	     	 <span class="position-relative">
+				<img src="../assets/images/profile/user-8.jpg" alt="user-8"
+				width="48" height="48" class="rounded-circle" />
+			</span>
 	        </span>
 	        <div class="ms-3 d-inline-block w-75">
 	          <h6 class="mb-1 fw-semibold chat-title">${title}</h6>
-	          <span class="fs-3 text-truncate text-body-color d-block">${room.last_msg || ''}</span>
+	          <div class="d-flex justify-content-between align-items-center">
+	          	<span class="fs-3 text-truncate text-body-color d-block">${room.last_msg || ''}</span>
+			  </div>
 	        </div>
 	      </div>
-	      <p class="fs-2 mb-0 text-muted">${formatTime(room.last_msg_date)}</p>
+	      <div class="d-flex flex-column align-items-end justify-content-between">
+	      	<p class="fs-2 mb-0 text-muted">${formatTime(room.last_msg_date)}</p>
+	     	 <span class="badge bg-danger rounded-pill unread-badge"></span>
+	   	   </div>
 	    </a>
 	  `;
-	
+
+	  
 	  chatList.prepend(li);
 	  
 	  initChatRoomClick();
@@ -841,6 +839,9 @@
 	    		})
 	    	  .catch(err => console.error("읽음 처리 실패:", err));
 
+          
+          
+          
 	    });
 	  });
 	}
@@ -856,7 +857,7 @@
 	  } else {
 	    doConnect();
 	  }
-
+ 
 	  function doConnect() {
 	    const socket = new SockJS("/ws-chat");
 	    window.stompClient = Stomp.over(socket);
@@ -864,7 +865,12 @@
 	    window.stompClient.connect({}, () => {
 	      console.log("STOMP 연결 성공");
 	     
-	   
+	   // 해당 유저가 어떤 세션 ID로 접속해서 어떤 방을 보고 있는지 
+	      const myMemberNo = document.getElementById("createMemberNo")?.value;
+	      window.stompClient.send("/app/chat/session-register", {}, JSON.stringify({
+	        memberNo: myMemberNo,
+	        roomNo: roomNo
+	      }));
 		
 
 	      window.stompClient.subscribe(`/topic/chat/room/${roomNo}`, msg => {
