@@ -13,10 +13,10 @@ public class AccommodationController {
 	}
 	
 	//
-	@GetMapping("/accommodation/detail")
-	public String showDetailView() {
-		return "accommodation/detail";
-	}
+//	@GetMapping("/accommodation/detail")
+//	public String showDetailView() {
+//		return "accommodation/detail";
+//	}
 
 	@GetMapping("/accommodation/list")
 	public String showListView() {
