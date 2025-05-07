@@ -34,8 +34,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AccommodationAdminController {
 
-    private final BoardAttachController boardAttachController;
-	
 	private final AccommodationService accommodationService;
 	private final AccommodationAttachService accommodationAttachService;
 	
@@ -68,6 +66,7 @@ public class AccommodationAdminController {
 		@ModelAttribute AccommodationInfoDto dto,
 		@RequestParam(value = "files", required = false) List<MultipartFile> files
 	) {
+		System.out.println(dto.getAccommodation_no());
 		 Map<String, Object> result = new HashMap<>();
 		    try {
 		        dto.setReg_date(LocalDateTime.now());
@@ -89,32 +88,67 @@ public class AccommodationAdminController {
 		        }
 
 		        result.put("res_code", "200");
-		        result.put("res_msg", "숙소 등록 성공");
+		        result.put("res_msg", "숙소가 등록되었습니다.");
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		        result.put("res_code", "500");
-		        result.put("res_msg", "등록 중 오류 발생");
+		        result.put("res_msg", "숙소 등록 중 오류가 발생했습니다.");
 		    }
 		    return result;
 	}
 
 	// 숙소 수정
-//	@CheckPermission("WELFARE_ADMIN")
-//	@GetMapping("/admin/accommodation/update/{id}")
-//	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
-//	    AccommodationInfoDto dto = accommodationService.findById(id);  // DTO로 받아야 Thymeleaf 사용이 편함
+//	@PostMapping("/accommodation/update/{id}")
+//	@ResponseBody
+//	public Map<String, Object> updateAccommodation(
+//	    @PathVariable Long id,
+//	    @ModelAttribute AccommodationInfoDto dto,
+//	    @RequestParam(value = "files", required = false) List<MultipartFile> files
+//	) {
+//	    Map<String, Object> result = new HashMap<>();
+//	    try {
+//	        dto.setAccommodation_no(id); // id 지정
+//	        dto.setMod_date(LocalDateTime.now());
 //
-//	    if (dto == null) {
-//	        return "redirect:/adminHome";
+//	        AccommodationInfo updated = accommodationService.update(dto); // 서비스 호출
+//
+//	        // 파일 처리 (선택)
+//	        if (files != null && !files.isEmpty()) {
+//	            for (MultipartFile mf : files) {
+//	                if (!mf.isEmpty()) {
+//	                    AccommodationAttachDto attachDto = accommodationAttachService.uploadFile(mf);
+//	                    if (attachDto != null) {
+//	                        accommodationAttachService.saveAttach(attachDto, updated);
+//	                    }
+//	                }
+//	            }
+//	        }
+//
+//	        result.put("res_code", "200");
+//	        result.put("res_msg", "숙소 수정 완료");
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	        result.put("res_code", "500");
+//	        result.put("res_msg", "숙소 수정 중 오류 발생");
 //	    }
 //
-//	    List<AccommodationAttach> attachList = accommodationService.findAttachList(id);
-//
-//	    model.addAttribute("accommodation", dto);
-//	    model.addAttribute("attachList", attachList);  // 기존 첨부 이미지도 전달
-//
-//	    return "accommodation/adminCreate";  // 수정과 생성 페이지 공유
+//	    return result;
 //	}
+
+	@GetMapping("/accommodation/update/{id}")
+	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
+	    AccommodationInfoDto dto = accommodationService.findById(id);
+	    if (dto == null) {
+	        return "redirect:/adminHome";
+	    }
+
+	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(id);
+
+	    model.addAttribute("accommodation", dto);
+	    model.addAttribute("attachList", attachList);
+
+	    return "accommodation/adminUpdate";  // 수정과 생성 페이지 공유
+	}
 
 
 	// 숙소 상세
@@ -124,16 +158,15 @@ public class AccommodationAdminController {
 	    if (dto == null) {
 	        return "redirect:/accommodation/adminHome";
 	    }
-	    System.out.println("숙소 정보: " + dto);
 
-	    List<AccommodationAttach> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+	    System.out.println("파일 정보: " + attachList);
 	    
 	    model.addAttribute("accommodation", dto);
 	    model.addAttribute("attachList", attachList); // 이미지 리스트 전달
 	    return "accommodation/detail"; // detail.html로 이동
 	}
 
-//	@CheckPermission("WELFARE_ADMIN")
 //	@DeleteMapping("/accommodation/delete/{id}")
 //	@ResponseBody
 //	public ResponseEntity<?> deleteAccommodation(@PathVariable Long id) {
