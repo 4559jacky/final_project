@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
@@ -165,14 +167,11 @@ public class AttendanceController {
 	
 	
 	
-	
-	
 	// 일반 사용자 근태 정보
-	
 	
 	// 근태 페이지로 이동
 	@GetMapping("/attendance/info")
-	public String attendanceInfoViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+	public String attendanceInfoViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails, AttendPageDto pageDto, SearchDto searchDto) {
 		
 		String userId = userDetails.getUsername();
 	    MemberDto memberDto = new MemberDto();
@@ -190,6 +189,13 @@ public class AttendanceController {
 	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Attendance> attendancePageList = attendanceService.selectAttendanceAllByFilter(member, searchDto, pageDto);
+	    List<Attendance> attendanceList = attendanceService.selectAttendanceAll(member);
+	    model.addAttribute("attendanceList", attendancePageList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
 	    
 	    return "/attendance/user/attendanceInfo";
 	}
