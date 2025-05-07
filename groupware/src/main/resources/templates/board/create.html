@@ -20,10 +20,10 @@
               <i class="ti ti-home fs-5"></i>
             </a>
           </li>
-          <li class="breadcrumb-item" aria-current="page">자유게시판</li>
+          <li class="breadcrumb-item" aria-current="page">자유게시판 작성</li>
         </ol>
       </nav>
-      <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 작성</h2>
+      <h2 class="mb-0 fw-bolder fs-8 mt-3">자유게시글 작성</h2>
     </div>
 
     <div class="mt-5"></div>
@@ -79,10 +79,10 @@
           <label class="form-label">항목</label>
 		<div id="optionsContainer">
 		
-<div class="input-group mb-2 option-item">
-  <input type="text" class="form-control" placeholder="항목을 입력하세요.">
-  <button type="button" class="x-remove-btn" onclick="removeOption(this)">x</button>
-</div>
+		<div class="input-group mb-2 option-item">
+  			<input type="text" class="form-control" placeholder="항목을 입력하세요.">
+  			<button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
+		</div>
 		</div>
           <!-- 항목 추가/제거 버튼 -->
           <div class="d-flex gap-2 mt-2">
@@ -143,6 +143,8 @@
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
       });
+      
+      
 
       const form = document.create_board_form;
       const submitBtn = form.querySelector('button[type="submit"]');
@@ -205,21 +207,24 @@
       
       
    // 항목 추가
-  function addOption() {
+function addOption() {
   const optionsContainer = document.getElementById('optionsContainer');
 
+  // 바깥 div
   const optionDiv = document.createElement('div');
-  optionDiv.className = 'input-group mb-2 option-item';
+  optionDiv.className = 'd-flex align-items-center mb-2 option-item';
 
+  // input 항목
   const input = document.createElement('input');
   input.type = 'text';
   input.className = 'form-control';
   input.placeholder = '항목을 입력하세요.';
 
+  // - 버튼
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
-  removeBtn.className = 'x-remove-btn';
-  removeBtn.textContent = 'x';
+  removeBtn.innerText = '-';
+  removeBtn.className = 'minus-btn-style';
   removeBtn.onclick = () => removeOption(removeBtn);
 
   optionDiv.appendChild(input);
@@ -227,11 +232,18 @@
   optionsContainer.appendChild(optionDiv);
 }
 
-      // 항목 제거 (X 버튼 클릭 시)
-      function removeOption(button) {
-        const item = button.closest('.option-item');
-        if (item) item.remove();
-      }
+function removeOption(button) {
+  const optionsContainer = document.getElementById('optionsContainer');
+  const optionItems = optionsContainer.querySelectorAll('.option-item');
+
+  if (optionItems.length <= 2) {
+    alert("항목은 최소 2개 이상이어야 합니다.");
+    return;
+  }
+
+  const item = button.closest('.option-item');
+  if (item) item.remove();
+}
       
 function saveVote() {
   const title = document.getElementById('voteTitle').value.trim();
@@ -273,10 +285,16 @@ function saveVote() {
 window.addEventListener('DOMContentLoaded', () => {
   const voteEndDateInput = document.getElementById('voteEndDate');
   const now = new Date();
-
-  // yyyy-MM-ddTHH:mm 형식으로 변환
   const formatted = now.toISOString().slice(0, 16);
   voteEndDateInput.min = formatted;
+
+  // 기존 첫 항목 삭제
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = ''; // 기존 항목 제거
+
+  // 첫 항목도 addOption으로 새로 추가
+  addOption();
+  addOption(); // 기본 2개까지 생성해도 좋음
 });
 
 
