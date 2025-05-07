@@ -1,5 +1,6 @@
 package com.mjc.groupware.accommodationReservation.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.repository.AccommodationAttachRepository;
 import com.mjc.groupware.accommodationReservation.repository.AccommodationInfoRepository;
+import com.mjc.groupware.board.entity.Board;
 
 import lombok.RequiredArgsConstructor;
 
@@ -115,15 +117,13 @@ public class AccommodationService {
     	
     	return accommodationInfoRepository.save(entity); // 변경 후 저장
     }
-    
-    
-    
 
-//	public void delete(Long accommodationNo) {
-//		accommodationInfoRepository.deleteById(accommodationNo);
-//	}
+    // 숙소 삭제
+	public void deleteAccommodation(Long accommodationNo) {
+		accommodationInfoRepository.deleteById(accommodationNo);
+	}
 
-	
+ 
 
 
 }

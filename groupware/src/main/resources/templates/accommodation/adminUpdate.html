@@ -44,7 +44,7 @@ layout:decorate="~{/include/layout}">
 		    </div>
 		            <input type="hidden" id="accommodation_no"
 		            	th:value="${accommodation.accommodation_no}">
-					<input type="hidden" id="room_count" value="10">
+					<input type="hidden" id="room_count" value="1" >
 					<input type="hidden" id="accommodation_location" value="서울 강남구">
 					<input type="datetime-local" id="reg_date" style="display: none;">
 					<input type="datetime-local" id="mod_date" style="display: none;">
@@ -59,9 +59,9 @@ layout:decorate="~{/include/layout}">
 		            <td class="text-end"><label for="type" class="form-label">숙소 타입 : </label></td>
 		            <td class="text-start">
 		              <select id="type" name="accommodation_type" class="form-select w-75">
-		                <option selected>숙소타입</option>
-		                <option value="1">리조트</option>
-		                <option value="2">호텔</option>
+		                <option disabled>숙소타입</option>
+						<option value="1" th:selected="${accommodation.accommodation_type == 1}">리조트</option>
+						<option value="2" th:selected="${accommodation.accommodation_type == 2}">호텔</option>
 		              </select>
 		            </td>
 		          </tr>
@@ -161,9 +161,9 @@ layout:decorate="~{/include/layout}">
 			      document.getElementById("content").value = updatedContent;
 			
 			      const form = new FormData();
-			      const id = document.getElementById("accommodation_no").value;
+			      const accommodationNo = document.getElementById("accommodation_no").value;
 			      
-			      form.append("accommodation_no", id);
+			      form.append("accommodation_no", accommodationNo);
 			      form.append("accommodation_name", document.getElementById("name").value);
 			      form.append("accommodation_type", document.getElementById("type").value);
 			      form.append("accommodation_address", document.getElementById("address").value);
@@ -176,19 +176,23 @@ layout:decorate="~{/include/layout}">
 			      form.append("room_count", document.getElementById("room_count").value);
 			      form.append("mod_date", document.getElementById("mod_date").value);
 			
+			      
 			      const imageFile = document.getElementById("imageUpload").files[0];
 			      if (imageFile) {
 			        form.append("files", imageFile);
 			      }
 				  
-			      fetch(`/accommodation/update/${id}`, {
+			      fetch("/accommodation/update/"+ accommodationNo, {
 			        method: "POST",
 			        body: form,
 			        headers: {
 			          "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
 			        }
 			      })
-			        .then(res => res.json())
+			        .then(res => {
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        return res.json();
+      })
 			        .then(data => {
 			          if (data.res_code === "200") {
 			            alert("수정이 완료되었습니다.");
