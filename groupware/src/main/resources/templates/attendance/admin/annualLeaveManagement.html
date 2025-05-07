@@ -33,11 +33,10 @@ layout:decorate="~{/include/layout}">
 	              <i class="ti ti-home fs-5"></i>
 	            </a>
 	          </li>
-	          <li class="breadcrumb-item" aria-current="page">근태 / 연차 및 근태 관리</li>
+	          <li class="breadcrumb-item" aria-current="page">근태 / 연차 관리</li>
 	        </ol>
 	      </nav>
 	
-	      <!-- ✅ 연차 관리 + 연차 정책 버튼 -->
 	      <div class="d-flex justify-content-between align-items-center mt-3">
 	        <h2 class="mb-0 fw-bolder fs-8">연차 관리</h2>
 	        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annualPolicyModal">
@@ -599,7 +598,7 @@ layout:decorate="~{/include/layout}">
 		window.annualPolicyList = [[${annualLeavePolicyList}]];
 	</script>
 	
-	<script th:src="@{/js/jji/attendance/jstree.js}"></script>
+	<script th:src="@{/js/jji/annual/jstree.js}"></script>
 	<script>
 		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
 		document.getElementById("resetBtn").addEventListener("click", function() {

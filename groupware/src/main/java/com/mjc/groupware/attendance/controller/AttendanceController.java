@@ -61,10 +61,26 @@ public class AttendanceController {
 	
 	// 근태 관리페이지로 이동
 	@GetMapping("/attendance/management")
-	public String attendanceManagementViewApi(Model model) {
+	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
 		
 		WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 		model.addAttribute("workSchedulePolicy", wsp);
+		
+		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		Page<Member> memberList = service.selectMemberAll(searchDto, pageDto);
+		pageDto.setTotalPage(memberList.getTotalPages());
+		
+		List<Dept> deptList = deptService.selectDeptAll();
+		List<Pos> posList = posService.selectPosAll();
+		
+		List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
+		
+		model.addAttribute("memberList", memberList);
+		model.addAttribute("deptList", deptList);
+		model.addAttribute("posList", posList);
+		model.addAttribute("searchText", searchDto.getSearch_text());
+		model.addAttribute("pageDto", pageDto);
 		
 		return "/attendance/admin/attendanceManagement";
 	}
@@ -72,17 +88,10 @@ public class AttendanceController {
 	// 근태 정책 업데이트
 	@PostMapping("/attendance/manage")
 	@ResponseBody
-	public Map<String,String> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
-		Map<String,String> resultMap = new HashMap<String,String>();
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "근태 정책 변경에 실패하였습니다.");
+	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
-		int result = attendanceService.workTimeUpdateApi(dto);
-		
-		if(result > 0) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "근태 정책이 변경되었습니다.");
-		}
+		resultMap = attendanceService.workTimeUpdateApi(dto);
 		
 		return resultMap;
 	}
