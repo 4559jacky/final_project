@@ -190,14 +190,32 @@ public class AttendanceController {
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
-	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
-	    Page<Attendance> attendancePageList = attendanceService.selectAttendanceAllByFilter(member, searchDto, pageDto);
 	    List<Attendance> attendanceList = attendanceService.selectAttendanceAll(member);
-	    model.addAttribute("attendanceList", attendancePageList);
 	    model.addAttribute("pageDto", pageDto);
 	    model.addAttribute("searchDto", searchDto);
 	    
 	    return "/attendance/user/attendanceInfo";
+	}
+	
+	@GetMapping("/attendance/log")
+	public String attendanceLogViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails, AttendPageDto pageDto, SearchDto searchDto) {
+		
+		String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    
+	    Page<Attendance> attendancePageList = attendanceService.selectAttendanceAllByFilter(member, searchDto, pageDto);
+	    pageDto.setTotalPage(attendancePageList.getTotalPages());
+	    
+	    model.addAttribute("attendanceList", attendancePageList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    model.addAttribute("member", member);
+		
+		return "/attendance/user/attendanceLog";
 	}
 	
 	// 출근 시간 저장
