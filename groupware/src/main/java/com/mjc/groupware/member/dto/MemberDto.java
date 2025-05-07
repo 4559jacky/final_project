@@ -81,6 +81,7 @@ public class MemberDto {
 				.pos_name(member.getPos() != null ? member.getPos().getPosName() : null) // 04/09 JJI 사원 부서명 불러오기위해 추가
 				.annual_leave(member.getAnnualLeave())
 				.signature(member.getSignature())
+				.reg_date(member.getRegDate())
 				.build();
 	}
 	

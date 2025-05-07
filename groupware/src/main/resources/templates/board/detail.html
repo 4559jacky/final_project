@@ -62,8 +62,75 @@
          th:utext="${board.boardContent ?: '내용 없음'}">
     </div>
     
-    <!--투표 상세 추가-->
-    <hr>
+<!-- 투표 정보 영역 -->
+<hr>
+<div th:if="${board.vote != null}" class="mt-4">
+  <h5 class="fw-bold">
+    [투표] <span th:text="${board.vote.voteTitle}">투표 제목</span>
+    <small class="text-muted ms-2" style="font-size: 0.9rem;">
+      [
+      <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
+      <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
+      <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
+      ]
+    </small>
+  </h5>
+
+  <div class="mb-3">
+    <p>마감일시: <span th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}">2025-05-10</span></p>
+    <p>익명 여부: <span th:text="${board.vote.isAnonymous == 'Y' ? '익명' : '실명'}"></span></p>
+    <p>복수 선택 가능: <span th:text="${board.vote.isMultiple == 'Y' ? '예' : '아니오'}"></span></p>
+  </div>
+
+  <!-- 투표 가능한 경우 -->
+  <form th:if="${not isVoteClosed}" id="voteForm" th:data-vote-no="${board.vote.voteNo}">
+    <ul class="list-group mb-3">
+      <li class="list-group-item d-flex align-items-center"
+          th:each="option : ${board.vote.voteOptions}">
+        <input th:name="optionNos"
+               th:id="'option-' + ${option.optionNo}"
+               th:value="${option.optionNo}"
+               class="form-check-input me-2"
+               th:attr="type=${board.vote.isMultiple == 'Y' ? 'checkbox' : 'radio'}" />
+        <label class="form-check-label" th:for="'option-' + ${option.optionNo}"
+               th:text="${option.optionText}">항목</label>
+      </li>
+    </ul>
+
+    <button type="button" class="btn btn-primary" onclick="submitVote()">투표하기</button>
+  </form>
+
+  <!-- 투표 마감 안내 -->
+  <div th:if="${isVoteClosed}" class="alert alert-warning mt-3">
+    투표가 마감되었습니다.
+  </div>
+
+  <!-- 결과 차트는 항상 표시 -->
+  <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#voteResultModal">
+    결과 차트 확인
+  </button>
+
+  <!-- 결과 차트 모달 -->
+  <div class="modal fade"
+     id="voteResultModal"
+     th:attr="data-vote-no=${board.vote.voteNo}"
+     tabindex="-1"
+     aria-labelledby="voteResultModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="voteResultModalLabel">투표 결과</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+        </div>
+        <div class="modal-body">
+          <canvas id="voteResultChart" width="300" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>
 
 <!-- 첨부파일 -->
 <div class="pt-3">
@@ -100,7 +167,8 @@
     <!-- 댓글 + 대댓글 리스트 -->
     <div th:each="reply : ${replyList}" class="reply-item mb-3">
       <div class="d-flex align-items-start mb-2">
-		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 -->
+		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 권한이 막혀있어서 프로필 이미지 등록이 안되는거였음
+		이중 파싱을 하든 그냥 일반 파싱을 해도 권한을 설정해준다면 정상적으로 일반사용자도 프로필이 나오게 할수있음 -->
 		<div class="profile-icon rounded-circle me-3">
   			<img th:src="@{${reply.attachPath != null && !reply.attachPath.isEmpty() ? reply.attachPath : '/img/default_profile.png'}}" 
        			alt="Profile Image" 
@@ -138,7 +206,7 @@
           <span th:id="'reply-toggle-' + ${reply.reply_no}"
                 th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
                 th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
-                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개(▼)' : '답글 달기'"
+                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개()' : '답글 달기'"
                 onclick="toggleSubReply(this)"
                 style="cursor: pointer;"></span>
 
@@ -194,7 +262,13 @@
       </div>
     </div>
   </div>
-</div>    
+   <!-- + 더보기 버튼 -->
+<!--   <div class="text-center mt-3">
+    <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button>
+  </div> -->
+</div> 
+
+   
     <!-- 댓글 작성 영역 (하단 고정) -->
     <div class="comment-write">
       <th:block sec:authorize="isAuthenticated()">
@@ -209,7 +283,8 @@
         <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
       </th:block>
     </div>        
-  <!-- JavaScript -->
+
+
   <script>
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
@@ -343,22 +418,23 @@
     }
 
     // 답글 토글 및 대댓글 폼 표시
-    function toggleSubReply(element) {
-      const replyNo = element.getAttribute('data-reply-no');
-      const boardNo = element.getAttribute('data-board-no');
-      const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
-      const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
-      const subReplyCount = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
-      const isCollapsed = subReplyList && subReplyList.classList.contains('collapsed');
-      if (subReplyList) {
-        subReplyList.classList.toggle('collapsed');
-        element.innerText = isCollapsed ? `답글 ${subReplyCount}개(▼)` : `답글 ${subReplyCount}개(▲)`;
-      }
-      document.querySelectorAll('.sub-reply-write').forEach(form => {
-        form.style.display = 'none';
-      });
+  function toggleSubReply(element) {
+    const replyNo = element.getAttribute('data-reply-no');
+    const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
+    const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
+    const count = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
+
+    if (subReplyList) {
+      subReplyList.classList.toggle('collapsed');
+    }
+
+    if (subReplyForm) {
       subReplyForm.style.display = subReplyForm.style.display === 'block' ? 'none' : 'block';
     }
+
+    const isOpen = subReplyForm && subReplyForm.style.display === 'block';
+    element.innerText = count > 0 ? `답글 ${count}개(${isOpen ? '▲' : '▼'})` : '답글 달기';
+  }
 
     // 대댓글 폼 제출 처리
     document.querySelectorAll('.sub-reply-form-content').forEach(form => {
@@ -405,6 +481,137 @@
       });
     });
   </script>
+  
+  <script th:inline="javascript">
+  function submitVote() {
+    const form = document.getElementById('voteForm');
+    const voteNo = form.getAttribute('data-vote-no');
+    const selectedOptions = Array.from(form.querySelectorAll("input[name='optionNos']:checked"))
+      .map(opt => opt.value);
+
+    if (selectedOptions.length === 0) {
+      alert("하나 이상의 항목을 선택해주세요.");
+      return;
+    }
+
+    // 로그인 사용자 번호를 안전하게 Thymeleaf로 주입 (null 대비 포함)
+    const memberNo = /*[[${#authentication != null and #authentication.principal != null and #authentication.principal.member != null ? #authentication.principal.member.memberNo : 0}]]*/ 0;
+
+    // CSRF 헤더값 처리
+    const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+    const csrfToken = /*[[${_csrf.token}]]*/ '';
+
+    fetch(`/vote/${voteNo}/submit?memberNo=${memberNo}&` + new URLSearchParams({
+      optionNos: selectedOptions
+    }), {
+      method: 'POST',
+      headers: {
+        [csrfHeader]: csrfToken
+      }
+    })
+      .then(res => res.ok ? res.text() : Promise.reject("투표 실패"))
+      .then(() => {
+        alert("투표 완료!");
+        location.reload();
+      })
+      .catch(err => {
+        alert("투표 중 오류 발생: " + err);
+      });
+  }
+
+  
+  // chart.js를 사용하기 위한 스크립트
+ document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
+  const voteNo = this.getAttribute('data-vote-no');
+
+  fetch(`/vote/${voteNo}/result`, {
+    headers: {
+      [csrfHeader]: csrfToken
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const labels = data.map(opt => opt.optionText);
+    const counts = data.map(opt => opt.voteCount);
+
+    const ctx = document.getElementById('voteResultChart').getContext('2d');
+
+    // 색상 다양화 (항목 수에 따라 자동 순환됨)
+    const colors = [
+      'rgba(255, 99, 132, 0.5)',
+      'rgba(54, 162, 235, 0.5)',
+      'rgba(255, 206, 86, 0.5)',
+      'rgba(75, 192, 192, 0.5)',
+      'rgba(153, 102, 255, 0.5)',
+      'rgba(255, 159, 64, 0.5)'
+    ];
+    const borderColors = colors.map(c => c.replace('0.5', '1'));
+
+    if (window.voteChart) {
+      window.voteChart.destroy();
+    }
+
+    window.voteChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '득표 수',
+          data: counts,
+          backgroundColor: colors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        indexAxis: 'x', // 수직 막대 그래프 (기본값이므로 생략해도 됨)
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: '득표 수'
+            }
+          },
+          x: {
+            title: {
+              display: false // 항목명을 따로 표시하지 않고, x축만 항목명으로
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                const value = context.raw;
+                const percent = ((value / total) * 100).toFixed(1);
+                return `${context.label}: ${value}표 (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  })
+  .catch(err => {
+    alert("투표 결과를 불러오는 데 실패했습니다.");
+    console.error(err);
+  });
+});
+
+//다크 모드 토글 스위치가 있을 경우
+ document.getElementById('darkToggle').addEventListener('change', function () {
+   document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
+ });
+</script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Start Editor JS -->
   <script src="https://cdn.jsdelivr.net/npm/start-editor@1.0.0/start-editor.min.js"></script>

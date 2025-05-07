@@ -345,7 +345,6 @@
                   </li>
                 </ul>
               </li>
-              
               <!-- ============================= -->
               <!-- 접근 :: 일반사원, 게시판담당자, 최고관리자 -->
               <!-- ============================= -->
@@ -361,6 +360,45 @@
 	                    <a th:href="@{/notice}" class="sidebar-link">
 	                      <i class="ti ti-alert-circle"></i>
 	                      <span class="hide-menu">공지사항</span>
+	                    </a>
+                  	</li>
+	    		</ul>
+	   		  </li>
+	   		  <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 근태 담당자, 최고관리자 -->
+              <!-- ============================= -->
+	   		  <li class="sidebar-item">
+	          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+	            	<span class="rounded-3">
+	                	<i class="ti ti-layout"></i>
+	                </span>
+	                <span class="hide-menu">근태</span>
+	           	</a>
+	            <ul aria-expanded="false" class="collapse first-level">
+	            	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                <th:block th:if="${funcNo == 18}">
+			            	<li class="sidebar-item">
+			                    <a th:href="@{/attendance/management}" class="sidebar-link">
+			                      <i class="ti ti-aperture"></i>
+			                      <span class="hide-menu">근태 관리</span>
+			                    </a>
+		                  	</li>
+		                </th:block>
+		            </th:block>
+		            <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                <th:block th:if="${funcNo == 32}">
+			            	<li class="sidebar-item">
+			                    <a th:href="@{/annual/management}" class="sidebar-link">
+			                      <i class="ti ti-aperture"></i>
+			                      <span class="hide-menu">연차 관리</span>
+			                    </a>
+		                  	</li>
+		                </th:block>
+		            </th:block>
+                  	<li class="sidebar-item">
+	                    <a th:href="@{/attendance/info}" class="sidebar-link">
+	                      <i class="ti ti-aperture"></i>
+	                      <span class="hide-menu">근태 정보</span>
 	                    </a>
                   	</li>
 	    		</ul>
