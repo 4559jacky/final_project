@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,6 +60,26 @@ public class SharedFileController {
 	@GetMapping("/shared/files/download/{fileId}")
 	public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId){
 		return sharedFileService.downloadFile(fileId);
+	}
+	
+	@PostMapping("/shared/file/move")
+	@ResponseBody
+	public Map<String, String> moveFile(@RequestBody Map<String, Long> payload) {
+	    Long fileId = payload.get("fileId");
+	    Long newFolderId = payload.get("newFolderId");
+	    sharedFileService.moveFile(fileId, newFolderId);
+	    return Map.of("message", "파일 위치가 변경되었습니다.");
+	}
+	
+	@PostMapping("/shared/file/delete")
+	@ResponseBody
+	public Map<String, Object> deleteFile(@RequestBody Map<String, Long> payload, Authentication auth) {
+	    Long fileId = payload.get("id");
+	    Member member = ((MemberDetails) auth.getPrincipal()).getMember();
+
+	    sharedFileService.softDelete(fileId, member.getMemberNo());
+
+	    return Map.of("message", "파일이 삭제되었습니다.");
 	}
 	
 }

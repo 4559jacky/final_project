@@ -731,7 +731,9 @@
 	
 	  // 소속 아닌 사람은 return
 	  const isMember = room.memberInfos.some(m => m.memberNo == myNo);
+
 	  if (!isMember) return; 
+
 	
 	  // 채팅방 제목 처리
 	  let title = room.chat_room_title;

@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
@@ -128,6 +130,7 @@ public class SharedFileService {
 	    // 📁 폴더 매핑
 	    subFolders.sort(Comparator.comparing(SharedFolder::getFolderName));
 	    for (SharedFolder folder : subFolders) {
+	    	if (!"N".equals(folder.getFolderStatus())) continue; // 삭제된 폴더 제외
 	        Map<String, Object> map = new HashMap<>();
 	        map.put("type", "folder");
 	        map.put("id", folder.getFolderNo());
@@ -146,7 +149,10 @@ public class SharedFileService {
 	        boolean isShared = currentFolder.getFolderType() == 3;
 
 	        if (isOwner || sameDept || isShared) {
-	            List<SharedFile> files = fileRepository.findByFolderFolderNo(folderId);
+	            List<SharedFile> files = fileRepository.findByFolderFolderNo(folderId).stream()
+	            .filter(f -> "N".equals(f.getFileStatus())) // 삭제된 파일 제외
+	            .sorted(Comparator.comparing(SharedFile::getFileName))
+	            .collect(Collectors.toList());		
 	            files.sort(Comparator.comparing(SharedFile::getFileName));
 
 	            for (SharedFile file : files) {
@@ -194,6 +200,28 @@ public class SharedFileService {
 	}
 
 
+	public void moveFile(Long fileId, Long newFolderId) {
+	    SharedFile file = fileRepository.findById(fileId)
+	        .orElseThrow(() -> new RuntimeException("파일을 찾을 수 없습니다."));
+
+	    SharedFolder folder = folderRepository.findById(newFolderId)
+	        .orElseThrow(() -> new RuntimeException("대상 폴더를 찾을 수 없습니다."));
+
+	    file.setFolder(folder);
+	    fileRepository.save(file);
+	}
 	
+	public void softDelete(Long fileId, Long memberNo) {
+	    SharedFile file = fileRepository.findById(fileId)
+	            .orElseThrow(() -> new RuntimeException("파일 없음"));
+
+	    file.setFileStatus("Y");
+	    file.setFileDeletedBy(memberNo);
+	    file.setFileDeletedAt(LocalDateTime.now());
+
+	    fileRepository.save(file);
+	}
+	
+
 }
 

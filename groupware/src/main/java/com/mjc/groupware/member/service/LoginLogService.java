@@ -1,5 +1,8 @@
 package com.mjc.groupware.member.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +22,17 @@ public class LoginLogService {
 	
 	private final LoginLogRepository repository;
 	
-	public Page<LoginLog> findByMemberOrderByLoginTimeDesc(Member member, LogPageDto pageDto) {
+	public Page<LoginLog> findByMemberOrderByLoginTimeDesc(Member member, LocalDate loginStartDate, LocalDate loginEndDate, LogPageDto pageDto) {
 		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("loginTime").descending());
 		
-		Page<LoginLog> resultList = repository.findByMemberOrderByLoginTimeDesc(member, pageable);
+		if (loginStartDate != null && loginEndDate != null) {
+	        LocalDateTime startDateTime = loginStartDate.atStartOfDay();
+	        LocalDateTime endDateTime = loginEndDate.plusDays(1).atStartOfDay();
+	        
+	        return repository.findByMemberAndLoginTimeBetweenOrderByLoginTimeDesc(member, startDateTime, endDateTime, pageable);
+	    }
 		
-		return resultList;
+		return repository.findByMemberOrderByLoginTimeDesc(member, pageable);
 	}
 	
 }

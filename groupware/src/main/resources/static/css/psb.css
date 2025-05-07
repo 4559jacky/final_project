@@ -1,1 +1,12 @@
 @charset "UTF-8";
+.toastui-editor-contents img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.toastui-editor-contents {
+	color: black !important;
+	font-size: 1.1rem;
+	z-index: 1 !important; /* 나브바 겹침 방지용 */
+}

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb align-items-center">
+				<li class="breadcrumb-item"><a
+					class="text-muted text-decoration-none" href="/home"> <i
+						class="ti ti-home fs-5"></i>
+				</a></li>
+				<li class="breadcrumb-item" aria-current="page">근태 / 근태 정보</li>
+			</ol>
+		</nav>
+		<br>
+		<h2 class="mb-0 fw-bolder fs-8">근태 정보</h2>
+	</div>
+
+	<div class="container-fluid">
+		<!-- 상단 헤더 -->
+		<div
+			class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+			<h4 class="fw-bold mb-0" id="current-date"></h4>
+			<div class="d-flex align-items-center gap-3">
+				<div class="text-end">
+					<h5 class="mb-0 fw-semibold"
+						th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
+					<p class="mb-0 text-muted"
+						th:text="${#authentication.principal.member.dept.deptName}">부서</p>
+				</div>
+				<div>
+					<img
+						th:src="@{${latestMyProfile != null} ? '/uploads/' + ${latestMyProfile.new_name} : '/img/default_profile.png'}"
+						alt="profile" class="rounded-circle border shadow-sm" width="60"
+						height="60">
+				</div>
+			</div>
+		</div>
+		<input type="hidden" th:value="${workPolicy.workDuration}" id="work_duration">
+		<div class="row g-4">
+			<!-- 왼쪽 카드 -->
+			<div class="col-lg-3">
+				<!-- 근태관리 카드 -->
+				<div class="card p-3 mb-3">
+					<h5 class="fw-bold text-primary mb-3">근태관리</h5>
+					<h2 class="fw-bold" id="nowTime">03:05:20</h2>
+					<div class="mt-3 small">
+						<div class="d-flex justify-content-between mb-2">
+							<input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
+							<input type="hidden" id="start_time_max" th:value="${workPolicy.startTimeMax}">
+							<span class="text-muted">출근</span>
+							<th:block th:if="${todayAttendance == null}">
+								<div id="checkInWrap">
+									<button class="btn btn-primary btn-sm" onclick="startTime();">출근</button>
+								</div>
+							</th:block>
+							<th:block th:if="${todayAttendance != null}">
+								<div id="checkInWrap">
+									<span class="fw-bold text-success" id="start_time"
+										th:text="${todayAttendance.check_in}"></span>
+								</div>
+							</th:block>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span class="text-muted">퇴근</span>
+							<th:block th:if="${todayAttendance == null}">
+								<div id="checkOutWrap">
+									<button id="end_time_btn" class="btn btn-primary btn-sm"
+								onclick="endTime();" th:disabled="${todayAttendance == null}">퇴근</button>
+								</div>
+							</th:block>
+							<th:block th:if="${todayAttendance != null and todayAttendance.check_out == null}">
+								<div id="checkOutWrap">
+									<button id="end_time_btn" class="btn btn-primary btn-sm"
+								onclick="endTime();">퇴근</button>
+								</div>
+							</th:block>
+							<th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
+								<div id="checkOutWrap">
+									<span class="fw-bold text-success" id="end_time"
+										th:text="${todayAttendance.check_out}"></span>
+								</div>
+							</th:block>
+						</div>
+						<!-- 근무 상태 → 출근/퇴근 상태로 나눔 -->
+							<div class="mt-2 border-top pt-2">
+							  <!-- 출근 상태 -->
+							  <div class="d-flex justify-content-between mb-1">
+							    <span class="text-muted">출근 상태</span>
+							    <th:block th:if="${todayAttendance == null}">
+							      <span id="checkInStatus"
+							        class="badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded">-</span>
+							    </th:block>
+							    <th:block th:if="${todayAttendance != null}">
+							      <span th:if="${todayAttendance.late_yn == 'N'}"
+							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상 출근</span>
+							      <span th:if="${todayAttendance.late_yn == 'Y'}"
+							        class="badge bg-warning-subtle text-warning fw-semibold px-2 py-1 rounded">지각</span>
+							    </th:block>
+							  </div>
+							
+							  <!-- 퇴근 상태 -->
+							  <div class="d-flex justify-content-between mb-1">
+							    <span class="text-muted">퇴근 상태</span>
+							    <th:block th:if="${todayAttendance == null or todayAttendance.check_out == null}">
+							      <span id="checkOutStatus"
+							        class="badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded">-</span>
+							    </th:block>
+							    <th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
+							      <span th:if="${todayAttendance.early_leave_yn == 'N'}"
+							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상 퇴근</span>
+							      <span th:if="${todayAttendance.early_leave_yn == 'Y'}"
+							        class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1 rounded">조퇴</span>
+							    </th:block>
+							  </div>
+							</div>
+					</div>
+				</div>
+
+				<!-- 잔여연차 카드 -->
+				<div class="card p-3 mb-3">
+					<h6 class="text-muted">잔여연차</h6>
+					<h5 class="fw-bold text-success" th:text="|${member.annualLeave}일|">0일</h5>
+					<small class="text-muted"></small>
+				</div>
+
+				<!-- 지각 카드 -->
+				<div class="card p-3 mb-3">
+					<h6 class="text-muted">지각</h6>
+					<h5 class="fw-bold text-danger">2회</h5>
+					<small class="text-muted">이번년도 2회 발생</small>
+				</div>
+
+				<!-- 조퇴 카드 -->
+				<div class="card p-3">
+					<h6 class="text-muted">조퇴</h6>
+					<h5 class="fw-bold text-primary">3회</h5>
+					<small class="text-muted">이번년도 3회 발생</small>
+				</div>
+			</div>
+
+			<script>
+          	const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+          </script>
+
+			<script>
+	          const startTime = function() {
+	        	  const now = new Date();
+	        	  const koreaOffset = 9 * 60; // KST: UTC+9
+	        	  const localDate = new Date(now.getTime() + (koreaOffset * 60 * 1000));
+	        	  const attendDate = localDate.toISOString().slice(0, 10);
+	
+	        	  // LocalTime
+	        	  const hours = String(now.getHours()).padStart(2, '0');
+	        	  const minutes = String(now.getMinutes()).padStart(2, '0');
+	        	  const seconds = String(now.getSeconds()).padStart(2, '0');
+	        	  const checkIn = `${hours}:${minutes}:${seconds}`;
+	
+	        	  if (!confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`)) return;
+	
+	        	  fetch('/attendance/saveStartTime', {
+	        	    method: 'POST',
+	        	    headers: {
+	        	      [csrfHeader]: csrfToken,
+	        	      'Content-Type': 'application/json'
+	        	    },
+	        	    body: JSON.stringify({
+	        	      attend_date: attendDate,
+	        	      check_in: checkIn
+	        	    })
+	        	  })
+	        	  .then(response => response.json())
+	        	  .then(data => {
+	        	      alert(data.res_msg);
+
+	        	      if (data.res_code === "200") {
+	        	    	  const checkInWrap = document.getElementById("checkInWrap");
+	        	    	  checkInWrap.innerHTML = `<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
+
+	        	    	  const statusSpan = document.getElementById("checkInStatus");
+	        	    	  document.getElementById('end_time_btn').disabled = false;
+	        	    	  // 상태 코드에 따라 텍스트/클래스 동적으로 반영
+	        	    	  let statusText = "";
+	        	    	  let bgClass = "";
+	        	    	  let textClass = "";
+
+	        	    	  switch (data.attendance.lateYn) {
+	        	    	    case "N":
+	        	    	      statusText = "정상 출근";
+	        	    	      bgClass = "bg-success-subtle";
+	        	    	      textClass = "text-success";
+	        	    	      break;
+	        	    	    case "Y":
+	        	    	      statusText = "지각";
+	        	    	      bgClass = "bg-warning-subtle";
+	        	    	      textClass = "text-warning";
+	        	    	      break;
+	        	    	      break;
+	        	    	    default:
+	        	    	      statusText = "출근전";
+	        	    	      bgClass = "bg-secondary-subtle";
+	        	    	      textClass = "text-secondary";
+	        	    	  }
+
+	        	    	  // 기존 클래스 싹 지우고 새로 적용
+	        	    	  statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+	        	    	  statusSpan.innerText = statusText;
+	        	    	}
+	        	    })
+	        	    .catch(err => {
+	        	      alert("출근 처리 중 오류 발생!");
+	        	      console.error("출근 저장 실패", err);
+	        	    });
+	        	}
+          	
+	          const endTime = function () {
+	        	  // ✅ 현재 시간 (today는 변경하지 말고 고정!)
+	        	  const now = new Date();
+				  const attendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+	        	  // ✅ 출근 시간 파싱 (예: "11:10:00")
+	        	  const checkInStr = document.getElementById('start_time').innerHTML;
+	        	  const [inHour, inMin, inSec] = checkInStr.split(":").map(Number);
+
+	        	  // ✅ 최대 출근 가능 시간 파싱 (예: "11:00:00")
+	        	  const maxStartStr = document.getElementById('start_time_max').value;
+	        	  const [maxHour, maxMin, maxSec] = maxStartStr.split(":").map(Number);
+
+	        	  // ✅ 기준 출근시간 계산
+	        	  let baseHour = inHour;
+	        	  let baseMin = inMin;
+	        	  let baseSec = inSec;
+
+	        	  if (
+	        	    inHour > maxHour ||
+	        	    (inHour === maxHour && inMin > maxMin) ||
+	        	    (inHour === maxHour && inMin === maxMin && inSec > maxSec)
+	        	  ) {
+	        	    baseHour = maxHour;
+	        	    baseMin = maxMin;
+	        	    baseSec = maxSec;
+	        	  }
+
+	        	  const baseTotalMin = baseHour * 60 + baseMin + baseSec / 60;
+
+	        	  // ✅ 근무시간 (예: 8.5시간 → 분으로)
+	        	  const workDuration = parseFloat(document.getElementById('work_duration').value);
+	        	  const requiredMin = baseTotalMin + workDuration * 60;
+
+	        	  // ✅ 현재 시간 (분 단위로 변환)
+	        	  const nowTotalMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+	        	  const currentTimeStr = now.toTimeString().slice(0, 8); // HH:mm:ss
+
+	        	  // ✅ 조퇴 여부 판단
+	        	  let earlyLeaveYn = 'N';
+	        	  let confirmMsg = "";
+
+	        	  if (nowTotalMin < requiredMin) {
+	        	    const requiredHour = Math.floor(requiredMin / 60);
+	        	    const requiredMinute = Math.floor(requiredMin % 60);
+	        	    confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
+	        	    earlyLeaveYn = 'Y';
+	        	  } else {
+	        	    confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
+	        	  }
+
+	        	  // ✅ 사용자 확인
+	        	  if (!confirm(confirmMsg)) return;
+
+	        	  // ✅ 퇴근 요청
+	        	  fetch('/attendance/saveEndTime', {
+	        	    method: 'POST',
+	        	    headers: {
+	        	      [csrfHeader]: csrfToken,
+	        	      'Content-Type': 'application/json'
+	        	    },
+	        	    body: JSON.stringify({
+	        	      attend_date: attendDate,
+	        	      check_out: currentTimeStr,
+	        	      early_leave_yn: earlyLeaveYn
+	        	    })
+	        	  })
+	        	    .then(response => response.json())
+	        	    .then(data => {
+	        	      alert(data.res_msg);
+
+	        	      if (data.res_code === "200") {
+	        	        // ✅ 퇴근 시간 UI 갱신
+	        	        document.getElementById("checkOutWrap").innerHTML =
+	        	          `<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
+
+	        	        // ✅ 상태 표시
+	        	        const statusSpan = document.getElementById("checkOutStatus");
+	        	        let statusText = "";
+	        	        let bgClass = "";
+	        	        let textClass = "";
+
+	        	        switch (data.attendance.early_leave_yn) {
+	        	          case "Y":
+	        	            statusText = "조퇴";
+	        	            bgClass = "bg-primary-subtle";
+	        	            textClass = "text-primary";
+	        	            break;
+	        	          case "N":
+	        	            statusText = "정상 퇴근";
+	        	            bgClass = "bg-success-subtle";
+	        	            textClass = "text-success";
+	        	            break;
+	        	          default:
+	        	            statusText = "퇴근";
+	        	            bgClass = "bg-secondary-subtle";
+	        	            textClass = "text-secondary";
+	        	        }
+
+	        	        statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+	        	        statusSpan.innerText = statusText;
+	        	      }
+	        	    })
+	        	    .catch(err => {
+	        	      alert("퇴근 처리 중 오류 발생!");
+	        	      console.error("퇴근 저장 실패", err);
+	        	    });
+	        	};
+          </script>
+
+
+			<!-- 가운데 근무시간 + 차트 -->
+			<div class="col-lg-9">
+				<div class="card p-4 mb-4">
+					<div
+						class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+						<div>
+							<h6 class="mb-1">선택적 근로시간</h6>
+							<p class="text-muted mb-0" th:text="|${member.memberName} ${member.pos.posName} / ${member.dept.deptName}|">김세영 대리 / 마케팅팀</p>
+						</div>
+						<div class="text-end">
+							<h4 class="fw-bold" id="current_date2">2024.04</h4>
+							<p class="text-muted" id="month_week">0번째 주</p>
+						</div>
+					</div>
+
+					<div class="progress mb-3 position-relative" style="height: 25px; overflow: visible;">
+						<div
+							class="progress-bar bg-info d-flex align-items-center justify-content-center fw-semibold text-white"
+							style="width: 0%;">0h</div>
+
+						<input type="hidden" id="week_min_work_time" th:value="${workPolicy.weekWorkMinTime}">
+						<input type="hidden" id="week_max_work_time" th:value="${workPolicy.weekWorkMaxTime}">
+					
+						<span id="label-min" class="position-absolute fw-bold text-dark" style="top: 110%; left: 0%;">0h</span>
+						<span id="label-mid" class="position-absolute  fw-bold text-dark" style="top: 110%;">최소 00h</span>
+						<span id="label-max" class="position-absolute fw-bold text-dark" style="top: 110%; right: 0%;">최대 00h</span>
+					</div>
+					
+					<ul class="mt-3 small">
+					  <li id="remainTime">이번주 남은 근무시간 : 계산 중...</li>
+					  <li id="remainOvertime">이번주 남은 연장 근무시간 : 계산 중...</li>
+					</ul>
+				</div>
+
+				<div class="card p-4">
+					<h6 class="fw-bold mb-3">주간 근무시간 요약</h6>
+					<div id="weeklyHoursChart"></div>
+				</div>
+				
+				<!-- 출퇴근 현황 카드 -->
+				<div class="card p-4 mt-4">
+				  <form name="attendance_info_form" action="/attendance/info" method="post">
+				    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2">
+				      
+				      <!-- 📅 왼쪽: 연도/월 선택 -->
+				      <div class="d-flex align-items-end gap-2">
+				        <div>
+				          <label for="year" class="form-label mb-0 small">년도</label>
+				          <select name="year" id="year" class="form-select form-select-sm">
+				          	<option value="">전체</option>
+				            <option th:each="y : ${#numbers.sequence(1990, 2050)}"
+				                    th:value="${y}"
+				                    th:text="${y}"
+				                    th:selected="${y == selectedYear}">2025</option>
+				          </select>
+				        </div>
+				        <div>
+				          <label for="month" class="form-label mb-0 small">월</label>
+				          <select name="month" id="month" class="form-select form-select-sm">
+				          	<option value="">전체</option>
+				            <option th:each="m : ${#numbers.sequence(1, 12)}"
+				                    th:value="${m}"
+				                    th:text="${m}"
+				                    th:selected="${m == selectedMonth}">5</option>
+				          </select>
+				        </div>
+				      </div>
+				
+				      <!-- ✅ 오른쪽: 상태 필터 -->
+				      <div class="d-flex align-items-end gap-2">
+				        <div>
+				          <label for="lateYn" class="form-label mb-0 small">출근 상태</label>
+				          <select name="lateYn" id="lateYn" class="form-select form-select-sm">
+				            <option value="">전체</option>
+				            <option value="N" th:selected="${lateYn == 'N'}">정상</option>
+				            <option value="Y" th:selected="${lateYn == 'Y'}">지각</option>
+				          </select>
+				        </div>
+				        <div>
+				          <label for="earlyLeaveYn" class="form-label mb-0 small">퇴근 상태</label>
+				          <select name="earlyLeaveYn" id="earlyLeaveYn" class="form-select form-select-sm">
+				            <option value="">전체</option>
+				            <option value="N" th:selected="${earlyLeaveYn == 'N'}">정상</option>
+				            <option value="Y" th:selected="${earlyLeaveYn == 'Y'}">조퇴</option>
+				          </select>
+				        </div>
+				      </div>
+				
+				    </div>
+				  </form>
+				
+				  <!-- 📊 테이블 -->
+				  <div class="table-responsive">
+				    <table class="table align-middle text-center">
+				      <thead class="bg-light">
+				        <tr>
+				          <th>날짜</th>
+				          <th>출근 시간</th>
+				          <th>퇴근 시간</th>
+				          <th>총 근무 시간</th>
+				          <th>출근 상태</th>
+				          <th>퇴근 상태</th>
+				        </tr>
+				      </thead>
+				      <tbody id="work-log-tbody">
+				        <tr th:if="${#lists.isEmpty(attendanceList)}">
+				          <td colspan="6">근무 이력이 없습니다.</td>
+				        </tr>
+				        <tr th:each="attendance : ${attendanceList}">
+				          <td th:text="${attendance.attendDate}">날짜</td>
+				          <td th:text="${attendance.checkIn}">출근 시간</td>
+				          <td th:text="${attendance.checkOut}">퇴근 시간</td>
+				          <td th:text="${attendance.workingTime}">총 근무 시간</td>
+				          <td>
+				            <span th:text="${attendance.lateYn == 'Y' ? '지각' : '정상'}"></span>
+				          </td>
+				          <td>
+				            <span th:text="${attendance.earlyLeaveYn == 'Y' ? '조퇴' : '정상'}"></span>
+				          </td>
+				        </tr>
+				      </tbody>
+				    </table>
+				  </div>
+				
+				  <!-- 📄 페이지네이션 (생략 없이 유지) -->
+				  <div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+				    <!-- 기존 pageDto 기반 pagination 유지 -->
+				    <nav>
+						  <ul class="pagination mb-0">
+						    <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
+						      <a class="page-link"
+						         th:href="${pageDto.prev} ? @{/attendance/info(nowPage=${pageDto.pageBarStart-1}, search_text=${searchText})} : '#'"
+						         aria-label="Previous">
+						        <span aria-hidden="true">&laquo;</span>
+						      </a>
+						    </li>
+							
+						    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+						      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+						        <a class="page-link"
+						           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+						           th:href="@{/attendance/info(nowPage=${num}, search_text=${searchText})}"
+						           th:text="${num}">페이지</a>
+						      </li>
+						    </th:block>
+						
+						    <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
+						      <a class="page-link"
+						         th:href="${pageDto.next} ? @{/attendance/info(nowPage=${pageDto.pageBarEnd+1}, search_text=${searchText})} : '#'"
+						         aria-label="Next">
+						        <span aria-hidden="true">&raquo;</span>
+						      </a>
+						    </li>
+						  </ul>
+					    </nav>
+				  </div>
+				</div>
+				
+				
+			</div>
+		</div>
+	</div>
+
+	<script>
+  	
+	  function updateTime() {
+		    const now = new Date();
+		    const hours = String(now.getHours()).padStart(2, '0');
+		    const minutes = String(now.getMinutes()).padStart(2, '0');
+		    const seconds = String(now.getSeconds()).padStart(2, '0');
+		    document.getElementById('nowTime').textContent = `${hours}:${minutes}:${seconds}`;
+		  }
+	
+		  // 페이지 로드 후 매초마다 실행
+		  document.addEventListener("DOMContentLoaded", function () {
+		    updateTime(); // 초기 실행
+		    setInterval(updateTime, 1000); // 1초마다 업데이트
+		  });
+		  
+		  function getWeekRange(date) {
+			  const day = date.getDay(); // 0: 일 ~ 6: 토
+			  const monday = new Date(date);
+			  monday.setDate(date.getDate() - ((day + 6) % 7)); // 이번 주 요일
+
+			  const sunday = new Date(monday);
+			  sunday.setDate(monday.getDate() + 6); // 일요일
+
+			  const pad = (n) => n.toString().padStart(2, "0");
+
+			  const start = `${pad(monday.getMonth() + 1)}.${pad(monday.getDate())}`;
+			  const end = `${pad(sunday.getMonth() + 1)}.${pad(sunday.getDate())}`;
+
+			  return `${start} ~ ${end}`;
+			}
+	  
+		  function getWeekRange(date) {
+			  const day = date.getDay(); // 0: 일 ~ 6: 토
+			  const monday = new Date(date);
+			  monday.setDate(date.getDate() - ((day + 6) % 7)); // 이번 주 월요일
+
+			  const sunday = new Date(monday);
+			  sunday.setDate(monday.getDate() + 6); // 이번 주 일요일
+
+			  const pad = (n) => n.toString().padStart(2, "0");
+
+			  const start = `${pad(monday.getMonth() + 1)}.${pad(monday.getDate())}`;
+			  const end = `${pad(sunday.getMonth() + 1)}.${pad(sunday.getDate())}`;
+
+			  return `${start} ~ ${end}`;
+			}
+
+			document.addEventListener("DOMContentLoaded", function () {
+			  const now = new Date();
+			  const days = ['일', '월', '화', '수', '목', '금', '토'];
+
+			  const formatted = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+
+			  const dateFormatted = now.getDate() <= 9 ? `0${now.getDate()}` : now.getDate();
+			  const formatted2 = now.getMonth() + 1 <= 9
+			    ? `${now.getFullYear()}.0${now.getMonth() + 1}.${dateFormatted}`
+			    : `${now.getFullYear()}.${now.getMonth() + 1}.${dateFormatted}`;
+
+			  const weekRange = getWeekRange(now);
+
+			  document.getElementById("current-date").textContent = formatted;
+			  document.getElementById("current_date2").textContent = formatted2;
+			  document.getElementById("month_week").textContent = weekRange;
+			});
+	 </script>
+	 
+	 <script>
+		  function getCurrentWeekRange() {
+		    const today = new Date();
+		    const day = today.getDay(); // 0(일) ~ 6(토)
+		    const diffToMonday = today.getDate() - day + (day === 0 ? -6 : 1);
+		    const monday = new Date(today.setDate(diffToMonday));
+		    const weekDates = [];
+		
+		    for (let i = 0; i < 7; i++) {
+		      const d = new Date(monday);
+		      d.setDate(monday.getDate() + i);
+		      weekDates.push(d.toISOString().slice(0, 10));
+		    }
+		
+		    return weekDates;
+		  }
+		
+		  document.addEventListener("DOMContentLoaded", function () {
+		    // 🌟 근무정책 값
+		    const minHours = parseFloat(document.getElementById("week_min_work_time").value);
+		    const maxHours = parseFloat(document.getElementById("week_max_work_time").value);
+		
+		    // ⏱️ 라벨 위치 설정
+		    const labelMin = document.getElementById("label-min");
+		    labelMin.textContent = "0h";
+		    labelMin.style.left = "0%";
+		
+		    const midPercent = (minHours / maxHours) * 100;
+		    const labelMid = document.getElementById("label-mid");
+		    labelMid.textContent = `최소 ${minHours}h`;
+		    labelMid.style.left = `${midPercent}%`;
+		    labelMid.style.transform = "translateX(-50%)";
+		
+		    const labelMax = document.getElementById("label-max");
+		    labelMax.textContent = `최대 ${maxHours}h`;
+		    labelMax.style.right = "0%";
+		
+		    // 📊 주간 근무시간 계산 & 렌더링
+		    const weekDates = getCurrentWeekRange();
+		    const start = weekDates[0];
+		    const end = weekDates[6];
+		
+		    fetch(`/attendance/weeklyHours?startDate=${start}&endDate=${end}`)
+		      .then(res => res.json())
+		      .then(data => {
+		        const workTimeMap = {};
+		        data.forEach(item => {
+		          workTimeMap[item.attendDate] = item.workingHours;
+		        });
+		
+		        const seriesData = weekDates.map(date => workTimeMap[date] || 0);
+		        const totalHours = seriesData.reduce((sum, h) => sum + h, 0);
+		        const percent = Math.min(100, Math.round((totalHours / maxHours) * 100));
+		
+		        // ✅ 프로그레스바 반영
+		        const progressBar = document.querySelector(".progress-bar");
+		        progressBar.style.width = `${percent}%`;
+		        progressBar.textContent = `${totalHours.toFixed(1)}h`;
+		
+		     	// 🕑 남은 시간 계산 (소수점 반올림)
+		        const remainTimeRaw = Math.max(0, minHours - totalHours);
+		        const remainTimeRounded = Math.round(remainTimeRaw * 10) / 10;
+		        document.querySelector("#remainTime").textContent = `남은 최소 근무시간 : ${remainTimeRounded}h`;
+
+		        // 🔥 연장 근무시간 계산
+		        let remainOvertime;
+		        if (totalHours < minHours) {
+		          remainOvertime = 12.0;
+		        } else if (totalHours >= minHours && totalHours < maxHours) {
+		          remainOvertime = Math.round((maxHours - totalHours) * 10) / 10;
+		        } else {
+		          remainOvertime = 0.0;
+		        }
+		        document.querySelector("#remainOvertime").textContent = `남은 연장 근무시간 : ${remainOvertime}h`;
+		
+		        // 📈 차트 출력
+		        const options = {
+		          chart: {
+		            type: 'bar',
+		            height: 240,
+		            animations: {
+		              enabled: true,
+		              easing: 'easeinout',
+		              speed: 800,
+		              animateGradually: { enabled: true, delay: 150 },
+		              dynamicAnimation: { enabled: true, speed: 350 }
+		            }
+		          },
+		          series: [{ name: '근무시간(h)', data: seriesData }],
+		          xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
+		          colors: ['#0d6efd'],
+		          plotOptions: {
+		            bar: { borderRadius: 5, columnWidth: '45%' }
+		          },
+		          tooltip: {
+		            y: {
+		              formatter: val => `${val.toFixed(1)} 시간`,
+		              title: { formatter: () => '근무시간' }
+		            }
+		          }
+		        };
+		
+		        new ApexCharts(document.querySelector("#weeklyHoursChart"), options).render();
+		      });
+		  });
+		</script>
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	
+	
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
+
+</th:block>
+</html>
