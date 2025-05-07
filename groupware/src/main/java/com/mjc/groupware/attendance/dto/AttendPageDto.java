@@ -1,8 +1,7 @@
-package com.mjc.groupware.approval.dto;
+package com.mjc.groupware.attendance.dto;
 
 import groovy.transform.ToString;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,9 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @ToString
-public class PageDto {
+public class AttendPageDto {
 	
-	private int numPerPage = 5;		// 한 페이지에 데이터 개수
+	private int numPerPage = 10;		// 한 페이지에 데이터 개수
 	private int nowPage;			// 현재 페이지
 	
 	// 페이징바
@@ -61,3 +60,4 @@ public class PageDto {
 	}
 	
 }
+
