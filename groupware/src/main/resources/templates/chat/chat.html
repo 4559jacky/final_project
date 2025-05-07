@@ -681,10 +681,14 @@
 	  const chatList = document.querySelector(".app-chat .chat-users");
 	  const li = document.createElement("li");
 	
-	  // 👉 채팅방 제목 없으면, 본인을 제외한 인원 이름+직급 표시
-	  let title = room.chat_room_title;
 	  const myNo = document.getElementById("createMemberNo").value;
 	
+	  // 소속 아닌 사람은 return
+	  const isMember = room.memberInfos.some(m => m.memberNo == myNo);
+	  if (!isMember) return;  
+	
+	  // 채팅방 제목 처리
+	  let title = room.chat_room_title;
 	  if (!title || title.trim() === "") {
 	    const others = room.memberInfos.filter(m => m.memberNo != myNo);
 	    title = others.map(m => `${m.memberName} ${m.positionName || ''}`).join(", ");
@@ -696,30 +700,28 @@
 	      data-room-id="${room.chat_room_no}">
 	      
 	      <div class="d-flex align-items-center">
-	     	 <span class="position-relative">
-				<img src="../assets/images/profile/user-8.jpg" alt="user-8"
-				width="48" height="48" class="rounded-circle" />
-			</span>
+	        <span class="position-relative">
+	          <img src="../assets/images/profile/user-8.jpg" alt="user-8"
+	          width="48" height="48" class="rounded-circle" />
 	        </span>
 	        <div class="ms-3 d-inline-block w-75">
 	          <h6 class="mb-1 fw-semibold chat-title">${title}</h6>
 	          <div class="d-flex justify-content-between align-items-center">
-	          	<span class="fs-3 text-truncate text-body-color d-block">${room.last_msg || ''}</span>
-			  </div>
+	            <span class="fs-3 text-truncate text-body-color d-block">${room.last_msg || ''}</span>
+	          </div>
 	        </div>
 	      </div>
 	      <div class="d-flex flex-column align-items-end justify-content-between">
-	      	<p class="fs-2 mb-0 text-muted">${formatTime(room.last_msg_date)}</p>
-	     	 <span class="badge bg-danger rounded-pill unread-badge"></span>
-	   	   </div>
+	        <p class="fs-2 mb-0 text-muted">${formatTime(room.last_msg_date)}</p>
+	        <span class="badge bg-danger rounded-pill unread-badge"></span>
+	      </div>
 	    </a>
 	  `;
-
-	  
+	
 	  chatList.prepend(li);
-	  
 	  initChatRoomClick();
 	}
+
 
 
 
