@@ -166,11 +166,10 @@ public class AccommodationAdminController {
 	    }
 
 	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
-	    System.out.println("파일 정보: " + attachList);
-	    
 	    model.addAttribute("accommodation", dto);
 	    model.addAttribute("attachList", attachList); // 이미지 리스트 전달
-	    return "accommodation/detail"; // detail.html로 이동
+	    
+	    return "accommodation/detail";
 	}
 
 	// 숙소 삭제
