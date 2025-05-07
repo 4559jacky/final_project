@@ -163,48 +163,42 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		let stompClient = null;
 	
 		window.addEventListener("load", () => {
-			const socket = new SockJS("/ws-chat");
-			stompClient = Stomp.over(socket);
+		  const socket = new SockJS("/ws-chat");
+		  stompClient = Stomp.over(socket);
 	
-			stompClient.connect({}, () => {
-				console.log("📡 STOMP WebSocket 연결 성공");
-				
-				// 채팅방 생성 실시간 반영
-		      stompClient.subscribe("/topic/chat/room/new", (message) => {
-		        const newRoom = JSON.parse(message.body);
-		        // chat.html에서만 실행되도록 보호
-		        if (typeof appendNewChatRoom === "function") {
-		          appendNewChatRoom(newRoom);
-		        }
-		      });
-				
-			   // 마지막 메시지/시간 실시간 반영
-				stompClient.subscribe("/topic/chat/room/update", (message) => {
-					const update = JSON.parse(message.body);
-					if (typeof updateChatRoomList === "function") {
-						updateChatRoomList(update);
-					}
-				});
-			   
-			   // 안 읽은 메세지 수 실시간 반영 
-				stompClient.subscribe("/topic/chat/unread", (message) => {
-					  if (typeof onUnreadMessage === "function") {
-						  onUnreadMessage(JSON.parse(message.body));
-					  }
-					});
-				
-			 	stompClient.subscribe("/user/queue/chat/read", function (message) {
-					  const dto = JSON.parse(message.body);
-					  if (typeof onChatReadUpdate === "function") {
-					    onChatReadUpdate(dto); 
-					  }
-					}); 
-
-				
-			}, (error) => {
-				console.error("STOMP 연결 실패", error);
-			});
+		  stompClient.connect({}, () => {
+		    console.log("📡 STOMP WebSocket 연결 성공");
+	
+		    // 채팅방 생성 실시간 반영
+		    stompClient.subscribe("/topic/chat/room/new", (message) => {
+		      const newRoom = JSON.parse(message.body);
+		      if (typeof appendNewChatRoom === "function") {
+		        appendNewChatRoom(newRoom);
+		      }
+		    });
+	
+		    // 마지막 메시지/시간 실시간 반영
+		    stompClient.subscribe("/topic/chat/room/update", (message) => {
+		      const update = JSON.parse(message.body);
+		      if (typeof updateChatRoomList === "function") {
+		        updateChatRoomList(update);
+		      }
+		    });
+	
+		    // 안 읽은 메시지 수 + 알림 처리 → chat.html로 위임
+		    stompClient.subscribe("/topic/chat/unread", (message) => {
+		      const dto = JSON.parse(message.body);
+	
+		      if (typeof onUnreadMessage === "function") {
+		        onUnreadMessage(dto);
+		      }
+		    });
+	
+		  }, (error) => {
+		    console.error("STOMP 연결 실패", error);
+		  });
 		});
+
 	</script>
 
 </body>

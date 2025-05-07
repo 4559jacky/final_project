@@ -52,7 +52,7 @@ public class ChatAlarm {
 	@Column(updatable=false, name="reg_date")
 	private LocalDateTime regDate;
 
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name="chat_msg_no")
     private ChatMsg chatMsgNo; 
 

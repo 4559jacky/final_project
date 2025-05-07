@@ -131,8 +131,7 @@
 								<div class="position-relative">
 								</div>
 								<div>
-									<h6 class="mb-1 name fw-semibold"></h6>
-									<p class="mb-0 dept"></p>
+									<h6 class="mb-1 name fw-semibold" id="chatTitle"></h6>
 								</div>
 							</div>
 							<ul class="list-unstyled mb-0 d-flex align-items-center">
@@ -430,8 +429,27 @@
 		</div>
 	</div>
 	
+	 <!-- 채팅 알림 모달 -->
+	<div id="chat-alert-toast" class="position-fixed end-0 bottom-0 p-3 d-none" style="z-index: 9999;">
+	  <div class="toast align-items-start show text-dark shadow" role="alert"
+	       style="border: none; border-radius: 0.5rem;">
+	    <div class="toast-header bg-primary text-white">
+	      <strong class="me-auto">새로운 메세지가 도착했습니다.</strong>
+	      <button type="button" class="btn-close btn-close-white ms-2 mb-1" onclick="hideChatAlertToast()"></button>
+	    </div>
+	    <div class="toast-body">
+		  <div><strong>[</strong> <span id="toast-chat-title"></span><strong>]</strong></div>
+		  <div><strong id="toast-sender-name"></strong></div>
+		  <div><span id="toast-msg-content"></span></div> 
+		</div>
+	    <input type="hidden" id="toast-room-no" />
+	  </div>
+	</div>
+
+
+
+	
 	<script>
-		
 	// 메인 진입 포인트
 
 	document.addEventListener("DOMContentLoaded", () => {
@@ -542,6 +560,34 @@
 	  showUnreadBadge(roomNo, myNo);
 	}
 
+	function showChatAlertToast(dto) {
+		const chatTitle = document.getElementById("chatTitle").textContent;	    
+		
+		  const wrapper = document.getElementById("chat-alert-toast");
+		  document.getElementById("toast-room-no").value = dto.chat_room_no;
+		  document.getElementById("toast-chat-title").textContent = chatTitle;
+		  document.getElementById("toast-sender-name").textContent = `${dto.member_name} ${dto.member_pos_name}`;
+		  document.getElementById("toast-msg-content").textContent = dto.chat_msg_content;
+
+		  wrapper.classList.remove("d-none");
+
+		  setTimeout(() => {
+		    wrapper.classList.add("d-none");
+		  }, 5000);
+		}
+
+		function closeChatToast() {
+		  document.getElementById("chat-alert-toast").classList.add("d-none");
+		}
+
+
+	/* // 채팅방 이동  클릭 시 처리
+	function moveToChatRoom() {
+		  const roomNo = document.getElementById("modal-room-no").value;
+		  if (roomNo) {
+		    window.location.href = `/chat/${roomNo}`; // ✅ URI는 실제 경로에 맞게 조정!
+		  }
+		} */
 
 
 	// 1. 모달 이벤트 처리
@@ -677,14 +723,18 @@
 
 	
 	// 3-1. 새로운 채팅방 실시간 추가 
-   	function appendNewChatRoom(room) {
+   function appendNewChatRoom(room) {
 	  const chatList = document.querySelector(".app-chat .chat-users");
 	  const li = document.createElement("li");
 	
-	  // 👉 채팅방 제목 없으면, 본인을 제외한 인원 이름+직급 표시
-	  let title = room.chat_room_title;
 	  const myNo = document.getElementById("createMemberNo").value;
 	
+	  // 소속 아닌 사람은 return
+	  const isMember = room.memberInfos.some(m => m.memberNo == myNo);
+	  if (!isMember) return; 
+	
+	  // 채팅방 제목 처리
+	  let title = room.chat_room_title;
 	  if (!title || title.trim() === "") {
 	    const others = room.memberInfos.filter(m => m.memberNo != myNo);
 	    title = others.map(m => `${m.memberName} ${m.positionName || ''}`).join(", ");
@@ -696,35 +746,34 @@
 	      data-room-id="${room.chat_room_no}">
 	      
 	      <div class="d-flex align-items-center">
-	     	 <span class="position-relative">
-				<img src="../assets/images/profile/user-8.jpg" alt="user-8"
-				width="48" height="48" class="rounded-circle" />
-			</span>
+	        <span class="position-relative">
+	          <img src="../assets/images/profile/user-8.jpg" alt="user-8"
+	          width="48" height="48" class="rounded-circle" />
 	        </span>
 	        <div class="ms-3 d-inline-block w-75">
 	          <h6 class="mb-1 fw-semibold chat-title">${title}</h6>
 	          <div class="d-flex justify-content-between align-items-center">
-	          	<span class="fs-3 text-truncate text-body-color d-block">${room.last_msg || ''}</span>
-			  </div>
+	            <span class="fs-3 text-truncate text-body-color d-block">${room.last_msg || ''}</span>
+	          </div>
 	        </div>
 	      </div>
 	      <div class="d-flex flex-column align-items-end justify-content-between">
-	      	<p class="fs-2 mb-0 text-muted">${formatTime(room.last_msg_date)}</p>
-	     	 <span class="badge bg-danger rounded-pill unread-badge"></span>
-	   	   </div>
+	        <p class="fs-2 mb-0 text-muted">${formatTime(room.last_msg_date)}</p>
+	        <span class="badge bg-danger rounded-pill unread-badge"></span>
+	      </div>
 	    </a>
 	  `;
-
-	  
+	
 	  chatList.prepend(li);
-	  
 	  initChatRoomClick();
 	}
 
 
 
+
 	// 4. 채팅방 클릭 시 정보 조회 및 메시지 불러오기
 	function initChatRoomClick() {
+		
 	  const chatUsers = document.querySelectorAll(".app-chat .chat-user");
 	  const chatRoomNoInput = document.getElementById("chatRoomNo");
 	  const msgInput = document.getElementById("msgContent");
@@ -955,7 +1004,7 @@
 
 	    const receiverInputs = document.querySelectorAll(".receiverNoInput");
 	    const receiverNos = Array.from(receiverInputs).map(input => parseInt(input.value));
-
+		
 	    const currentRoomNo = document.getElementById("chatRoomNo").value; // ✅ 실시간 가져오기!!
 	    
 	    if (window.stompClient?.connected) {
@@ -966,7 +1015,8 @@
 	        chat_room_no: currentRoomNo,
 	        member_no: senderNo,
 	        member_no_list: receiverNos,
-	        chat_msg_content: content
+	        chat_msg_content: content,
+	        chat_room_title: chatTitle
 	      }));
 	      msgInput.value = "";
 	    } else {
