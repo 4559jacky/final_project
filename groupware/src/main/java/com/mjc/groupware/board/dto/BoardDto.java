@@ -6,6 +6,7 @@ import java.util.List;
 import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.vote.dto.VoteDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +38,8 @@ public class BoardDto {
 
     // 삭제할 파일 ID 리스트
     private List<Long> delete_files;
+    // 투표 기능 추가
+    private VoteDto vote;
 
     // Board 엔티티로 변환
     public Board toEntity() {

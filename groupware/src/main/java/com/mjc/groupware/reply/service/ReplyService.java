@@ -3,6 +3,10 @@ package com.mjc.groupware.reply.service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +49,7 @@ public class ReplyService {
         replyRepository.save(reply);  // 댓글 저장
     }
     
+    
     // 대댓글 생성(부모 댓글 존재)
     @Transactional
     public void replyCreateSub(ReplyDto replyDto) {
@@ -69,6 +74,7 @@ public class ReplyService {
 
         replyRepository.save(subReply);  // 대댓글 저장
     }
+    
     
     // 특정 게시글의 댓글 리스트 조회
     @Transactional(readOnly = true)
@@ -101,9 +107,10 @@ public class ReplyService {
         return result; // 계층 구조로 정리된 댓글 리스트 반환
     }
     
+    
     // 댓글 수정
     @Transactional
-    public ReplyDto updateReply(ReplyDto dto, Member member) {
+    public ReplyDto replyUpdate(ReplyDto dto, Member member) {
         // 수정할 댓글 조회
         Reply reply = replyRepository.findById(dto.getReply_no())
             .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
@@ -121,6 +128,7 @@ public class ReplyService {
         return ReplyDto.toDto(reply); // 수정된 댓글 DTO 반환
     }
     
+    
     // 댓글 단일 조회(내용만)
     @Transactional(readOnly = true)
     public String getReplyContent(Long replyNo) {
@@ -129,6 +137,7 @@ public class ReplyService {
                               .map(Reply::getReplyContent)
                               .orElse("");
     }
+    
     
     // 댓글 삭제
     @Transactional
@@ -144,6 +153,7 @@ public class ReplyService {
 
         markReplyAsDeleted(reply);  // 삭제 처리
     }
+    
 
     // 댓글 및 대댓글 모두 삭제 상태로 변경
     private void markReplyAsDeleted(Reply reply) {
@@ -152,6 +162,7 @@ public class ReplyService {
             markReplyAsDeleted(child);  // 자식 댓글들도 재귀적으로 삭제 처리
         }
     }
+    
     
     // 계층형 구조로 댓글 반환
     @Transactional(readOnly = true)
@@ -187,4 +198,22 @@ public class ReplyService {
 
         return parentReplies;  // 부모 댓글들 반환
     }
+    
+    // 댓글 +더보기 버튼 추가 코드
+//    @Transactional(readOnly = true)
+//    public List<ReplyDto> getRepliesByBoardPaged(Long boardNo, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").ascending());
+//        Page<Reply> replyPage = replyRepository.findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(boardNo, "N", pageable);
+//
+//        List<ReplyDto> result = new ArrayList<>();
+//        for (Reply reply : replyPage.getContent()) {
+//            ReplyDto dto = ReplyDto.toDto(reply);
+//            List<Reply> children = replyRepository.findByParentReply_ReplyNoAndReplyStatus(reply.getReplyNo(), "N");
+//            dto.setSubReplies(children.stream().map(ReplyDto::toDto).toList());
+//            dto.setSubReplyCount(children.size());
+//            result.add(dto);
+//        }
+//
+//        return result;
+//    }
 }

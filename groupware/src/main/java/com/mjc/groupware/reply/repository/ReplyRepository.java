@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+
 import com.mjc.groupware.reply.entity.Reply;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
@@ -23,4 +24,8 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     // 댓글을 부모 댓글 기준으로 계층 조회
     @Query("SELECT r FROM Reply r WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus ORDER BY r.regDate ASC")
     List<Reply> findByBoardNoAndReplyStatusOrderByRegDate(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
+
+    // 댓글 +더보기 버튼 추가 코드
+//	Page<Reply> findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String string, Pageable pageable);
+
 }
