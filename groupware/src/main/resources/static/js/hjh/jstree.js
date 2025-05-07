@@ -112,6 +112,11 @@ $(document).ready(function () {
 	
     loadFolderList(folderId ?? null);
   });
+  
+  // 📌 휴지통 탭 클릭 시 loadTrashBin 호출
+  document.getElementById("trash-tab").addEventListener("click", () => {
+    loadTrashBin();
+  });
 
   // 2. 폴더 생성 모달 열릴 때 트리 초기화
   $('#folderModal').on('shown.bs.modal', function (){
@@ -201,6 +206,7 @@ $(document).ready(function () {
   $('#modal-folder-tree').on('deselect_all.jstree', function () {
     $('#folder-type-group').show();
   });
+  
 });
 
 // 5. 새 폴더 생성
@@ -383,48 +389,118 @@ function onFileClick(fileId){
 	window.location.href = "/shared/files/download/" + fileId;
 }
 
-// 🗑️ 휴지통 불러오기
+// 📌 삭제된 항목 불러오기 
 function loadTrashBin() {
-  fetch("/shared/trash/list")
+  console.log("✅ loadTrashBin() 호출됨");
+
+  fetch("/shared/trash")
     .then(res => res.json())
     .then(data => {
-      renderTrashTable(data); // 휴지통 테이블 출력
+      console.log("✅ 서버 응답:", data);
+      renderTrashTable(data.items);
     })
     .catch(err => {
-      console.error("휴지통 목록 조회 실패", err);
-      alert("휴지통을 불러오지 못했습니다.");
+      console.error("휴지통 조회 실패", err);
+      alert("휴지통을 불러오는 중 오류가 발생했습니다.");
     });
 }
 
-// 🗑️ 휴지통 테이블 렌더링
-function renderTrashTable(items) {
-  const tbody = document.querySelector("#folder-table tbody");
-  tbody.innerHTML = ""; // 기존 비우기
+// 📌 휴지통 테이블 랜더링 
+function renderTrashTable(data) {
+  const tbody = document.querySelector("#trash-table tbody");
+  tbody.innerHTML = "";
 
-  if (items.length === 0) {
+  if (!data || data.length === 0) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td colspan='4'>휴지된 폴더/파일이 없습니다.</td>`;
+    row.innerHTML = `<td colspan="5">휴지통이 비어 있습니다.</td>`;
     tbody.appendChild(row);
     return;
   }
 
-  items.forEach(item => {
+  data.forEach(item => {
     const tr = document.createElement("tr");
-    const icon = item.type === "folder" ? "📁" : "📄";
-    const typeLabel = item.type === "folder" ? "폴더" : "파일";
-    const size = item.size ? formatFileSize(item.size) : "-";
-    const regDate = formatDate(item.deletedAt); // 삭제일 기준
-
     tr.innerHTML = `
-      <td>${icon} ${item.name}</td>
-      <td>${typeLabel}</td>
-      <td>${size}</td>
-      <td>${regDate}</td>
+      <td><input type="checkbox" class="trash-checkbox" data-id="${item.id}" data-type="${item.type}"></td>
+      <td title="${item.name}">${item.type === 'folder' ? '📁' : '📄'} ${item.name}</td>
+      <td>${item.type === 'folder' ? '폴더' : '파일'}</td>
+      <td>${item.size ? formatFileSize(item.size) : '-'}</td>
+      <td>${formatDate(item.deletedAt || item.folderDeletedAt)}</td>
     `;
-
     tbody.appendChild(tr);
   });
 }
 
+// 📌 체크박스 선택된 항목 가져오기
+function getSelectedTrashItems() {
+  const checkboxes = document.querySelectorAll(".trash-checkbox:checked");
+  const folderIds = [];
+  const fileIds = [];
 
+  checkboxes.forEach(cb => {
+    const id = parseInt(cb.dataset.id);
+    if (cb.dataset.type === "folder") folderIds.push(id);
+    else fileIds.push(id);
+  });
 
+  return { folderIds, fileIds };
+}
+
+// 📌 복구 기능
+function restoreSelected() {
+  const { folderIds, fileIds } = getSelectedTrashItems();
+  if (folderIds.length === 0 && fileIds.length === 0) {
+    alert("복구할 항목을 선택하세요.");
+    return;
+  }
+
+  fetch("/shared/restore", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      [document.querySelector('meta[name="_csrf_header"]').content]:
+        document.querySelector('meta[name="_csrf"]').content
+    },
+    body: JSON.stringify({ folderIds, fileIds })
+  })
+    .then(res => res.text())
+    .then(() => {
+      alert("복구 완료!");
+      loadTrashBin();
+      $('#shared-tree').jstree(true).refresh();
+    })
+    .catch(err => {
+      console.error("복구 실패", err);
+      alert("복구 중 오류 발생");
+    });
+}
+
+// 📌 완전삭제 기능
+function deleteSelected() {
+  const { folderIds, fileIds } = getSelectedTrashItems();
+  if (folderIds.length === 0 && fileIds.length === 0) {
+    alert("삭제할 항목을 선택하세요.");
+    return;
+  }
+
+  if (!confirm("정말 완전삭제 하시겠습니까?")) return;
+
+  fetch("/shared/delete/permanent", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      [document.querySelector('meta[name="_csrf_header"]').content]:
+        document.querySelector('meta[name="_csrf"]').content
+    },
+    body: JSON.stringify({ folderIds, fileIds })
+  })
+    .then(res => res.text())
+    .then(() => {
+      alert("완전삭제 완료!");
+      loadTrashBin();
+      $('#shared-tree').jstree(true).refresh();
+    })
+    .catch(err => {
+      console.error("삭제 실패", err);
+      alert("삭제 중 오류 발생");
+    });
+}
