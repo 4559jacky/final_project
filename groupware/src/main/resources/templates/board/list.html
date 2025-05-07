@@ -29,7 +29,7 @@
 
     <div class="d-flex align-items-center gap-2">
         <!-- 검색 타입 -->
-       <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+       <select name="search_type" class="form-select w-auto border-1" style="width: 120px;">
     		<option th:value="0" th:selected="${searchDto.search_type == 0}">선택</option>
     		<option th:value="1" th:selected="${searchDto.search_type == 1}">제목</option>
     		<option th:value="2" th:selected="${searchDto.search_type == 2}">내용</option>
@@ -51,7 +51,7 @@
 
     <!-- 오른쪽: 정렬 드롭다운 -->
     <div>
-        <select name="order_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 130px;" onchange="this.form.submit()">
+        <select name="order_type" class="form-select w-auto border-1" style="width: 130px;" onchange="this.form.submit()">
     		<option value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
     		<option value="2" th:selected="${searchDto.order_type == 2}">오래된순</option>
     		<option value="3" th:selected="${searchDto.order_type == 3}">조회순</option>
@@ -92,18 +92,19 @@
     </tr>
 </th:block>
           
-<!-- 고정글 목록 출력 -->
-<tr th:each="board : ${fixedList}" 
-    th:data-board-no="${board.boardNo}"
-    th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
-    class="fixed-row" style="cursor:pointer;">
-    <td><span>📌</span></td>
-    <td class="text-center"><span th:text="${board.boardTitle}">제목</span></td>
-    <td th:text="${board.member.memberName}">작성자</td>
-    <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-<!--     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td> -->
-    <td th:text="${board.views}">조회수</td>
-</tr>
+<!-- 고정글은 검색어가 없을 때만 출력 -->
+<th:block th:if="${#strings.isEmpty(searchDto.search_text)}">
+  <tr th:each="board : ${fixedList}" 
+      th:data-board-no="${board.boardNo}"
+      th:onclick="|window.location.href='/board/detail/' + ${board.boardNo}|"
+      class="fixed-row" style="cursor:pointer;">
+      <td><span>📌</span></td>
+      <td class="text-center"><span th:text="${board.boardTitle}">제목</span></td>
+      <td th:text="${board.member.memberName}">작성자</td>
+      <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
+      <td th:text="${board.views}">조회수</td>
+  </tr>
+</th:block>
 
 <!-- 일반글 목록 출력 -->
 <tr th:each="board, stat : ${boardList}" 
