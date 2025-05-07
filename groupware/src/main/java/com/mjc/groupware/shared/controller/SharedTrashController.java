@@ -1,37 +1,41 @@
 package com.mjc.groupware.shared.controller;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mjc.groupware.shared.dto.SharedFileDto;
-import com.mjc.groupware.shared.dto.SharedFolderDto;
-import com.mjc.groupware.shared.service.SharedFileService;
-import com.mjc.groupware.shared.service.SharedFolderService;
+import com.mjc.groupware.shared.dto.SharedRestoreRequestDto;
+import com.mjc.groupware.shared.service.SharedTrashService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/shared/trash")
 @RequiredArgsConstructor
+@RequestMapping("/shared")
 public class SharedTrashController {
 
-    private final SharedFolderService sharedFolderService;
-    private final SharedFileService sharedFileService;
+    private final SharedTrashService trashService;
 
-    @GetMapping
-    public Map<String, Object> getTrashList() {
-        List<SharedFolderDto> deletedFolders = sharedFolderService.getDeletedFolders();
-        List<SharedFileDto> deletedFiles = sharedFileService.getDeletedFiles();
+    @GetMapping("/trash")
+    public Map<String, Object> getTrashItems() {
+        return trashService.loadTrashItems();
+    }
+    
+    @PostMapping("/restore")
+    public String restoreItems(@RequestBody SharedRestoreRequestDto dto) {
+        trashService.restoreFolders(dto.getFolderIds());
+        trashService.restoreFiles(dto.getFileIds());
+        return "복구 완료";
+    }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("folders", deletedFolders);
-        result.put("files", deletedFiles);
-
-        return result;
+    @PostMapping("/delete/permanent")
+    public String deleteItems(@RequestBody SharedRestoreRequestDto dto) {
+        trashService.deleteFoldersPermanently(dto.getFolderIds());
+        trashService.deleteFilesPermanently(dto.getFileIds());
+        return "삭제 완료";
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.member.entity.Member;
@@ -221,18 +222,6 @@ public class SharedFileService {
 	    fileRepository.save(file);
 	}
 	
-	public List<SharedFileDto> getDeletedFiles() {
-	    List<SharedFile> deletedFiles = fileRepository.findByFileStatus("Y");
 
-	    return deletedFiles.stream()
-	        .map(file -> SharedFileDto.builder()
-	            .file_no(file.getFileNo())
-	            .file_name(file.getFileName())
-	            .file_deleted_by(file.getFileDeletedBy())
-	            .file_deleted_at(file.getFileDeletedAt())
-	            .original_folder_no(file.getOriginalFolderNo())
-	            .build())
-	        .collect(Collectors.toList());
-	}
 }
 
