@@ -134,7 +134,7 @@ public class ChatController {
 	    dto.setSend_date(LocalDateTime.now());
 	    messagingTemplate.convertAndSend("/topic/chat/room/update", dto);
 
-	    // ✅ 안 들어와 있는 사람만 뱃지/알림 전송
+	    // 안 들어와 있는 사람만 뱃지 전송
 	    for (Long receiverNo : dto.getMember_no_list()) {
 	        if (receiverNo.equals(dto.getMember_no())) continue;
 
@@ -144,6 +144,7 @@ public class ChatController {
 
 	        if (!isInRoom) {
 	            messagingTemplate.convertAndSend("/topic/chat/unread", dto);
+	            chatAlarmService.createChatAlarm(dto.getChat_room_no(), receiverNo, saved);
 	        } else {
 	        }
 	    }
