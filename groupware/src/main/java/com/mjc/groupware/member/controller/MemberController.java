@@ -323,20 +323,22 @@ public class MemberController {
 		
 		if(companyDto != null) {
 			String companyInitial = companyDto.getCompany_initial();
-			String entryYear = String.valueOf(LocalDate.now().getYear());
-			String yearSuffix = entryYear.equals("2025") ? "25" : entryYear.substring(2); 
-			Long lastMemberNo = service.selectMemberOneByLastNo().getMemberNo();
-			Long newMemberNo = (lastMemberNo != null) ? lastMemberNo + 1 : 1L;
-			
-			String defaultId = companyInitial + entryYear + String.format("%05d", newMemberNo % 100000);
-			String defaultPw = companyInitial.toUpperCase() + "@" + yearSuffix + String.format("%02d", newMemberNo % 100);
-			
-			MemberCreationDto creationDto = MemberCreationDto.builder()
-			        .defaultMemberId(defaultId)
-			        .defaultMemberPw(defaultPw)
-			        .build();
-			
-			model.addAttribute("memberCreationDto", creationDto);
+			if(companyInitial != null) {
+				String entryYear = String.valueOf(LocalDate.now().getYear());
+				String yearSuffix = entryYear.equals("2025") ? "25" : entryYear.substring(2); 
+				Long lastMemberNo = service.selectMemberOneByLastNo().getMemberNo();
+				Long newMemberNo = (lastMemberNo != null) ? lastMemberNo + 1 : 1L;
+				
+				String defaultId = companyInitial + entryYear + String.format("%05d", newMemberNo % 100000);
+				String defaultPw = companyInitial.toUpperCase() + "@" + yearSuffix + String.format("%02d", newMemberNo % 100);
+				
+				MemberCreationDto creationDto = MemberCreationDto.builder()
+						.defaultMemberId(defaultId)
+						.defaultMemberPw(defaultPw)
+						.build();
+				
+				model.addAttribute("memberCreationDto", creationDto);				
+			}
 		}
 		
 		Optional<Pos> maxOrderPos = posRepository.findTopByOrderByPosOrderDesc();

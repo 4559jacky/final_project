@@ -156,8 +156,6 @@ public class ApprovalController {
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
 	    
-	    System.out.println(searchDto.getSearch_status());
-	    
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
 	    List<Approval> list = service.selectApprovalAllById(member);

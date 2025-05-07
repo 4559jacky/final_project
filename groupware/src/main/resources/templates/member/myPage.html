@@ -6,8 +6,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
 	
-	<!-- Custom CSS Files -->
+	<!-- jQuery -->
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	
+	<!-- JSignature -->
+	<script th:src="@{/js/jji/Jsignature/Jsignature.min.js}"></script>
+	
+	<!-- Custom CSS Files -->
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<link th:href="@{/css/cjs/my_page.css}" rel="stylesheet">
 	
 	<!-- ---------------------------------------------------------------------------- -->
@@ -294,155 +300,128 @@ layout:decorate="~{/include/layout}">
 	                    </div>
 					</div>
                 </div>	                    
-	                    
-	                    
-	                    
-	                    
-	                    
-	                    
+	            
 				<!-- 두 번째 탭 -->
                 <div class="tab-pane fade" id="pills-notifications" role="tabpanel" aria-labelledby="pills-notifications-tab" tabindex="0">
                   <div class="row justify-content-center">
-                    <div class="col-lg-9">
+                    <div class="col-lg-12">
                       <div class="card border shadow-none">
                         <div class="card-body p-4">
-                          <h4 class="card-title">Notification Preferences</h4>
-                          <p class="card-subtitle mb-4">
-                            Select the notificaitons ou would like to receive via email. Please note that you cannot opt
-                            out of receving service
-                            messages, such as payment, security or legal notifications.
-                          </p>
-                          <form class="mb-7">
-                            <label for="exampleInputtext5" class="form-label">Email Address*</label>
-                            <input type="text" class="form-control" id="exampleInputtext5" placeholder="" required>
-                            <p class="mb-0">Required for notificaitons.</p>
-                          </form>
-                          <div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-article text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Our newsletter</h5>
-                                  <p class="mb-0">We'll always let you know about important changes</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked">
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-checkbox text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Order Confirmation</h5>
-                                  <p class="mb-0">You will be notified when customer order any product</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked1" checked>
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-clock-hour-4 text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Order Status Changed</h5>
-                                  <p class="mb-0">You will be notified when customer make changes to the order</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked2" checked>
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-truck-delivery text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Order Delivered</h5>
-                                  <p class="mb-0">You will be notified once the order is delivered</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked3">
-                              </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between">
-                              <div class="d-flex align-items-center gap-3">
-                                <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                  <i class="ti ti-mail text-dark d-block fs-7" width="22" height="22"></i>
-                                </div>
-                                <div>
-                                  <h5 class="fs-4 fw-semibold">Email Notification</h5>
-                                  <p class="mb-0">Turn on email notificaiton to get updates through email</p>
-                                </div>
-                              </div>
-                              <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked4" checked>
-                              </div>
-                            </div>
-                          </div>
+                          <h4 class="card-title">전자서명 관리</h4>
+                          <p class="card-subtitle mb-4">You can manage your electronic signatures here.</p>
+                          
+                          <div class="d-flex gap-2">
+						    <th:block th:if="${#strings.isEmpty(member.signature)}">
+									<button class="btn btn-primary" data-bs-toggle="modal"
+										id="signature_btn" data-bs-target="#signatureModal"
+										th:value="${#authentication.principal.member.memberNo}">전자서명
+										등록</button>
+								</th:block>
+								<th:block th:if="${!#strings.isEmpty(member.signature)}">
+									<button class="btn btn-primary" data-bs-toggle="modal"
+										id="saveSignature_btn" data-bs-target="#saveSignatureModal"
+										th:value="${#authentication.principal.member.memberNo}">전자서명
+										보기</button>
+								</th:block>
+						  </div>
                         </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-9">
-                      <div class="card border shadow-none">
-                        <div class="card-body p-4">
-                          <h4 class="card-title">Date & Time</h4>
-                          <p class="card-subtitle">Time zones and calendar display settings.</p>
-                          <div class="d-flex align-items-center justify-content-between mt-7">
-                            <div class="d-flex align-items-center gap-3">
-                              <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                <i class="ti ti-clock-hour-4 text-dark d-block fs-7" width="22" height="22"></i>
-                              </div>
-                              <div>
-                                <p class="mb-0">Time zone</p>
-                                <h5 class="fs-4 fw-semibold">(UTC + 02:00) Athens, Bucharet</h5>
-                              </div>
-                            </div>
-                            <a class="text-dark fs-6 d-flex align-items-center justify-content-center bg-transparent p-2 fs-4 rounded-circle" href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Download">
-                              <i class="ti ti-download"></i>
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-9">
-                      <div class="card border shadow-none">
-                        <div class="card-body p-4">
-                          <h4 class="card-title">Ignore Tracking</h4>
-                          <div class="d-flex align-items-center justify-content-between mt-7">
-                            <div class="d-flex align-items-center gap-3">
-                              <div class="text-bg-light rounded-1 p-6 d-flex align-items-center justify-content-center">
-                                <i class="ti ti-player-pause text-dark d-block fs-7" width="22" height="22"></i>
-                              </div>
-                              <div>
-                                <h5 class="fs-4 fw-semibold">Ignore Browser Tracking</h5>
-                                <p class="mb-0">Browser Cookie</p>
-                              </div>
-                            </div>
-                            <div class="form-check form-switch mb-0">
-                              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked5">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="d-flex align-items-center justify-content-end gap-6">
-                        <button class="btn btn-primary">Save</button>
-                        <button class="btn bg-danger-subtle text-danger">Cancel</button>
                       </div>
                     </div>
                   </div>
                 </div>
+                
+                <!-- Modal -->
+				<div class="modal fade" id="signatureModal" tabindex="-1"
+					aria-labelledby="signatureModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="signatureModalLabel">서명란: 마우스로
+									입력하세요</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="닫기"></button>
+							</div>
+			
+							<div class="modal-body">
+								<div id="signatureContainer" class="p-3 bg-light rounded shadow-sm">
+									<div id="signature" style="width: 100%; height: 250px;"></div>
+								</div>
+							</div>
+			
+							<div class="modal-footer">
+								<button onclick="saveSignature(); return false;"
+									class="btn btn-primary">저장</button>
+								<button onclick="closeSignature(); return false;"
+									class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+                <!-- 서명 조회 Modal -->
+				<div class="modal fade" id="saveSignatureModal" tabindex="-1"
+					aria-labelledby="signatureModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="saveSignatureModalLabel">서명</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="닫기"></button>
+							</div>
+			
+							<div class="modal-body">
+								<div id="saveSignatureContainer"
+									class="p-3 bg-light rounded shadow-sm">
+									<div id="saveSignature" style="width: 100%; height: 250px;">
+										<input type="hidden" th:value="${member.signature}"
+											id="member_signature"> <img src="" id="signImg"
+											class="signature-img" alt="서명 이미지">
+									</div>
+								</div>
+							</div>
+			
+							<div class="modal-footer">
+								<button class="btn btn-primary" data-bs-toggle="modal"
+									id="updateSignature_btn" data-bs-target="#updateSignatureModal"
+									th:value="${#authentication.principal.member.memberNo}">변경</button>
+								<button onclick="closeSignature(); return false;"
+									class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+                <!-- 서명 업데이트 Modal -->
+				<div class="modal fade" id="updateSignatureModal" tabindex="-1"
+					aria-labelledby="signatureModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="updateSignatureModalLabel">서명란:
+									마우스로 입력하세요</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="닫기"></button>
+							</div>
+			
+							<div class="modal-body">
+								<div id="updateSignatureContainer"
+									class="p-3 bg-light rounded shadow-sm">
+									<div id="updateSignature" style="width: 100%; height: 250px;"></div>
+								</div>
+							</div>
+			
+							<div class="modal-footer">
+								<button onclick="updateSignature(); return false;"
+									class="btn btn-primary">변경</button>
+								<button onclick="closeSignature(); return false;"
+									class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+							</div>
+						</div>
+					</div>
+				</div>
+                
+                
+                <!-- 세 번째 탭 -->
                 <div class="tab-pane fade" id="pills-bills" role="tabpanel" aria-labelledby="pills-bills-tab" tabindex="0">
                   <div class="row justify-content-center">
                     <div class="col-lg-9">
@@ -668,7 +647,7 @@ layout:decorate="~{/include/layout}">
     <script>
     	// 프로필 이미지 수정하는 부분
 		const imageForm = document.update_profile_image_form;
-    	const memberNo = document.getElementById('member_no').value;
+    	let memberNo = document.getElementById('member_no').value;
     	
 		imageForm.addEventListener('submit',(event) => {
 			event.preventDefault();
@@ -987,6 +966,148 @@ layout:decorate="~{/include/layout}">
 		});
 	</script>
 	
+	<script>
+		const token = $('meta[name="_csrf"]').attr('content');
+		const header = $('meta[name="_csrf_header"]').attr('content');
+	
+		let isSignatureInitialized = false;
+	
+		$(document).ready(function() {
+			
+			$('#saveSignatureModal').on('shown.bs.modal', function() {
+	
+				memberNo = $('#saveSignature_btn').val(); // 회원 번호 가져오기
+	
+				const signature = $('#member_signature').val();
+	
+				if (signature) {
+					const imgSrc = 'data:image/png;base64,' + signature;
+					$('#signImg').attr('src', imgSrc);
+				} else {
+					$('#signImg').attr('src', '');
+				}
+			});
+	
+			$('#signatureModal').on('shown.bs.modal', function() {
+	
+				memberNo = $('#signature_btn').val(); // 회원 번호 가져오기
+	
+				// 한 번만 초기화되게 체크
+				if (!isSignatureInitialized) {
+					$("#signature").jSignature({
+						height : 300,
+						width : 600,
+					});
+					// 캔버스 내부 선 초기화
+					var $canvas = $("#signature").find("canvas")[0];
+					var ctx = $canvas.getContext("2d");
+					ctx.clearRect(0, 0, $canvas.width, $canvas.height); // 캔버스 전체 지우기
+					isSignatureInitialized = true;
+				}
+			});
+	
+			$('#updateSignatureModal').on('shown.bs.modal', function() {
+	
+				memberNo = $('#updateSignature_btn').val(); // 회원 번호 가져오기
+	
+				// 한 번만 초기화되게 체크
+				if (!isSignatureInitialized) {
+					$("#updateSignature").jSignature({
+						height : 300,
+						width : 600
+					});
+					// 캔버스 내부 선 초기화
+					var $canvas = $("#signature").find("canvas")[0];
+					var ctx = $canvas.getContext("2d");
+					ctx.clearRect(0, 0, $canvas.width, $canvas.height); // 캔버스 전체 지우기
+					isSignatureInitialized = true;
+				}
+			});
+	
+			// 모달 닫힐 때 서명 내용 초기화
+			$('#signatureModal').on('hidden.bs.modal', function() {
+				if (isSignatureInitialized) {
+					$("#signature").jSignature("reset");
+				}
+			});
+	
+			$('#updateSignatureModal').on('hidden.bs.modal', function() {
+				if (isSignatureInitialized) {
+					$("#updateSignature").jSignature("reset");
+				}
+			});
+		});
+	
+		// 서명 저장
+		function saveSignature() {
+			const data = $("#signature").jSignature("getData", "image");
+	
+			const imageData = data[1];
+	
+			$.ajax({
+				url : '/member/create/signature',
+				method : 'post',
+				data : {
+					memberNo : memberNo,
+					signature : imageData
+				},
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader(header, token); // spring security
+				},
+				success : function(data) {
+					alert(data.res_msg);
+					location.reload();
+				},
+				error : function() {
+					alert('서명 저장 실패');
+				}
+			})
+	
+			// 모달 닫기
+			$('#signatureModal').modal('hide');
+		}
+	
+		// 서명변경
+		function updateSignature() {
+			const data = $("#updateSignature").jSignature("getData", "image");
+	
+			const imageData = data[1];
+	
+			$.ajax({
+				url : '/member/update/signature',
+				method : 'post',
+				data : {
+					memberNo : memberNo,
+					updateSignature : imageData
+				},
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader(header, token); // spring security
+				},
+				success : function(data) {
+					alert(data.res_msg);
+					location.reload();
+				},
+				error : function() {
+					alert('서명 저장 실패');
+				}
+			})
+	
+			// 모달 닫기
+			$('#signatureModal').modal('hide');
+		}
+	
+		// 서명 삭제
+		function deleteSignature() {
+			$("#" + memberNo + "_img").attr("src", "");
+			$("#" + memberNo + "_del").css("display", "none");
+		}
+	
+		// 서명 닫기
+		function closeSignature() {
+			$('#signatureModal').modal('hide');
+		}
+	</script>
+	
 	<!-- ---------------------------------------------------------------------------- -->
 	
 	<!-- Custom JS Files -->
@@ -996,7 +1117,7 @@ layout:decorate="~{/include/layout}">
 	<!-- Bootstrap Common JS Files Start -->
 
 	<!-- Import vendorJs Files -->
-	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	<!-- <script th:src="@{/assets/js/vendor.min.js}"></script> -->
 	
   	<!-- Import Js Files -->
   	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
