@@ -20,10 +20,10 @@
               <i class="ti ti-home fs-5"></i>
             </a>
           </li>
-          <li class="breadcrumb-item" aria-current="page">자유게시판</li>
+          <li class="breadcrumb-item" aria-current="page">자유게시판 작성</li>
         </ol>
       </nav>
-      <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 작성</h2>
+      <h2 class="mb-0 fw-bolder fs-8 mt-3">자유게시글 작성</h2>
     </div>
 
     <div class="mt-5"></div>
@@ -79,10 +79,10 @@
           <label class="form-label">항목</label>
 		<div id="optionsContainer">
 		
-<div class="input-group mb-2 option-item">
-  <input type="text" class="form-control" placeholder="항목을 입력하세요.">
-  <button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
-</div>
+		<div class="input-group mb-2 option-item">
+  			<input type="text" class="form-control" placeholder="항목을 입력하세요.">
+  			<button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
+		</div>
 		</div>
           <!-- 항목 추가/제거 버튼 -->
           <div class="d-flex gap-2 mt-2">
@@ -143,6 +143,8 @@
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
       });
+      
+      
 
       const form = document.create_board_form;
       const submitBtn = form.querySelector('button[type="submit"]');
