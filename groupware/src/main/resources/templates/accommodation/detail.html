@@ -87,7 +87,7 @@ layout:decorate="~{/include/layout}">
 								<i class="ti me-1"></i>
 					                	수정
 							</a>
-							<a th:href="@{/adminHome}"
+							<a th:onclick="|accommodationDelete(${accommodation.accommodation_no})|"
 								class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
 								<i class="ti me-1"></i>
 					                	삭제
@@ -124,6 +124,29 @@ layout:decorate="~{/include/layout}">
         items: 1
       });
     });
+    
+ 	// 삭제 기능
+    function accommodationDelete(accommodationNo) {
+      if (!confirm("숙소를 삭제하시겠습니까?")) return;
+      fetch('/accommodation/delete/' + accommodationNo, {
+        method: 'DELETE',
+        headers: {
+        	"X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.res_code === "200") {
+          alert(data.res_msg);
+          location.href = '/adminHome';
+        } else {
+          alert(data.res_msg);
+        }
+      })
+      .catch(err => {
+        alert("에러 발생: " + err);
+      });
+    }
   </script>
  <script>
   function handleColorTheme(e) {
