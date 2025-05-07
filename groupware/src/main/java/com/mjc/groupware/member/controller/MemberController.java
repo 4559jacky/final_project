@@ -13,6 +13,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -322,20 +323,22 @@ public class MemberController {
 		
 		if(companyDto != null) {
 			String companyInitial = companyDto.getCompany_initial();
-			String entryYear = String.valueOf(LocalDate.now().getYear());
-			String yearSuffix = entryYear.equals("2025") ? "25" : entryYear.substring(2); 
-			Long lastMemberNo = service.selectMemberOneByLastNo().getMemberNo();
-			Long newMemberNo = (lastMemberNo != null) ? lastMemberNo + 1 : 1L;
-			
-			String defaultId = companyInitial + entryYear + String.format("%05d", newMemberNo % 100000);
-			String defaultPw = companyInitial.toUpperCase() + "@" + yearSuffix + String.format("%02d", newMemberNo % 100);
-			
-			MemberCreationDto creationDto = MemberCreationDto.builder()
-			        .defaultMemberId(defaultId)
-			        .defaultMemberPw(defaultPw)
-			        .build();
-			
-			model.addAttribute("memberCreationDto", creationDto);
+			if(companyInitial != null) {
+				String entryYear = String.valueOf(LocalDate.now().getYear());
+				String yearSuffix = entryYear.equals("2025") ? "25" : entryYear.substring(2); 
+				Long lastMemberNo = service.selectMemberOneByLastNo().getMemberNo();
+				Long newMemberNo = (lastMemberNo != null) ? lastMemberNo + 1 : 1L;
+				
+				String defaultId = companyInitial + entryYear + String.format("%05d", newMemberNo % 100000);
+				String defaultPw = companyInitial.toUpperCase() + "@" + yearSuffix + String.format("%02d", newMemberNo % 100);
+				
+				MemberCreationDto creationDto = MemberCreationDto.builder()
+						.defaultMemberId(defaultId)
+						.defaultMemberPw(defaultPw)
+						.build();
+				
+				model.addAttribute("memberCreationDto", creationDto);				
+			}
 		}
 		
 		Optional<Pos> maxOrderPos = posRepository.findTopByOrderByPosOrderDesc();
@@ -605,7 +608,11 @@ public class MemberController {
 	}
 	
 	@GetMapping("/member/{id}/update")
-	public String updateMyProfileView(@PathVariable("id") Long memberNo, Model model, LogPageDto pageDto) {
+	public String updateMyProfileView(@PathVariable("id") Long memberNo,
+										@RequestParam(name = "loginDateStart", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate loginStartDate,
+										@RequestParam(name = "loginDateEnd", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate loginEndDate,
+										Model model,
+										LogPageDto pageDto) {
 		// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
@@ -641,7 +648,7 @@ public class MemberController {
 		// 로그인 이력 리스트를 조회해서 같이 넘겨주기 위함
 		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 		
-		Page<LoginLog> loginLogs = loginLogService.findByMemberOrderByLoginTimeDesc(member, pageDto);
+		Page<LoginLog> loginLogs = loginLogService.findByMemberOrderByLoginTimeDesc(member, loginStartDate, loginEndDate, pageDto);
 		
 		pageDto.setTotalPage(loginLogs.getTotalPages());
 		
@@ -663,6 +670,9 @@ public class MemberController {
 	    }
 
 		model.addAttribute("loginLogWithDeviceInfo", loginLogWithDeviceInfo);
+		
+		model.addAttribute("loginDateStart", loginStartDate);
+		model.addAttribute("loginDateEnd", loginEndDate);
 				
 		return "member/myPage";
 	}
