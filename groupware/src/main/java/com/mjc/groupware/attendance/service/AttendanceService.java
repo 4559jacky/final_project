@@ -281,10 +281,11 @@ public class AttendanceService {
 		}
 		
 		Specification<Attendance> spec = (root, query, criteriaBuilder) -> null;
-		spec = spec.and(AttendanceSpecification.attendanceLateYnContains(searchDto.getCheckInStatus()))
+		spec = spec.and(AttendanceSpecification.attendanceLateYnContains(searchDto.getCheck_in_status()))
 				.and(AttendanceSpecification.attendanceMemberContains(member.getMemberNo()))
-				.and(AttendanceSpecification.attendanceEarlyLeaveYnContains(searchDto.getCheckOutStatus()));
-				
+				.and(AttendanceSpecification.attendanceEarlyLeaveYnContains(searchDto.getCheck_out_status()))
+				.and(AttendanceSpecification.attendDateAfter(searchDto.getStart_date()))
+				.and(AttendanceSpecification.attendDateBefore(searchDto.getEnd_date()));
 		Page<Attendance> list = attendanceRepository.findAll(spec, pageable);
 		return list;
 	}
