@@ -74,4 +74,7 @@ public class Plan {
 	@Column(name = "del_yn")
 	private String delYn;
 	
+	@Column(name = "appr_no")
+	private Long apprNo;
+	
 }

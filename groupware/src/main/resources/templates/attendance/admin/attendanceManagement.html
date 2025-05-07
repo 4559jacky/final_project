@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+<style>
+  #member-tbody tr {
+    cursor: pointer; /* 커서 포인터 설정 */
+    transition: background 0.2s ease-in-out;
+  }
+
+  #member-tbody tr:hover {
+    background-color: #f1f3f5; /* 살짝 하이라이트 효과 */
+  }
+</style>
+	
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	
+	<link th:href="@{/css/cjs/member_list.css}" rel="stylesheet">
+	
+	<!-- jsTree -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+	
+	<div class="page-titles mb-7 mb-md-5">
+		<div class="row">
+			<div class="col-lg-8 col-md-6 col-12 align-self-center">
+				<nav aria-label="breadcrumb">
+                	<ol class="breadcrumb align-items-center">
+                		<li class="breadcrumb-item">
+                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
+                     			<i class="ti ti-home fs-5"></i>
+                    		</a>
+                   	 	</li>
+						<li class="breadcrumb-item" aria-current="page">근태 / 연차 및 근태 관리</li>
+                  	</ol>
+				</nav><br>
+				<h2 class="mb-0 fw-bolder fs-8">근태 관리</h2>
+			</div><br>
+		</div>
+	</div>
+	
+	<div class="card mb-4">
+	  <div class="card-body">
+	  	<form name="work_time_form" action="/attendance/manage" method="post">
+	    <div class="d-flex justify-content-between align-items-center mb-4">
+	      <h4 class="fw-bold mb-0">근태 정책 설정</h4>
+	      <input type='hidden' value='1' name='work_schedule_policy_no'>
+	      <button type="submit" class="btn btn-primary">저장</button>
+	    </div>
+	
+	    <div class="row g-4 align-items-start">
+		
+	      <!-- 출근 시간 범위 -->
+	      <div class="col-md-6">
+	        <label class="form-label fw-semibold">출근 가능 시간 범위 (유연 근무제)</label>
+	        <div class="row g-2 align-items-center mb-2">
+	          <div class="col-auto">
+	            <input type="time" name="start_time_min" id="start_time_min" class="form-control" th:value="${workSchedulePolicy.startTimeMin}">
+	          </div>
+	          <div class="col-auto">~</div>
+	          <div class="col-auto">
+	            <input type="time" name="start_time_max" id="start_time_max" class="form-control" th:value="${workSchedulePolicy.startTimeMax}">
+	          </div>
+	        </div>
+	        <small class="text-muted">유연 근무제를 사용하지 않으면 동일한 시간으로 설정하세요.</small>
+	      </div>
+	
+	      <!-- 근무 시간 설정 -->
+	      <div class="col-md-6">
+	        <div class="mb-3">
+	          <label for="work_duration" class="form-label fw-semibold mb-1">하루 최소 근무시간</label>
+	          <div class="input-group">
+	            <input type="number" step="0.5" name="work_duration" id="work_duration" class="form-control" placeholder="예: 8.5"
+	            th:value="${workSchedulePolicy.workDuration}">
+	            <span class="input-group-text">시간</span>
+	          </div>
+	        </div>
+	
+	        <div class="mb-3">
+	          <label for="week_work_min_time" class="form-label fw-semibold mb-1">주 최소 근무시간</label>
+	          <div class="input-group">
+	            <input type="number" step="0.5" name="week_work_min_time" id="week_work_min_time" class="form-control" placeholder="예: 40"
+	            th:value="${workSchedulePolicy.weekWorkMinTime}">
+	            <span class="input-group-text">시간</span>
+	          </div>
+	        </div>
+	
+	        <div>
+	          <label for="week_work_max_time" class="form-label fw-semibold mb-1">주 최대 근무시간</label>
+	          <div class="input-group">
+	            <input type="number" step="0.5" name="week_work_max_time" id="week_work_max_time" class="form-control" placeholder="예: 52"
+	            th:value="${workSchedulePolicy.weekWorkMaxTime}">
+	            <span class="input-group-text">시간</span>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
+	    </form>
+	  </div>
+	</div>
+
+	<script>
+		workTimeForm = document.work_time_form;
+		workTimeForm.addEventListener('submit', function(e){
+			e.preventDefault();
+			
+			const start_time_min = document.getElementById('start_time_min').value;
+		    const start_time_max = document.getElementById('start_time_max').value;
+		    const work_duration = parseFloat(document.getElementById('work_duration').value);
+		    const week_work_min_time = parseFloat(document.getElementById('week_work_min_time').value);
+		    const week_work_max_time = parseFloat(document.getElementById('week_work_max_time').value);
+			
+		    if (!start_time_min || !start_time_max) {
+		        alert("출근 가능 시간을 모두 입력해주세요.");
+		        return;
+		    }
+		    
+		    if (isNaN(work_duration) || isNaN(week_work_min_time) || isNaN(week_work_max_time)) {
+		        alert("근무시간을 정확히 입력해주세요.");
+		        return;
+		    }
+		    
+		    const payload = new FormData(workTimeForm);
+		    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+		    
+		    fetch('/attendance/manage', {
+		    	method:'post',
+		    	headers: {
+					[csrfHeader]: csrfToken
+				},
+		    	body: payload,
+		    })
+		    .then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if(data.res_code =='200') {
+					location.href = '/attendance/management';
+				}
+			})
+		});
+	</script>
+	<!-- Bootstrap Common JS Files Start -->
+	
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+	
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- jsTree -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+	<script th:src="@{/js/cjs/jstree.js}"></script>
+
+</th:block>
+</html>

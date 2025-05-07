@@ -3,7 +3,6 @@ package com.mjc.groupware.member.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.mjc.groupware.dept.entity.Dept;
@@ -76,8 +75,7 @@ public class Member {
     @Column(name = "signature")
     private String signature;
 	
-	@CreationTimestamp
-	@Column(updatable=false,name="reg_date")
+	@Column(name="reg_date")
 	private LocalDateTime regDate;
 	
 	@UpdateTimestamp
@@ -104,6 +102,9 @@ public class Member {
 
 	@OneToMany(mappedBy="member")
 	private List<MemberAttach> memberAttachs;
+	
+	@OneToMany(mappedBy="member")
+	private List<LoginLog> memberLoginLogs;
 	
 	public void changePassword(String newEncodedPw) {
 	    this.memberPw = newEncodedPw;

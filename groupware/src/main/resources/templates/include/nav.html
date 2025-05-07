@@ -305,65 +305,6 @@
                 </ul>
               </li>
               <!-- ============================= -->
-              <!-- PAGES -->
-              <!-- ============================= -->
-              <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">PAGES</span>
-              </li>
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span>
-                    <i class="ti ti-notebook"></i>
-                  </span>
-                  <span class="hide-menu">Pages</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a href="./main/page-faq.html" class="sidebar-link">
-                      <i class="ti ti-help"></i>
-                      <span class="hide-menu">FAQ</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/page-account-settings.html" class="sidebar-link">
-                      <i class="ti ti-user-circle"></i>
-                      <span class="hide-menu">Account Setting</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/page-pricing.html" class="sidebar-link">
-                      <i class="ti ti-currency-dollar"></i>
-                      <span class="hide-menu">Pricing</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/widgets-cards.html" class="sidebar-link">
-                      <i class="ti ti-cards"></i>
-                      <span class="hide-menu">Card</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/widgets-banners.html" class="sidebar-link">
-                      <i class="ti ti-ad"></i>
-                      <span class="hide-menu">Banner</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/widgets-charts.html" class="sidebar-link">
-                      <i class="ti ti-chart-bar"></i>
-                      <span class="hide-menu">Charts</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./landingpage/index.html" class="sidebar-link">
-                      <i class="ti ti-app-window"></i>
-                      <span class="hide-menu">Landing Page</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- ============================= -->
               <!-- UI -->
               <!-- ============================= -->
               <li class="nav-small-cap">
@@ -518,6 +459,45 @@
 	                    <a th:href="@{/notice}" class="sidebar-link">
 	                      <i class="ti ti-aperture"></i>
 	                      <span class="hide-menu">공지사항</span>
+	                    </a>
+                  	</li>
+	    		</ul>
+	   		  </li>
+	   		  <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 근태 담당자, 최고관리자 -->
+              <!-- ============================= -->
+	   		  <li class="sidebar-item">
+	          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+	            	<span class="rounded-3">
+	                	<i class="ti ti-layout"></i>
+	                </span>
+	                <span class="hide-menu">근태</span>
+	           	</a>
+	            <ul aria-expanded="false" class="collapse first-level">
+	            	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                <th:block th:if="${funcNo == 18}">
+			            	<li class="sidebar-item">
+			                    <a th:href="@{/attendance/management}" class="sidebar-link">
+			                      <i class="ti ti-aperture"></i>
+			                      <span class="hide-menu">근태 관리</span>
+			                    </a>
+		                  	</li>
+		                </th:block>
+		            </th:block>
+		            <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		                <th:block th:if="${funcNo == 32}">
+			            	<li class="sidebar-item">
+			                    <a th:href="@{/annual/management}" class="sidebar-link">
+			                      <i class="ti ti-aperture"></i>
+			                      <span class="hide-menu">연차 관리</span>
+			                    </a>
+		                  	</li>
+		                </th:block>
+		            </th:block>
+                  	<li class="sidebar-item">
+	                    <a th:href="@{/attendance/info}" class="sidebar-link">
+	                      <i class="ti ti-aperture"></i>
+	                      <span class="hide-menu">근태 정보</span>
 	                    </a>
                   	</li>
 	    		</ul>

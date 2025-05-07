@@ -27,4 +27,5 @@ public class ChatRoomSpecification {
             return cb.and(isMyMapping, isActive);
         };
     }
+    
 }

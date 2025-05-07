@@ -17,8 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
-import com.mjc.groupware.member.service.MemberService;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +28,9 @@ import lombok.RequiredArgsConstructor;
 public class WebSecurityConfig {
 	
 	private final DataSource dataSource;
+	private final AccountStatusFilter accountStatusFilter;
+	private final MyLoginSuccessHandler myLoginSuccessHandler;
+	private final MyLoginFailureHandler myLoginFailureHandler;
 	
 	// 정적 리소스 시큐리티 비활성화
 	@Bean
@@ -42,14 +44,15 @@ public class WebSecurityConfig {
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService customUserDetailsService) throws Exception {
 		http.userDetailsService(customUserDetailsService)
+		.addFilterAfter(accountStatusFilter, BasicAuthenticationFilter.class) // 로그인 이후 인증된 사용자 상태 체크 
 		.authorizeHttpRequests(requests -> requests
 				.requestMatchers("/login","/logout", "/forgetPassword/**").permitAll()
 				.requestMatchers("/admin/company/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
 				.loginPage("/login")
-				.successHandler(new MyLoginSuccessHandler())
-				.failureHandler(new MyLoginFailureHandler()))
+				.successHandler(myLoginSuccessHandler)
+				.failureHandler(myLoginFailureHandler))
 		.logout(logout -> logout
 				.clearAuthentication(true)
 				.logoutSuccessUrl("/login")

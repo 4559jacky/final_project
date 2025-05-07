@@ -1,5 +1,9 @@
 package com.mjc.groupware.approval.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import groovy.transform.ToString;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,6 +40,10 @@ public class ApprovalAttach {
 	
 	@Column(name="attach_path")
 	private String attachPath;
+	
+	@CreationTimestamp
+	@Column(name="reg_date")
+	private LocalDateTime regDate;
 	
 	@ManyToOne
 	@JoinColumn(name="appr_no")

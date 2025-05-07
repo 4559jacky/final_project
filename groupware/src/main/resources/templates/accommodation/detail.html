@@ -5,8 +5,6 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
-<body class="link-sidebar">
-      <div class="body-wrapper">
         <div class="container-fluid">
           <div class="page-titles mb-7 mb-md-5">
             <div class="row">
@@ -14,7 +12,7 @@ layout:decorate="~{/include/layout}">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb align-items-center">
                     <li class="breadcrumb-item">
-                      <a class="text-muted text-decoration-none" href="../main/index.html">
+                      <a class="text-muted text-decoration-none" th:href="@{/home}">
                         <i class="ti ti-home fs-5"></i>
                       </a>
                     </li>
@@ -25,603 +23,187 @@ layout:decorate="~{/include/layout}">
               </div>
             </div>
           </div>
-          <!-- 상세페이지 이미지 -->
-          <div class="shop-detail">
-            <div class="card shadow-none border">
-              <div class="card-body p-4">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div id="sync1" class="owl-carousel owl-theme">
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s1.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s2.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s3.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s4.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s5.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s6.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s7.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s8.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s9.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s10.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s11.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s12.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                    </div>
+        <!-- 상세 카드 -->
+	    <!-- <div class="card shadow-sm p-4">
+	      <div class="row">
+	        이미지
+	        <div class="col-md-6">
+			  <div id="imageCarousel" class="owl-carousel owl-theme">
+			    <div th:each="attach : ${attachList}">
+					<img th:src="@{'/uploads/accommodation/' + ${attach.newName}}" class="img-fluid rounded-2" alt="숙소 이미지" />
+			    </div>
+			  </div>
+			</div>
+		
+        숙소 정보
+        <div class="col-md-6">
+          <div class="shop-content">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="badge text-bg-success fs-2 fw-semibold">예약가능</span>
+            </div>
+            <h4 th:if="${accommodation != null}" th:text="${accommodation.accommodationName}" class="fw-semibold mb-3">숙소명</h4>
+            <p><strong>주소:</strong> <span th:text="${accommodation.accommodationAddress}">주소</span></p>
+            <p><strong>연락처:</strong> <span th:text="${accommodation.accommodationPhone}">연락처</span></p>
+            <p><strong>이메일:</strong> <span th:text="${accommodation.accommodationEmail}">이메일</span></p>
+            <p><strong>공식사이트:</strong> 
+              <a th:href="${'http://' + accommodation.accommodationSite}" th:text="${accommodation.accommodationSite}" target="_blank"></a>
+            </p>
+            <p><strong>가격:</strong>
+              <span th:text="${#numbers.formatInteger(accommodation.roomPrice, 3, 'COMMA')} + '원'"></span>
+            </p>
 
-                    <div id="sync2" class="owl-carousel owl-theme">
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s1.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s2.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s3.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s4.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s5.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s6.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s7.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s8.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s9.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s10.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s11.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                      <div class="item rounded-2 overflow-hidden">
-                        <img src="../assets/images/products/s12.jpg" alt="flexy-img" class="img-fluid">
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 숙소정보 -->
-                  <div class="col-lg-6">
-                    <div class="shop-content">
-                      <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="badge text-bg-success fs-2 fw-semibold">예약가능</span>
-                      </div><br>
-                      <h4>신라호텔</h4>
-                      <br>
-                    <h6 class="mb-4 fs-4">주소 : <span class="fw-normal">서울특별시 중구 세종대로 110</span></h6>
-					<h6 class="mb-4 fs-4">연락처 : <span class="fw-normal">02-123-4567</span></h6>
-					<h6 class="mb-4 fs-4">이메일 : <span class="fw-normal">binbin123@naver.com</span></h6>
-					<h6 class="mb-4 fs-4">공식사이트 : <span class="fw-normal">www.gudi.kr</span></h6>
-                      
-                    <h6 class="mb-4 fs-4">
-					  가격 : <span class="fs-6 fw-semibold ms-2">200,000원</span>
-					  <del class="fs-5 text-muted ms-2">400,000원</del>
-					</h6>
+            예약 폼
+            <form class="d-flex align-items-center gap-3 flex-wrap mt-3">
+              <label class="mb-0 fs-5">체크인</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+              <label class="mb-0 fs-5 ms-3">체크아웃</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+            </form>
 
-                      
-                  <form class="d-flex align-items-center gap-3 flex-wrap">
-					  <h6 class="mb-0 fs-4">체크인 :</h6>
-					  <input type="date" class="form-control py-1 px-2" style="width: 150px;">
-					  <h6 class="mb-0 fs-4 ms-3">체크아웃 :</h6>
-					  <input type="date" class="form-control py-1 px-2" style="width: 150px;">
-				  </form>
-					
-					<br>
-
-                      <div class="d-flex align-items-center gap-7 pb-7 mb-8 border-bottom">
-                        <h6 class="mb-0 fs-4 text-nowrap">방갯수 :</h6>
-                        <div class="input-group input-group-sm rounded">
-                          <button class="btn minus min-width-40 py-0 border-end border-muted fs-5 border-end-0 text-muted" type="button" id="add1">
-                            <i class="ti ti-minus"></i>
-                          </button>
-                          <input type="text" class="min-width-40 flex-grow-0 border border-muted text-muted fs-4 fw-semibold form-control text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add1" value="1">
-                          <button class="btn min-width-40 py-0 border border-muted fs-5 border-start-0 text-muted add" type="button" id="addo2">
-                            <i class="ti ti-plus"></i>
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <!-- 예약하기 버튼 -->
-                      <div class="d-sm-flex align-items-center justify-content-end gap-6 pt-8 mb-7">
-                        <a href="javascript:void(0)" class="btn d-block btn-primary px-5 py-8 mb-6 mb-sm-0">예약하기</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
+              <label class="fs-5 mb-0">방 갯수</label>
+              <div class="input-group input-group-sm w-auto">
+                <button class="btn btn-outline-secondary" type="button">-</button>
+                <input type="text" class="form-control text-center" th:value="${accommodation.roomCount}">
+                <button class="btn btn-outline-secondary" type="button">+</button>
               </div>
             </div>
-            <div class="card shadow-none border">
-              <div class="card-body p-4">
-                <ul class="nav nav-pills user-profile-tab border-bottom" id="pills-tab" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link position-relative rounded-0 active d-flex align-items-center justify-content-center bg-transparent fs-3 py-6" id="pills-description-tab" data-bs-toggle="pill" data-bs-target="#pills-description" type="button" role="tab" aria-controls="pills-description" aria-selected="true">
-                      Description
-                    </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-6" id="pills-reviews-tab" data-bs-toggle="pill" data-bs-target="#pills-reviews" type="button" role="tab" aria-controls="pills-reviews" aria-selected="false">
-                      Reviews
-                    </button>
-                  </li>
-                </ul>
-                <div class="tab-content pt-4" id="pills-tabContent">
-                  <div class="tab-pane fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab" tabindex="0">
-                    <h5 class="fs-5 mb-7">
-                      Sed at diam elit. Vivamus tortor odio, pellentesque eu tincidunt a, aliquet sit amet lorem
-                      pellentesque eu tincidunt a, aliquet sit amet lorem.
-                    </h5>
-                    <p class="mb-7">
-                      Cras eget elit semper, congue sapien id, pellentesque diam. Nulla faucibus diam nec fermentum
-                      ullamcorper. Praesent sed ipsum ut augue vestibulum malesuada. Duis
-                      vitae volutpat odio. Integer sit amet elit ac justo sagittis dignissim.
-                    </p>
-                    <p class="mb-0">
-                      Vivamus quis metus in nunc semper efficitur eget vitae diam. Proin justo diam, venenatis sit amet
-                      eros in, iaculis auctor magna. Pellentesque sit amet accumsan urna, sit
-                      amet pretium ipsum. Fusce condimentum venenatis mauris et luctus. Vestibulum ante ipsum primis in
-                      faucibus orci luctus et ultrices posuere cubilia curae;
-                    </p>
-                  </div>
-                  <div class="tab-pane fade" id="pills-reviews" role="tabpanel" aria-labelledby="pills-reviews-tab" tabindex="0">
-                    <div class="row">
-                      <div class="col-lg-4 d-flex align-items-stretch">
-                        <div class="card shadow-none border w-100 mb-7 mb-lg-0">
-                          <div class="card-body text-center p-4 d-flex flex-column justify-content-center">
-                            <h6 class="mb-3">Average Rating</h6>
-                            <h2 class="text-primary mb-3 fw-semibold fs-9">4/5</h2>
-                            <ul class="list-unstyled d-flex align-items-center justify-content-center mb-0">
-                              <li>
-                                <a class="me-1" href="javascript:void(0)">
-                                  <i class="ti ti-star text-warning fs-6"></i>
-                                </a>
-                              </li>
-                              <li>
-                                <a class="me-1" href="javascript:void(0)">
-                                  <i class="ti ti-star text-warning fs-6"></i>
-                                </a>
-                              </li>
-                              <li>
-                                <a class="me-1" href="javascript:void(0)">
-                                  <i class="ti ti-star text-warning fs-6"></i>
-                                </a>
-                              </li>
-                              <li>
-                                <a class="me-1" href="javascript:void(0)">
-                                  <i class="ti ti-star text-warning fs-6"></i>
-                                </a>
-                              </li>
-                              <li>
-                                <a href="javascript:void(0)">
-                                  <i class="ti ti-star text-warning fs-6"></i>
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-lg-4 d-flex align-items-stretch">
-                        <div class="card shadow-none border w-100 mb-7 mb-lg-0">
-                          <div class="card-body p-4 d-flex flex-column justify-content-center">
-                            <div class="d-flex align-items-center gap-9 mb-3">
-                              <span class="flex-shrink-0 fs-2">1 Stars</span>
-                              <div class="progress bg-primary-subtle w-100 h-4">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%;"></div>
-                              </div>
-                              <h6 class="mb-0">(485)</h6>
-                            </div>
-                            <div class="d-flex align-items-center gap-9 mb-3">
-                              <span class="flex-shrink-0 fs-2">2 Stars</span>
-                              <div class="progress bg-primary-subtle w-100 h-4">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;"></div>
-                              </div>
-                              <h6 class="mb-0">(215)</h6>
-                            </div>
-                            <div class="d-flex align-items-center gap-9 mb-3">
-                              <span class="flex-shrink-0 fs-2">3 Stars</span>
-                              <div class="progress bg-primary-subtle w-100 h-4">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"></div>
-                              </div>
-                              <h6 class="mb-0">(110)</h6>
-                            </div>
-                            <div class="d-flex align-items-center gap-9 mb-3">
-                              <span class="flex-shrink-0 fs-2">4 Stars</span>
-                              <div class="progress bg-primary-subtle w-100 h-4">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%;"></div>
-                              </div>
-                              <h6 class="mb-0">(620)</h6>
-                            </div>
-                            <div class="d-flex align-items-center gap-9">
-                              <span class="flex-shrink-0 fs-2">5 Stars</span>
-                              <div class="progress bg-primary-subtle w-100 h-4">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100" style="width: 12%;"></div>
-                              </div>
-                              <h6 class="mb-0">(160)</h6>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-lg-4 d-flex align-items-stretch">
-                        <div class="card shadow-none border w-100 mb-7 mb-lg-0">
-                          <div class="card-body p-4 d-flex flex-column justify-content-center">
-                            <button type="button" class="btn btn-outline-primary d-flex align-items-center gap-2 mx-auto">
-                              <i class="ti ti-pencil fs-7"></i>Write an Review
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+            <div class="text-end">
+              <a href="javascript:void(0)" class="btn btn-primary px-5 py-2">예약하기</a>
             </div>
           </div>
         </div>
       </div>
+    </div>
+
+    설명 영역
+    <div class="card mt-4 shadow-sm p-4">
+      <h5 class="fw-semibold mb-3">상세 설명</h5>
+      <div th:utext="${accommodation.accommodationContent}">
+        숙소에 대한 설명이 들어갑니다.
+      </div>
+    </div>
+  </div>
+</th:block> -->
+
+<!-- 상세 카드 -->
+    <div class="card shadow-sm p-4">
+      <div class="row">
+        <!-- 이미지 -->
+        <div class="col-md-6">
+          <div id="imageCarousel" class="owl-carousel owl-theme">
+            <div>
+              <img src="/uploads/accommodation/sample1.jpg" class="img-fluid rounded-2" alt="숙소 이미지 1" />
+            </div>
+            <div>
+              <img src="/uploads/accommodation/sample2.jpg" class="img-fluid rounded-2" alt="숙소 이미지 2" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 숙소 정보 -->
+        <div class="col-md-6">
+          <div class="shop-content">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="badge text-bg-success fs-2 fw-semibold">예약가능</span>
+            </div>
+            <h4 class="fw-semibold mb-3">파인 리조트</h4>
+            <p><strong>주소:</strong> 제주특별자치도 제주시 한림읍 산책길 77</p>
+            <p><strong>연락처:</strong> 064-123-4567</p>
+            <p><strong>이메일:</strong> resort@pine.com</p>
+            <p><strong>공식사이트:</strong>
+              <a href="http://pine-resort.com" target="_blank">pine-resort.com</a>
+            </p>
+            <p><strong>가격:</strong> 120,000원</p>
+
+            <!-- 예약 폼 -->
+            <form class="d-flex align-items-center gap-3 flex-wrap mt-3">
+              <label class="mb-0 fs-5">체크인</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+              <label class="mb-0 fs-5 ms-3">체크아웃</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+            </form>
+
+            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
+              <label class="fs-5 mb-0">방 갯수</label>
+              <div class="input-group input-group-sm w-auto">
+                <button class="btn btn-outline-secondary" type="button">-</button>
+                <input type="text" class="form-control text-center" value="2">
+                <button class="btn btn-outline-secondary" type="button">+</button>
+              </div>
+            </div>
+
+	<!-- 관리자와 사용자에따라 검색버튼 분리(검색,숙소관리) -->
+		<div class="d-flex align-items-center flex-nowrap gap-2 mt-3">
+			<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				<th:block th:if="${funcNo != 30 && funcNo == 31}">
+					<a href="javascript:void(0)"
+			                   class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 150px;">
+			                   	<i class="ti me-1"></i>
+			               		예약하기
+			                </a>
+				</th:block>
+			</th:block>
+			<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				<th:block th:if="${funcNo == 30}">
+					<a th:href="@{/admin/create}"
+						class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
+						<i class="ti me-1"></i>
+			                	수정
+					</a>
+					<a th:href="@{/adminHome}"
+						class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
+						<i class="ti me-1"></i>
+			                	삭제
+					</a>
+				</th:block>
+			</th:block>
+		</div>
+
+
+
+            <!-- <div class="text-end">
+              <a href="javascript:void(0)" class="btn btn-primary px-5 py-2">예약하기</a>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 설명 영역 -->
+    <div class="card mt-4 shadow-sm p-4">
+      <h5 class="fw-semibold mb-3">상세 설명</h5>
+      <div>
+        아름다운 오션뷰를 자랑하는 파인 리조트는 제주도의 자연을 온몸으로 느낄 수 있는 최고의 휴식 공간입니다.
+        전 객실은 최신 리모델링이 완료되었으며, 가족 단위 여행객에게 최적화된 편의 시설을 제공합니다.
+      </div>
+    </div>
+  </div>
+</th:block>
+
+ 
+               
       
+<th:block layout:fragment="scripts">
+  <script th:src="@{/js/jquery-3.7.1.js}"></script>
+  <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  <script>
+    $(document).ready(function () {
+      $('#imageCarousel').owlCarousel({
+        loop: true,
+        margin: 10,
+        nav: true,
+        items: 1
+      });
+    });
+  </script>
  <script>
   function handleColorTheme(e) {
     document.documentElement.setAttribute("data-color-theme", e);
   }
  </script>
-      <button class="btn btn-primary p-3 rounded-circle d-flex align-items-center justify-content-center customizer-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-        <i class="icon ti ti-settings fs-7"></i>
-      </button>
-
-      <div class="offcanvas customizer offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-        <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-          <h4 class="offcanvas-title fw-semibold" id="offcanvasExampleLabel">
-            Settings
-          </h4>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body h-n80" data-simplebar>
-          <h6 class="fw-semibold fs-4 mb-2">Theme</h6>
-
-          <div class="d-flex flex-row gap-3 customizer-box" role="group">
-            <input type="radio" class="btn-check light-layout" name="theme-layout" id="light-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary rounded-2" for="light-layout">
-              <i class="icon ti ti-brightness-up fs-7 me-2"></i>Light
-            </label>
-
-            <input type="radio" class="btn-check dark-layout" name="theme-layout" id="dark-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary rounded-2" for="dark-layout">
-              <i class="icon ti ti-moon fs-7 me-2"></i>Dark
-            </label>
-          </div>
-
-          <h6 class="mt-5 fw-semibold fs-4 mb-2">Theme Direction</h6>
-          <div class="d-flex flex-row gap-3 customizer-box" role="group">
-            <input type="radio" class="btn-check" name="direction-l" id="ltr-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary" for="ltr-layout">
-              <i class="icon ti ti-text-direction-ltr fs-7 me-2"></i>LTR
-            </label>
-
-            <input type="radio" class="btn-check" name="direction-l" id="rtl-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary" for="rtl-layout">
-              <i class="icon ti ti-text-direction-rtl fs-7 me-2"></i>RTL
-            </label>
-          </div>
-
-          <h6 class="mt-5 fw-semibold fs-4 mb-2">Theme Colors</h6>
-
-          <div class="d-flex flex-row flex-wrap gap-3 customizer-box color-pallete" role="group">
-            <input type="radio" class="btn-check" name="color-theme-layout" id="Blue_Theme" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" onclick="handleColorTheme('Blue_Theme')" for="Blue_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="BLUE_THEME">
-              <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-1">
-                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-              </div>
-            </label>
-
-            <input type="radio" class="btn-check" name="color-theme-layout" id="Aqua_Theme" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" onclick="handleColorTheme('Aqua_Theme')" for="Aqua_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="AQUA_THEME">
-              <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-2">
-                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-              </div>
-            </label>
-
-            <input type="radio" class="btn-check" name="color-theme-layout" id="Purple_Theme" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" onclick="handleColorTheme('Purple_Theme')" for="Purple_Theme" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="PURPLE_THEME">
-              <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-3">
-                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-              </div>
-            </label>
-
-            <input type="radio" class="btn-check" name="color-theme-layout" id="green-theme-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" onclick="handleColorTheme('Green_Theme')" for="green-theme-layout" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="GREEN_THEME">
-              <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-4">
-                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-              </div>
-            </label>
-
-            <input type="radio" class="btn-check" name="color-theme-layout" id="cyan-theme-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" onclick="handleColorTheme('Cyan_Theme')" for="cyan-theme-layout" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="CYAN_THEME">
-              <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-5">
-                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-              </div>
-            </label>
-
-            <input type="radio" class="btn-check" name="color-theme-layout" id="orange-theme-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center" onclick="handleColorTheme('Orange_Theme')" for="orange-theme-layout" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ORANGE_THEME">
-              <div class="color-box rounded-circle d-flex align-items-center justify-content-center skin-6">
-                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-              </div>
-            </label>
-          </div>
-
-          <h6 class="mt-5 fw-semibold fs-4 mb-2">Layout Type</h6>
-          <div class="d-flex flex-row gap-3 customizer-box" role="group">
-            <div>
-              <input type="radio" class="btn-check" name="page-layout" id="vertical-layout" autocomplete="off" />
-              <label class="btn p-9 btn-outline-primary" for="vertical-layout">
-                <i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Vertical
-              </label>
-            </div>
-            <div>
-              <input type="radio" class="btn-check" name="page-layout" id="horizontal-layout" autocomplete="off" />
-              <label class="btn p-9 btn-outline-primary" for="horizontal-layout">
-                <i class="icon ti ti-layout-navbar fs-7 me-2"></i>Horizontal
-              </label>
-            </div>
-          </div>
-
-          <h6 class="mt-5 fw-semibold fs-4 mb-2">Container Option</h6>
-
-          <div class="d-flex flex-row gap-3 customizer-box" role="group">
-            <input type="radio" class="btn-check" name="layout" id="boxed-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary" for="boxed-layout">
-              <i class="icon ti ti-layout-distribute-vertical fs-7 me-2"></i>Boxed
-            </label>
-
-            <input type="radio" class="btn-check" name="layout" id="full-layout" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary" for="full-layout">
-              <i class="icon ti ti-layout-distribute-horizontal fs-7 me-2"></i>Full
-            </label>
-          </div>
-
-          <h6 class="fw-semibold fs-4 mb-2 mt-5">Sidebar Type</h6>
-          <div class="d-flex flex-row gap-3 customizer-box" role="group">
-            <a href="javascript:void(0)" class="fullsidebar">
-              <input type="radio" class="btn-check" name="sidebar-type" id="full-sidebar" autocomplete="off" />
-              <label class="btn p-9 btn-outline-primary" for="full-sidebar">
-                <i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Full
-              </label>
-            </a>
-            <div>
-              <input type="radio" class="btn-check " name="sidebar-type" id="mini-sidebar" autocomplete="off" />
-              <label class="btn p-9 btn-outline-primary" for="mini-sidebar">
-                <i class="icon ti ti-layout-sidebar fs-7 me-2"></i>Collapse
-              </label>
-            </div>
-          </div>
-
-          <h6 class="mt-5 fw-semibold fs-4 mb-2">Card With</h6>
-
-          <div class="d-flex flex-row gap-3 customizer-box" role="group">
-            <input type="radio" class="btn-check" name="card-layout" id="card-with-border" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary" for="card-with-border">
-              <i class="icon ti ti-border-outer fs-7 me-2"></i>Border
-            </label>
-
-            <input type="radio" class="btn-check" name="card-layout" id="card-without-border" autocomplete="off" />
-            <label class="btn p-9 btn-outline-primary" for="card-without-border">
-              <i class="icon ti ti-border-none fs-7 me-2"></i>Shadow
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!--  Search Bar -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-scrollable modal-lg">
-        <div class="modal-content rounded-1">
-          <div class="modal-header border-bottom">
-            <input type="search" class="form-control fs-3" placeholder="Search here" id="search" />
-            <a href="javascript:void(0)" data-bs-dismiss="modal" class="lh-1">
-              <i class="ti ti-x fs-5 ms-3"></i>
-            </a>
-          </div>
-          <div class="modal-body message-body" data-simplebar="">
-            <h5 class="mb-0 fs-5 p-1">Quick Page Links</h5>
-            <ul class="list mb-0 py-2">
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Modern</span>
-                  <span class="text-muted d-block">/dashboards/dashboard1</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Dashboard</span>
-                  <span class="text-muted d-block">/dashboards/dashboard2</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Contacts</span>
-                  <span class="text-muted d-block">/apps/contacts</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Posts</span>
-                  <span class="text-muted d-block">/apps/blog/posts</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Detail</span>
-                  <span class="text-muted d-block">/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Shop</span>
-                  <span class="text-muted d-block">/apps/ecommerce/shop</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Modern</span>
-                  <span class="text-muted d-block">/dashboards/dashboard1</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Dashboard</span>
-                  <span class="text-muted d-block">/dashboards/dashboard2</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Contacts</span>
-                  <span class="text-muted d-block">/apps/contacts</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Posts</span>
-                  <span class="text-muted d-block">/apps/blog/posts</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Detail</span>
-                  <span class="text-muted d-block">/apps/blog/detail/streaming-video-way-before-it-was-cool-go-dark-tomorrow</span>
-                </a>
-              </li>
-              <li class="p-1 mb-1 bg-hover-light-black rounded-2">
-                <a href="javascript:void(0)">
-                  <span class="d-block">Shop</span>
-                  <span class="text-muted d-block">/apps/ecommerce/shop</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!--  Shopping Cart -->
-    <div class="offcanvas offcanvas-end shopping-cart" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-      <div class="offcanvas-header justify-content-between py-4">
-        <h5 class="offcanvas-title fs-5 fw-semibold" id="offcanvasRightLabel">
-          Shopping Cart
-        </h5>
-        <span class="badge bg-primary rounded-2 px-3 py-1 lh-sm">5 new</span>
-      </div>
-      <div class="offcanvas-body h-100 px-4 pt-0" data-simplebar>
-        <ul class="mb-0">
-          <li class="pb-7">
-            <div class="d-flex align-items-center">
-              <img src="../assets/images/products/product-1.jpg" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
-              <div>
-                <h6 class="mb-1">Supreme toys cooker</h6>
-                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
-                  <div class="input-group input-group-sm w-50">
-                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add1">
-                      -
-                    </button>
-                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add1" value="1" />
-                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addo2">
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="pb-7">
-            <div class="d-flex align-items-center">
-              <img src="../assets/images/products/product-2.jpg" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
-              <div>
-                <h6 class="mb-1">Supreme toys cooker</h6>
-                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
-                  <div class="input-group input-group-sm w-50">
-                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add2">
-                      -
-                    </button>
-                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add2" value="1" />
-                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addon34">
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="pb-7">
-            <div class="d-flex align-items-center">
-              <img src="../assets/images/products/product-3.jpg" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
-              <div>
-                <h6 class="mb-1">Supreme toys cooker</h6>
-                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
-                  <div class="input-group input-group-sm w-50">
-                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add3">
-                      -
-                    </button>
-                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add3" value="1" />
-                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addon3">
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-        </ul>
-        <div class="align-bottom">
-          <div class="d-flex align-items-center pb-7">
-            <span class="text-dark fs-3">Sub Total</span>
-            <div class="ms-auto">
-              <span class="text-dark fw-semibold fs-3">$2530</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center pb-7">
-            <span class="text-dark fs-3">Total</span>
-            <div class="ms-auto">
-              <span class="text-dark fw-semibold fs-3">$6830</span>
-            </div>
-          </div>
-          <a href="../main/eco-checkout.html" class="btn btn-outline-primary w-100">Go to shopping cart</a>
-        </div>
-      </div>
-    </div>
-  </div>
+    
   <div class="dark-transparent sidebartoggler"></div>
   
   <script src="../assets/js/vendor.min.js"></script>
@@ -637,7 +219,6 @@ layout:decorate="~{/include/layout}">
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
   <script src="../assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
   <script src="../assets/js/apps/productDetail.js"></script>
-</body>
 
 </th:block>
 </html>

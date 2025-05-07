@@ -48,26 +48,10 @@ public class ApprovalDto {
 	private Long parent_approval;
 	
 	public Approval toEntity() {
-		return Approval.builder()
-				.apprNo(appr_no)
-				.apprRegDate(appr_reg_date)
-				.apprResDate(appr_res_date)
-				.apprTitle(appr_title)
-				.apprText(appr_text)
-				.apprStatus(appr_status)
-				.apprOrderStatus(appr_order_status)
-				.apprReason(appr_reason)
-				.startDate(start_date)
-				.endDate(end_date)
-				.useAnnualLeave(use_annual_leave)
-				.annualLeaveType(annual_leave_type)
-				.returnReason(return_reason)
-				.member(Member.builder().memberNo(appr_sender).build())
-				.approvalForm(ApprovalForm.builder().approvalFormNo(approval_type_no).build())
-				.build();
+		return toEntity(null); // 기본 결재 생성 시 parentApproval 없이
 	}
-	
-	public Approval toReturnEntity(Approval approval) {
+
+	public Approval toEntity(Approval parentApproval) {
 		return Approval.builder()
 				.apprNo(appr_no)
 				.apprRegDate(appr_reg_date)
@@ -84,7 +68,7 @@ public class ApprovalDto {
 				.returnReason(return_reason)
 				.member(Member.builder().memberNo(appr_sender).build())
 				.approvalForm(ApprovalForm.builder().approvalFormNo(approval_type_no).build())
-				.parentApproval(approval)
+				.parentApproval(parentApproval) // null 가능
 				.build();
 	}
 	
