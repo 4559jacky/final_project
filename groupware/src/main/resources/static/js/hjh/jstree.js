@@ -9,6 +9,7 @@ $(document).ready(function () {
   // 1. 공유 트리 초기화
   $('#shared-tree').jstree({
     core: {
+		check_callback: true, //  이거 반드시 추가!!
       data: {
         url: '/shared/main/tree',
         dataType: 'json',
@@ -20,15 +21,95 @@ $(document).ready(function () {
         dots: true,
         icons: true
       }
-    }
-  });
+    },
+	plugins: ['dnd','contextmenu'],
+	contextmenu: {
+	   items: function ($node) {
+	     return {
+	       deleteItem: {
+	         label: "삭제",
+	         action: function () {
+	           const isFile = $node.id.startsWith("file-");
+	           const numericId = $node.id.replace("file-", "");
 
+	           if (confirm(`${isFile ? "파일" : "폴더"}을 삭제하시겠습니까?`)) {
+	             fetch(`/shared/${isFile ? "file" : "folder"}/delete`, {
+	               method: 'POST',
+	               headers: {
+	                 'Content-Type': 'application/json',
+	                 [document.querySelector('meta[name="_csrf_header"]').content]:
+	                   document.querySelector('meta[name="_csrf"]').content
+	               },
+	               body: JSON.stringify({ id: numericId })
+	             })
+	               .then(res => res.json())
+	               .then(data => {
+	                 alert(data.message);
+	                 $('#shared-tree').jstree(true).refresh(); // 트리 새로고침
+	                 loadFolderList(null); // 리스트도 초기화 or 현재 폴더 다시 불러오기
+	               })
+	               .catch(err => {
+	                 alert("삭제 실패");
+	                 console.error(err);
+	               });
+	           }
+	         }
+	       }
+	     };
+	   }
+	 },
+	dnd: {
+	   is_draggable: function (node) {
+	     return true;
+	   }
+	 }
+  });
+	// 이동 핸들러 추가.
+	$('#shared-tree').on('move_node.jstree', function (e, data) {
+	  const nodeId = data.node.id;
+	  const newParentId = data.parent === '#' ? null : data.parent;
+
+	  const isFile = nodeId.startsWith("file-");
+	  const numericId = nodeId.replace("file-", "");
+
+	  const url = isFile ? '/shared/file/move' : '/shared/folder/move';
+	  const payload = isFile
+	    ? { fileId: parseInt(numericId), newFolderId: parseInt(newParentId) }
+	    : { folderId: parseInt(numericId), newParentId: parseInt(newParentId) };
+
+	  fetch(url, {
+	    method: 'POST',
+	    headers: {
+	      'Content-Type': 'application/json',
+	      [document.querySelector('meta[name="_csrf_header"]').content]:
+	        document.querySelector('meta[name="_csrf"]').content
+	    },
+	    body: JSON.stringify(payload)
+	  })
+	  .then(res => res.json())
+	  .then(data => {
+	    console.log("이동 완료:", data.message);
+	    loadFolderList(newParentId); // ✅ 리스트 갱신!
+	  })
+	  .catch(err => {
+	    alert("이동 중 오류 발생");
+	    console.error(err);
+	  });
+	});
+  
   $('#shared-tree').on('ready.jstree', function () {
     loadFolderList(null); // 최상위 진입 시 리스트 로딩
   });
 
   $('#shared-tree').on("changed.jstree", function (e, data) {
     const folderId = data.selected[0];
+	
+	// 파일 노드는 "file-"로 시작하므로 제외
+	if (typeof folderId === 'string' && folderId.startsWith("file-")) {
+	  $('#shared-tree').jstree('deselect_node', folderId);  // 선택 해제
+	  return;
+	}
+	
     loadFolderList(folderId ?? null);
   });
 
@@ -41,19 +122,27 @@ $(document).ready(function () {
 
     // 트리 다시 그리기
     $('#modal-folder-tree').jstree("destroy").empty();
-    $('#modal-folder-tree').jstree({
-      core: {
-        multiple: false,
-        data: {
-          url: '/shared/main/tree',
-          dataType: 'json',
-        },
-        themes: {
-          dots: true,
-          icons: true
-        }
-      }
-    });
+	$('#modal-folder-tree').jstree({
+	  core: {
+	    multiple: false,
+	    data: {
+	      url: '/shared/main/tree',
+	      dataType: 'json',
+	      dataFilter: function (data, type) {
+	        const originalData = JSON.parse(data);
+	        const filteredData = originalData.filter(item => {
+	          // 파일 노드 id는 "file-xxx" 형태
+	          return !String(item.id).startsWith("file-");
+	        });
+	        return JSON.stringify(filteredData);
+	      }
+	    },
+	    themes: {
+	      dots: true,
+	      icons: true
+	    }
+	  }
+	});
 
     // 폴더 선택 시 상위 folder_type 자동 상속
     $('#modal-folder-tree')
@@ -249,7 +338,7 @@ function renderFolderTable(data, parentFolderNo, currentFolderId){
 
 		
 		tr.innerHTML = `
-		      <td>${icon} ${item.name}</td>
+			  <td title="${item.name}">${icon} ${item.name}</td>
 		      <td>${typeLabel}</td>
 		      <td>${size}</td>
 		      <td>${regDate}</td>
@@ -293,3 +382,49 @@ function onFolderClick(folderId){
 function onFileClick(fileId){
 	window.location.href = "/shared/files/download/" + fileId;
 }
+
+// 🗑️ 휴지통 불러오기
+function loadTrashBin() {
+  fetch("/shared/trash/list")
+    .then(res => res.json())
+    .then(data => {
+      renderTrashTable(data); // 휴지통 테이블 출력
+    })
+    .catch(err => {
+      console.error("휴지통 목록 조회 실패", err);
+      alert("휴지통을 불러오지 못했습니다.");
+    });
+}
+
+// 🗑️ 휴지통 테이블 렌더링
+function renderTrashTable(items) {
+  const tbody = document.querySelector("#folder-table tbody");
+  tbody.innerHTML = ""; // 기존 비우기
+
+  if (items.length === 0) {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td colspan='4'>휴지된 폴더/파일이 없습니다.</td>`;
+    tbody.appendChild(row);
+    return;
+  }
+
+  items.forEach(item => {
+    const tr = document.createElement("tr");
+    const icon = item.type === "folder" ? "📁" : "📄";
+    const typeLabel = item.type === "folder" ? "폴더" : "파일";
+    const size = item.size ? formatFileSize(item.size) : "-";
+    const regDate = formatDate(item.deletedAt); // 삭제일 기준
+
+    tr.innerHTML = `
+      <td>${icon} ${item.name}</td>
+      <td>${typeLabel}</td>
+      <td>${size}</td>
+      <td>${regDate}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+
