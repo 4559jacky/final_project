@@ -1,9 +1,11 @@
-package com.mjc.groupware.accommodationReservation.entity;
+package com.mjc.groupware.chat.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
+import com.mjc.groupware.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,45 +14,47 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
-@Table(name="accommodation_attach")
+
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
+@Entity
+@Table(name="chat_alarm")
 @Builder
-public class AccommodationAttach {
-	
+@Getter
+@Setter
+public class ChatAlarm {
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="attach_no")
-	private Long attachNo;
+	@Column(name="chat_alarm_no")
+	private Long chatAlarmNo;
+
+	@ManyToOne
+	@JoinColumn(name="member_no")
+	private Member memberNo;
 	
-	@Column(name="ori_name")
-	private String oriName;
+	@Builder.Default
+	@Column(name="read_status")
+	private String readStatus = "N";
 	
-	@Column(name="new_name")
-	private String newName;
-	
-	@Column(name="attach_path")
-	private String attachPath;
+	@Column(name="read_date")
+	private LocalDateTime readDate;
 	
 	@CreationTimestamp
-	@Column(updatable=false,name="reg_date")
+	@Column(updatable=false, name="reg_date")
 	private LocalDateTime regDate;
-	
-	@UpdateTimestamp
-	@Column(insertable=false,name="mod_date")
-	private LocalDateTime modDate;
-	
-	@ManyToOne
-	@JoinColumn(name="accommodation_no")
-	private AccommodationInfo accommodationInfo;
-	
+
+	@OneToOne
+	@JoinColumn(name="chat_msg_no")
+    private ChatMsg chatMsgNo; 
+
 	
 }

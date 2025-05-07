@@ -28,7 +28,6 @@ public class ChatMsgService {
 
 	private final ChatMsgRepository chatMsgRepository;
 	private final ChatRoomRepository chatRoomRepository;
-	private final ChatRoomService chatRoomService;
 	private final MemberRepository memberRepository;
 
 	
@@ -45,7 +44,8 @@ public class ChatMsgService {
 	
 	// 채팅 메세지 db 등록
 	@Transactional(rollbackFor = Exception.class)
-	public void createChatMsg(ChatMsgDto dto) {
+	public ChatMsg createChatMsg(ChatMsgDto dto) {
+		ChatMsg saved = null; 
 	    try {
 	        ChatMsg chatMsg = ChatMsg.builder()
 	                .chatMsgContent(dto.getChat_msg_content())
@@ -53,7 +53,7 @@ public class ChatMsgService {
 	                .memberNo(Member.builder().memberNo(dto.getMember_no()).build())
 	                .build();
 
-	        ChatMsg saved = chatMsgRepository.save(chatMsg);
+	         saved = chatMsgRepository.save(chatMsg);
 
 	        // ✅ 기존 ChatRoom 조회
 	        ChatRoom chatRoom = chatRoomRepository.findById(dto.getChat_room_no())
@@ -67,6 +67,7 @@ public class ChatMsgService {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
+		return saved;
 	}
 	
 	// 나가기 시스템 메세지 저장
