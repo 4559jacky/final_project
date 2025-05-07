@@ -25,6 +25,13 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("SELECT r FROM Reply r WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus ORDER BY r.regDate ASC")
     List<Reply> findByBoardNoAndReplyStatusOrderByRegDate(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
 
+    // 댓글/대댓글 프로필 추가 코드
+    @Query("SELECT r FROM Reply r " +
+    	       "JOIN FETCH r.member m " +
+    	       "LEFT JOIN FETCH m.memberAttachs " +
+    	       "WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus " +
+    	       "ORDER BY r.regDate ASC")
+    	List<Reply> findByBoardNoWithMemberAndAttachs(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
     // 댓글 +더보기 버튼 추가 코드
 //	Page<Reply> findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String string, Pageable pageable);
 

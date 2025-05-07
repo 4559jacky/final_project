@@ -332,3 +332,9 @@ body {
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 }
+
+#voteResultChart {
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4),
+              0 0 30px rgba(13, 110, 253, 0.2);
+  border-radius: 12px;
+}

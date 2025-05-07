@@ -103,17 +103,17 @@
       </li>
     </ul>
 
-    <button type="button" class="btn btn-primary" onclick="submitVote()">투표하기</button>
+    <button type="button" class="btn btn-primary" onclick="submitVote()">투표 하기</button>
   </form>
 
-<!-- 마감 메시지 (초기 숨김) -->
+<!-- 마감 메시지 (기본 숨김, JS에서만 표시 제어) -->
 <div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
   투표가 마감되었습니다.
 </div>
 
   <!-- 결과 차트는 항상 표시 -->
   <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#voteResultModal">
-    결과 차트 확인
+    결과 차트
   </button>
 
   <!-- 결과 차트 모달 -->
@@ -508,8 +508,8 @@
           if (button) {
             button.disabled = true;
             button.classList.remove('btn-primary');
-            button.classList.add('btn-secondary');
-            button.innerText = '이미 투표함';
+            button.classList.add('btn-danger');
+            button.innerText = '투표 불가';
           }
         }
       });
@@ -518,38 +518,37 @@
     fetch(`/vote/${voteNo}/is-closed`)
       .then(res => res.json())
       .then(data => {
-        if (data.closed) {
-          form.style.display = 'none';
-          const msg = document.createElement('div');
-          msg.className = 'alert alert-warning mt-3';
-          msg.innerText = '투표가 마감되었습니다.';
-          form.parentNode.insertBefore(msg, form.nextSibling);
-        }
+    	  if (data.closed) {
+    		  form.style.display = 'none';
+    		  const msg = document.createElement('div');
+    		  msg.className = 'alert alert-warning mt-3';
+    		  msg.innerText = '투표가 마감되었습니다.';
+    		  form.parentNode.insertBefore(msg, form.nextSibling);
+    		}
       });
   });
   
   
 //실시간 확인: 투표 마감 여부 UI 변경
   document.addEventListener('DOMContentLoaded', () => {
-    const endSpan = document.getElementById('vote-end-time');
-    const endTimeStr = endSpan.getAttribute('data-end-time');
-    const endTime = new Date(endTimeStr.replace(' ', 'T'));
+  const endSpan = document.getElementById('vote-end-time');
+  const endTimeStr = endSpan.getAttribute('data-end-time');
+  const endTime = new Date(endTimeStr.replace(' ', 'T'));
 
-    const checkClosed = () => {
-      const now = new Date();
-      if (now >= endTime) {
-        const voteForm = document.getElementById('voteForm');
-        const msg = document.getElementById('vote-closed-message');
-        if (voteForm && msg && voteForm.style.display !== 'none') {
-          voteForm.style.display = 'none';
-          msg.style.display = 'block';
-        }
-      }
-    };
+  const checkClosed = () => {
+    const now = new Date();
+    if (now >= endTime) {
+      const voteForm = document.getElementById('voteForm');
+      const msg = document.getElementById('vote-closed-message');
+      
+      if (voteForm) voteForm.style.display = 'none';
+      if (msg) msg.style.display = 'block';
+    }
+  };
 
-    checkClosed(); // 초기 1회 체크
-    setInterval(checkClosed, 1000); // 이후 1초마다 체크
-  });
+  checkClosed(); // 초기 1회 체크
+  setInterval(checkClosed, 1000); // 이후 1초마다 체크
+});
   
   
   
@@ -617,46 +616,56 @@
       }
 
       window.voteChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: '득표 수',
-            data: counts,
-            backgroundColor: colors,
-            borderColor: borderColors,
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          indexAxis: 'x',
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: '득표 수'
-              }
-            }
-          },
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                  const value = context.raw;
-                  const percent = ((value / total) * 100).toFixed(1);
-                  return `${context.label}: ${value}표 (${percent}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
+    	  type: 'bar',
+    	  data: {
+    	    labels: labels,
+    	    datasets: [{
+    	    	  label: '득표 수',
+    	    	  data: counts,
+    	    	  backgroundColor: colors,
+    	    	  borderColor: borderColors,
+    	    	  borderWidth: 1,
+    	    	  borderRadius: 5,
+    	    	  barPercentage: 0.6,
+    	    	  categoryPercentage: 0.6
+    	    	}]
+    	  },
+    	  options: {
+    	    responsive: true,
+    	    animation: {
+    	      duration: 800,
+    	      easing: 'easeInOutCubic'
+    	    },
+    	    indexAxis: 'x',
+    	    scales: {
+    	      y: {
+    	        beginAtZero: true,
+    	        title: {
+    	          display: true,
+    	          text: '득표 수'
+    	        },
+    	        ticks: {
+    	          stepSize: 1
+    	        }
+    	      }
+    	    },
+    	    plugins: {
+    	      legend: {
+    	        display: false
+    	      },
+    	      tooltip: {
+    	        callbacks: {
+    	          label: function (context) {
+    	            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+    	            const value = context.raw;
+    	            const percent = ((value / total) * 100).toFixed(1);
+    	            return `${context.label}: ${value}표 (${percent}%)`;
+    	          }
+    	        }
+    	      }
+    	    }
+    	  }
+    	});
     })
     .catch(err => {
       alert("투표 결과를 불러오는 데 실패했습니다.");

@@ -32,7 +32,7 @@ public class ReplyDto {
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
     private String newContent;
-    private String attachPath;
+    private String attachPath; // 프로필 이미지 경로
     
     // 등록일 포맷된 문자열
     private String regDateFormatted;
