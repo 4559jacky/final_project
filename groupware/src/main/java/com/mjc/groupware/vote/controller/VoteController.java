@@ -85,11 +85,32 @@ public class VoteController {
         }
     }
     
- // 투표 결과 조회 (Chart.js 용 데이터)
+    
+ // 투표 결과 조회
     @GetMapping("/vote/{voteNo}/result")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getVoteResult(@PathVariable("voteNo") Long voteNo) {
         List<Map<String, Object>> result = voteService.getVoteResultForChart(voteNo);
         return ResponseEntity.ok(result);
     }
+
+    // 중복 투표 여부 체크
+    @GetMapping("/vote/{voteNo}/has-voted")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> hasVoted(
+            @PathVariable("voteNo") Long voteNo,
+            @RequestParam("memberNo") Long memberNo) {
+        boolean voted = voteService.hasUserAlreadyVoted(voteNo, memberNo);
+        return ResponseEntity.ok(Map.of("voted", voted));
+    }
+
+    // 마감 여부 확인
+    @GetMapping("/vote/{voteNo}/is-closed")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> isVoteClosed(@PathVariable("voteNo") Long voteNo) {
+        boolean closed = voteService.isVoteClosed(voteNo);
+        return ResponseEntity.ok(Map.of("closed", closed));
+    }
+    
+    
 }

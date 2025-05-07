@@ -76,11 +76,17 @@
     </small>
   </h5>
 
-  <div class="mb-3">
-    <p>마감일시: <span th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}">2025-05-10</span></p>
-    <p>익명 여부: <span th:text="${board.vote.isAnonymous == 'Y' ? '익명' : '실명'}"></span></p>
-    <p>복수 선택 가능: <span th:text="${board.vote.isMultiple == 'Y' ? '예' : '아니오'}"></span></p>
-  </div>
+<!-- 마감일시 영역 -->
+<div class="mb-3">
+  <p>
+    마감일시: 
+    <span id="vote-end-time"
+          th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}"
+          th:data-end-time="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm:ss')}">
+      2025-05-10
+    </span>
+  </p>
+</div>
 
   <!-- 투표 가능한 경우 -->
   <form th:if="${not isVoteClosed}" id="voteForm" th:data-vote-no="${board.vote.voteNo}">
@@ -100,10 +106,10 @@
     <button type="button" class="btn btn-primary" onclick="submitVote()">투표하기</button>
   </form>
 
-  <!-- 투표 마감 안내 -->
-  <div th:if="${isVoteClosed}" class="alert alert-warning mt-3">
-    투표가 마감되었습니다.
-  </div>
+<!-- 마감 메시지 (초기 숨김) -->
+<div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
+  투표가 마감되었습니다.
+</div>
 
   <!-- 결과 차트는 항상 표시 -->
   <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#voteResultModal">
@@ -480,7 +486,75 @@
     });
   </script>
   
+  
   <script th:inline="javascript">
+  const csrfHeader1 = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+  const csrfToken1 = /*[[${_csrf.token}]]*/ '';
+
+  // 투표 중복 확인 및 마감 여부 실시간 반영
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById('voteForm');
+    if (!form) return;
+
+    const voteNo = form.getAttribute('data-vote-no');
+    const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
+
+    // 중복 여부 확인
+    fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.voted) {
+          const button = form.querySelector('button[type="button"]');
+          if (button) {
+            button.disabled = true;
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-secondary');
+            button.innerText = '이미 투표함';
+          }
+        }
+      });
+
+    // 마감 여부 확인
+    fetch(`/vote/${voteNo}/is-closed`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.closed) {
+          form.style.display = 'none';
+          const msg = document.createElement('div');
+          msg.className = 'alert alert-warning mt-3';
+          msg.innerText = '투표가 마감되었습니다.';
+          form.parentNode.insertBefore(msg, form.nextSibling);
+        }
+      });
+  });
+  
+  
+//실시간 확인: 투표 마감 여부 UI 변경
+  document.addEventListener('DOMContentLoaded', () => {
+    const endSpan = document.getElementById('vote-end-time');
+    const endTimeStr = endSpan.getAttribute('data-end-time');
+    const endTime = new Date(endTimeStr.replace(' ', 'T'));
+
+    const checkClosed = () => {
+      const now = new Date();
+      if (now >= endTime) {
+        const voteForm = document.getElementById('voteForm');
+        const msg = document.getElementById('vote-closed-message');
+        if (voteForm && msg && voteForm.style.display !== 'none') {
+          voteForm.style.display = 'none';
+          msg.style.display = 'block';
+        }
+      }
+    };
+
+    checkClosed(); // 초기 1회 체크
+    setInterval(checkClosed, 1000); // 이후 1초마다 체크
+  });
+  
+  
+  
+
+  // 투표 제출
   function submitVote() {
     const form = document.getElementById('voteForm');
     const voteNo = form.getAttribute('data-vote-no');
@@ -492,12 +566,7 @@
       return;
     }
 
-    // 로그인 사용자 번호를 안전하게 Thymeleaf로 주입 (null 대비 포함)
-    const memberNo = /*[[${#authentication != null and #authentication.principal != null and #authentication.principal.member != null ? #authentication.principal.member.memberNo : 0}]]*/ 0;
-
-    // CSRF 헤더값 처리
-    const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
-    const csrfToken = /*[[${_csrf.token}]]*/ '';
+    const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
 
     fetch(`/vote/${voteNo}/submit?memberNo=${memberNo}&` + new URLSearchParams({
       optionNos: selectedOptions
@@ -517,98 +586,90 @@
       });
   }
 
-  
-  // chart.js를 사용하기 위한 스크립트
- document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
-  const voteNo = this.getAttribute('data-vote-no');
+  // Chart.js 결과 차트 표시
+  document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
+    const voteNo = this.getAttribute('data-vote-no');
 
-  fetch(`/vote/${voteNo}/result`, {
-    headers: {
-      [csrfHeader]: csrfToken
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-    const labels = data.map(opt => opt.optionText);
-    const counts = data.map(opt => opt.voteCount);
+    fetch(`/vote/${voteNo}/result`, {
+      headers: {
+        [csrfHeader]: csrfToken
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const labels = data.map(opt => opt.optionText);
+      const counts = data.map(opt => opt.voteCount);
 
-    const ctx = document.getElementById('voteResultChart').getContext('2d');
+      const ctx = document.getElementById('voteResultChart').getContext('2d');
 
-    // 색상 다양화 (항목 수에 따라 자동 순환됨)
-    const colors = [
-      'rgba(255, 99, 132, 0.5)',
-      'rgba(54, 162, 235, 0.5)',
-      'rgba(255, 206, 86, 0.5)',
-      'rgba(75, 192, 192, 0.5)',
-      'rgba(153, 102, 255, 0.5)',
-      'rgba(255, 159, 64, 0.5)'
-    ];
-    const borderColors = colors.map(c => c.replace('0.5', '1'));
+      const colors = [
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 206, 86, 0.5)',
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(153, 102, 255, 0.5)',
+        'rgba(255, 159, 64, 0.5)'
+      ];
+      const borderColors = colors.map(c => c.replace('0.5', '1'));
 
-    if (window.voteChart) {
-      window.voteChart.destroy();
-    }
+      if (window.voteChart) {
+        window.voteChart.destroy();
+      }
 
-    window.voteChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: '득표 수',
-          data: counts,
-          backgroundColor: colors,
-          borderColor: borderColors,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        indexAxis: 'x', // 수직 막대 그래프 (기본값이므로 생략해도 됨)
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: '득표 수'
-            }
-          },
-          x: {
-            title: {
-              display: false // 항목명을 따로 표시하지 않고, x축만 항목명으로
-            }
-          }
+      window.voteChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '득표 수',
+            data: counts,
+            backgroundColor: colors,
+            borderColor: borderColors,
+            borderWidth: 1
+          }]
         },
-        plugins: {
-          legend: {
-            display: false
+        options: {
+          responsive: true,
+          indexAxis: 'x',
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '득표 수'
+              }
+            }
           },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                const value = context.raw;
-                const percent = ((value / total) * 100).toFixed(1);
-                return `${context.label}: ${value}표 (${percent}%)`;
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                  const value = context.raw;
+                  const percent = ((value / total) * 100).toFixed(1);
+                  return `${context.label}: ${value}표 (${percent}%)`;
+                }
               }
             }
           }
         }
-      }
+      });
+    })
+    .catch(err => {
+      alert("투표 결과를 불러오는 데 실패했습니다.");
+      console.error(err);
     });
-  })
-  .catch(err => {
-    alert("투표 결과를 불러오는 데 실패했습니다.");
-    console.error(err);
   });
-});
 
-//다크 모드 토글 스위치가 있을 경우
- document.getElementById('darkToggle').addEventListener('change', function () {
-   document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
- });
- 
- 
+  // 다크모드 스위치 적용
+  document.getElementById('darkToggle')?.addEventListener('change', function () {
+    document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
+  });
 </script>
+ 
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
