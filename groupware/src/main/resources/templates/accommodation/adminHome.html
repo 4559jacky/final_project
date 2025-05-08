@@ -95,17 +95,17 @@ layout:decorate="~{/include/layout}">
 		        </tr>
 		
 		        <!-- 숙소 리스트 출력 -->
-		        <tr th:each="accom : ${accommodations}"
-		        	th:onclick="|location.href='/accommodation/detail/${accom.accommodationNo}'|"
+		        <tr th:each="accom, number : ${accommodations}"
+		        	th:onclick="|location.href='/admin/accommodation/detail/${accom.accommodation_no}'|"
 			      style="cursor: pointer;">
-		          <td th:text="${accom.accommodationNo}">번호</td>
-		          <td th:text="${accom.accommodationName}">숙소명</td>
-		          <td th:text="${accom.accommodationType == '1' ? '호텔' : (accom.accommodationType == '2' ? '리조트' : '기타')}">숙소타입</td>
-		          <td th:text="${accom.regDate != null ? #temporals.format(accom.regDate, 'yyyy-MM-dd HH:mm') : ''}">등록일</td>
-		          <td th:text="${accom.modDate != null ? #temporals.format(accom.modDate, 'yyyy-MM-dd HH:mm') : ''}">수정일</td>
-		          <td th:text="${accom.roomPrice != null ? #numbers.formatInteger(accom.roomPrice, 3, 'COMMA') + '원' : '0원'}">가격</td>
+		          <td th:text="${number.index+1}">번호</td>
+		          <td th:text="${accom.accommodation_name}">숙소명</td>
+		          <td th:text="${accom.accommodation_type == '1' ? '호텔' : (accom.accommodation_type == '2' ? '리조트' : '기타')}">숙소타입</td>
+		          <td th:text="${accom.reg_date != null ? #temporals.format(accom.reg_date, 'yyyy-MM-dd HH:mm') : ''}">등록일</td>
+		          <td th:text="${accom.mod_date != null ? #temporals.format(accom.mod_date, 'yyyy-MM-dd HH:mm') : ''}">수정일</td>
+		          <td th:text="${accom.room_price != null ? #numbers.formatInteger(accom.room_price, 3, 'COMMA') + '원' : '0원'}">가격</td>
 		          <td>
-		            <a th:href="@{/adminList(accommodationNo=${accom.accommodationNo})}" 
+		            <a th:href="@{/admin/accommodation/reservation/list(accommodation_no=${accom.accommodation_no})}" 
 		               class="btn btn-primary px-3">예약현황</a>
 		          </td>
 		        </tr>

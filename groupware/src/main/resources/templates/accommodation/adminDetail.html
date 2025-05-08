@@ -35,7 +35,7 @@ layout:decorate="~{/include/layout}">
 			    </div>
 			  </div>
 			</div>
-		<!-- 숙소정보 -->
+		
         <div class="col-md-6 border-start ps-4">
           <div class="shop-content">
             <div class="d-flex align-items-center gap-2 mb-2">
@@ -52,42 +52,51 @@ layout:decorate="~{/include/layout}">
               <span th:text="${#numbers.formatInteger(accommodation.room_price, 3, 'COMMA')} + '원'"></span>
             </p>
             <hr class="my-3" />
-		<!-- 예약하기 -->
+
             <form class="d-flex align-items-center gap-3 flex-wrap mt-3">
-	            <input type="hidden" id="accommodation_no" th:value="${accommodation.accommodation_no}">
-	            <label class="mb-0 fs-4 fw-semibold">체크인</label>
-				<input type="date" id="check_in" class="form-control py-1 px-2" style="width: 150px;">
-				<label class="mb-0 fs-4 ms-3 fw-semibold">체크아웃</label>
-				<input type="date" id="check_out" class="form-control py-1 px-2" style="width: 150px;">
-              <!-- 인원수 -->
-              <div class="d-flex align-items-center gap-3 mt-4 mb-4">
-				  <label class="fs-4 mb-0 fw-semibold">인원수</label>
-				  <div class="input-group input-group-sm w-auto">
-				    <button class="btn btn-outline-secondary" type="button" onclick="decreasePeopleCount()">-</button>
-				    <input type="text" id="numberOfPeopleInput" name="number_of_people" class="form-control text-center" 
-				           th:value="1" />
-				    <button class="btn btn-outline-secondary" type="button" onclick="increasePeopleCount()">+</button>
-				  </div>
-				</div>
-              <!-- 방갯수 -->
-	            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
-				  <label class="fs-4 mb-0 fw-semibold">방 갯수</label>
-				  <div class="input-group input-group-sm w-auto">
-				    <button class="btn btn-outline-secondary" type="button" onclick="decreaseRoomCount()">-</button>
-				    <input type="text" id="roomCountInput" name="room_count" class="form-control text-center" 
-				           th:value="${accommodation.room_count}" />
-				    <button class="btn btn-outline-secondary" type="button" onclick="increaseRoomCount()">+</button>
-				  </div>
-				</div>
+              <label class="mb-0 fs-4 fw-semibold">체크인</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
+              <label class="mb-0 fs-4 ms-3 fw-semibold">체크아웃</label>
+              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
             </form>
-			<!-- 예약하기 버튼 -->
-			<div class="d-flex align-items-center flex-nowrap gap-2 mt-3">
-				<a href="javascript:void(0)" id="reserveBtn"
-					class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 150px;">
-					    <i class="ti me-1"></i>
-					        예약하기
-				</a>
-			</div>
+
+            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
+              <label class="fs-4 mb-0 fw-semibold">방 갯수</label>
+              <div class="input-group input-group-sm w-auto">
+                <button class="btn btn-outline-secondary" type="button">-</button>
+                <input type="text" class="form-control text-center" th:value="${accommodation.room_count}">
+                <button class="btn btn-outline-secondary" type="button">+</button>
+              </div>
+            </div>
+
+			<!-- 관리자와 사용자에따라 검색버튼 분리(검색,숙소관리) -->
+				<div class="d-flex align-items-center flex-nowrap gap-2 mt-3">
+					<th:block th:each="funcNo : ${accessibleFuncNoList}">
+						<th:block th:if="${funcNo != 30 && funcNo == 31}">
+							<a href="javascript:void(0)"
+					                   class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 150px;">
+					                   	<i class="ti me-1"></i>
+					               		예약하기
+					                </a>
+						</th:block>
+					</th:block>
+					<th:block th:each="funcNo : ${accessibleFuncNoList}">
+						<th:block th:if="${funcNo == 30}">
+							<a th:href="@{/accommodation/update/{id}(id=${accommodation.accommodation_no})}" 
+								class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
+								<i class="ti me-1"></i>
+					                	수정
+							</a>
+							<a th:onclick="|accommodationDelete(${accommodation.accommodation_no})|"
+								class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 100px;">
+								<i class="ti me-1"></i>
+					                	삭제
+							</a>
+						</th:block>
+					</th:block>
+				</div>
+
+            
           </div>
         </div>
       </div>
@@ -115,74 +124,35 @@ layout:decorate="~{/include/layout}">
         items: 1
       });
     });
-
-   function handleColorTheme(e) {
-     document.documentElement.setAttribute("data-color-theme", e);
-   }
-  
-   // 인원수 버튼 동작
-   function increasePeopleCount() {
-	    const input = document.getElementById("numberOfPeopleInput");
-	    let value = parseInt(input.value) || 0;
-	    input.value = value + 1;
-	  }
-
-	  function decreasePeopleCount() {
-	    const input = document.getElementById("numberOfPeopleInput");
-	    let value = parseInt(input.value) || 0;
-	    if (value > 1) {
-	      input.value = value - 1;
-	    }
-	  }
-   
-   // 방갯수 버튼 동작
-   function increaseRoomCount() {
-	    const input = document.getElementById("roomCountInput");
-	    let value = parseInt(input.value) || 0;
-	    input.value = value + 1;
-	  }
-
-	  function decreaseRoomCount() {
-	    const input = document.getElementById("roomCountInput");
-	    let value = parseInt(input.value) || 0;
-	    if (value > 1) {
-	      input.value = value - 1;
-	    }
-	  }
-	  
-	  // 예약하기 버튼 클릭시 동작
-	  document.addEventListener("DOMContentLoaded",function(){
-		  document.getElementById("reserveBtn").addEventListener("click",function(){
-			  const form = new FormData();
-			  
-			  form.append("accommodation_no", document.getElementById("accommodation_no").value);
-			  form.append("check_in", document.getElementById("check_in").value);
-			  form.append("check_out", document.getElementById("check_out").value);
-			  form.append("number_of_people", document.getElementById("numberOfPeopleInput").value);
-			  
-			  fetch("/user/accommodation/reservation/create",{
-				  method: "POST",
-				  body: form,
-				  headers:{
-					  "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-				  }
-			  })
-			  .then(res => res.json())
-			  .then(data =>{
-				  if(data.res_code == "200"){
-					  alert("예약이 완료되었습니다.");
-					  location.href = "/accommodation/list";
-				  }else{
-					  alert("예약 실패 : "+data.res_msg);
-				  }
-			  })
-			  .catch(err =>{
-				 console.error(err);
-				 alert("서버 오류가 발생했습니다.");
-			  });
-		  });
-	  });
+    
+ 	// 삭제 기능
+    function accommodationDelete(accommodationNo) {
+      if (!confirm("숙소를 삭제하시겠습니까?")) return;
+      fetch('/accommodation/delete/' + accommodationNo, {
+        method: 'DELETE',
+        headers: {
+        	"X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.res_code === "200") {
+          alert(data.res_msg);
+          location.href = '/accommodation/adminHome';
+        } else {
+          alert(data.res_msg);
+        }
+      })
+      .catch(err => {
+        alert("에러 발생: " + err);
+      });
+    }
   </script>
+ <script>
+  function handleColorTheme(e) {
+    document.documentElement.setAttribute("data-color-theme", e);
+  }
+ </script>
     
   <div class="dark-transparent sidebartoggler"></div>
   
