@@ -61,7 +61,7 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build();
         
         redisLoginLogService.saveLoginLog(memberNo, redisDto);
-		
+        
 		System.out.println("MyLoginSuccessHandler :: 로그인 성공");
 		response.sendRedirect("/");
 	}
