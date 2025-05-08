@@ -70,4 +70,6 @@ public class AccommodationInfo {
 	@UpdateTimestamp
 	@Column(name ="mod_date")
 	private LocalDateTime modDate;
+	
+	
 }

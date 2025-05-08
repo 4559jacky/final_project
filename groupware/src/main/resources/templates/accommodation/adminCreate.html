@@ -43,7 +43,7 @@ layout:decorate="~{/include/layout}">
 		      </div>
 		    </div>
 		            <input type="hidden" id="accommodation_no" value="123">
-					<input type="hidden" id="room_count" value="10">
+					<input type="hidden" id="room_count" value="1">
 					<input type="hidden" id="accommodation_location" value="서울 강남구">
 					<input type="datetime-local" id="reg_date" style="display: none;">
 					<input type="datetime-local" id="mod_date" style="display: none;">
@@ -110,20 +110,12 @@ layout:decorate="~{/include/layout}">
 	    </div>
 	    </div>
 		
-		<!-- 등록 버튼: accommodationNo가 없을 때만 보이게 -->
+		<!-- 등록 버튼 -->
 		<div class="d-flex justify-content-end mt-3" 
 		     th:if="${accommodation == null or accommodation.accommodation_no == null}">
 		    <button type="submit" class="btn btn-primary me-2" id="submitBtn">등록</button>
 		    <a th:href="@{/adminHome}" class="btn btn-danger">취소</a>
 		</div>
-		
-		<!-- 수정 버튼: accommodationNo가 존재할 때만 보이게 -->
-		<div class="d-flex justify-content-end mt-3" 
-		     th:if="${accommodation != null and accommodation.accommodation_no != null}">
-		    <button type="submit" class="btn btn-primary me-2" id="updateBtn">수정 완료</button>
-		    <a th:href="@{/adminHome}" class="btn btn-danger">취소</a>
-		</div>
-		
 
 		<br><br>
 		<!-- 등록버튼 클릭시 동작 -->
@@ -191,7 +183,7 @@ layout:decorate="~{/include/layout}">
 				.then(res => res.json())
 				.then(data =>{
 					if(data.res_code == "200"){
-						location.href ="/adminHome";
+						location.href ="/accommodation/adminHome";
 					}
 				})
 				.catch(err => {

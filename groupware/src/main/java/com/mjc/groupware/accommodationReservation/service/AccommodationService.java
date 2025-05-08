@@ -12,7 +12,6 @@ import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.repository.AccommodationAttachRepository;
 import com.mjc.groupware.accommodationReservation.repository.AccommodationInfoRepository;
-import com.mjc.groupware.board.entity.Board;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,24 +22,73 @@ public class AccommodationService {
 	private final AccommodationInfoRepository accommodationInfoRepository;
 	private final AccommodationAttachRepository accommodationAttachRepository;
 	
-	// 숙소등록
+	// 숙소등록(관리자)
 	public AccommodationInfo register(AccommodationInfoDto dto) {
-		dto.setAccommodation_no(null); // <-- 🔥 명시적 null 처리
+		dto.setAccommodation_no(null); 
 		AccommodationInfo entity = dto.toEntity();
 		return accommodationInfoRepository.save(entity);
 	}
     
-    // 목록출력
-    public List<AccommodationInfo> getAllAccommodations() {
-    	List<AccommodationInfo> list = accommodationInfoRepository.findAll();
-        System.out.println("조회된 숙소 수: " + list.size());
-        for (AccommodationInfo info : list) {
-            System.out.println(info.getAccommodationName());
-        }
-        return list;
-    }
-    
-    // 숙소 상세
+    // 목록출력(관리자,사용자)
+	public List<AccommodationInfoDto> getAllAccommodations() {
+	    List<AccommodationInfo> list = accommodationInfoRepository.findAll();
+	    List<AccommodationInfoDto> dtoList = new ArrayList<>();
+
+	    for (AccommodationInfo accom : list) {
+	        AccommodationInfoDto dto = new AccommodationInfoDto();
+	        dto.setAccommodation_no(accom.getAccommodationNo());
+	        dto.setAccommodation_name(accom.getAccommodationName());
+	        dto.setAccommodation_type(accom.getAccommodationType());
+	        dto.setAccommodation_address(accom.getAccommodationAddress());
+	        dto.setAccommodation_phone(accom.getAccommodationPhone());
+	        dto.setAccommodation_email(accom.getAccommodationEmail());
+	        dto.setAccommodation_site(accom.getAccommodationSite());
+	        dto.setAccommodation_location(accom.getAccommodationLocation());
+	        dto.setRoom_count(accom.getRoomCount());
+	        dto.setAccommodation_content(accom.getAccommodationContent());
+	        dto.setRoom_price(accom.getRoomPrice());
+	        dto.setReg_date(accom.getRegDate());
+	        dto.setMod_date(accom.getModDate());
+
+	        dtoList.add(dto);
+	    }
+
+	    return dtoList;
+	}
+	
+	// 사용자 홈화면 목록용 (썸네일 이미지 포함)
+	public List<AccommodationInfoDto> showHomeView() {
+	    List<AccommodationInfo> list = accommodationInfoRepository.findAll();
+	    List<AccommodationInfoDto> dtoList = new ArrayList<>();
+
+	    for (AccommodationInfo accom : list) {
+	        AccommodationInfoDto dto = new AccommodationInfoDto();
+	        dto.setAccommodation_no(accom.getAccommodationNo());
+	        dto.setAccommodation_name(accom.getAccommodationName());
+	        dto.setRoom_price(accom.getRoomPrice());
+
+	        // 대표 이미지 1개만 추가
+	        List<AccommodationAttach> attachList = accommodationAttachRepository
+	                .findByAccommodationInfo_AccommodationNo(accom.getAccommodationNo());
+
+	        if (!attachList.isEmpty()) {
+	            AccommodationAttach attach = attachList.get(0); // 첫 번째 이미지
+	            AccommodationAttachDto attachDto = new AccommodationAttachDto();
+	            attachDto.setAttach_no(attach.getAttachNo());
+	            attachDto.setNew_name(attach.getNewName());
+	            attachDto.setAttach_path(attach.getAttachPath());
+	            attachDto.setAccommodation_no(accom.getAccommodationNo());
+
+	            dto.setAttachList(List.of(attachDto));
+	        }
+
+	        dtoList.add(dto);
+	    }
+
+	    return dtoList;
+	}
+
+    // 숙소 상세(관리자)
     public AccommodationInfoDto findById(Long accommodationNo) {
         AccommodationInfo accom = accommodationInfoRepository.findById(accommodationNo)
             .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
@@ -98,7 +146,7 @@ public class AccommodationService {
         return dtoList;
     }
 
-    // 수정
+    // 숙소 수정(관리자)
     public AccommodationInfo update(AccommodationInfoDto dto) {
     	AccommodationInfo entity = accommodationInfoRepository.findById(dto.getAccommodation_no())
     			.orElseThrow(() -> new IllegalArgumentException("수정할 숙소를 찾을 수 없습니다."));
@@ -118,7 +166,7 @@ public class AccommodationService {
     	return accommodationInfoRepository.save(entity); // 변경 후 저장
     }
 
-    // 숙소 삭제
+    // 숙소 삭제(관리자)
 	public void deleteAccommodation(Long accommodationNo) {
 		accommodationInfoRepository.deleteById(accommodationNo);
 	}

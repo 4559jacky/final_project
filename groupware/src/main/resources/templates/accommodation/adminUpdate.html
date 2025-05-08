@@ -123,14 +123,7 @@ layout:decorate="~{/include/layout}">
 	    </div>
 	    </div>
 		
-		<!-- 등록 버튼: accommodationNo가 없을 때만 보이게 -->
-		<div class="d-flex justify-content-end mt-3" 
-		     th:if="${accommodation == null or accommodation.accommodation_no == null}">
-		    <button type="submit" class="btn btn-primary me-2" id="submitBtn">등록</button>
-		    <a th:href="@{/adminHome}" class="btn btn-danger">취소</a>
-		</div>
-		
-		<!-- 수정 버튼: accommodationNo가 존재할 때만 보이게 -->
+		<!-- 수정 버튼 -->
 		<div class="d-flex justify-content-end mt-3" 
 		     th:if="${accommodation != null and accommodation.accommodation_no != null}">
 		    <button type="submit" class="btn btn-primary me-2" id="updateBtn">수정 완료</button>
@@ -190,13 +183,13 @@ layout:decorate="~{/include/layout}">
 			        }
 			      })
 			        .then(res => {
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        return res.json();
-      })
+				       if (!res.ok) throw new Error("HTTP error " + res.status);
+				       return res.json();
+				     })
 			        .then(data => {
 			          if (data.res_code === "200") {
 			            alert("수정이 완료되었습니다.");
-			            location.href = "/adminHome";
+			            location.href = "/accommodation/adminHome";
 			          } else {
 			            alert("수정 실패: " + data.res_msg);
 			          }

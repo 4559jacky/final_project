@@ -42,29 +42,43 @@ public class AccommodationAdminController {
 	private final AccommodationService accommodationService;
 	private final AccommodationAttachService accommodationAttachService;
 	
-	// HTML리턴(adminHome 페이지로 이동)
+	// 관리자(adminHome 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
-	@GetMapping("/adminHome")
+	@GetMapping("/accommodation/adminHome")
 	public String adminHomeView(Model model) {
-		List<AccommodationInfo> accommodations = accommodationService.getAllAccommodations();
+		List<AccommodationInfoDto> accommodations = accommodationService.getAllAccommodations();
 	    model.addAttribute("accommodations", accommodations);
 		return "accommodation/adminHome";
 	}
-		
-	// HTML리턴(adminCreate 페이지로 이동)
+	
+	// 관리자(adminCreate 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
 	@GetMapping("/admin/create")
 	public String adminCreateView() {
 		return "accommodation/adminCreate";
 	}
 	
-	// HTML리턴(adminList 페이지로 이동)
+	// 관리자(adminList 페이지로 이동)
 	@GetMapping("/adminList")
 	public String adminListView() {
 		return "accommodation/adminList";
 	}
 	
-	// 숙소등록
+	// 사용자(nav바 사내복지 클릭시 home.html 페이지로 이동/조회)
+	@GetMapping("/accommodation")
+	public String showHomeView(Model model) {
+		List<AccommodationInfoDto> list = accommodationService.showHomeView();
+		model.addAttribute("accommodationList", list);
+		return "accommodation/home";
+	}
+
+	// 사용자(list 페이지로 이동)
+	@GetMapping("/accommodation/list")
+	public String showListView() {
+		return "accommodation/list";
+	}
+	
+	// 숙소등록(관리자)
 	@PostMapping("/accommodation/register")
 	@ResponseBody
 	public Map<String, Object> registerAccommodation(
@@ -101,8 +115,35 @@ public class AccommodationAdminController {
 		    }
 		    return result;
 	}
+	
+	// 숙소 상세(관리자)
+	@GetMapping("/admin/accommodation/detail/{accommodationNo}")
+	public String viewAccommodation(@PathVariable("accommodationNo") Long accommodationNo, Model model) {
+		AccommodationInfoDto dto = accommodationService.findById(accommodationNo);
+		if (dto == null) {
+		    return "redirect:/accommodation/adminHome";
+		}
 
-	// 숙소 수정
+		List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+		model.addAttribute("accommodation", dto);
+		model.addAttribute("attachList", attachList); // 이미지 리스트 전달
+		    
+		return "accommodation/adminDetail";
+	}
+	
+	// 숙소 상세(사용자)
+	@GetMapping("/accommodation/userHome/{accommodationNo}")
+	public String viewAccommodationUser(@PathVariable("accommodationNo") Long accommodationNo, Model model) {
+		AccommodationInfoDto dto = accommodationService.findById(accommodationNo);
+
+		List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo);
+		model.addAttribute("accommodation", dto);
+		model.addAttribute("attachList", attachList);
+		    
+		return "accommodation/detail";
+	}
+
+	// 숙소 수정(관리자)
 	@PostMapping("/accommodation/update/{accommodationNo}")
 	@ResponseBody
 	public Map<String, Object> updateAccommodation(
@@ -118,6 +159,9 @@ public class AccommodationAdminController {
 
 	        AccommodationInfo updated = accommodationService.update(dto); // 서비스 호출
 
+            // 기존 첨부파일 전체 삭제
+	        accommodationAttachService.deleteAllByAccommodation(accommodationNo);
+	        
 	        // 파일 처리 (선택)
 	        if (files != null && !files.isEmpty()) {
 	            for (MultipartFile mf : files) {
@@ -140,7 +184,6 @@ public class AccommodationAdminController {
 
 	    return result;
 	}
-
 	
 	@GetMapping("/accommodation/update/{id}")
 	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
@@ -157,22 +200,7 @@ public class AccommodationAdminController {
 	    return "accommodation/adminUpdate";  // 수정과 생성 페이지 공유
 	}
 
-	// 숙소 상세
-	@GetMapping("/accommodation/detail/{accommodationNo}")
-	public String viewAccommodation(@PathVariable("accommodationNo") Long accommodationNo, Model model) {
-	    AccommodationInfoDto dto = accommodationService.findById(accommodationNo);
-	    if (dto == null) {
-	        return "redirect:/accommodation/adminHome";
-	    }
-
-	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
-	    model.addAttribute("accommodation", dto);
-	    model.addAttribute("attachList", attachList); // 이미지 리스트 전달
-	    
-	    return "accommodation/detail";
-	}
-
-	// 숙소 삭제
+	// 숙소 삭제(관리자)
 	@DeleteMapping("/accommodation/delete/{accommodationNo}")
     @ResponseBody
     public Map<String, String> deleteAccommodation(@PathVariable("accommodationNo") Long accommodationNo) {

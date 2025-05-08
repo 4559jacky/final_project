@@ -38,7 +38,7 @@ layout:decorate="~{/include/layout}">
 			</th:block>
 			<th:block th:each="funcNo : ${accessibleFuncNoList}">
 				<th:block th:if="${funcNo == 30}">
-					<a th:href="@{/adminHome}"
+					<a th:href="@{/accommodation/adminHome}"
 						class="btn btn-primary d-flex align-items-center ms-2">
 						<i class="ti me-1"></i>
 			                	숙소관리
@@ -136,7 +136,7 @@ layout:decorate="~{/include/layout}">
 		        <!-- 예약내역조회 -->
 				<th:block th:each="funcNo : ${accessibleFuncNoList}">
 					<th:block th:if="${funcNo == 31}">
-						<a th:href="@{/accommodation/list}"
+						<a th:href="@{/user/accommodation/reservation/list}"
 				            class="btn btn-primary d-flex align-items-center ms-2">
 				         		<i class="ti me-1"></i>
 				              		예약내역조회
@@ -154,87 +154,36 @@ layout:decorate="~{/include/layout}">
 	                </button>
                   </form>
                 </div>
-                <div class="row">
-                  <div class="col-sm-6 col-xxl-4">
-                    <div class="card hover-img overflow-hidden">
-                      <div class="position-relative">
-                        <a href="/accommodation/detail">
-                          <img src="/img/신라호텔_제주도.jpg" class="card-img-top" alt="flexy-img">
-                        </a>
-                      </div>
-                      <div class="card-body pt-3 p-4">
-                        <h6 class="fs-4">신라호텔</h6>
-                        <div class="d-flex align-items-center justify-content-between">
-                          <h6 class="fs-4 mb-0">200,000원 <span class="ms-2 fw-normal text-muted fs-3">
-                              <del>400,000원</del>
-                            </span>
-                          </h6>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  
-
-                  
-                  
-                  
-                  <div class="col-sm-6 col-xxl-4">
-                    <div class="card hover-img overflow-hidden">
-                      <div class="position-relative">
-                        <a href="../main/eco-shop-detail.html">
-                          <img src="../assets/images/products/s5.jpg" class="card-img-top" alt="flexy-img">
-                        </a>
-                        <a href="javascript:void(0)" class="text-bg-primary rounded-circle p-2 text-white d-inline-flex position-absolute bottom-0 end-0 mb-n3 me-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Add To Cart">
-                          <i class="ti ti-basket fs-4"></i>
-                        </a>
-                      </div>
-                      <div class="card-body pt-3 p-4">
-                        <h6 class="fs-4">Derma-E</h6>
-                        <div class="d-flex align-items-center justify-content-between">
-                          <h6 class="fs-4 mb-0">$650 <span class="ms-2 fw-normal text-muted fs-3">
-                              <del>$900</del>
-                            </span>
-                          </h6>
-                          <ul class="list-unstyled d-flex align-items-center mb-0">
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a class="me-1" href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                            <li>
-                              <a href="javascript:void(0)">
-                                <i class="ti ti-star text-warning"></i>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                 
-                 
-                      
-                </div>
+                <!-- 숙소 목록 조회 -->
+                <div class="container-fluid">
+				  <div class="row g-4">
+				    <div class="col-sm-6 col-xxl-4" th:each="accommodation : ${accommodationList}">
+				      <div class="card hover-img overflow-hidden h-100">
+				        <div class="position-relative">
+				          <a th:href="@{/accommodation/userHome/{accommodationNo}(accommodationNo=${accommodation.accommodation_no})}">
+				            <div th:each="attach : ${accommodation.attachList}">
+				              <img th:src="@{/uploads/accommodation/{image}(image=${attach.new_name})}"
+				                   class="img-fluid rounded-2"
+				                   alt="숙소 이미지"
+				                   style="width: 100%; height: 200px; object-fit: cover;" />
+				            </div>
+				          </a>
+				        </div>
+				        <div class="card-body pt-3 p-4">
+				          <h6 class="fs-4" th:text="${accommodation.accommodation_name}">숙소명</h6>
+				          <div class="d-flex align-items-center justify-content-between">
+				            <h6 class="fs-4 mb-0">
+				              <span th:text="${#numbers.formatInteger(accommodation.room_price, 3, 'COMMA')} + '원'">0원</span>
+				            </h6>
+				          </div>
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+				</div>
               </div>
             </div>
           </div>
-       
       
 	<script>
 	  function handleColorTheme(e) {
@@ -272,8 +221,6 @@ layout:decorate="~{/include/layout}">
   	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
   	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
   	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
-</body>
-
 
 </th:block>
 </html>
