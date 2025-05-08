@@ -22,4 +22,7 @@ public class MemberSearchDto {
 	// 근태 날짜 조회
 	private LocalDate target_date;
 	
+	// 연차 입사일 조회
+	private int reg_date_order;
+	
 }

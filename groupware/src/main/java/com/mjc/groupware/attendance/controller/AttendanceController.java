@@ -111,7 +111,7 @@ public class AttendanceController {
 		
 		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 		
-		Page<Member> memberList = service.selectMemberAll(searchDto, pageDto);
+		Page<Member> memberList = service.selectMemberAllForAnnual(searchDto, pageDto);
 		
 		pageDto.setTotalPage(memberList.getTotalPages());
 		
@@ -124,7 +124,7 @@ public class AttendanceController {
 		model.addAttribute("memberList", memberList);
 		model.addAttribute("deptList", deptList);
 		model.addAttribute("posList", posList);
-		model.addAttribute("searchText", searchDto.getSearch_text());
+		model.addAttribute("searchDto", searchDto);
 		model.addAttribute("pageDto", pageDto);
 		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
 		
