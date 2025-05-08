@@ -24,80 +24,325 @@ layout:decorate="~{/include/layout}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 	
 	<div class="page-titles mb-7 mb-md-5">
-		<div class="row">
-			<div class="col-lg-8 col-md-6 col-12 align-self-center">
-				<nav aria-label="breadcrumb">
-                	<ol class="breadcrumb align-items-center">
-                		<li class="breadcrumb-item">
-                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
-                     			<i class="ti ti-home fs-5"></i>
-                    		</a>
-                   	 	</li>
-						<li class="breadcrumb-item" aria-current="page">근태 / 연차 및 근태 관리</li>
-                  	</ol>
-				</nav><br>
-				<h2 class="mb-0 fw-bolder fs-8">근태 관리</h2>
-			</div><br>
+	  <div class="row">
+	    <div class="col-12">
+	      <nav aria-label="breadcrumb">
+	        <ol class="breadcrumb align-items-center">
+	          <li class="breadcrumb-item">
+	            <a class="text-muted text-decoration-none" th:href="@{/home}">
+	              <i class="ti ti-home fs-5"></i>
+	            </a>
+	          </li>
+	          <li class="breadcrumb-item" aria-current="page">근태 / 근태 관리</li>
+	        </ol>
+	      </nav>
+	
+	      <div class="d-flex justify-content-between align-items-center mt-3">
+	        <h2 class="mb-0 fw-bolder fs-8">근태 관리</h2>
+	        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#workPolicyModal">
+			  근태 정책 설정
+			</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<div class="card">
+        <div class="card-body">
+        	<div class="tab-content" id="pills-tabContent">
+            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
+            	<h5 class="fw-bold mb-3">사원 연차 관리</h5>
+					<div class="row">
+                    	<div class="col-lg-3 d-flex align-items-stretch">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                          			<h4 class="card-title" style="font-weight: bold;">부서</h4>
+                          			<br>
+  									
+  									<th:block th:if="${!#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
+   										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
+									</div>
+									</th:block>
+									<th:block th:if="${#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										등록된 부서가 없습니다.
+									</div>
+									</th:block>
+									
+									<div id="attendance_jstree">
+   										<ul>
+									      <li th:each="dept : ${departments}" th:id="'dept_' + ${dept.id}" th:data-parent="'#'">
+									         <span th:text="${dept.name}"></span>
+									      </li>
+									   </ul>
+									</div>
+									
+									<!-- jsTree 데이터 확인용 버튼 -->
+  									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
+  									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-9 d-flex align-items-stretch d-none" id="update_member_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="update_member_form">
+                          				<div class="d-flex justify-content-between align-items-center mb-3">
+										  <h4 class="card-title fw-bold mb-0">사원 목록</h4>
+										  <button type="button" id="chkUpdateBtn" class="btn btn-primary btn-sm">
+										    일괄 수정
+										  </button>
+										  <input type="date" name="target_date" class="form-control form-control-sm"
+										         th:value="${targetDate}" style="max-width: 200px;">
+										  <button type="submit" class="btn btn-sm btn-primary">조회</button>
+										</div>
+										
+                          				<br>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_list" class="form-label">부서목록</label>
+                              				<input type="text" class="form-control" id="dept_list" name="dept_list" th:value="${deptList}">
+                            			</div>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_no" class="form-label">부서번호</label>
+                              				<input type="text" class="form-control" id="dept_no" name="dept_no">
+                            			</div>
+                            			
+                            			<div class="table-responsive mb-4 border rounded-1">
+							                <table class="table text-nowrap mb-0 align-middle">
+							                  <thead class="text-dark fs-4">
+							                    <tr>
+							                      <!-- <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+							                      </th> -->
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">날짜</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">출근 시간</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">퇴근 시간</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">출근 상태</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">퇴근 상태</h6>
+							                      </th>
+							                    </tr>
+							                  </thead>
+							                  <tbody id="member-tbody" class="member-tbody">
+												
+							                  </tbody>
+							                </table>
+							              
+							              </div>
+                      				</form>
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                   		<div class="col-lg-9 d-flex align-items-stretch" id="none_member_div">
+                    		<div class="card w-100 border position-relative overflow-hidden">
+                        		<div class="card-body p-4">
+                        			<form name="attendance_members_form" action="/annual/management" method="get">
+                        				<div class="d-flex justify-content-between align-items-center mb-3">
+
+										  <!-- 왼쪽: 사원 목록 제목 + 검색 -->
+										  <div class="d-flex align-items-center">
+										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
+										    
+										    <div class="input-group input-group-sm">
+										      <input type="text" id="search_text" name="search_text"
+										             th:value="${searchText}" class="form-control" placeholder="사원명(사번) 검색" />
+										      <button class="btn btn-primary" id="searchBtn">검색</button>
+										      <button class="btn btn-secondary" id="resetBtn" type="button">초기화</button>
+										    </div>
+										  </div>
+										
+										  <!-- 오른쪽: 날짜 input -->
+										  <div style="max-width: 200px;">
+										    <input type="date" name="target_date" th:value="${targetDate}" class="form-control form-control-sm">
+										  </div>
+										
+										</div>
+										
+										<div class="table-responsive mb-4 border rounded-1">
+							                <table class="table text-nowrap mb-0 align-middle">
+							                  <thead class="text-dark fs-4">
+							                    <tr>
+							                      <!-- <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+							                      </th> -->
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">날짜</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">출근 시간</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">퇴근 시간</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">출근 상태</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">퇴근 상태</h6>
+							                      </th>
+							                    </tr>
+							                  </thead>
+							                  <tbody id="member-tbody">
+											  <tr th:each="dto : ${memberAttendanceList}">
+											    <td>
+													<div class="d-flex align-items-center">
+														<div class="ms-3">
+															<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${dto.member.memberName}">사원명</h6>
+															<span class="fw-normal" th:text="|#${dto.member.memberNo}|">#사번</span>
+														</div>
+													</div>
+													<input type="hidden" id="memberNo" th:value="${dto.member.memberNo}">
+												</td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0" th:text="${dto.attendDate != null ? #temporals.format(dto.attendDate, 'yyyy.MM.dd') : '출근 정보 없음'}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.startTime != null ? dto.startTime : '-'}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.endTime != null ? dto.endTime : '-'}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.lateYn == 'Y' ? '지각' : (dto.lateYn == null ? '-' : '정상')}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.earlyLeaveYn == 'Y' ? '조퇴' : (dto.earlyLeaveYn == null ? '-' : '정상')}"></h6></td>
+											</tr>
+											</tbody>
+							                </table>
+							              
+							              </div>
+						                
+										<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+
+										  <nav>
+											  <ul class="pagination mb-0">
+											    <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
+											      <a class="page-link"
+											         th:href="${pageDto.prev} ? @{/attendance/management(nowPage=${pageDto.pageBarStart-1}, search_text=${searchText})} : '#'"
+											         aria-label="Previous">
+											        <span aria-hidden="true">&laquo;</span>
+											      </a>
+											    </li>
+												
+											    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+											      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+											        <a class="page-link"
+											           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+											           th:href="@{/attendance/management(nowPage=${num}, search_text=${searchText})}"
+											           th:text="${num}">페이지</a>
+											      </li>
+											    </th:block>
+											
+											    <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
+											      <a class="page-link"
+											         th:href="${pageDto.next} ? @{/attendance/management(nowPage=${pageDto.pageBarEnd+1}, search_text=${searchText})} : '#'"
+											         aria-label="Next">
+											        <span aria-hidden="true">&raquo;</span>
+											      </a>
+											    </li>
+											  </ul>
+										    </nav>
+										  
+										</div>
+                        			</form>
+									
+                        		</div>
+                      		</div>
+                   		</div>
+                   		
+                  	</div>            	
+                </div>
+			</div>
 		</div>
 	</div>
 	
-	<div class="card mb-4">
-	  <div class="card-body">
-	  	<form name="work_time_form" action="/attendance/manage" method="post">
-	    <div class="d-flex justify-content-between align-items-center mb-4">
-	      <h4 class="fw-bold mb-0">근태 정책 설정</h4>
-	      <input type='hidden' value='1' name='work_schedule_policy_no'>
-	      <button type="submit" class="btn btn-primary">저장</button>
-	    </div>
+	<!-- 모달창 -->
+	<div class="modal fade" id="workPolicyModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- 너비 넉넉하게 -->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title fw-bold">근태 정책 설정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+	      </div>
+	      
+	      <div class="modal-body">
+	        <form name="work_time_form" action="/attendance/manage" method="post">
+	          <input type="hidden" value="1" name="work_schedule_policy_no">
 	
-	    <div class="row g-4 align-items-start">
-		
-	      <!-- 출근 시간 범위 -->
-	      <div class="col-md-6">
-	        <label class="form-label fw-semibold">출근 가능 시간 범위 (유연 근무제)</label>
-	        <div class="row g-2 align-items-center mb-2">
-	          <div class="col-auto">
-	            <input type="time" name="start_time_min" id="start_time_min" class="form-control" th:value="${workSchedulePolicy.startTimeMin}">
+	          <div class="row g-4 align-items-start">
+	            <!-- 출근 시간 범위 -->
+	            <div class="col-md-6">
+	              <label class="form-label fw-semibold">출근 가능 시간 범위 (유연 근무제)</label>
+	              <div class="row g-2 align-items-center mb-2">
+	                <div class="col-auto">
+	                  <input type="time" name="start_time_min" id="start_time_min" class="form-control"
+	                    th:value="${workSchedulePolicy.startTimeMin}">
+	                </div>
+	                <div class="col-auto">~</div>
+	                <div class="col-auto">
+	                  <input type="time" name="start_time_max" id="start_time_max" class="form-control"
+	                    th:value="${workSchedulePolicy.startTimeMax}">
+	                </div>
+	              </div>
+	              <small class="text-muted">유연 근무제를 사용하지 않으면 동일한 시간으로 설정하세요.</small>
+	            </div>
+	
+	            <!-- 근무 시간 설정 -->
+	            <div class="col-md-6">
+	              <div class="mb-3">
+	                <label for="work_duration" class="form-label fw-semibold mb-1">하루 최소 근무시간</label>
+	                <div class="input-group">
+	                  <input type="number" step="0.5" name="work_duration" id="work_duration" class="form-control"
+	                    placeholder="예: 8.5" th:value="${workSchedulePolicy.workDuration}">
+	                  <span class="input-group-text">시간</span>
+	                </div>
+	              </div>
+	
+	              <div class="mb-3">
+	                <label for="week_work_min_time" class="form-label fw-semibold mb-1">주 최소 근무시간</label>
+	                <div class="input-group">
+	                  <input type="number" step="0.5" name="week_work_min_time" id="week_work_min_time"
+	                    class="form-control" placeholder="예: 40" th:value="${workSchedulePolicy.weekWorkMinTime}">
+	                  <span class="input-group-text">시간</span>
+	                </div>
+	              </div>
+	
+	              <div>
+	                <label for="week_work_max_time" class="form-label fw-semibold mb-1">주 최대 근무시간</label>
+	                <div class="input-group">
+	                  <input type="number" step="0.5" name="week_work_max_time" id="week_work_max_time"
+	                    class="form-control" placeholder="예: 52" th:value="${workSchedulePolicy.weekWorkMaxTime}">
+	                  <span class="input-group-text">시간</span>
+	                </div>
+	              </div>
+	            </div>
 	          </div>
-	          <div class="col-auto">~</div>
-	          <div class="col-auto">
-	            <input type="time" name="start_time_max" id="start_time_max" class="form-control" th:value="${workSchedulePolicy.startTimeMax}">
+	
+	          <div class="mt-4 text-end">
+	            <button type="submit" class="btn btn-primary">저장</button>
+	            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
 	          </div>
-	        </div>
-	        <small class="text-muted">유연 근무제를 사용하지 않으면 동일한 시간으로 설정하세요.</small>
+	        </form>
 	      </div>
 	
-	      <!-- 근무 시간 설정 -->
-	      <div class="col-md-6">
-	        <div class="mb-3">
-	          <label for="work_duration" class="form-label fw-semibold mb-1">하루 최소 근무시간</label>
-	          <div class="input-group">
-	            <input type="number" step="0.5" name="work_duration" id="work_duration" class="form-control" placeholder="예: 8.5"
-	            th:value="${workSchedulePolicy.workDuration}">
-	            <span class="input-group-text">시간</span>
-	          </div>
-	        </div>
-	
-	        <div class="mb-3">
-	          <label for="week_work_min_time" class="form-label fw-semibold mb-1">주 최소 근무시간</label>
-	          <div class="input-group">
-	            <input type="number" step="0.5" name="week_work_min_time" id="week_work_min_time" class="form-control" placeholder="예: 40"
-	            th:value="${workSchedulePolicy.weekWorkMinTime}">
-	            <span class="input-group-text">시간</span>
-	          </div>
-	        </div>
-	
-	        <div>
-	          <label for="week_work_max_time" class="form-label fw-semibold mb-1">주 최대 근무시간</label>
-	          <div class="input-group">
-	            <input type="number" step="0.5" name="week_work_max_time" id="week_work_max_time" class="form-control" placeholder="예: 52"
-	            th:value="${workSchedulePolicy.weekWorkMaxTime}">
-	            <span class="input-group-text">시간</span>
-	          </div>
-	        </div>
-	      </div>
 	    </div>
-	    </form>
 	  </div>
 	</div>
 
@@ -137,11 +382,44 @@ layout:decorate="~{/include/layout}">
 			.then(data => {
 				alert(data.res_msg);
 				if(data.res_code =='200') {
-					location.href = '/attendance/management';
+					document.getElementById('start_time_min').value = data.workPolicy.startTimeMin;
+					document.getElementById('start_time_max').value = data.workPolicy.startTimeMax;
+					document.getElementById('work_duration').value = data.workPolicy.workDuration;
+					document.getElementById('week_work_min_time').value = data.workPolicy.weekWorkMinTime;
+					document.getElementById('week_work_max_time').value = data.workPolicy.weekWorkMaxTime;
 				}
 			})
 		});
 	</script>
+	<script>
+	
+		
+		$(document).on("click", function (e) {
+			// 트리 안쪽이 아닌 다른 곳을 클릭했을 경우
+			if (!$(e.target).closest('#attendance_jstree').length) {
+				if (
+					!$(e.target).closest('#attendance_jstree').length && 
+					!$(e.target).closest('#update_member_div').length &&
+					!$(e.target).closest('#create_member_div').length
+				) {
+					$("#update_member_div").addClass("d-none");
+					$("#none_member_div").removeClass("d-none");
+				}
+			}
+		});
+		
+		
+	</script>
+	
+	<script th:src="@{/js/jji/attendance/jstree.js}"></script>
+	<script>
+		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
+		document.getElementById("resetBtn").addEventListener("click", function() {
+		    document.getElementById("search_text").value = "";
+		    document.getElementById("searchBtn").click();
+		});
+	</script>
+	
 	<!-- Bootstrap Common JS Files Start -->
 	
 	<!-- Import vendorJs Files -->

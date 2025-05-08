@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.MemberAttendanceDto;
 import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
@@ -59,30 +60,47 @@ public class AttendanceController {
 	private final MemberService memberService;
 	private final AttendanceRepository attendanceRepository;
 	
-	// 근태 관리페이지로 이동
 	@GetMapping("/attendance/management")
-	public String attendanceManagementViewApi(Model model) {
-		
-		WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
-		model.addAttribute("workSchedulePolicy", wsp);
-		
-		return "/attendance/admin/attendanceManagement";
+	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
+
+	    // 기본값: 오늘 날짜
+	    LocalDate targetDate = (searchDto.getTarget_date() != null) ? searchDto.getTarget_date() : LocalDate.now();
+
+	    // 페이징 처리
+	    if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Member> memberPage = service.selectMemberAll(searchDto, pageDto);
+	    pageDto.setTotalPage(memberPage.getTotalPages());
+
+	    // 날짜별 출근 정보 바인딩
+	    List<MemberAttendanceDto> dtoList = new ArrayList<>();
+	    for (Member member : memberPage.getContent()) {
+	        Attendance att = attendanceRepository.findByMemberAndAttendDate(member, targetDate);
+	        dtoList.add(new MemberAttendanceDto(member, att));
+	    }
+
+	    model.addAttribute("targetDate", targetDate); // 👉 뷰에서 날짜 초기값 표시용
+	    model.addAttribute("memberAttendanceList", dtoList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    
+	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	    model.addAttribute("workSchedulePolicy", wsp);
+	    
+	    // 부서/직책/정책 리스트
+	    model.addAttribute("deptList", deptService.selectDeptAll());
+	    model.addAttribute("posList", posService.selectPosAll());
+	    model.addAttribute("annualLeavePolicyList", annualLeavePolicyRepository.findAllByOrderByYearAsc());
+
+	    return "/attendance/admin/attendanceManagement";
 	}
 	
 	// 근태 정책 업데이트
 	@PostMapping("/attendance/manage")
 	@ResponseBody
-	public Map<String,String> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
-		Map<String,String> resultMap = new HashMap<String,String>();
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "근태 정책 변경에 실패하였습니다.");
+	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
-		int result = attendanceService.workTimeUpdateApi(dto);
-		
-		if(result > 0) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "근태 정책이 변경되었습니다.");
-		}
+		resultMap = attendanceService.workTimeUpdateApi(dto);
 		
 		return resultMap;
 	}

@@ -50,18 +50,22 @@ public class AttendanceService {
 
 	
 	// 근태 정책 변경
-	public int workTimeUpdateApi(WorkSchedulePolicyDto dto) {
-		int result = 0;
+	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
 		try {
 			WorkSchedulePolicy entity = dto.toEntity();
-			workSchedulePolicyRepository.save(entity);
-			
-			result = 1;
+			WorkSchedulePolicy saved = workSchedulePolicyRepository.save(entity);
+			resultMap.put("workPolicy", saved);
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "근태 정책이 변경되었습니다.");
+
 		} catch(Exception e) {
 			e.printStackTrace();
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "근태 정책 변경에 실패하였습니다.");
 		}
-		return result;
+		return resultMap;
 	}
 
 
