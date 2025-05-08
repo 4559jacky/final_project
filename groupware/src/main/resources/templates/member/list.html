@@ -227,8 +227,8 @@ layout:decorate="~{/include/layout}">
 														<select class="mb-0 fw-normal fs-4"
 																name="status"
 																th:classappend="${member.status == 100 ? 'text-success' :
-																			    (member.status == 101 || member.status == 102 || member.status == 300 || member.status == 301) ? 'text-danger' :
-																			    (member.status == 200 || member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
+																			    (member.status == 101 || member.status == 102 || member.status == 200 || member.status == 300 || member.status == 301) ? 'text-warning' :
+																			    (member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
 																			    ''}">
 															<option th:each="status : ${statusList}"
 																	th:value="${status.status_no}"
@@ -370,7 +370,7 @@ layout:decorate="~{/include/layout}">
 								{ no: 100, name: '재직'},
 								{ no: 101, name: '수습'},
 								{ no: 102, name: '인턴'},
-								{ no: 200, name: '전출'},
+								{ no: 200, name: '파견'},
 								{ no: 300, name: '휴직'},
 								{ no: 301, name: '대기'},
 								{ no: 400, name: '해고'},
@@ -383,7 +383,7 @@ layout:decorate="~{/include/layout}">
 								100: 'text-success',
 								101: 'text-warning',
 								102: 'text-warning',
-								200: 'text-secondary',
+								200: 'text-warning',
 								300: 'text-warning',
 								301: 'text-warning',
 								400: 'text-secondary',

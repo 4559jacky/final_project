@@ -400,7 +400,7 @@ public class MemberController {
 		        new StatusDto(100, "재직"),
 		        new StatusDto(101, "수습"),
 		        new StatusDto(102, "인턴"),
-		        new StatusDto(200, "전출"),
+		        new StatusDto(200, "파견"),
 		        new StatusDto(300, "휴직"),
 		        new StatusDto(301, "대기"),
 		        new StatusDto(400, "해고"),

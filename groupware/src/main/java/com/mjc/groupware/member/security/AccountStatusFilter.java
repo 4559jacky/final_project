@@ -58,8 +58,8 @@ public class AccountStatusFilter extends OncePerRequestFilter {
 		    .map(member -> member.getStatus())
 		    .orElse(999); // 999는 예외 상황을 처리해야할 경우를 위해 따로 빼둠
 		
-		// 상태가 400, 401, 402, 900인 경우 로그아웃 처리
-		if ((status >= 400 && status <= 402) || status == 900) {
+		// 상태가 300, 400, 401, 402, 900인 경우 로그아웃 처리
+		if ((status == 300 || status >= 400 && status <= 402) || status == 900) {
 			// 인증 정보 초기화
 			SecurityContextHolder.clearContext();
 			// 강제로 세션을 무효화

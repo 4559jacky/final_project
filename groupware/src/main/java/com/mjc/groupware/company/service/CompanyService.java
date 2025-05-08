@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -154,7 +155,7 @@ public class CompanyService {
 	}
 	
 	public List<FuncDto> selectPrimaryFuncAll() {
-		List<Func> paramList = funcRepository.findAll(FuncSpecification.parentFuncIsNull());
+		List<Func> paramList = funcRepository.findAll(FuncSpecification.parentFuncIsNull(), Sort.by(Sort.Direction.ASC, "funcOrder"));
 		
 		List<FuncDto> resultList = new ArrayList<>();
 		
