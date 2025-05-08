@@ -89,28 +89,11 @@ public class ReplyDto {
                 .isModifiedFlag(reply.getModDate() != null)  // 수정 여부 체크
                 .member(reply.getMember())
                 .subReplyCount(reply.getChildReplies().size())
-                .attachPath(getCachedProfileImagePath(reply))
+                .attachPath(getProfileImagePath(reply)) // 캐시 제거
                 .build();
         return dto;
     }
     
-
-    // 캐시된 프로필 이미지 경로를 가져오거나 새로 생성
-    private static String getCachedProfileImagePath(Reply reply) {
-        if (reply == null || reply.getMember() == null) {
-            return "/img/default_profile.png";
-        }
-        Long memberNo = reply.getMember().getMemberNo();
-        if (profileImageCache.containsKey(memberNo)) {
-            String cachedPath = profileImageCache.get(memberNo);
-            return cachedPath;
-        }
-        String attachPath = getProfileImagePath(reply);
-        profileImageCache.put(memberNo, attachPath);
-        return attachPath;
-    }
-    
-
     // 실제 프로필 이미지 경로를 추출
     private static String getProfileImagePath(Reply reply) {
         try {

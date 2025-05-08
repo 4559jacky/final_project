@@ -113,12 +113,17 @@
   </div>
 </div>
 
-
         <div class="mb-3">
           <label for="board_content" class="form-label"><strong>내용</strong></label>
           <div id="editor" style="margin-top: 10px;"></div>
           <textarea id="board_content" name="board_content" hidden></textarea>
         </div>
+
+<!-- 투표 JSON 전송용 hidden input -->
+<textarea id="vote_json" name="vote_json" hidden></textarea>
+
+<!-- 투표 미리보기 영역 (에디터 아래에 위치) -->
+<div id="vote-preview-container" class="mb-4"></div>
 
         <div class="mb-3">
           <label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
@@ -143,7 +148,6 @@
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
       });
-      
       
 
       const form = document.create_board_form;
@@ -246,41 +250,97 @@ function removeOption(button) {
 }
       
 function saveVote() {
-  const title = document.getElementById('voteTitle').value.trim();
-  const endDate = document.getElementById('voteEndDate').value;
-  const isAnonymous = document.getElementById('isAnonymous').checked ? 'Y' : 'N';
-  const isMultiple = document.getElementById('isMultipleChoice').checked ? 'Y' : 'N';
+	  const title = document.getElementById('voteTitle').value.trim();
+	  const endDate = document.getElementById('voteEndDate').value;
+	  const isAnonymous = document.getElementById('isAnonymous').checked ? 'Y' : 'N';
+	  const isMultiple = document.getElementById('isMultipleChoice').checked ? 'Y' : 'N';
+	  const formattedEndDate = endDate.replace('T', ' ');
+	  const voteTypeText = (isAnonymous === 'Y' ? '익명' : '실명') + (isMultiple === 'Y' ? ', 중복 투표' : '');
 
-  const options = Array.from(document.querySelectorAll('#optionsContainer input'))
-    .map((el, idx) => ({
-      option_text: el.value.trim(),
-      order_no: idx + 1
-    }))
-    .filter(opt => opt.option_text.length > 0);
+	  const options = Array.from(document.querySelectorAll('#optionsContainer input'))
+	    .map((el, idx) => ({
+	      option_text: el.value.trim(),
+	      order_no: idx + 1
+	    }))
+	    .filter(opt => opt.option_text.length > 0);
 
-  if (!title || !endDate || options.length < 2) {
-    alert("투표 제목, 마감일시, 2개 이상의 항목을 입력해주세요.");
-    return;
-  }
+	  if (!title || !endDate || options.length < 2) {
+	    alert("투표 제목, 마감일시, 2개 이상의 항목을 입력해주세요.");
+	    return;
+	  }
 
-  // 서버에서 기대하는 JSON 형식으로 맞춤
-  const votePayload = {
-    voteDto: {
-      vote_title: title,
-      end_date: endDate,
-      is_anonymous: isAnonymous,
-      is_multiple: isMultiple
-    },
-    options: options
-  };
+	  // 서버에 전송할 JSON 형식
+	  const votePayload = {
+	    voteDto: {
+	      vote_title: title,
+	      end_date: endDate,
+	      is_anonymous: isAnonymous,
+	      is_multiple: isMultiple
+	    },
+	    options: options
+	  };
 
-  // 숨겨진 input에 저장
-  document.getElementById('vote_json').value = JSON.stringify(votePayload);
+	  // 숨겨진 input에 JSON 문자열 저장
+	  document.getElementById('vote_json').value = JSON.stringify(votePayload);
 
-  // 모달 닫기
-  bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide();
-}
+	  // 에디터 아래 투표 미리보기 표시
+	  const previewContainer = document.getElementById('vote-preview-container');
+	  previewContainer.innerHTML = `
+		  <div class="card border rounded p-3 mt-3">
+		  <h5 class="fw-bold">
+		  		[투표] ${title}
+		  	<small class="text-muted ms-2" style="font-size: 0.9rem;">[${voteTypeText}]</small>
+		 </h5>
+		    <p class="mb-1">마감일시: ${endDate.replace('T', ' ')}</p>
+		    <ul class="list-group mb-3">
+		      ${options.map(opt => `<li class="list-group-item">${opt.option_text}</li>`).join('')}
+		    </ul>
+		    <div class="d-flex gap-2 justify-content-end">
+		      <button type="button" class="btn btn-primary btn-sm" onclick="editVote()">투표 수정</button>
+		      <button type="button" class="btn btn-danger btn-sm" onclick="deleteVote()">투표 삭제</button>
+		    </div>
+		  </div>
+		`;
 
+	  // 모달 닫기
+	  bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide();
+	}
+	// 투표 삭제
+function deleteVote() {
+	  document.getElementById('vote_json').value = '';
+	  document.getElementById('vote-preview-container').innerHTML = '';
+	}
+	// 투표 수정(다시 모달창으로 복귀)
+function editVote() {
+	  const voteJson = document.getElementById('vote_json').value;
+	  if (!voteJson) return;
+
+	  const data = JSON.parse(voteJson);
+	  const vote = data.voteDto;
+	  const options = data.options;
+
+	  document.getElementById('voteTitle').value = vote.vote_title;
+	  document.getElementById('voteEndDate').value = vote.end_date;
+	  document.getElementById('isAnonymous').checked = vote.is_anonymous === 'Y';
+	  document.getElementById('isMultipleChoice').checked = vote.is_multiple === 'Y';
+
+	  const optionsContainer = document.getElementById('optionsContainer');
+	  optionsContainer.innerHTML = '';
+	  options.forEach(opt => {
+	    const div = document.createElement('div');
+	    div.className = 'input-group mb-2 option-item';
+	    div.innerHTML = `
+	      <input type="text" class="form-control" value="${opt.option_text}">
+	      <button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
+	    `;
+	    optionsContainer.appendChild(div);
+	  });
+
+	  const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+	  modal.show();
+	}
+	
+	
 //페이지 로드시 현재 시각을 min 값으로 설정
 window.addEventListener('DOMContentLoaded', () => {
   const voteEndDateInput = document.getElementById('voteEndDate');
