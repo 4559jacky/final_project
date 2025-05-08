@@ -113,12 +113,14 @@
   </div>
 </div>
 
-
         <div class="mb-3">
           <label for="board_content" class="form-label"><strong>내용</strong></label>
           <div id="editor" style="margin-top: 10px;"></div>
           <textarea id="board_content" name="board_content" hidden></textarea>
         </div>
+
+        <!-- ✅ 투표 폼 동적 삽입 영역 -->
+<!-- 		<div id="vote-form-container" class="mt-3"></div> -->
 
         <div class="mb-3">
           <label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
@@ -143,7 +145,6 @@
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
       });
-      
       
 
       const form = document.create_board_form;

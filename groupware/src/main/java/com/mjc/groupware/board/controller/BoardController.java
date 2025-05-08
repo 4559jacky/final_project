@@ -110,7 +110,7 @@ public class BoardController {
         Board board = optionalBoard.get();
         model.addAttribute("board", board);
         model.addAttribute("attachList", boardAttachService.selectAttachList(boardNo));
-        model.addAttribute("replyList", replyService.getRepliesByBoardPaged(boardNo, 0, 5));
+        model.addAttribute("replyList", replyService.getRepliesByBoardPaged(boardNo, 0, 5)); // 댓글 5개 보이게 하기 위해서 코드 생성
 
         if (memberDetails != null && memberDetails.getMember() != null) {
             model.addAttribute("memberNo", memberDetails.getMember().getMemberNo());
