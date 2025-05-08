@@ -20,7 +20,7 @@ public class SharedTrashController {
 
     private final SharedTrashService trashService;
 
-    @GetMapping("/trash")
+    @GetMapping("/trash/list")
     public Map<String, Object> getTrashItems() {
         return trashService.loadTrashItems();
     }

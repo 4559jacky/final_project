@@ -81,10 +81,13 @@ public void restoreFiles(List<Long> fileIds) {
 
 @Transactional
 public void deleteFoldersPermanently(List<Long> folderIds) {
-    if (folderIds == null) return;
-    for (Long id : folderIds) {
-        folderRepository.deleteById(id); // or folder.setFolderStatus("D");
-    }
+	 if (folderIds == null) return;
+	    for (Long id : folderIds) {
+	        SharedFolder folder = folderRepository.findById(id).orElse(null);
+	        if (folder != null) {
+	            folder.setFolderStatus("D");  // ✅ 실제 삭제 대신 상태값 변경
+	        }
+	    }
 }
 
 @Transactional
@@ -94,7 +97,7 @@ public void deleteFilesPermanently(List<Long> fileIds) {
         SharedFile file = fileRepository.findById(id).orElse(null);
         if (file != null) {
             // 🔥 실제 파일 삭제 필요시 여기서 처리
-            fileRepository.delete(file);
+        	 file.setFileStatus("D");
         }
     }
 }

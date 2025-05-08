@@ -34,18 +34,17 @@ public class SharedFolderController {
 	
 	@GetMapping("/shared/main/tree")
 	@ResponseBody
-	public List<Map<String, Object>> getFolderTree(Authentication auth) {
-	    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal(); // (1) 로그인한 사용자 정보 (MemberDetails)
-	    Member member = memberDetails.getMember(); // 진짜 Member 꺼내기
-
+	public List<Map<String, Object>> getFolderTree(@RequestParam String type, Authentication auth) {
+	    Member member = ((MemberDetails) auth.getPrincipal()).getMember();
+	    Long userNo = member.getMemberNo();
 	    Long deptNo = (member.getDept() != null) ? member.getDept().getDeptNo() : null;
 
-	    List<SharedFolder> folders;
-	    if (deptNo == null) {
-	        folders = folderRepository.findSharedFolders();
-	    } else {
-	        folders = folderRepository.findByAccessControl(member.getMemberNo(), deptNo);
-	    }
+	    List<SharedFolder> folders = switch (type) {
+	        case "personal" -> folderRepository.findByMemberMemberNoAndFolderType(userNo, 1);
+	        case "department" -> folderRepository.findByDeptDeptNoAndFolderType(deptNo, 2);
+	        case "public" -> folderRepository.findByFolderType(3);
+	        default -> throw new IllegalArgumentException("Invalid type: " + type);
+	    };
 
 	    List<Map<String, Object>> result = new ArrayList<>();
 

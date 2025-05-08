@@ -23,4 +23,8 @@ public interface FolderRepository extends JpaRepository<SharedFolder, Long>, Jpa
     
     @Query("SELECT f FROM SharedFolder f WHERE f.folderStatus = 'N' AND f.folderType = 3 ORDER BY f.folderName ASC")
     List<SharedFolder> findSharedFolders();
+    
+    List<SharedFolder> findByMemberMemberNoAndFolderType(Long memberNo, int type);
+    List<SharedFolder> findByDeptDeptNoAndFolderType(Long deptNo, int type);
+    List<SharedFolder> findByFolderType(int type);
 }
