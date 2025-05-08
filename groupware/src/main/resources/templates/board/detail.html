@@ -268,8 +268,9 @@
       </div>
     </div>
   </div>
-   <!-- + 더보기 버튼 -->
-<!-- <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button> -->
+<div class="text-center mt-3">
+  <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button>
+</div>
 </div> 
 
    
@@ -484,12 +485,62 @@
         });
       });
     });
+    // + 더보기 버튼 추가(보류)
+    let currentPage = 1;
+    const pageSize = 5;
+    
+    function loadMoreReplies() {
+      fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('comment-container');
+
+          data.forEach(reply => {
+            const div = document.createElement('div');
+            div.className = 'reply-item mb-3';
+            div.innerHTML = `
+              <div class="d-flex align-items-start mb-2">
+                <div class="profile-icon rounded-circle me-3">
+                  <img src="${reply.attachPath}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
+                      <small class="ms-2 time-display">${reply.regDateFormatted}</small>
+                    </div>
+                  </div>
+                  <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
+                </div>
+              </div>
+            `;
+            container.appendChild(div);
+          });
+
+          if (data.length < pageSize) {
+            document.getElementById('load-more-btn').style.display = 'none';
+          }
+          currentPage++;
+        })
+        .catch(err => {
+          alert('댓글을 불러오지 못했습니다.');
+          console.error(err);
+        });
+    }
+
+    document.getElementById('load-more-btn').addEventListener('click', loadMoreReplies);
+
+    // 첫 로드
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMoreReplies();
+    });
   </script>
   
   
   <script th:inline="javascript">
-  const csrfHeader1 = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
-  const csrfToken1 = /*[[${_csrf.token}]]*/ '';
+  const csrfHeader1 = 'X-CSRF-TOKEN';
+  const csrfToken1 = '';
+  const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
 
   // 투표 중복 확인 및 마감 여부 실시간 반영
   document.addEventListener("DOMContentLoaded", function () {
@@ -497,7 +548,6 @@
     if (!form) return;
 
     const voteNo = form.getAttribute('data-vote-no');
-    const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
 
     // 중복 여부 확인
     fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
@@ -554,124 +604,123 @@
   
 
   // 투표 제출
-  function submitVote() {
-    const form = document.getElementById('voteForm');
-    const voteNo = form.getAttribute('data-vote-no');
-    const selectedOptions = Array.from(form.querySelectorAll("input[name='optionNos']:checked"))
-      .map(opt => opt.value);
+function submitVote() {
+  const form = document.getElementById('voteForm');
+  const voteNo = form.getAttribute('data-vote-no');
+  const selectedOptions = Array.from(form.querySelectorAll("input[name='optionNos']:checked"))
+    .map(opt => opt.value);
 
-    if (selectedOptions.length === 0) {
-      alert("하나 이상의 항목을 선택해주세요.");
-      return;
-    }
-
-    const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
-
-    fetch(`/vote/${voteNo}/submit?memberNo=${memberNo}&` + new URLSearchParams({
-      optionNos: selectedOptions
-    }), {
-      method: 'POST',
-      headers: {
-        [csrfHeader]: csrfToken
-      }
-    })
-      .then(res => res.ok ? res.text() : Promise.reject("투표 실패"))
-      .then(() => {
-        alert("투표 완료!");
-        location.reload();
-      })
-      .catch(err => {
-        alert("투표 중 오류 발생: " + err);
-      });
+  if (selectedOptions.length === 0) {
+    alert("하나 이상의 항목을 선택해주세요.");
+    return;
   }
+
+  fetch(`/vote/${voteNo}/submit?` + new URLSearchParams({
+    optionNos: selectedOptions
+  }), {
+    method: 'POST',
+    headers: {
+      [csrfHeader]: csrfToken
+    }
+  })
+    .then(res => res.ok ? res.text() : Promise.reject("투표 실패"))
+    .then(() => {
+      alert("투표 완료!");
+      location.reload();
+    })
+    .catch(err => {
+      alert("투표 중 오류 발생: " + err);
+    });
+}
 
   // Chart.js 결과 차트 표시
   document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
-    const voteNo = this.getAttribute('data-vote-no');
+  const voteNo = this.getAttribute('data-vote-no');
 
-    fetch(`/vote/${voteNo}/result`, {
-      headers: {
-        [csrfHeader]: csrfToken
-      }
-    })
+  fetch(`/vote/${voteNo}/result`, {
+    headers: { [csrfHeader]: csrfToken }
+  })
     .then(res => res.json())
     .then(data => {
       const labels = data.map(opt => opt.optionText);
       const counts = data.map(opt => opt.voteCount);
+      const voters = data.map(opt => opt.voters || []);
+      const isAnonymous = data[0]?.anonymous === 'Y';
 
       const ctx = document.getElementById('voteResultChart').getContext('2d');
 
-      const colors = [
-        'rgba(255, 99, 132, 0.5)',
-        'rgba(54, 162, 235, 0.5)',
-        'rgba(255, 206, 86, 0.5)',
-        'rgba(75, 192, 192, 0.5)',
-        'rgba(153, 102, 255, 0.5)',
-        'rgba(255, 159, 64, 0.5)'
-      ];
-      const borderColors = colors.map(c => c.replace('0.5', '1'));
+      if (window.voteChart) window.voteChart.destroy();
 
-      if (window.voteChart) {
-        window.voteChart.destroy();
-      }
+      const backgroundColors = [
+        '#0d6efd', '#6f42c1', '#fd7e14',
+        '#198754', '#dc3545', '#20c997',
+        '#ffc107', '#6610f2'
+      ];
 
       window.voteChart = new Chart(ctx, {
-    	  type: 'bar',
-    	  data: {
-    	    labels: labels,
-    	    datasets: [{
-    	    	  label: '득표 수',
-    	    	  data: counts,
-    	    	  backgroundColor: colors,
-    	    	  borderColor: borderColors,
-    	    	  borderWidth: 1,
-    	    	  borderRadius: 5,
-    	    	  barPercentage: 0.6,
-    	    	  categoryPercentage: 0.6
-    	    	}]
-    	  },
-    	  options: {
-    	    responsive: true,
-    	    animation: {
-    	      duration: 800,
-    	      easing: 'easeInOutCubic'
-    	    },
-    	    indexAxis: 'x',
-    	    scales: {
-    	      y: {
-    	        beginAtZero: true,
-    	        title: {
-    	          display: true,
-    	          text: '득표 수'
-    	        },
-    	        ticks: {
-    	          stepSize: 1
-    	        }
-    	      }
-    	    },
-    	    plugins: {
-    	      legend: {
-    	        display: false
-    	      },
-    	      tooltip: {
-    	        callbacks: {
-    	          label: function (context) {
-    	            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-    	            const value = context.raw;
-    	            const percent = ((value / total) * 100).toFixed(1);
-    	            return `${context.label}: ${value}표 (${percent}%)`;
-    	          }
-    	        }
-    	      }
-    	    }
-    	  }
-    	});
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '득표 수',
+            data: counts,
+            backgroundColor: backgroundColors.slice(0, labels.length),
+            borderRadius: 5,
+            borderSkipped: false,
+            barThickness: 40
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: {
+            duration: 800,
+            easing: 'easeInOutQuart'
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              title: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1,
+                callback: value => `${value}표`
+              },
+              title: {
+                display: true,
+                text: '득표 수'
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                  const value = context.raw;
+                  const percent = ((value / total) * 100).toFixed(1);
+                  return `${context.label}: ${value}표 (${percent}%)`;
+                }
+              }
+            }
+          },
+          onClick: function (e, elements) {
+            if (elements.length === 0 || isAnonymous) return;
+
+            const index = elements[0].index;
+            const voterNames = voters[index];
+            alert(`${labels[index]} 항목 투표자:\n\n${voterNames.join('\n')}`);
+          }
+        }
+      });
     })
     .catch(err => {
       alert("투표 결과를 불러오는 데 실패했습니다.");
       console.error(err);
     });
-  });
+});
 
   // 다크모드 스위치 적용
   document.getElementById('darkToggle')?.addEventListener('change', function () {
@@ -679,7 +728,7 @@
   });
 </script>
  
-
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

@@ -144,7 +144,6 @@ public class VoteService {
         }
     }
     // 투표 차트 기능 추가
- // 투표 차트 데이터 - 실명일 경우 투표자 표시
     public List<Map<String, Object>> getVoteResultForChart(Long voteNo) {
         List<VoteOption> options = optionRepo.findByVote_VoteNo(voteNo);
         List<Map<String, Object>> result = new ArrayList<>();

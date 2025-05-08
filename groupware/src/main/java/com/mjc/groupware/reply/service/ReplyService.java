@@ -1,8 +1,17 @@
 package com.mjc.groupware.reply.service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -196,20 +205,22 @@ public class ReplyService {
     }
     
     // 댓글 +더보기 버튼 추가 코드
-//    @Transactional(readOnly = true)
-//    public List<ReplyDto> getRepliesByBoardPaged(Long boardNo, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").ascending());
-//        Page<Reply> replyPage = replyRepository.findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(boardNo, "N", pageable);
-//
-//        List<ReplyDto> result = new ArrayList<>();
-//        for (Reply reply : replyPage.getContent()) {
-//            ReplyDto dto = ReplyDto.toDto(reply);
-//            List<Reply> children = replyRepository.findByParentReply_ReplyNoAndReplyStatus(reply.getReplyNo(), "N");
-//            dto.setSubReplies(children.stream().map(ReplyDto::toDto).toList());
-//            dto.setSubReplyCount(children.size());
-//            result.add(dto);
-//        }
-//
-//        return result;
-//    }
+    @Transactional(readOnly = true)
+    public List<ReplyDto> getRepliesByBoardPaged(Long boardNo, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate")); // 최신순 정렬
+
+        Page<Reply> replyPage = replyRepository.findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(boardNo, "N", pageable);
+
+        List<ReplyDto> result = new ArrayList<>();
+        for (Reply reply : replyPage.getContent()) {
+            ReplyDto dto = ReplyDto.toDto(reply);
+
+            List<Reply> children = replyRepository.findByParentReply_ReplyNoAndReplyStatus(reply.getReplyNo(), "N");
+            dto.setSubReplies(children.stream().map(ReplyDto::toDto).toList());
+            dto.setSubReplyCount(children.size());
+
+            result.add(dto);
+        }
+        return result;
+    }
 }
