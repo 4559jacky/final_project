@@ -2,6 +2,8 @@ package com.mjc.groupware.chat.service;
 
 import org.springframework.stereotype.Service;
 
+import com.mjc.groupware.chat.dto.ChatAlarmDto;
+import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.entity.ChatAlarm;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.repository.ChatAlarmRepository;
@@ -9,7 +11,6 @@ import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 public class ChatAlarmService {
@@ -29,6 +30,7 @@ public class ChatAlarmService {
 
         chatAlarmRepository.save(alarm);
     }
+
     
 
 }
