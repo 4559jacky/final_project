@@ -193,6 +193,7 @@ layout:decorate="~{/include/layout}">
 	                    placeholder="예: 8.5" th:value="${workSchedulePolicy.workDuration}">
 	                  <span class="input-group-text">시간</span>
 	                </div>
+	                <small class="text-muted">최소 근무시간은 휴게시간 1시간이 포함됩니다.<br>실제 근무시간 : 최소 근무시간 - 1h</small>
 	              </div>
 	
 	              <div class="mb-3">
