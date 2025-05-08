@@ -34,46 +34,42 @@ public class SharedFolderController {
 	
 	@GetMapping("/shared/main/tree")
 	@ResponseBody
-	public List<Map<String, Object>> getFolderTree(@RequestParam String type, Authentication auth) {
-	    Member member = ((MemberDetails) auth.getPrincipal()).getMember();
-	    Long userNo = member.getMemberNo();
-	    Long deptNo = (member.getDept() != null) ? member.getDept().getDeptNo() : null;
+	  public List<Map<String, Object>> getFolderTree(@RequestParam String type, Authentication auth) {
+        Member member = ((MemberDetails) auth.getPrincipal()).getMember();
+        Long userNo = member.getMemberNo();
+        Long deptNo = member.getDept() != null ? member.getDept().getDeptNo() : null;
 
-	    List<SharedFolder> folders = switch (type) {
-	        case "personal" -> folderRepository.findByMemberMemberNoAndFolderType(userNo, 1);
-	        case "department" -> folderRepository.findByDeptDeptNoAndFolderType(deptNo, 2);
-	        case "public" -> folderRepository.findByFolderType(3);
-	        default -> throw new IllegalArgumentException("Invalid type: " + type);
-	    };
+        List<SharedFolder> folders = switch (type) {
+            case "personal" -> folderRepository.findByMemberMemberNoAndFolderType(userNo, 1);
+            case "department" -> folderRepository.findByDeptDeptNoAndFolderType(deptNo, 2);
+            case "public" -> folderRepository.findByFolderType(3);
+            default -> throw new IllegalArgumentException("Invalid type: " + type);
+        };
 
-	    List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = new ArrayList<>();
 
-	    for (SharedFolder folder : folders) {
-	        // ✅ 폴더 노드 추가 (기존 코드 그대로)
-	        Map<String, Object> node = new HashMap<>();
-	        node.put("id", folder.getFolderNo());
-	        node.put("parent", folder.getParentFolder() == null ? "#" : folder.getParentFolder().getFolderNo());
-	        node.put("text", folder.getFolderName());
-	        node.put("icon", "jstree-folder");
-	        result.add(node);
+        for (SharedFolder folder : folders) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("id", folder.getFolderNo());
+            node.put("parent", folder.getParentFolder() == null ? "#" : folder.getParentFolder().getFolderNo());
+            node.put("text", folder.getFolderName());
+            node.put("icon", "jstree-folder");
+            result.add(node);
 
-	        // ✅ 파일 노드 추가 (여기만 추가된 부분)
-	        List<SharedFile> files = fileRepository.findByFolderFolderNo(folder.getFolderNo()).stream()
-	            .filter(file -> "N".equals(file.getFileStatus()))
-	            .toList();
+            List<SharedFile> files = fileRepository.findByFolderFolderNo(folder.getFolderNo()).stream()
+                .filter(file -> "N".equals(file.getFileStatus())).toList();
 
-	        for (SharedFile file : files) {
-	            Map<String, Object> fileNode = new HashMap<>();
-	            fileNode.put("id", "file-" + file.getFileNo());
-	            fileNode.put("parent", folder.getFolderNo());
-	            fileNode.put("text", file.getFileName());
-	            fileNode.put("icon", "jstree-file");
-	            result.add(fileNode);
-	        }
-	    }
-
-	    return result;
-	}
+            for (SharedFile file : files) {
+                Map<String, Object> fileNode = new HashMap<>();
+                fileNode.put("id", "file-" + file.getFileNo());
+                fileNode.put("parent", folder.getFolderNo());
+                fileNode.put("text", file.getFileName());
+                fileNode.put("icon", "jstree-file");
+                result.add(fileNode);
+            }
+        }
+        return result;
+    }
 	
 	// 최상위,하위 폴더 생성.
 	@PostMapping("/shared/folder/create")

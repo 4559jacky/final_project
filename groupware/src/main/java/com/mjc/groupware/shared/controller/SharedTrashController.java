@@ -2,12 +2,16 @@ package com.mjc.groupware.shared.controller;
 
 import java.util.Map;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.dto.SharedRestoreRequestDto;
 import com.mjc.groupware.shared.service.SharedTrashService;
 
@@ -21,10 +25,10 @@ public class SharedTrashController {
     private final SharedTrashService trashService;
 
     @GetMapping("/trash/list")
-    public Map<String, Object> getTrashItems() {
-        return trashService.loadTrashItems();
+    public Map<String, Object> getTrashItems(@RequestParam String type, Authentication auth) {
+        Member member = ((MemberDetails) auth.getPrincipal()).getMember();
+        return trashService.loadTrashItems(type, member);
     }
-    
     @PostMapping("/restore")
     public String restoreItems(@RequestBody SharedRestoreRequestDto dto) {
         trashService.restoreFolders(dto.getFolderIds());

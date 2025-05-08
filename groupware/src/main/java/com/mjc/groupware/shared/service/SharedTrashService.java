@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.entity.SharedFile;
 import com.mjc.groupware.shared.entity.SharedFolder;
 import com.mjc.groupware.shared.repository.FileRepository;
@@ -23,23 +24,35 @@ public class SharedTrashService {
     private final FolderRepository folderRepository;
     private final FileRepository fileRepository;
 
-    public Map<String, Object> loadTrashItems() {
+    public Map<String, Object> loadTrashItems(String type, Member member) {
         List<Map<String, Object>> result = new ArrayList<>();
+        Long userNo = member.getMemberNo();
+        Long deptNo = member.getDept() != null ? member.getDept().getDeptNo() : null;
 
-        // 삭제된 폴더
-        List<SharedFolder> deletedFolders = folderRepository.findByFolderStatus("Y");
-        for (SharedFolder folder : deletedFolders) {
+        List<SharedFolder> folders = switch (type) {
+            case "personal" -> folderRepository.findByFolderStatusAndMember("Y", userNo);
+            case "department" -> folderRepository.findByFolderStatusAndDept("Y", deptNo);
+            case "public" -> folderRepository.findByFolderStatusAndFolderType("Y", 3);
+            default -> List.of();
+        };
+
+        for (SharedFolder folder : folders) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", folder.getFolderNo());
             map.put("type", "folder");
             map.put("name", folder.getFolderName());
-            map.put("folderDeletedAt", folder.getFolderDeletedAt());
+            map.put("deletedAt", folder.getFolderDeletedAt());
             result.add(map);
         }
 
-        // 삭제된 파일
-        List<SharedFile> deletedFiles = fileRepository.findByFileStatus("Y");
-        for (SharedFile file : deletedFiles) {
+        List<SharedFile> files = switch (type) {
+            case "personal" -> fileRepository.findByFileStatusAndMemberMemberNo("Y", userNo);
+            case "department" -> fileRepository.findByFileStatusAndFolderFolderType("Y", 2); // assume department-based
+            case "public" -> fileRepository.findByFileStatusAndFolderFolderType("Y", 3);
+            default -> List.of();
+        };
+
+        for (SharedFile file : files) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", file.getFileNo());
             map.put("type", "file");
