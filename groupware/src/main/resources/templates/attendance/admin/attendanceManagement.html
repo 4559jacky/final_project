@@ -95,6 +95,9 @@ layout:decorate="~{/include/layout}">
 										  <button type="button" id="chkUpdateBtn" class="btn btn-primary btn-sm">
 										    일괄 수정
 										  </button>
+										  <input type="date" name="target_date" class="form-control form-control-sm"
+										         th:value="${targetDate}" style="max-width: 200px;">
+										  <button type="submit" class="btn btn-sm btn-primary">조회</button>
 										</div>
 										
                           				<br>
@@ -120,16 +123,19 @@ layout:decorate="~{/include/layout}">
 							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
 							                      </th>
 							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">입사일</h6>
+							                        <h6 class="fs-4 fw-semibold mb-0">날짜</h6>
 							                      </th>
 							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">경력</h6>
+							                        <h6 class="fs-4 fw-semibold mb-0">출근 시간</h6>
 							                      </th>
 							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">연간 연차</h6>
+							                        <h6 class="fs-4 fw-semibold mb-0">퇴근 시간</h6>
 							                      </th>
 							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">남은 연차</h6>
+							                        <h6 class="fs-4 fw-semibold mb-0">출근 상태</h6>
+							                      </th>
+							                      <th>
+							                        <h6 class="fs-4 fw-semibold mb-0">퇴근 상태</h6>
 							                      </th>
 							                    </tr>
 							                  </thead>
@@ -149,25 +155,25 @@ layout:decorate="~{/include/layout}">
                         		<div class="card-body p-4">
                         			<form name="attendance_members_form" action="/annual/management" method="get">
                         				<div class="d-flex justify-content-between align-items-center mb-3">
-										  
+
+										  <!-- 왼쪽: 사원 목록 제목 + 검색 -->
 										  <div class="d-flex align-items-center">
 										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
-											
-										    <div class="input-group">
-										      <th:block th:if="${searchText != null}">
-											  	<input type="text" id="search_text" name="search_text" th:value="${searchText}" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
-										      </th:block>
-										      <th:block th:if="${searchText == null}">
-										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
-										      </th:block>
-										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
-										      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
+										    
+										    <div class="input-group input-group-sm">
+										      <input type="text" id="search_text" name="search_text"
+										             th:value="${searchText}" class="form-control" placeholder="사원명(사번) 검색" />
+										      <button class="btn btn-primary" id="searchBtn">검색</button>
+										      <button class="btn btn-secondary" id="resetBtn" type="button">초기화</button>
 										    </div>
 										  </div>
 										
-										</div>
+										  <!-- 오른쪽: 날짜 input -->
+										  <div style="max-width: 200px;">
+										    <input type="date" name="target_date" th:value="${targetDate}" class="form-control form-control-sm">
+										  </div>
 										
-										<br>
+										</div>
 										
 										<div class="table-responsive mb-4 border rounded-1">
 							                <table class="table text-nowrap mb-0 align-middle">
@@ -196,41 +202,29 @@ layout:decorate="~{/include/layout}">
 							                      </th>
 							                    </tr>
 							                  </thead>
-							                  <tbody id="member-tbody" class="member-tbody">
-						                		<tr th:each="member : ${memberList}" th:attr="data-member-no=${member.memberNo}">
-													<!-- <td>
-														<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
-													</td> -->
-													<td>
-														<div class="d-flex align-items-center">
-															<div class="ms-3">
-																<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
-																<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
-															</div>
+							                  <tbody id="member-tbody">
+											  <tr th:each="dto : ${memberAttendanceList}">
+											    <td>
+													<div class="d-flex align-items-center">
+														<div class="ms-3">
+															<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${dto.member.memberName}">사원명</h6>
+															<span class="fw-normal" th:text="|#${dto.member.memberNo}|">#사번</span>
 														</div>
-														<input type="hidden" id="memberNo" th:value="${member.memberNo}">
-													</td>
-													<td class="text-center">
-													    <h6 class="fs-4 fw-semibold mb-0" th:text="${#temporals.format(member.regDate,'yyyy.MM.dd')}">입사일</h6>
-													</td>
-													<td class="text-center">
-													  	<h6 class="fs-4 fw-semibold mb-0 th-year" th:attr="data-reg-date=${#temporals.format(member.regDate, 'yyyy-MM-dd')}">0년차</h6>
-													</td>
-													<td class="text-center">
-													  <h6 class="fs-4 fw-semibold mb-0">
-													    <span th:each="policy : ${annualLeavePolicyList}"
-													      th:if="${policy.year == T(java.time.Period).between(member.regDate.toLocalDate(), T(java.time.LocalDate).now()).years + 1}"
-													      th:text="${policy.leaveDays}">16</span>
-													  </h6>
-													</td>
-													<td class="text-center">
-														<h6 class="fs-4 fw-semibold mb-0" th:text="${member.annualLeave}">16</h6>
-													</td>
-											  	</tr>
-											  	<tr th:if="${memberList == null}">
-											  		<td colspan="7">사원 정보가 없습니다.</td>
-											  	</tr>
-							                  	</tbody>
+													</div>
+													<input type="hidden" id="memberNo" th:value="${dto.member.memberNo}">
+												</td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0" th:text="${dto.attendDate != null ? #temporals.format(dto.attendDate, 'yyyy.MM.dd') : '출근 정보 없음'}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.startTime != null ? dto.startTime : '-'}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.endTime != null ? dto.endTime : '-'}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.lateYn == 'Y' ? '지각' : (dto.lateYn == null ? '-' : '정상')}"></h6></td>
+											    
+											    <td class="text-center"> <h6 class="fs-4 fw-semibold mb-0"  th:text="${dto.earlyLeaveYn == 'Y' ? '조퇴' : (dto.earlyLeaveYn == null ? '-' : '정상')}"></h6></td>
+											</tr>
+											</tbody>
 							                </table>
 							              
 							              </div>

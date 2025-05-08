@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.MemberAttendanceDto;
 import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
@@ -59,30 +60,38 @@ public class AttendanceController {
 	private final MemberService memberService;
 	private final AttendanceRepository attendanceRepository;
 	
-	// 근태 관리페이지로 이동
 	@GetMapping("/attendance/management")
 	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
-		
-		WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
-		model.addAttribute("workSchedulePolicy", wsp);
-		
-		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
-		Page<Member> memberList = service.selectMemberAll(searchDto, pageDto);
-		pageDto.setTotalPage(memberList.getTotalPages());
-		
-		List<Dept> deptList = deptService.selectDeptAll();
-		List<Pos> posList = posService.selectPosAll();
-		
-		List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
-		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
-		
-		model.addAttribute("memberList", memberList);
-		model.addAttribute("deptList", deptList);
-		model.addAttribute("posList", posList);
-		model.addAttribute("searchText", searchDto.getSearch_text());
-		model.addAttribute("pageDto", pageDto);
-		
-		return "/attendance/admin/attendanceManagement";
+
+	    // 기본값: 오늘 날짜
+	    LocalDate targetDate = (searchDto.getTarget_date() != null) ? searchDto.getTarget_date() : LocalDate.now();
+
+	    // 페이징 처리
+	    if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Member> memberPage = service.selectMemberAll(searchDto, pageDto);
+	    pageDto.setTotalPage(memberPage.getTotalPages());
+
+	    // 날짜별 출근 정보 바인딩
+	    List<MemberAttendanceDto> dtoList = new ArrayList<>();
+	    for (Member member : memberPage.getContent()) {
+	        Attendance att = attendanceRepository.findByMemberAndAttendDate(member, targetDate);
+	        dtoList.add(new MemberAttendanceDto(member, att));
+	    }
+
+	    model.addAttribute("targetDate", targetDate); // 👉 뷰에서 날짜 초기값 표시용
+	    model.addAttribute("memberAttendanceList", dtoList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    
+	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	    model.addAttribute("workSchedulePolicy", wsp);
+	    
+	    // 부서/직책/정책 리스트
+	    model.addAttribute("deptList", deptService.selectDeptAll());
+	    model.addAttribute("posList", posService.selectPosAll());
+	    model.addAttribute("annualLeavePolicyList", annualLeavePolicyRepository.findAllByOrderByYearAsc());
+
+	    return "/attendance/admin/attendanceManagement";
 	}
 	
 	// 근태 정책 업데이트
