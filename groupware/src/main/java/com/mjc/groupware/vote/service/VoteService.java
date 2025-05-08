@@ -156,7 +156,34 @@ public class VoteService {
             result.add(map);
         }
 
+        // 실명일 경우에만 투표자 명단 포함
+        Vote vote = voteRepo.findById(voteNo).orElseThrow();
+        if ("N".equals(vote.getIsAnonymous())) {
+            List<VoteResult> results = resultRepo.findByVote_VoteNo(voteNo);
+            for (Map<String, Object> map : result) {
+                String optionText = (String) map.get("optionText");
+                List<String> voters = results.stream()
+                        .filter(r -> r.getOption().getOptionText().equals(optionText))
+                        .map(r -> r.getMember().getMemberName())
+                        .collect(Collectors.toList());
+                map.put("voters", voters);
+            }
+        }
+
         return result;
+    }
+    
+
+    // 투표가 마감되었는지 확인
+    public boolean isVoteClosed(Long voteNo) {
+        return voteRepo.findById(voteNo)
+                .map(vote -> vote.getEndDate().isBefore(LocalDateTime.now()))
+                .orElse(true); // 없는 경우 마감된 것으로 처리
+    }
+    
+    // 이미 투표했는지 여부 확인
+    public boolean hasUserAlreadyVoted(Long voteNo, Long memberNo) {
+        return resultRepo.existsByVote_VoteNoAndMember_MemberNo(voteNo, memberNo);
     }
     
 }

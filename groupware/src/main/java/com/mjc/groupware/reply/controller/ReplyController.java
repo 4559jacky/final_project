@@ -121,14 +121,14 @@ public class ReplyController {
         return result;  // JSON 형식으로 대댓글 수 반환
     }
     
-//    // 댓글에서 +더보기 버튼 추가 코드
-//    @GetMapping("/replies/{boardNo}")
-//    @ResponseBody
-//    public List<ReplyDto> getRepliesByBoardPaged(
-//            @PathVariable("boardNo") Long boardNo,
-//            @RequestParam(name = "page", defaultValue = "0") int page,
-//            @RequestParam(name = "size", defaultValue = "5") int size) {
-//        return replyService.getRepliesByBoardPaged(boardNo, page, size);
-//    }
+    // 댓글에서 +더보기 버튼 추가 코드
+    @GetMapping("/replies/{boardNo}")
+    @ResponseBody
+    public List<ReplyDto> getRepliesByBoardPaged(
+            @PathVariable("boardNo") Long boardNo,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size) {
+        return replyService.getRepliesByBoardPaged(boardNo, page, size);
+    }
     
 }

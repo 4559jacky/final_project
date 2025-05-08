@@ -1,7 +1,12 @@
 package com.mjc.groupware.reply.service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -131,7 +136,7 @@ public class ReplyService {
     
     // 댓글 단일 조회(내용만)
     @Transactional(readOnly = true)
-    public String getReplyContent(Long replyNo) {
+    public String replyContent(Long replyNo) {
         // 댓글이 존재하면 내용 반환, 없으면 빈 문자열 반환
         return replyRepository.findById(replyNo)
                               .map(Reply::getReplyContent)
@@ -151,15 +156,15 @@ public class ReplyService {
             throw new SecurityException("작성자만 삭제할 수 있습니다.");
         }
 
-        markReplyAsDeleted(reply);  // 삭제 처리
+        replyAsDeleted(reply);  // 삭제 처리
     }
     
 
     // 댓글 및 대댓글 모두 삭제 상태로 변경
-    private void markReplyAsDeleted(Reply reply) {
+    private void replyAsDeleted(Reply reply) {
         reply.setReplyStatus("Y");  // "Y"는 삭제 상태를 의미
         for (Reply child : reply.getChildReplies()) {
-            markReplyAsDeleted(child);  // 자식 댓글들도 재귀적으로 삭제 처리
+        	replyAsDeleted(child);  // 자식 댓글들도 재귀적으로 삭제 처리
         }
     }
     
@@ -168,7 +173,7 @@ public class ReplyService {
     @Transactional(readOnly = true)
     public List<ReplyDto> getHierarchicalRepliesByBoardNo(Long boardNo) {
         // 게시글에 속한 댓글 조회
-        List<Reply> replies = replyRepository.findByBoard_BoardNoAndReplyStatus(boardNo, "N");
+    	List<Reply> replies = replyRepository.findByBoardNoWithMemberAndAttachs(boardNo, "N");
         List<ReplyDto> parentReplies = new ArrayList<>();
         Map<Long, List<ReplyDto>> subReplyMap = new HashMap<>();
 
@@ -200,20 +205,22 @@ public class ReplyService {
     }
     
     // 댓글 +더보기 버튼 추가 코드
-//    @Transactional(readOnly = true)
-//    public List<ReplyDto> getRepliesByBoardPaged(Long boardNo, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").ascending());
-//        Page<Reply> replyPage = replyRepository.findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(boardNo, "N", pageable);
-//
-//        List<ReplyDto> result = new ArrayList<>();
-//        for (Reply reply : replyPage.getContent()) {
-//            ReplyDto dto = ReplyDto.toDto(reply);
-//            List<Reply> children = replyRepository.findByParentReply_ReplyNoAndReplyStatus(reply.getReplyNo(), "N");
-//            dto.setSubReplies(children.stream().map(ReplyDto::toDto).toList());
-//            dto.setSubReplyCount(children.size());
-//            result.add(dto);
-//        }
-//
-//        return result;
-//    }
+    @Transactional(readOnly = true)
+    public List<ReplyDto> getRepliesByBoardPaged(Long boardNo, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate")); // 최신순 정렬
+
+        Page<Reply> replyPage = replyRepository.findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(boardNo, "N", pageable);
+
+        List<ReplyDto> result = new ArrayList<>();
+        for (Reply reply : replyPage.getContent()) {
+            ReplyDto dto = ReplyDto.toDto(reply);
+
+            List<Reply> children = replyRepository.findByParentReply_ReplyNoAndReplyStatus(reply.getReplyNo(), "N");
+            dto.setSubReplies(children.stream().map(ReplyDto::toDto).toList());
+            dto.setSubReplyCount(children.size());
+
+            result.add(dto);
+        }
+        return result;
+    }
 }

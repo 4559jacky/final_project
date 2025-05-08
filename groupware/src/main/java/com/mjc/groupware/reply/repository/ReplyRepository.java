@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 import com.mjc.groupware.reply.entity.Reply;
@@ -25,7 +27,14 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("SELECT r FROM Reply r WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus ORDER BY r.regDate ASC")
     List<Reply> findByBoardNoAndReplyStatusOrderByRegDate(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
 
+    // 댓글/대댓글 프로필 추가 코드
+    @Query("SELECT r FROM Reply r " +
+    	       "JOIN FETCH r.member m " +
+    	       "LEFT JOIN FETCH m.memberAttachs " +
+    	       "WHERE r.board.boardNo = :boardNo AND r.replyStatus = :replyStatus " +
+    	       "ORDER BY r.regDate ASC")
+    List<Reply> findByBoardNoWithMemberAndAttachs(@Param("boardNo") Long boardNo, @Param("replyStatus") String replyStatus);
     // 댓글 +더보기 버튼 추가 코드
-//	Page<Reply> findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String string, Pageable pageable);
+    Page<Reply> findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(Long boardNo, String replyStatus, Pageable pageable);
 
 }

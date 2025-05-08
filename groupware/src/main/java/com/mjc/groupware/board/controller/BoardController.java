@@ -9,6 +9,7 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
@@ -19,11 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -94,9 +97,10 @@ public class BoardController {
     
 
     @GetMapping("/board/detail/{boardNo}")
-    public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
+    public String selectBoardOne(@PathVariable("boardNo") Long boardNo,
+                                 @AuthenticationPrincipal MemberDetails memberDetails,
+                                 Model model) {
         boardService.updateViews(boardNo);
-
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
         if (!optionalBoard.isPresent()) {
             model.addAttribute("error", "해당 게시글을 찾을 수 없습니다.");
@@ -106,20 +110,21 @@ public class BoardController {
         Board board = optionalBoard.get();
         model.addAttribute("board", board);
         model.addAttribute("attachList", boardAttachService.selectAttachList(boardNo));
-        model.addAttribute("replyList", replyService.getHierarchicalRepliesByBoardNo(boardNo));
+        model.addAttribute("replyList", replyService.getRepliesByBoardPaged(boardNo, 0, 5));
+
+        if (memberDetails != null && memberDetails.getMember() != null) {
+            model.addAttribute("memberNo", memberDetails.getMember().getMemberNo());
+        }
 
         if (board.getVote() != null) {
             model.addAttribute("vote", board.getVote());
-            model.addAttribute("voteOptions", board.getVote().getVoteOptions()); // 옵션 주입
-            
-         // 마감 여부 계산 후 모델에 추가
-            boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
+            model.addAttribute("voteOptions", board.getVote().getVoteOptions());
+            boolean isVoteClosed = board.getVote().getEndDate().isBefore(LocalDateTime.now());
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
         return "board/detail";
     }
-    
     
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {

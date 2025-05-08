@@ -1,8 +1,15 @@
 package com.mjc.groupware.vote.repository;
 
 import com.mjc.groupware.vote.entity.VoteResult;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VoteResultRepository extends JpaRepository<VoteResult, Long> {
 	int countByOption_OptionNo(Long optionNo);
+
+	boolean existsByVote_VoteNoAndMember_MemberNo(Long voteNo, Long memberNo); // 사용자 투표 여부 체크
+
+	List<VoteResult> findByVote_VoteNo(Long voteNo);
 }
