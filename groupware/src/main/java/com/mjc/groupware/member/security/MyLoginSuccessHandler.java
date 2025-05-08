@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.mjc.groupware.common.redis.RedisLoginLogService;
+import com.mjc.groupware.member.dto.LogRedisDto;
 import com.mjc.groupware.member.entity.LoginLog;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.LoginLogRepository;
@@ -23,6 +25,7 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
 	
 	private final MemberRepository memberRepository;
 	private final LoginLogRepository loginLogRepository;
+	private final RedisLoginLogService redisLoginLogService;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -40,6 +43,7 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
 		Member member = memberRepository.findById(memberNo)
 				.orElseThrow(() -> new RuntimeException("회원 정보가 존재하지 않습니다. id: " + memberNo + ", 로그인 시각: " + LocalDateTime.now()));
 		
+		// MariaDB 저장
 		LoginLog log = LoginLog.builder()
                 .member(member)
                 .loginTime(LocalDateTime.now())
@@ -48,6 +52,15 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build();
         
         loginLogRepository.save(log);
+        
+        // Redis 저장
+        LogRedisDto redisDto = LogRedisDto.builder()
+                .loginTime(log.getLoginTime())
+                .loginIp(log.getLoginIp())
+                .loginAgent(log.getLoginAgent())
+                .build();
+        
+        redisLoginLogService.saveLoginLog(memberNo, redisDto);
 		
 		System.out.println("MyLoginSuccessHandler :: 로그인 성공");
 		response.sendRedirect("/");
