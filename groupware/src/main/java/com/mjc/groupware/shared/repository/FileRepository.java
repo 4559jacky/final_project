@@ -12,6 +12,7 @@ public interface FileRepository extends JpaRepository<SharedFile, Long>, JpaSpec
 	
 	List<SharedFile> findByFolderFolderNo(Long folderNo);
 	
+	
 	List<SharedFile> findByFolderAndFileStatus(SharedFolder folder, String fileStatus);
 
 	List<SharedFile> findByFileStatus(String status);

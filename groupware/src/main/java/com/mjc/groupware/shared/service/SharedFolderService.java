@@ -90,20 +90,6 @@ public class SharedFolderService {
 	    }
 	}
 	
-	public List<SharedFolderDto> getDeletedFolders() {
-	    List<SharedFolder> deletedFolders = folderRepository.findByFolderStatus("Y");
-
-	    return deletedFolders.stream()
-	        .map(folder -> SharedFolderDto.builder()
-	            .folder_no(folder.getFolderNo())
-	            .folder_name(folder.getFolderName())
-	            .folder_deleted_by(folder.getFolderDeletedBy())
-	            .folder_deleted_at(folder.getFolderDeletedAt())
-	            .build())
-	        .collect(Collectors.toList());
-	}
-	
-	
 	
 }
 

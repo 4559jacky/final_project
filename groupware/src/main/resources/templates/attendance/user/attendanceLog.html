@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{/include/layout}">
+<th:block layout:fragment="content">
+	<div class="col-lg-8 col-md-6 col-12 align-self-center">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb align-items-center">
+					<li class="breadcrumb-item"><a
+						class="text-muted text-decoration-none" href="/home"> <i
+							class="ti ti-home fs-5"></i>
+					</a></li>
+					<li class="breadcrumb-item" aria-current="page">근태 / 근태 정보</li>
+				</ol>
+			</nav>
+			<br>
+			<h2 class="mb-0 fw-bolder fs-8">나의 근태 이력</h2>
+		</div>
+	<!-- 출퇴근 현황 카드 -->
+	<!-- 필터 영역 (카드 밖으로 이동) -->
+	<form name="attendance_info_form" action="/attendance/log" method="get" class="mb-3 mt-3">
+	  <div class="d-flex flex-wrap align-items-end">
+	
+	    <!-- 🔹 왼쪽: 출근/퇴근/정렬 -->
+	    <div class="d-flex align-items-end gap-2 flex-wrap">
+	      <div>
+	        <select name="check_in_status" id="check_in_status" class="form-select form-select-sm">
+	          <option th:value="''" th:selected="${searchDto.check_in_status == null}">출근 상태</option>
+	          <option th:value="N" th:selected="${searchDto.check_in_status == 'N'}">정상</option>
+	          <option th:value="Y" th:selected="${searchDto.check_in_status == 'Y'}">지각</option>
+	        </select>
+	      </div>
+	      <div>
+	        <select name="check_out_status" id="check_out_status" class="form-select form-select-sm">
+	          <option th:value="''" th:selected="${searchDto.check_out_status == null}">퇴근 상태</option>
+	          <option th:value="N" th:selected="${searchDto.check_out_status == 'N'}">정상</option>
+	          <option th:value="Y" th:selected="${searchDto.check_out_status == 'Y'}">조퇴</option>
+	        </select>
+	      </div>
+	      <div>
+	        <select name="order_type" id="order_type" class="form-select form-select-sm">
+	          <option th:value="1" th:selected="${searchDto.order_type == 1}">최신순</option>
+	          <option th:value="2" th:selected="${searchDto.order_type == 2}">오래된 순</option>
+	        </select>
+	      </div>
+	    </div>
+	
+	    <!-- 🔸 오른쪽: 날짜 필터 + 버튼 (우측 고정) -->
+	    <div class="ms-auto d-flex align-items-end gap-2 flex-nowrap text-nowrap" style="min-width: 400px;">
+	      <input type="date" id="start_date" name="start_date"
+	        th:value="${searchDto.start_date != null} ? ${searchDto.start_date} : ''"
+	        class="form-control form-control-sm" style="max-width: 140px;">
+	      ~
+	      <input type="date" id="end_date" name="end_date"
+	        th:value="${searchDto.end_date != null} ? ${searchDto.end_date} : ''"
+	        class="form-control form-control-sm" style="max-width: 140px;">
+	      <button type="submit" class="btn btn-sm btn-primary">조회</button>
+	      <button type="button" class="btn btn-sm btn-secondary" id="resetBtn">초기화</button>
+	    </div>
+	
+	  </div>
+	</form>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			  const startDateInput = document.getElementById('start_date');
+			  const endDateInput = document.getElementById('end_date');
+	
+			  // 시작일 변경 시 종료일 최소값 설정
+			  startDateInput.addEventListener('change', function () {
+			    if (startDateInput.value) {
+			      endDateInput.min = startDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      endDateInput.removeAttribute('min');
+			    }
+			  });
+	
+			  // 종료일 변경 시 시작일 최대값 설정
+			  endDateInput.addEventListener('change', function () {
+			    if (endDateInput.value) {
+			      startDateInput.max = endDateInput.value;
+			      updateAnnualLeave(); // 사용 연차 업데이트
+			    } else {
+			      startDateInput.removeAttribute('max');
+			    }
+			  });
+		});
+	</script>
+	<div class="card p-4 mt-4">
+	  <!-- 📊 테이블 -->
+	  <div class="table-responsive">
+	    <table class="table align-middle text-center">
+	      <thead class="bg-light">
+	        <tr>
+	          <th>날짜</th>
+	          <th>출근 시간</th>
+	          <th>퇴근 시간</th>
+	          <th>총 근무 시간</th>
+	          <th>출근 상태</th>
+	          <th>퇴근 상태</th>
+	        </tr>
+	      </thead>
+	      <tbody id="work-log-tbody">
+	        <tr th:if="${#lists.isEmpty(attendanceList)}">
+	          <td colspan="6">근무 이력이 없습니다.</td>
+	        </tr>
+	        <tr th:each="attendance : ${attendanceList}">
+	          <td th:text="${attendance.attendDate}">날짜</td>
+	          <td th:text="${attendance.checkIn}">출근 시간</td>
+	          <td th:text="${attendance.checkOut}">퇴근 시간</td>
+	          <td th:text="${attendance.workingTime}">총 근무 시간</td>
+	          <td>
+	            <span th:text="${attendance.lateYn == 'Y' ? '지각' : '정상'}"></span>
+	          </td>
+	          <td>
+	            <span th:text="${attendance.earlyLeaveYn == 'Y' ? '조퇴' : '정상'}"></span>
+	          </td>
+	        </tr>
+	      </tbody>
+	    </table>
+	  </div>
+	</div>
+	<!-- 📄 페이지네이션 (생략 없이 유지) -->
+	<th:block th:if="${!(attendanceList.empty)}">
+		<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+		    <!-- 기존 pageDto 기반 pagination 유지 -->
+		    <nav>
+			  <ul class="pagination mb-0">
+			    <li th:if="${pageDto.prev}"
+			    	class="page-item" th:classappend="${pageDto.prev} ? '' : 'disabled'">
+			      <a class="page-link"
+			         th:href="${pageDto.prev} ? @{/attendance/log(nowPage=${pageDto.pageBarStart-1}, start_date=${searchDto.start_date}, end_date=${searchDto.end_date}, order_type=${searchDto.order_type}, check_in_status=${searchDto.check_in_status}, check_out_status=${searchDto.check_out_status})} : '#'"
+			         aria-label="Previous">
+			        <span aria-hidden="true">&laquo;</span>
+			      </a>
+			    </li>
+				
+
+			      <li th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}"
+			      	  class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+			        <a class="page-link"
+			           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+			           th:href="@{/attendance/log(nowPage=${num}, start_date=${searchDto.start_date}, end_date=${searchDto.end_date}, order_type=${searchDto.order_type}, check_in_status=${searchDto.check_in_status}, check_out_status=${searchDto.check_out_status})}"
+			           th:text="${num}">페이지</a>
+			      </li>
+			
+			    <li th:if="${pageDto.next}"
+			    	class="page-item" th:classappend="${pageDto.next} ? '' : 'disabled'">
+			      <a class="page-link"
+			         th:href="${pageDto.next} ? @{/attendance/log(nowPage=${pageDto.pageBarEnd+1}, start_date=${searchDto.start_date}, end_date=${searchDto.end_date}, order_type=${searchDto.order_type}, check_in_status=${searchDto.check_in_status}, check_out_status=${searchDto.check_out_status})} : '#'"
+			         aria-label="Next">
+			        <span aria-hidden="true">&raquo;</span>
+			      </a>
+			    </li>
+			  </ul>
+		    </nav>
+		  </div>
+	  </th:block>
+	
+	<!-- Bootstrap Common JS Files Start -->
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+
+	<!-- Import Js Files -->
+	<script
+		th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+	<script th:src="@{/assets/js/theme/theme.js}"></script>
+	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+	<!-- solar icons -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+
+	<!-- Bootstrap Common JS Files End -->
+
+</th:block>
+</html>

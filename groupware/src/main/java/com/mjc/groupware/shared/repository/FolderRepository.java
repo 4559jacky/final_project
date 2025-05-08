@@ -15,6 +15,7 @@ public interface FolderRepository extends JpaRepository<SharedFolder, Long>, Jpa
     List<SharedFolder> findByParentFolderFolderNo(Long parentFolderId);
     List<SharedFolder> findByParentFolderIsNull();
     List<SharedFolder> findByFolderStatus(String status);
+    
    // 이름순으로 조회, 삭제되지 않은 폴더만 조회.
 
     @Query("SELECT f FROM SharedFolder f WHERE f.folderStatus = 'N' AND ((f.folderType = 1 AND f.member.memberNo = :memberNo) OR (f.folderType = 2 AND f.dept.deptNo = :deptNo) OR (f.folderType = 3)) ORDER BY f.folderName ASC")

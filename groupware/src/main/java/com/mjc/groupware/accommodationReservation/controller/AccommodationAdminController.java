@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +30,8 @@ import com.mjc.groupware.accommodationReservation.service.AccommodationAttachSer
 import com.mjc.groupware.accommodationReservation.service.AccommodationService;
 import com.mjc.groupware.board.controller.BoardAttachController;
 import com.mjc.groupware.common.annotation.CheckPermission;
+import com.mjc.groupware.member.security.MemberDetails;
+import com.mjc.groupware.notice.dto.NoticeDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,8 +39,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AccommodationAdminController {
 
-    private final BoardAttachController boardAttachController;
-	
 	private final AccommodationService accommodationService;
 	private final AccommodationAttachService accommodationAttachService;
 	
@@ -68,6 +71,7 @@ public class AccommodationAdminController {
 		@ModelAttribute AccommodationInfoDto dto,
 		@RequestParam(value = "files", required = false) List<MultipartFile> files
 	) {
+		System.out.println(dto.getAccommodation_no());
 		 Map<String, Object> result = new HashMap<>();
 		    try {
 		        dto.setReg_date(LocalDateTime.now());
@@ -89,33 +93,69 @@ public class AccommodationAdminController {
 		        }
 
 		        result.put("res_code", "200");
-		        result.put("res_msg", "숙소 등록 성공");
+		        result.put("res_msg", "숙소가 등록되었습니다.");
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		        result.put("res_code", "500");
-		        result.put("res_msg", "등록 중 오류 발생");
+		        result.put("res_msg", "숙소 등록 중 오류가 발생했습니다.");
 		    }
 		    return result;
 	}
 
 	// 숙소 수정
-//	@CheckPermission("WELFARE_ADMIN")
-//	@GetMapping("/admin/accommodation/update/{id}")
-//	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
-//	    AccommodationInfoDto dto = accommodationService.findById(id);  // DTO로 받아야 Thymeleaf 사용이 편함
-//
-//	    if (dto == null) {
-//	        return "redirect:/adminHome";
-//	    }
-//
-//	    List<AccommodationAttach> attachList = accommodationService.findAttachList(id);
-//
-//	    model.addAttribute("accommodation", dto);
-//	    model.addAttribute("attachList", attachList);  // 기존 첨부 이미지도 전달
-//
-//	    return "accommodation/adminCreate";  // 수정과 생성 페이지 공유
-//	}
+	@PostMapping("/accommodation/update/{accommodationNo}")
+	@ResponseBody
+	public Map<String, Object> updateAccommodation(
+		@PathVariable("accommodationNo") Long accommodationNo,
+	    @ModelAttribute AccommodationInfoDto dto,
+	    @RequestParam(value = "files", required = false) List<MultipartFile> files
+	) {
+		
+	    Map<String, Object> result = new HashMap<>();
+	    try {
+	        dto.setAccommodation_no(accommodationNo); // id 지정
+	        dto.setMod_date(LocalDateTime.now());
 
+	        AccommodationInfo updated = accommodationService.update(dto); // 서비스 호출
+
+	        // 파일 처리 (선택)
+	        if (files != null && !files.isEmpty()) {
+	            for (MultipartFile mf : files) {
+	                if (!mf.isEmpty()) {
+	                    AccommodationAttachDto attachDto = accommodationAttachService.uploadFile(mf);
+	                    if (attachDto != null) {
+	                        accommodationAttachService.saveAttach(attachDto, updated);
+	                    }
+	                }
+	            }
+	        }
+
+	        result.put("res_code", "200");
+	        result.put("res_msg", "숙소 수정이 완료되었습니다.");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("res_code", "500");
+	        result.put("res_msg", "숙소 수정 중 오류가 발생하였습니다.");
+	    }
+
+	    return result;
+	}
+
+	
+	@GetMapping("/accommodation/update/{id}")
+	public String updateAccommodation(@PathVariable("id") Long id, Model model) {
+	    AccommodationInfoDto dto = accommodationService.findById(id);
+	    if (dto == null) {
+	        return "redirect:/adminHome";
+	    }
+
+	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(id);
+
+	    model.addAttribute("accommodation", dto);
+	    model.addAttribute("attachList", attachList);
+
+	    return "accommodation/adminUpdate";  // 수정과 생성 페이지 공유
+	}
 
 	// 숙소 상세
 	@GetMapping("/accommodation/detail/{accommodationNo}")
@@ -124,27 +164,31 @@ public class AccommodationAdminController {
 	    if (dto == null) {
 	        return "redirect:/accommodation/adminHome";
 	    }
-	    System.out.println("숙소 정보: " + dto);
 
-	    List<AccommodationAttach> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
-	    
+	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
 	    model.addAttribute("accommodation", dto);
 	    model.addAttribute("attachList", attachList); // 이미지 리스트 전달
-	    return "accommodation/detail"; // detail.html로 이동
+	    
+	    return "accommodation/detail";
 	}
 
-//	@CheckPermission("WELFARE_ADMIN")
-//	@DeleteMapping("/accommodation/delete/{id}")
-//	@ResponseBody
-//	public ResponseEntity<?> deleteAccommodation(@PathVariable Long id) {
-//	    try {
-//	        accommodationService.delete(id); // 이 내부에서 DB 삭제 처리
-//	        return ResponseEntity.ok().body("삭제 성공");
-//	    } catch (Exception e) {
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
-//	    }
-//	}
-
+	// 숙소 삭제
+	@DeleteMapping("/accommodation/delete/{accommodationNo}")
+    @ResponseBody
+    public Map<String, String> deleteAccommodation(@PathVariable("accommodationNo") Long accommodationNo) {
+        Map<String, String> resultMap = new HashMap<>();
+        try {
+        	accommodationService.deleteAccommodation(accommodationNo);
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "숙소가 삭제되었습니다.");
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	resultMap.put("res_code", "500");
+        	resultMap.put("res_msg", "숙소 수정 중 오류가 발생하였습니다.");
+        }
+        return resultMap;
+    }
+	
 	
 	
 	

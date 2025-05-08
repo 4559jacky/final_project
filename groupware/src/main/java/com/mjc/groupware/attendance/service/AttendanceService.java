@@ -9,10 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
@@ -21,6 +29,7 @@ import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
+import com.mjc.groupware.attendance.specification.AttendanceSpecification;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
@@ -253,6 +262,32 @@ public class AttendanceService {
 
 	    // 소수점 한자리로 반올림
 	    return Math.round(hours * 10) / 10.0;
+	}
+
+	// 사원 모든 근무이력 데이터 가져오기
+	public List<Attendance> selectAttendanceAll(Member member) {
+		List<Attendance> attendanceList = null;
+		attendanceList = attendanceRepository.findAll();
+		return attendanceList;
+	}
+
+	// 근무 이력 검색 필터 페이징
+	public Page<Attendance> selectAttendanceAllByFilter(Member member, SearchDto searchDto, AttendPageDto pageDto) {
+		Pageable pageable = PageRequest.of(pageDto.getNowPage() -1, pageDto.getNumPerPage(),
+				Sort.by("attendDate").descending());
+		if(searchDto.getOrder_type() == 2) {
+			pageable = PageRequest.of(pageDto.getNowPage() -1, pageDto.getNumPerPage(),
+					Sort.by("attendDate").ascending());
+		}
+		
+		Specification<Attendance> spec = (root, query, criteriaBuilder) -> null;
+		spec = spec.and(AttendanceSpecification.attendanceLateYnContains(searchDto.getCheck_in_status()))
+				.and(AttendanceSpecification.attendanceMemberContains(member.getMemberNo()))
+				.and(AttendanceSpecification.attendanceEarlyLeaveYnContains(searchDto.getCheck_out_status()))
+				.and(AttendanceSpecification.attendDateAfter(searchDto.getStart_date()))
+				.and(AttendanceSpecification.attendDateBefore(searchDto.getEnd_date()));
+		Page<Attendance> list = attendanceRepository.findAll(spec, pageable);
+		return list;
 	}
 
 }
