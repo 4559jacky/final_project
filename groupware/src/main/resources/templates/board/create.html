@@ -296,8 +296,8 @@ function saveVote() {
 		      ${options.map(opt => `<li class="list-group-item">${opt.option_text}</li>`).join('')}
 		    </ul>
 		    <div class="d-flex gap-2 justify-content-end">
-		      <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteVote()">투표 삭제</button>
-		      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="editVote()">다시 수정</button>
+		      <button type="button" class="btn btn-primary btn-sm" onclick="editVote()">투표 수정</button>
+		      <button type="button" class="btn btn-danger btn-sm" onclick="deleteVote()">투표 삭제</button>
 		    </div>
 		  </div>
 		`;
