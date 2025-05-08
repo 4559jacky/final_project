@@ -57,10 +57,10 @@
 <hr>
     
     <!-- 본문 내용 (테두리 없는 버전) -->
-    <div class="toastui-editor-contents"
-         style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
-         th:utext="${board.boardContent ?: '내용 없음'}">
-    </div>
+<div class="toastui-editor-contents"
+     style="min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
+     th:utext="${board.boardContent}">
+</div>
     
 <!-- 투표 정보 영역 -->
 <hr>
@@ -739,6 +739,46 @@ function submitVote() {
   document.getElementById('darkToggle')?.addEventListener('change', function () {
     document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
   });
+  
+  
+  // 투표 마감 알림 기능 추가
+  document.addEventListener("DOMContentLoaded", () => {
+	  const socket = new SockJS("/ws-chat");
+	  const stompClient = Stomp.over(socket);
+
+	  stompClient.connect({}, function () {
+	    const memberNo = /*[[${#authentication.principal.member.memberNo}]]*/ 0;
+
+	    stompClient.subscribe("/topic/alarm/" + memberNo, function (message) {
+	      const alarm = JSON.parse(message.body);
+	      insertNotificationItem(alarm.message);
+	    });
+	  });
+
+	  function insertNotificationItem(message) {
+	    const container = document.getElementById("notification-list");
+	    if (!container) return;
+
+	    const wrapper = document.createElement("a");
+	    wrapper.className = "py-6 px-7 d-flex align-items-center dropdown-item";
+	    wrapper.href = "javascript:void(0)";
+
+	    wrapper.innerHTML = `
+	      <span class="me-3">
+	        <img src="/assets/images/profile/default.jpg" class="rounded-circle" width="48" height="48" />
+	      </span>
+	      <div class="w-100">
+	        <h6 class="mb-0 fs-4 lh-base">알림</h6>
+	        <span class="fs-3 d-block text-body-secondary">${message}</span>
+	      </div>
+	    `;
+
+	    container.prepend(wrapper);
+
+	    // 종 아이콘 강조
+	    document.querySelector(".notification").classList.add("active");
+	  }
+	});
 </script>
  
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

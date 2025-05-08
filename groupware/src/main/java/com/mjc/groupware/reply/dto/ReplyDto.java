@@ -34,6 +34,8 @@ public class ReplyDto {
     private String newContent;
     private String attachPath; // 프로필 이미지 경로
     
+    private String posName; // ✅ 직급명 추가
+    
     // 등록일 포맷된 문자열
     private String regDateFormatted;
     private boolean isModifiedFlag;  // 수정된 상태 여부를 추적하는 변수
@@ -79,6 +81,7 @@ public class ReplyDto {
                 .member_no(reply.getMember() != null ? reply.getMember().getMemberNo() : null)
                 .memberName(reply.getMember() != null ? reply.getMember().getMemberName() : null)
                 .deptName(reply.getMember() != null && reply.getMember().getDept() != null ? reply.getMember().getDept().getDeptName() : null)
+                .posName(reply.getMember() != null && reply.getMember().getPos() != null ? reply.getMember().getPos().getPosName() : null) // ✅ 직급명 추가
                 .board_no(reply.getBoard() != null ? reply.getBoard().getBoardNo() : null)
                 .parent_reply_no(reply.getParentReply() != null ? reply.getParentReply().getReplyNo() : null)
                 .reply_content(reply.getReplyContent())

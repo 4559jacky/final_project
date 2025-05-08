@@ -1,20 +1,5 @@
 package com.mjc.groupware.vote.service;
 
-import com.mjc.groupware.vote.dto.VoteDto;
-import com.mjc.groupware.vote.dto.VoteOptionDto;
-import com.mjc.groupware.vote.entity.Vote;
-import com.mjc.groupware.vote.entity.VoteOption;
-import com.mjc.groupware.vote.entity.VoteResult;
-import com.mjc.groupware.vote.repository.VoteOptionRepository;
-import com.mjc.groupware.vote.repository.VoteRepository;
-import com.mjc.groupware.vote.repository.VoteResultRepository;
-import com.mjc.groupware.member.entity.Member;
-import com.mjc.groupware.member.repository.MemberRepository;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +7,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.vote.dto.VoteAlarmDto;
+import com.mjc.groupware.vote.dto.VoteDto;
+import com.mjc.groupware.vote.dto.VoteOptionDto;
+import com.mjc.groupware.vote.entity.Vote;
+import com.mjc.groupware.vote.entity.VoteAlarm;
+import com.mjc.groupware.vote.entity.VoteOption;
+import com.mjc.groupware.vote.entity.VoteResult;
+import com.mjc.groupware.vote.repository.VoteAlarmRepository;
+import com.mjc.groupware.vote.repository.VoteOptionRepository;
+import com.mjc.groupware.vote.repository.VoteRepository;
+import com.mjc.groupware.vote.repository.VoteResultRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +36,8 @@ public class VoteService {
     private final VoteOptionRepository optionRepo;
     private final VoteResultRepository resultRepo;
     private final MemberRepository memberRepo;
+    private final VoteAlarmRepository voteAlarmRepo;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * 투표 생성
@@ -185,13 +192,53 @@ public class VoteService {
     // 투표가 마감되었는지 확인
     public boolean isVoteClosed(Long voteNo) {
         return voteRepo.findById(voteNo)
-                .map(vote -> vote.getEndDate().isBefore(LocalDateTime.now()))
-                .orElse(true); // 없는 경우 마감된 것으로 처리
+                .map(vote -> {
+                    LocalDateTime now = LocalDateTime.now();
+                    LocalDateTime end = vote.getEndDate();
+                    System.out.println("🕒 현재 시간: " + now);
+                    System.out.println("📅 마감 시간: " + end);
+                    System.out.println("📌 비교 결과 (now.isAfter(end)): " + now.isAfter(end));
+                    return now.isAfter(end); // <-- 핵심 조건
+                })
+                .orElse(true); // 없는 경우는 마감된 걸로 처리
     }
     
     // 이미 투표했는지 여부 확인
     public boolean hasUserAlreadyVoted(Long voteNo, Long memberNo) {
         return resultRepo.existsByVote_VoteNoAndMember_MemberNo(voteNo, memberNo);
+    }
+    
+    // 투표 마감(투표 참여자)에게만 마감 되었다고 알림 갈수있게 코드 추가
+    @Transactional
+    public void notifyVoteClosed(Long voteNo) {
+        Vote vote = voteRepo.findById(voteNo).orElseThrow(() -> new IllegalArgumentException("투표가 존재하지 않습니다."));
+        List<Long> memberNos = resultRepo.findDistinctMemberNosByVoteNo(voteNo);
+
+        for (Long memberNo : memberNos) {
+            if (voteAlarmRepo.existsByVote_VoteNoAndMember_MemberNo(voteNo, memberNo)) {
+                System.out.println("⚠️ 이미 알림 보냄 → memberNo: " + memberNo);
+                continue;
+            }
+
+            Member member = memberRepo.findById(memberNo)
+                    .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+
+            String message = "[" + vote.getVoteTitle() + "] 투표가 마감되었습니다.";
+
+            VoteAlarm alarm = new VoteAlarm();
+            alarm.setVote(vote);
+            alarm.setMember(member);
+            alarm.setMessage(message);
+            alarm.setIsRead(false);
+            alarm.setCreatedAlarm(LocalDateTime.now());
+
+            voteAlarmRepo.save(alarm);
+            System.out.println("🟢 알림 저장됨 → memberNo: " + memberNo);
+
+            messagingTemplate.convertAndSend(
+                "/topic/alarm/" + memberNo,
+                VoteAlarmDto.fromEntity(alarm));
+        }
     }
     
 }

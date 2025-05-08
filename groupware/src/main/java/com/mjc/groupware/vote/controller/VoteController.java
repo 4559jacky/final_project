@@ -115,9 +115,17 @@ public class VoteController {
     @GetMapping("/vote/{voteNo}/is-closed")
     @ResponseBody
     public ResponseEntity<Map<String, Boolean>> isVoteClosed(@PathVariable("voteNo") Long voteNo) {
+        System.out.println("🟡 isVoteClosed API 호출됨 - voteNo: " + voteNo);
+
         boolean closed = voteService.isVoteClosed(voteNo);
+        System.out.println("⏰ 마감 여부: " + closed);
+
+        if (closed) {
+            voteService.notifyVoteClosed(voteNo); // 🎯 마감 시 알림 전송
+        }
+
         return ResponseEntity.ok(Map.of("closed", closed));
     }
-    
+
     
 }

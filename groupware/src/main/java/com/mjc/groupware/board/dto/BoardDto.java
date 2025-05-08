@@ -30,15 +30,13 @@ public class BoardDto {
     private String board_status;
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
+    
+    private String pos_name; // ✅ 직급명 추가
 
-    private Boolean is_fixed;  // 기본값 false로 초기화
+    private Boolean is_fixed; // 기본값 false로 초기화
 
-    // 파일 첨부 리스트
     private List<BoardAttach> attachList;
-
-    // 삭제할 파일 ID 리스트
     private List<Long> delete_files;
-    // 투표 기능 추가
     private VoteDto vote;
 
     // Board 엔티티로 변환
@@ -56,6 +54,8 @@ public class BoardDto {
 
     // Board 엔티티에서 DTO로 변환
     public static BoardDto fromEntity(Board board) {
+        Member member = board.getMember();
+
         return BoardDto.builder()
                 .board_no(board.getBoardNo())
                 .board_title(board.getBoardTitle())
@@ -65,7 +65,8 @@ public class BoardDto {
                 .reg_date(board.getRegDate())
                 .mod_date(board.getModDate())
                 .views(board.getViews())
-                .member_no(board.getMember() != null ? board.getMember().getMemberNo() : null)
+                .member_no(member != null ? member.getMemberNo() : null)
+                .pos_name(member != null && member.getPos() != null ? member.getPos().getPosName() : null) // ✅ 직급명 세팅
                 .attachList(board.getAttachList())
                 .build();
     }
