@@ -303,6 +303,7 @@ public class ApprovalController {
 	
 	// Dept dept = deptService.selectDeptAll();
 	
+	// 사원 결재 요청(만들기)
 	@PostMapping("/approval/create")
 	@ResponseBody
 	public Map<String,String> createApprovalApi(ApprovalDto approvalDto,
