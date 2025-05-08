@@ -143,20 +143,24 @@ public class VoteService {
             resultRepo.save(result);
         }
     }
+    
+    
     // 투표 차트 기능 추가
     public List<Map<String, Object>> getVoteResultForChart(Long voteNo) {
         List<VoteOption> options = optionRepo.findByVote_VoteNo(voteNo);
         List<Map<String, Object>> result = new ArrayList<>();
 
+        // 기본 득표 수 구성
         for (VoteOption option : options) {
             int count = resultRepo.countByOption_OptionNo(option.getOptionNo());
             Map<String, Object> map = new HashMap<>();
             map.put("optionText", option.getOptionText());
             map.put("voteCount", count);
+            map.put("anonymous", option.getVote().getIsAnonymous()); // JS에서 익명 여부 체크용
             result.add(map);
         }
 
-        // 실명일 경우에만 투표자 명단 포함
+        // 실명일 경우만 투표자 명단 추가
         Vote vote = voteRepo.findById(voteNo).orElseThrow();
         if ("N".equals(vote.getIsAnonymous())) {
             List<VoteResult> results = resultRepo.findByVote_VoteNo(voteNo);
@@ -164,7 +168,11 @@ public class VoteService {
                 String optionText = (String) map.get("optionText");
                 List<String> voters = results.stream()
                         .filter(r -> r.getOption().getOptionText().equals(optionText))
-                        .map(r -> r.getMember().getMemberName())
+                        .map(r -> {
+                            Member m = r.getMember();
+                            String dept = m.getDept() != null ? m.getDept().getDeptName() : "부서없음";
+                            return "[" + dept + "]" + m.getMemberName();
+                        })
                         .collect(Collectors.toList());
                 map.put("voters", voters);
             }

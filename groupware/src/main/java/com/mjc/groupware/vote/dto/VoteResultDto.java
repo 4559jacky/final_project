@@ -17,6 +17,5 @@ public class VoteResultDto {
     private Long member_no;
     private LocalDateTime vote_time;
     
-    // 실명 투표일 경우 보여줄 목록
-  //  private List<VoterInfo> voters;
+    
 }
