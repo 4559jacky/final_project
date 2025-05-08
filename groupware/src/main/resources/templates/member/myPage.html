@@ -535,18 +535,24 @@ layout:decorate="~{/include/layout}">
                     <div class="col-lg-12">
                       <div class="card border shadow-none">
                         <div class="card-body p-4">
-                          <h4 class="card-title">최근 로그인 이력</h4>
-                          <p class="card-subtitle mb-4">You can check your recent login history.</p>
+                          <h4 class="card-title">로그인 이력<span style="font-size: 0.7em;" class="text-muted small"> (최근 3개월)</span></h4>
+                          <p class="card-subtitle mb-4">You can check your recent login history for 3 months.</p>
 						  <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
-							<input type="date" id="loginDateStart" name="loginDateStart"
-								th:value="${loginDateStart != null} ? ${loginDateStart} : ''"
-								class="form-control form-control-sm" placeholder="시작일" style="max-width: 140px;">
+							<input type="text" id="loginDateStart" name="loginDateStart"
+							    th:value="${loginDateStart != null ? loginDateStart : ''}"
+							    class="form-control form-control-sm" placeholder="시작일" 
+							    onfocus="this.type='date'; this.showPicker();"
+        						onblur="if(this.value===''){this.type='text';}"
+							    style="max-width: 140px;">
 							~
-							<input type="date" id="loginDateEnd" name="loginDateEnd" 
-								th:value="${loginDateEnd != null} ? ${loginDateEnd} : ''"
-								class="form-control form-control-sm" placeholder="종료일" style="max-width: 140px;">
-							<button type="button" class="btn btn-sm btn-primary" onclick="filterLoginLogs()">조회</button>
-							<button type="button" class="btn btn-sm btn-secondary" id="resetBtn">초기화</button>
+							<input type="text" id="loginDateEnd" name="loginDateEnd"
+							    th:value="${loginDateEnd != null ? loginDateEnd : ''}"
+							    class="form-control form-control-sm" placeholder="종료일"
+							    onfocus="this.type='date'; this.showPicker();"
+        						onblur="if(this.value===''){this.type='text';}"
+							    style="max-width: 140px;">
+							<button type="button" class="btn btn-sm btn-primary" style="min-width: 43px;" onclick="filterLoginLogs()">조회</button>
+							<button type="button" class="btn btn-sm btn-secondary" style="min-width: 55px;" id="resetBtn">초기화</button>
 						  </div>
 						  <!-- MariaDB를 통해 조회하는 방법 -->
 					      <!-- <div class="table-responsive mb-4 border rounded-1">
@@ -982,6 +988,31 @@ layout:decorate="~{/include/layout}">
 	</script>
 	
 	<script>
+		// 선택 가능한 날짜를 최근 3개월로 제한하는 로직
+		document.addEventListener("DOMContentLoaded", function () {
+			const today = new Date();
+			const threeMonthsAgo = new Date();
+			threeMonthsAgo.setMonth(today.getMonth() - 3);
+	
+			const formatDate = (date) => {
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, "0");
+				const day = String(date.getDate()).padStart(2, "0");
+				return `${year}-${month}-${day}`;
+			};
+	
+			const minDate = formatDate(threeMonthsAgo);
+			const maxDate = formatDate(today);
+	
+			document.getElementById("loginDateStart").min = minDate;
+			document.getElementById("loginDateStart").max = maxDate;
+	
+			document.getElementById("loginDateEnd").min = minDate;
+			document.getElementById("loginDateEnd").max = maxDate;
+		});
+	</script>
+	
+	<script>
 		// 로그인 이력 필터링 로직
 		function filterLoginLogs() {
 		    const loginDateStart = document.getElementById("loginDateStart").value;
@@ -1201,8 +1232,6 @@ layout:decorate="~{/include/layout}">
   	<!-- Bootstrap Common JS Files End -->
   	
   	<!-- Custom JS Files -->
-  	
-  	
   	
 </th:block>
 </html>
