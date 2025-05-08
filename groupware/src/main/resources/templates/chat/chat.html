@@ -166,10 +166,6 @@
 										<ul class="list-unstyledn mb-0 d-flex align-items-center">
 											<li><a
 												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
-												href="javascript:void(0)"> <i class="ti ti-photo-plus"></i>
-											</a></li>
-											<li><a
-												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
 												href="javascript:void(0)"> <i class="ti ti-paperclip"></i>
 											</a></li>
 											<li>
@@ -181,6 +177,7 @@
 												</a>
 											</li>
 										</ul>
+										<input type="file" id="chatFileInput" style="display: none;" multiple>
 									</div>
 								</div>
 							</div>
@@ -429,26 +426,6 @@
 		</div>
 	</div>
 	
-	 <!-- 채팅 알림 모달 -->
-	<div id="chat-alert-toast" class="position-fixed end-0 bottom-0 p-3 d-none" style="z-index: 9999;">
-	  <div class="toast align-items-start show text-dark shadow" role="alert"
-	       style="border: none; border-radius: 0.5rem;">
-	    <div class="toast-header bg-primary text-white">
-	      <strong class="me-auto">새로운 메세지가 도착했습니다.</strong>
-	      <button type="button" class="btn-close btn-close-white ms-2 mb-1" onclick="hideChatAlertToast()"></button>
-	    </div>
-	    <div class="toast-body">
-		  <div><strong>[</strong> <span id="toast-chat-title"></span><strong>]</strong></div>
-		  <div><strong id="toast-sender-name"></strong></div>
-		  <div><span id="toast-msg-content"></span></div> 
-		</div>
-	    <input type="hidden" id="toast-room-no" />
-	  </div>
-	</div>
-
-
-
-	
 	<script>
 	// 메인 진입 포인트
 
@@ -560,27 +537,7 @@
 	  showUnreadBadge(roomNo, myNo);
 	}
 
-	function showChatAlertToast(dto) {
-		const chatTitle = document.getElementById("chatTitle").textContent;	    
-		
-		  const wrapper = document.getElementById("chat-alert-toast");
-		  document.getElementById("toast-room-no").value = dto.chat_room_no;
-		  document.getElementById("toast-chat-title").textContent = chatTitle;
-		  document.getElementById("toast-sender-name").textContent = `${dto.member_name} ${dto.member_pos_name}`;
-		  document.getElementById("toast-msg-content").textContent = dto.chat_msg_content;
-
-		  wrapper.classList.remove("d-none");
-
-		  setTimeout(() => {
-		    wrapper.classList.add("d-none");
-		  }, 5000);
-		}
-
-		function closeChatToast() {
-		  document.getElementById("chat-alert-toast").classList.add("d-none");
-		}
-
-
+	
 	/* // 채팅방 이동  클릭 시 처리
 	function moveToChatRoom() {
 		  const roomNo = document.getElementById("modal-room-no").value;
@@ -897,6 +854,11 @@
 	  });
 	}
 
+	// 파일 선택 이벤트 
+	document.querySelector('.ti-paperclip').addEventListener('click', () => {
+	  document.getElementById('chatFileInput').click();
+	});
+
 
 	// 5. WebSocket 연결 및 메시지 수신 처리
 	function connectStomp(roomNo, memberImage, memberName) {
@@ -933,6 +895,8 @@
 	          systemMsgWrapper.style.cssText = "display:flex;justify-content:center;align-items:center;width:100%;margin-top:10px;";
 	          systemMsgWrapper.innerHTML = `<div style='display:block;text-align:center;color:#888;font-size:15px;width:100%;'>[${data.chat_msg_content}]</div>`;
 	          chatList.appendChild(systemMsgWrapper);
+	          window.onChatMemberExit(data);
+	          
 	        } else {
 	          const isMine = data.member_no == document.getElementById("createMemberNo").value;
 	          chatList.appendChild(createMessageBubble({
@@ -1058,6 +1022,23 @@
 	    }
 	  });
 	}
+	
+	window.onChatMemberExit = function(dto) {
+		  const roomNo = dto.chat_room_no;
+
+		  const tryClick = () => {
+		    const roomEl = document.querySelector(`.chat-user[data-room-id='${roomNo}']`);
+		    if (roomEl) {
+		      roomEl.click();
+		    } else {
+		      setTimeout(tryClick, 300); // 재시도
+		    }
+		  };
+
+		  tryClick();
+		};
+
+
 
 	// 8. 초대 인원 제거
 	function initChatInvite() {

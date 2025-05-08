@@ -1,7 +1,8 @@
 package com.mjc.groupware.chat.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+import com.mjc.groupware.chat.entity.ChatMsg;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,14 @@ public class ChatAlarmDto {
 	
 	private Long member_no;
 	
+	private String member_name;
+	
+	private String member_pos_name;
+	
+	private Long chat_room_no;
+	
+	private String chat_room_name;
+	
 	private String read_status;
 	
 	private LocalDateTime read_date;
@@ -29,4 +38,8 @@ public class ChatAlarmDto {
 	private LocalDateTime reg_date;
 	
 	private Long chat_msg_no;
+	
+	private String chat_msg_content;
+	
+
 }
