@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationReservation;
@@ -90,11 +91,15 @@ public class AccommodationReservationService {
 	}
 
 	// 예약 상태변경
+	@Transactional	
 	public void updateReservationStatus(Long reservationNo, String status) {
 		AccommodationReservation reservation = reservationRepository.findById(reservationNo)
 		        .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 		    
 		    reservation.setReservationStatus(status); // "승인" 또는 "반려"
+		    
+		    // 강제 flush
+		    reservationRepository.flush();
 	}
 
 
