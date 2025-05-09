@@ -39,6 +39,7 @@
 			</div>
 		</div>
 		<input type="hidden" th:value="${workPolicy.workDuration}" id="work_duration">
+		<input type="hidden" id="plan_title" th:if="${plan != null}" th:value="${plan.planTitle}">
 		<div class="row g-4">
 			<!-- 왼쪽 카드 -->
 			<div class="col-lg-3">
@@ -53,6 +54,8 @@
 						<div class="d-flex justify-content-between mb-2">
 							<input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
 							<input type="hidden" id="start_time_max" th:value="${workPolicy.startTimeMax}">
+							<!-- 퇴근 계산용 포맷된 시간 (HH:mm:ss 형식으로 강제 출력) -->
+							<input type="hidden" id="start_time_max_str" th:value="${#temporals.format(workPolicy.startTimeMax, 'HH:mm:ss')}">
 							<span class="text-muted">출근</span>
 							<th:block th:if="${todayAttendance == null}">
 								<div id="checkInWrap">
@@ -149,191 +152,214 @@
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         </script>
 
-			<script>
-			
-			const myAttendLogView = function(){
+		<script>
+			const myAttendLogView = function () {
 				location.href = "/attendance/log";
 			}
-			
-			
-	          const startTime = function() {
-	        	  const now = new Date();
-	        	  const koreaOffset = 9 * 60; // KST: UTC+9
-	        	  const localDate = new Date(now.getTime() + (koreaOffset * 60 * 1000));
-	        	  const attendDate = localDate.toISOString().slice(0, 10);
-	
-	        	  // LocalTime
-	        	  const hours = String(now.getHours()).padStart(2, '0');
-	        	  const minutes = String(now.getMinutes()).padStart(2, '0');
-	        	  const seconds = String(now.getSeconds()).padStart(2, '0');
-	        	  const checkIn = `${hours}:${minutes}:${seconds}`;
-	
-	        	  if (!confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`)) return;
-	
-	        	  fetch('/attendance/saveStartTime', {
-	        	    method: 'POST',
-	        	    headers: {
-	        	      [csrfHeader]: csrfToken,
-	        	      'Content-Type': 'application/json'
-	        	    },
-	        	    body: JSON.stringify({
-	        	      attend_date: attendDate,
-	        	      check_in: checkIn
-	        	    })
-	        	  })
-	        	  .then(response => response.json())
-	        	  .then(data => {
-	        	      alert(data.res_msg);
 
-	        	      if (data.res_code === "200") {
-	        	    	  const checkInWrap = document.getElementById("checkInWrap");
-	        	    	  checkInWrap.innerHTML = `<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
+		
+			const startTime = function () {
+				const now = new Date();
+				const koreaOffset = 9 * 60;
+				const localDate = new Date(now.getTime() + (koreaOffset * 60 * 1000));
+				const attendDate = localDate.toISOString().slice(0, 10);
+		
+				const hours = String(now.getHours()).padStart(2, '0');
+				const minutes = String(now.getMinutes()).padStart(2, '0');
+				const seconds = String(now.getSeconds()).padStart(2, '0');
+				const checkIn = `${hours}:${minutes}:${seconds}`;
+		
+				if (!confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`)) return;
+		
+				// 휴가에 따른 출근 기준 시간 조정
+				const planTitle = document.getElementById('plan_title')?.value || '';
+				const isMorningLeave = planTitle.includes('[오전반차]');
+				let maxStartStr = document.getElementById('start_time_max').value;
+		
+				if (isMorningLeave) {
+					// 출근 허용 시간 4시간 늦춤
+					const [h, m, s] = maxStartStr.split(":").map(Number);
+					const newHour = h + 4;
+					maxStartStr = `${String(newHour).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+				}
+		
+				fetch('/attendance/saveStartTime', {
+					method: 'POST',
+					headers: {
+						[csrfHeader]: csrfToken,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						attend_date: attendDate,
+						check_in: checkIn,
+						plan_title: planTitle // 🔥 서버에서 lateYn 판정할 때 필요
+					})
+				})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+		
+						if (data.res_code === "200") {
+							document.getElementById("checkInWrap").innerHTML =
+								`<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
+		
+							document.getElementById('end_time_btn').disabled = false;
+							const statusSpan = document.getElementById("checkInStatus");
+		
+							let statusText = "";
+							let bgClass = "";
+							let textClass = "";
+		
+							switch (data.attendance.lateYn) {
+								case "N":
+									statusText = "정상 출근";
+									bgClass = "bg-success-subtle";
+									textClass = "text-success";
+									break;
+								case "Y":
+									statusText = "지각";
+									bgClass = "bg-warning-subtle";
+									textClass = "text-warning";
+									break;
+								default:
+									statusText = "출근전";
+									bgClass = "bg-secondary-subtle";
+									textClass = "text-secondary";
+							}
+		
+							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+							statusSpan.innerText = statusText;
+						}
+					})
+					.catch(err => {
+						alert("출근 처리 중 오류 발생!");
+						console.error("출근 저장 실패", err);
+					});
+			}
+		
+			const endTime = function () {
+				const now = new Date();
+				const attendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-	        	    	  const statusSpan = document.getElementById("checkInStatus");
-	        	    	  document.getElementById('end_time_btn').disabled = false;
-	        	    	  // 상태 코드에 따라 텍스트/클래스 동적으로 반영
-	        	    	  let statusText = "";
-	        	    	  let bgClass = "";
-	        	    	  let textClass = "";
+				// 출근 시간 파싱
+				const checkInStr = document.getElementById('start_time').innerHTML;
+				const [inHour, inMin, inSec] = checkInStr.split(":").map(Number);
+				const baseCheckInMin = inHour * 60 + inMin + inSec / 60;
 
-	        	    	  switch (data.attendance.lateYn) {
-	        	    	    case "N":
-	        	    	      statusText = "정상 출근";
-	        	    	      bgClass = "bg-success-subtle";
-	        	    	      textClass = "text-success";
-	        	    	      break;
-	        	    	    case "Y":
-	        	    	      statusText = "지각";
-	        	    	      bgClass = "bg-warning-subtle";
-	        	    	      textClass = "text-warning";
-	        	    	      break;
-	        	    	      break;
-	        	    	    default:
-	        	    	      statusText = "출근전";
-	        	    	      bgClass = "bg-secondary-subtle";
-	        	    	      textClass = "text-secondary";
-	        	    	  }
+				// 휴가 유형 확인
+				const planTitle = document.getElementById('plan_title')?.value || '';
+				const isMorningLeave = planTitle.includes('[오전반차]');
+				const isAfternoonLeave = planTitle.includes('[오후반차]');
 
-	        	    	  // 기존 클래스 싹 지우고 새로 적용
-	        	    	  statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
-	        	    	  statusSpan.innerText = statusText;
-	        	    	}
-	        	    })
-	        	    .catch(err => {
-	        	      alert("출근 처리 중 오류 발생!");
-	        	      console.error("출근 저장 실패", err);
-	        	    });
-	        	}
-          	
-	          const endTime = function () {
-	        	  // ✅ 현재 시간 (today는 변경하지 말고 고정!)
-	        	  const now = new Date();
-				  const attendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+				// 회사 마지노선 출근시간
+				const maxStartStr = document.getElementById('start_time_max_str')?.value;
+				const [maxHour, maxMin, maxSec] = maxStartStr.split(":").map(Number);
+				const maxStartMin = maxHour * 60 + maxMin;
 
-	        	  // ✅ 출근 시간 파싱 (예: "11:10:00")
-	        	  const checkInStr = document.getElementById('start_time').innerHTML;
-	        	  const [inHour, inMin, inSec] = checkInStr.split(":").map(Number);
+				// 기준 출근 시간 결정
+				let baseTotalMin;
+				if (!isMorningLeave && !isAfternoonLeave && baseCheckInMin >= maxStartMin) {
+					baseTotalMin = maxStartMin;
+				} else {
+					// 정상 출근 또는 반차 → 실제 출근 기준
+					baseTotalMin = baseCheckInMin;
+				}
 
-	        	  // ✅ 최대 출근 가능 시간 파싱 (예: "11:00:00")
-	        	  const maxStartStr = document.getElementById('start_time_max').value;
-	        	  const [maxHour, maxMin, maxSec] = maxStartStr.split(":").map(Number);
+				// 근무시간 가져오기
+				const workDuration = parseFloat(document.getElementById('work_duration')?.value) || 9.0;
 
-	        	  // ✅ 기준 출근시간 계산
-	        	  let baseHour = inHour;
-	        	  let baseMin = inMin;
-	        	  let baseSec = inSec;
+				// 퇴근 기준 시간 계산
+				let requiredMin;
+				if (isMorningLeave || isAfternoonLeave) {
+					requiredMin = baseCheckInMin + 4 * 60;
+				} else {
+					requiredMin = baseTotalMin + workDuration * 60;
+				}
 
-	        	  if (
-	        	    inHour > maxHour ||
-	        	    (inHour === maxHour && inMin > maxMin) ||
-	        	    (inHour === maxHour && inMin === maxMin && inSec > maxSec)
-	        	  ) {
-	        	    baseHour = maxHour;
-	        	    baseMin = maxMin;
-	        	    baseSec = maxSec;
-	        	  }
+				// 현재 시간 계산
+				const nowTotalMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+				const currentTimeStr = now.toTimeString().slice(0, 8);
 
-	        	  const baseTotalMin = baseHour * 60 + baseMin + baseSec / 60;
+				let earlyLeaveYn = 'N';
+				let confirmMsg = "";
 
-	        	  // ✅ 근무시간 (예: 8.5시간 → 분으로)
-	        	  const workDuration = parseFloat(document.getElementById('work_duration').value);
-	        	  const requiredMin = baseTotalMin + workDuration * 60;
+				if (nowTotalMin < requiredMin) {
+					const requiredHour = Math.floor(requiredMin / 60);
+					const requiredMinute = Math.floor(requiredMin % 60);
+					confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
+					earlyLeaveYn = 'Y';
+					
+					console.log("🧾 실제 출근 시간 (baseCheckInMin):", baseCheckInMin);
+					console.log("🧾 기준 출근 시간 (baseTotalMin):", baseTotalMin); // 지각이면 660(11시)이어야 함
+					console.log("🧾 workDuration:", workDuration);
+					console.log("🧾 퇴근 기준 requiredMin (분):", requiredMin);
+					console.log("🕒 퇴근 기준 시각:", requiredHour + ":" + requiredMinute);
+					console.log("🧾 maxStartMin (회사 마지노선):", maxStartMin);
+					console.log("🧾 baseCheckInMin:", baseCheckInMin);
+					console.log("🧾 비교 결과:", baseCheckInMin >= maxStartMin);
 
-	        	  // ✅ 현재 시간 (분 단위로 변환)
-	        	  const nowTotalMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-	        	  const currentTimeStr = now.toTimeString().slice(0, 8); // HH:mm:ss
+				} else {
+					confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
+				}
+				
+				
+				if (!confirm(confirmMsg)) return;
 
-	        	  // ✅ 조퇴 여부 판단
-	        	  let earlyLeaveYn = 'N';
-	        	  let confirmMsg = "";
+				// 퇴근 요청
+				fetch('/attendance/saveEndTime', {
+					method: 'POST',
+					headers: {
+						[csrfHeader]: csrfToken,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						attend_date: attendDate,
+						check_out: currentTimeStr,
+						early_leave_yn: earlyLeaveYn,
+						plan_title: planTitle
+					})
+				})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
 
-	        	  if (nowTotalMin < requiredMin) {
-	        	    const requiredHour = Math.floor(requiredMin / 60);
-	        	    const requiredMinute = Math.floor(requiredMin % 60);
-	        	    confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
-	        	    earlyLeaveYn = 'Y';
-	        	  } else {
-	        	    confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
-	        	  }
+						if (data.res_code === "200") {
+							document.getElementById("checkOutWrap").innerHTML =
+								`<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
 
-	        	  // ✅ 사용자 확인
-	        	  if (!confirm(confirmMsg)) return;
+							const statusSpan = document.getElementById("checkOutStatus");
 
-	        	  // ✅ 퇴근 요청
-	        	  fetch('/attendance/saveEndTime', {
-	        	    method: 'POST',
-	        	    headers: {
-	        	      [csrfHeader]: csrfToken,
-	        	      'Content-Type': 'application/json'
-	        	    },
-	        	    body: JSON.stringify({
-	        	      attend_date: attendDate,
-	        	      check_out: currentTimeStr,
-	        	      early_leave_yn: earlyLeaveYn
-	        	    })
-	        	  })
-	        	    .then(response => response.json())
-	        	    .then(data => {
-	        	      alert(data.res_msg);
+							let statusText = "";
+							let bgClass = "";
+							let textClass = "";
 
-	        	      if (data.res_code === "200") {
-	        	        // ✅ 퇴근 시간 UI 갱신
-	        	        document.getElementById("checkOutWrap").innerHTML =
-	        	          `<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
+							switch (data.attendance.early_leave_yn) {
+								case "Y":
+									statusText = "조퇴";
+									bgClass = "bg-primary-subtle";
+									textClass = "text-primary";
+									break;
+								case "N":
+									statusText = "정상 퇴근";
+									bgClass = "bg-success-subtle";
+									textClass = "text-success";
+									break;
+								default:
+									statusText = "퇴근";
+									bgClass = "bg-secondary-subtle";
+									textClass = "text-secondary";
+							}
 
-	        	        // ✅ 상태 표시
-	        	        const statusSpan = document.getElementById("checkOutStatus");
-	        	        let statusText = "";
-	        	        let bgClass = "";
-	        	        let textClass = "";
-
-	        	        switch (data.attendance.early_leave_yn) {
-	        	          case "Y":
-	        	            statusText = "조퇴";
-	        	            bgClass = "bg-primary-subtle";
-	        	            textClass = "text-primary";
-	        	            break;
-	        	          case "N":
-	        	            statusText = "정상 퇴근";
-	        	            bgClass = "bg-success-subtle";
-	        	            textClass = "text-success";
-	        	            break;
-	        	          default:
-	        	            statusText = "퇴근";
-	        	            bgClass = "bg-secondary-subtle";
-	        	            textClass = "text-secondary";
-	        	        }
-
-	        	        statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
-	        	        statusSpan.innerText = statusText;
-	        	      }
-	        	    })
-	        	    .catch(err => {
-	        	      alert("퇴근 처리 중 오류 발생!");
-	        	      console.error("퇴근 저장 실패", err);
-	        	    });
-	        	};
-          </script>
+							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+							statusSpan.innerText = statusText;
+						}
+					})
+					.catch(err => {
+						alert("퇴근 처리 중 오류 발생!");
+						console.error("퇴근 저장 실패", err);
+					});
+			};
+		</script>
 
 
 			<!-- 가운데 근무시간 + 차트 -->

@@ -210,6 +210,7 @@ public class AttendanceController {
 	    
 	    // 오늘 날짜의 휴가가 있는지
 	    Plan plan = planService.selectAnnualPlan(member, today);
+	    System.out.println("휴가 일정 : " + plan);
 	    model.addAttribute("plan", plan);
 	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
