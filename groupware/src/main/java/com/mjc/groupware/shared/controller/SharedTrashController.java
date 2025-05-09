@@ -25,10 +25,12 @@ public class SharedTrashController {
     private final SharedTrashService trashService;
 
     @GetMapping("/trash/list")
-    public Map<String, Object> getTrashItems(@RequestParam String type, Authentication auth) {
-        Member member = ((MemberDetails) auth.getPrincipal()).getMember();
-        return trashService.loadTrashItems(type, member);
+    public Map<String, Object> getTrashItems(@RequestParam("type") String type, Authentication auth) {
+    	Member member = ((MemberDetails) auth.getPrincipal()).getMember();
+    	return trashService.loadTrashItems(type, member);
+    	
     }
+    
     @PostMapping("/restore")
     public String restoreItems(@RequestBody SharedRestoreRequestDto dto) {
         trashService.restoreFolders(dto.getFolderIds());

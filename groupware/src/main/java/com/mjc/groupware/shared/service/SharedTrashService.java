@@ -1,4 +1,3 @@
-// SharedTrashService.java
 package com.mjc.groupware.shared.service;
 
 import java.util.ArrayList;
@@ -26,33 +25,21 @@ public class SharedTrashService {
 
     public Map<String, Object> loadTrashItems(String type, Member member) {
         List<Map<String, Object>> result = new ArrayList<>();
-        Long userNo = member.getMemberNo();
-        Long deptNo = member.getDept() != null ? member.getDept().getDeptNo() : null;
 
-        List<SharedFolder> folders = switch (type) {
-            case "personal" -> folderRepository.findByFolderStatusAndMember("Y", userNo);
-            case "department" -> folderRepository.findByFolderStatusAndDept("Y", deptNo);
-            case "public" -> folderRepository.findByFolderStatusAndFolderType("Y", 3);
-            default -> List.of();
-        };
-
-        for (SharedFolder folder : folders) {
+        // 삭제된 폴더
+        List<SharedFolder> deletedFolders = folderRepository.findByFolderStatus("Y");
+        for (SharedFolder folder : deletedFolders) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", folder.getFolderNo());
             map.put("type", "folder");
             map.put("name", folder.getFolderName());
-            map.put("deletedAt", folder.getFolderDeletedAt());
+            map.put("folderDeletedAt", folder.getFolderDeletedAt());
             result.add(map);
         }
 
-        List<SharedFile> files = switch (type) {
-            case "personal" -> fileRepository.findByFileStatusAndMemberMemberNo("Y", userNo);
-            case "department" -> fileRepository.findByFileStatusAndFolderFolderType("Y", 2); // assume department-based
-            case "public" -> fileRepository.findByFileStatusAndFolderFolderType("Y", 3);
-            default -> List.of();
-        };
-
-        for (SharedFile file : files) {
+        // 삭제된 파일
+        List<SharedFile> deletedFiles = fileRepository.findByFileStatus("Y");
+        for (SharedFile file : deletedFiles) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", file.getFileNo());
             map.put("type", "file");
@@ -115,4 +102,3 @@ public void deleteFilesPermanently(List<Long> fileIds) {
     }
 }
 }
-

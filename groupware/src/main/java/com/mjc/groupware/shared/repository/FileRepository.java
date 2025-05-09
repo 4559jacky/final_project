@@ -21,20 +21,13 @@ public interface FileRepository extends JpaRepository<SharedFile, Long>, JpaSpec
 	
 	List<SharedFile> findByFolderFolderNoAndFileStatus(Long folderNo, String fileStatus);
 
-
-    @Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.fileStatus = :status")
-    long sumFileSizeByStatus(@Param("status") String status);
-
-    List<SharedFile> findByFileStatusAndMemberMemberNo(String status, Long memberNo);
-    List<SharedFile> findByFileStatusAndFolderFolderType(String status, int folderType);
-
-    @Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.fileStatus = :status AND f.member.memberNo = :memberNo")
-    long sumFileSizeByStatusAndMember(@Param("status") String status, @Param("memberNo") Long memberNo);
-
-    @Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.fileStatus = :status AND f.folder.dept.deptNo = :deptNo")
-    long sumFileSizeByStatusAndDept(@Param("status") String status, @Param("deptNo") Long deptNo);
-
-    @Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.fileStatus = :status AND f.folder.folderType = :type")
-    long sumFileSizeByStatusAndType(@Param("status") String status, @Param("type") int folderType);
-
+	//개인용
+	@Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.member.memberNo = :memberNo AND f.fileStatus = :status")
+	long sumSizeByOwnerAndStatus(@Param("memberNo") Long memberNo, @Param("status") String status);
+	// 부서용
+	@Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.folder.dept.deptNo = :deptNo AND f.folder.folderType = 2 AND f.fileStatus = :status")
+	long sumSizeByDeptAndStatus(@Param("deptNo") Long deptNo, @Param("status") String status);
+	// 공용용
+	@Query("SELECT COALESCE(SUM(f.fileSize), 0) FROM SharedFile f WHERE f.folder.folderType = 3 AND f.fileStatus = :status")
+	long sumSizeByTypeAndStatus(@Param("status") String status);
 }

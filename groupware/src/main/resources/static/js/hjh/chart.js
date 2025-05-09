@@ -3,7 +3,7 @@ function loadUsageChart() {
   if (!chartArea) return;
   chartArea.innerHTML = "";
 
-  fetch("/shared/trash/usage")
+  fetch(`/shared/trash/usage?type=${window.currentType || 'personal'}`)
     .then(res => res.json())
     .then(data => {
       const active = data.active || 0;

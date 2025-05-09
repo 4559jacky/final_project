@@ -47,13 +47,23 @@ public class SharedFileController {
 	@GetMapping("/shared/files/list")
 	@ResponseBody
 	public Map<String, Object> getFolderContent(
-			@RequestParam(value = "folderId", required = false) Long folderId,
-			Authentication auth){
-		MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
-		Member member = memberDetails.getMember();
-		
-		
-		return sharedFileService.getFolderContent(folderId, member);
+	        @RequestParam(value = "folderId", required = false) Long folderId,
+	        @RequestParam(value = "folderIds", required = false) String folderIdsStr,
+	        @RequestParam("type") String type,
+	        Authentication auth) {
+
+	    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
+	    Member member = memberDetails.getMember();
+
+	    List<Long> folderIds = null;
+	    if (folderIdsStr != null && !folderIdsStr.isBlank()) {
+	        folderIds = List.of(folderIdsStr.split(",")).stream()
+	            .map(String::trim)
+	            .map(Long::parseLong)
+	            .toList();
+	    }
+
+	    return sharedFileService.getFolderContent(folderId, folderIds, member, type);
 	}
 	
 	// 파일 다운로드

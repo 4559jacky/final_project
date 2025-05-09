@@ -20,10 +20,10 @@ public class SharedChartController {
 	private final SharedChartService sharedChartService;
 	
 	@GetMapping("/shared/trash/usage")
-	  public Map<String, Long> getUsageStats(@RequestParam String type, Authentication auth) {
-        Member member = ((MemberDetails) auth.getPrincipal()).getMember();
-        return sharedChartService.getUsageStats(type, member);
-    }
+	public Map<String, Long> getUsageStats(@RequestParam("type") String type, Authentication auth) {
+	    Member member = ((MemberDetails) auth.getPrincipal()).getMember();
+	    return sharedChartService.getUsageStats(type, member);
+	}
 	
 
 }

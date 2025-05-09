@@ -75,105 +75,33 @@ public class SharedFileService {
 		}
 	}
 	
-	public Map<String, Object> getFolderContent(Long folderId, Member member) {
-	    Map<String, Object> result = new HashMap<>();
-	    List<Map<String, Object>> list = new ArrayList<>();
-	    List<SharedFolder> subFolders;
-	    SharedFolder currentFolder = null;
-	    if (folderId == null) {
-	        // 로그인 사용자 기준으로 내가 볼 수 있는 최상위 폴더만 필터링
-	        subFolders = folderRepository.findByParentFolderIsNull().stream()
-	                .filter(folder -> {
-	                    boolean isOwner = folder.getFolderType() == 1 && folder.getMember() != null &&
-	                            folder.getMember().getMemberNo().equals(member.getMemberNo());
+	public Map<String, Object> getFolderContent(Long folderId, List<Long> folderIds, Member member, String type) {
+	    // ✅ folderId가 null이고 folderIds만 있는 경우
+	    if (folderId == null && folderIds != null && !folderIds.isEmpty()) {
+	        List<Map<String, Object>> list = new ArrayList<>();
 
-	                    boolean sameDept = folder.getFolderType() == 2 &&
-	                            folder.getDept() != null &&
-	                            member.getDept() != null &&
-	                            folder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
+	        List<SharedFolder> folders = folderRepository.findAllById(folderIds).stream()
+	                .filter(f -> "N".equals(f.getFolderStatus()))
+	                .sorted(Comparator.comparing(SharedFolder::getFolderName))
+	                .toList();
 
-	                    boolean isShared = folder.getFolderType() == 3;
-
-	                    return isOwner || sameDept || isShared;
-	                })
-	                .collect(Collectors.toList());	    
-	    } else {
-	        // 🔐 현재 폴더 접근 확인
-	        currentFolder = folderRepository.findById(folderId)
-	                .orElseThrow(() -> new RuntimeException("해당 폴더가 없습니다."));
-
-	        boolean isOwner = currentFolder.getMember() != null &&
-	                currentFolder.getMember().getMemberNo().equals(member.getMemberNo());
-	        boolean sameDept = currentFolder.getDept() != null &&
-	                member.getDept() != null &&
-	                currentFolder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
-	        boolean isShared = currentFolder.getFolderType() == 3;
-
-	        if (!(isOwner || sameDept || isShared)) {
-	            throw new RuntimeException("해당 폴더에 접근 권한이 없습니다.");
+	        for (SharedFolder folder : folders) {
+	            Map<String, Object> map = new HashMap<>();
+	            map.put("type", "folder");
+	            map.put("id", folder.getFolderNo());
+	            map.put("name", folder.getFolderName());
+	            map.put("regDate", folder.getRegDate());
+	            list.add(map);
 	        }
 
-	        // ✅ 자식 폴더도 사용자 기준으로 필터링
-	        subFolders = folderRepository.findByParentFolderFolderNo(folderId).stream()
-	                .filter(folder -> {
-	                    boolean childIsOwner = folder.getMember() != null &&
-	                            folder.getMember().getMemberNo().equals(member.getMemberNo());
-	                    boolean childSameDept = folder.getDept() != null &&
-	                            member.getDept() != null &&
-	                            folder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
-	                    boolean childIsShared = folder.getFolderType() == 3;
-	                    return childIsOwner || childSameDept || childIsShared;
-	                })
-	                .collect(Collectors.toList());
+	        Map<String, Object> result = new HashMap<>();
+	        result.put("items", list);
+	        result.put("parentFolderNo", null);
+	        return result;
 	    }
 
-	    // 📁 폴더 매핑
-	    subFolders.sort(Comparator.comparing(SharedFolder::getFolderName));
-	    for (SharedFolder folder : subFolders) {
-	    	if (!"N".equals(folder.getFolderStatus())) continue; // 삭제된 폴더 제외
-	        Map<String, Object> map = new HashMap<>();
-	        map.put("type", "folder");
-	        map.put("id", folder.getFolderNo());
-	        map.put("name", folder.getFolderName());
-	        map.put("regDate", folder.getRegDate());
-	        list.add(map);
-	    }
-
-	    // 📄 파일 매핑 (접근 권한 있는 폴더에서만)
-	    if (folderId != null && currentFolder != null) {
-	        boolean isOwner = currentFolder.getMember() != null &&
-	                currentFolder.getMember().getMemberNo().equals(member.getMemberNo());
-	        boolean sameDept = currentFolder.getDept() != null &&
-	                member.getDept() != null &&
-	                currentFolder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
-	        boolean isShared = currentFolder.getFolderType() == 3;
-
-	        if (isOwner || sameDept || isShared) {
-	            List<SharedFile> files = fileRepository.findByFolderFolderNo(folderId).stream()
-	            .filter(f -> "N".equals(f.getFileStatus())) // 삭제된 파일 제외
-	            .sorted(Comparator.comparing(SharedFile::getFileName))
-	            .collect(Collectors.toList());		
-	            files.sort(Comparator.comparing(SharedFile::getFileName));
-
-	            for (SharedFile file : files) {
-	                Map<String, Object> map = new HashMap<>();
-	                map.put("type", "file");
-	                map.put("id", file.getFileNo());
-	                map.put("name", file.getFileName());
-	                map.put("size", file.getFileSize());
-	                map.put("regDate", file.getRegDate());
-	                list.add(map);
-	            }
-	        }
-	    }
-
-	    result.put("items", list);
-	    result.put("parentFolderNo",
-	            currentFolder != null && currentFolder.getParentFolder() != null
-	                    ? currentFolder.getParentFolder().getFolderNo()
-	                    : null);
-
-	    return result;
+	    // ✅ 그렇지 않으면 기존 로직으로 위임
+	    return getFolderContent(folderId, null, member, type);
 	}
 
 
