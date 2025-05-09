@@ -45,7 +45,7 @@ public class BoardController {
 
     @PostMapping("/board")
     @ResponseBody
-    public Map<String, String> createBoard(BoardDto dto,
+    public Map<String, String> createBoard(@ModelAttribute BoardDto dto,
                                            @RequestParam(value = "files", required = false) List<MultipartFile> files,
                                            @RequestParam(value = "vote_json", required = false) String voteJson) {
 
@@ -58,8 +58,12 @@ public class BoardController {
             mapper.registerModule(new JavaTimeModule());
 
             VoteCreateRequest voteRequest = null;
-            if (voteJson != null && !voteJson.isEmpty()) {
-                voteRequest = mapper.readValue(voteJson, VoteCreateRequest.class);
+            if (voteJson != null) {
+                String trimmed = voteJson.trim();
+                // JSON 객체 또는 배열로 시작할 경우에만 파싱
+                if (!trimmed.isEmpty() && (trimmed.startsWith("{") || trimmed.startsWith("["))) {
+                    voteRequest = mapper.readValue(trimmed, VoteCreateRequest.class);
+                }
             }
 
             boardService.createBoard(dto, files, voteRequest);
@@ -119,6 +123,7 @@ public class BoardController {
 
         return "board/detail";
     }
+    
     
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
