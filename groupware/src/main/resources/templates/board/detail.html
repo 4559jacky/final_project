@@ -587,9 +587,6 @@
 	  }
 	});
   
-  
-  
-
   // 투표 제출
 function submitVote() {
   const form = document.getElementById('voteForm');
@@ -658,60 +655,55 @@ function submitVote() {
           }]
         },
         options: {
-          responsive: true,
-          animation: {
-            duration: 800,
-            easing: 'easeInOutQuart'
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              title: { display: false }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1,
-                callback: value => `${value}표`
-              },
-              title: {
-                display: true,
-                text: '득표 수'
-              }
-            }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-            	  callbacks: {
-            	    label: function (context) {
-            	      const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-            	      const value = context.raw;
-            	      const percent = ((value / total) * 100).toFixed(1);
-            	      const index = context.dataIndex;
+        	  responsive: true,
+        	  animation: false, // 애니메이션 제거
+        	  scales: {
+        	    x: {
+        	      grid: { display: false },
+        	      title: { display: false }
+        	    },
+        	    y: {
+        	      beginAtZero: true,
+        	      ticks: {
+        	        stepSize: 1,
+        	        callback: value => `${value}표`
+        	      },
+        	      title: {
+        	        display: true,
+        	        text: '득표 수'
+        	      }
+        	    }
+        	  },
+        	  plugins: {
+        	    legend: { display: false },
+        	    tooltip: {
+        	      callbacks: {
+        	        label: function (context) {
+        	          const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+        	          const value = context.raw;
+        	          const percent = ((value / total) * 100).toFixed(1);
+        	          const index = context.dataIndex;
 
-            	      let label = `${context.label}: ${value}표 (${percent}%)`;
+        	          let label = `${context.label}: ${value}표 (${percent}%)`;
 
-            	      // 익명이 아닐 경우 [부서]이름 리스트 추가
-            	      if (!isAnonymous) {
-            	        const voterNames = voters[index];
-            	        if (voterNames && voterNames.length > 0) {
-            	          label += `\n ${voterNames.join('\n')}`;
-            	        } else {
-            	          label += `\n 투표자 없음`;
-            	        }
-            	      }
+        	          if (!isAnonymous) {
+        	            const voterNames = voters[index];
+        	            if (voterNames && voterNames.length > 0) {
+        	              label += `\n ${voterNames.join('\n')}`;
+        	            } else {
+        	              label += `\n 투표자 없음`;
+        	            }
+        	          }
 
-            	      return label;
-            	    }
-            	  }
-            	}
-          },
-          // 익명,실명 확인 해주는 스크립트 코드
-          onClick: function (e, elements) {
-			// 그래프 클릭시를 없애줌
+        	          return label;
+        	        }
+        	      }
+        	    }
+        	  },
+        	  onClick: function (e, elements) {
+        	    // 그래프 클릭 이벤트 제거
+        	  }
         	}
-        }
       });
     })
     .catch(err => {
