@@ -25,10 +25,14 @@
 			<h4 class="fw-bold mb-0" id="current-date"></h4>
 			<div class="d-flex align-items-center gap-3">
 				<div class="text-end">
-					<h5 class="mb-0 fw-semibold"
-						th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
-					<p class="mb-0 text-muted"
-						th:text="${#authentication.principal.member.dept.deptName}">부서</p>
+				  <h5 class="mb-0 fw-semibold">
+				    <span th:text="${member.memberName}">이름</span>
+				    <span th:text="${member.pos != null} ? ${member.pos.posName} : '(직급미배정)'">직급</span>
+				  </h5>
+				  <p class="mb-0 text-muted"
+				     th:text="${member.dept != null} ? ${member.dept.deptName} : '(부서미배정)'">
+				    부서
+				  </p>
 				</div>
 				<div>
 					<img
@@ -49,7 +53,7 @@
 				    <h5 class="fw-bold text-primary">근태관리</h5>
 				    <button class="btn btn-primary btn-sm" onclick="myAttendLogView();">내 근무 이력</button>
 				  </div>
-				  <h2 class="fw-bold" id="nowTime">03:05:20</h2>
+				  <h2 class="fw-bold" id="nowTime"></h2>
 					<div class="mt-3 small">
 						<div class="d-flex justify-content-between mb-2">
 							<input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
@@ -352,6 +356,8 @@
 
 							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
 							statusSpan.innerText = statusText;
+							
+							updateWeeklyHours();
 						}
 					})
 					.catch(err => {
@@ -359,6 +365,63 @@
 						console.error("퇴근 저장 실패", err);
 					});
 			};
+			
+			// 퇴근 누르면 프로그레스바랑 차트 업데이트
+			function updateWeeklyHours() {
+			  const weekDates = getCurrentWeekRange(); // 이미 정의된 함수
+			  const start = weekDates[0];
+			  const end = weekDates[6];
+			
+			  fetch(`/attendance/weeklyHours?startDate=${start}&endDate=${end}`)
+			    .then(res => res.json())
+			    .then(data => {
+			      const workTimeMap = {};
+			      data.forEach(item => {
+			        workTimeMap[item.attendDate] = item.workingHours;
+			      });
+			
+			      const seriesData = weekDates.map(date => workTimeMap[date] || 0);
+			      const totalHours = seriesData.reduce((sum, h) => sum + h, 0);
+			      const minHours = parseFloat(document.getElementById("week_min_work_time").value);
+			      const maxHours = parseFloat(document.getElementById("week_max_work_time").value);
+			      const percent = Math.min(100, Math.round((totalHours / maxHours) * 100));
+			
+			      // ✅ progress bar
+			      const progressBar = document.querySelector(".progress-bar");
+			      progressBar.style.width = `${percent}%`;
+			      progressBar.textContent = `${totalHours.toFixed(1)}h`;
+			
+			      // ✅ 남은 근무/연장 시간
+			      const remainTime = Math.max(0, minHours - totalHours).toFixed(1);
+			      document.getElementById("remainTime").textContent = `남은 최소 근무시간 : ${remainTime}h`;
+			
+			      let remainOvertime = 0;
+			      if (totalHours < minHours) {
+			        remainOvertime = 12.0;
+			      } else if (totalHours < maxHours) {
+			        remainOvertime = (maxHours - totalHours).toFixed(1);
+			      }
+			      document.getElementById("remainOvertime").textContent = `남은 연장 근무시간 : ${remainOvertime}h`;
+			
+			      // ✅ 차트 갱신
+			      const chart = ApexCharts.getChartByID("weeklyHoursChart");
+			      if (chart) {
+			        chart.updateSeries([{ name: "근무시간(h)", data: seriesData }]);
+			      } else {
+			        new ApexCharts(document.querySelector("#weeklyHoursChart"), {
+			          chart: {
+			            id: "weeklyHoursChart",
+			            type: 'bar',
+			            height: 240
+			          },
+			          series: [{ name: '근무시간(h)', data: seriesData }],
+			          xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
+			          colors: ['#0d6efd'],
+			          plotOptions: { bar: { borderRadius: 5, columnWidth: '45%' } },
+			        }).render();
+			      }
+			    });
+			}
 		</script>
 
 
@@ -369,7 +432,12 @@
 						class="d-flex justify-content-between align-items-center flex-wrap mb-3">
 						<div>
 							<h6 class="mb-1">선택적 근로시간</h6>
-							<p class="text-muted mb-0" th:text="|${member.memberName} ${member.pos.posName} / ${member.dept.deptName}|">김세영 대리 / 마케팅팀</p>
+							<p class="text-muted mb-0">
+							  <span th:text="${member.memberName}">이름</span>
+							  <span th:text="${member.pos != null ? ' ' + member.pos.posName : ' (직급미배정)'}"></span>
+							  <span> / </span>
+							  <span th:text="${member.dept != null ? member.dept.deptName : '(부서미배정)'}"></span>
+							</p>
 						</div>
 						<div class="text-end">
 							<h4 class="fw-bold" id="current_date2">2024.04</h4>
@@ -403,22 +471,61 @@
 			</div>
 		</div>
 	</div>
+	
+	<script>
+		// 출퇴근 조작 방지를 위해 한국 표준시간을 가져와서 사용
+	  /* document.addEventListener("DOMContentLoaded", function () {
+	    async function fetchKoreanTimeAndRunClock() {
+	      try {
+	        const res = await fetch("https://timeapi.io/api/Time/current/zone?timeZone=Asia/Seoul");
+	        const data = await res.json();
+	
+	        let hour = data.hour;
+	        let minute = data.minute;
+	        let second = data.seconds;
+	
+	        function updateTime() {
+	          second++;
+	          if (second === 60) { second = 0; minute++; }
+	          if (minute === 60) { minute = 0; hour++; }
+	          if (hour === 24) { hour = 0; }
+	
+	          const hh = String(hour).padStart(2, "0");
+	          const mm = String(minute).padStart(2, "0");
+	          const ss = String(second).padStart(2, "0");
+	
+	          document.getElementById("nowTime").textContent = `${hh}:${mm}:${ss}`;
+	        }
+	
+	        updateTime();
+	        setInterval(updateTime, 1000);
+	
+	      } catch (e) {
+	        console.error("🔥 한국 시간 불러오기 실패:", e);
+	        document.getElementById("nowTime").textContent = "시간 오류";
+	      }
+	    }
+	
+	    fetchKoreanTimeAndRunClock();
+	  }); */
+	</script>
 
 	<script>
-  	
-	  function updateTime() {
-		    const now = new Date();
-		    const hours = String(now.getHours()).padStart(2, '0');
-		    const minutes = String(now.getMinutes()).padStart(2, '0');
-		    const seconds = String(now.getSeconds()).padStart(2, '0');
-		    document.getElementById('nowTime').textContent = `${hours}:${minutes}:${seconds}`;
-		  }
-	
-		  // 페이지 로드 후 매초마다 실행
-		  document.addEventListener("DOMContentLoaded", function () {
-		    updateTime(); // 초기 실행
-		    setInterval(updateTime, 1000); // 1초마다 업데이트
-		  });
+  		// 시간 임의로 변경하여 출퇴근 테스트 할 때 사용
+		  function updateTime() {
+			    const now = new Date();
+			    const hours = String(now.getHours()).padStart(2, '0');
+			    const minutes = String(now.getMinutes()).padStart(2, '0');
+			    const seconds = String(now.getSeconds()).padStart(2, '0');
+			    document.getElementById('nowTime').textContent = `${hours}:${minutes}:${seconds}`;
+			  }
+			  
+			  // 페이지 로드 후 매초마다 실행
+			  document.addEventListener("DOMContentLoaded", function () {
+			    updateTime(); // 초기 실행
+			    setInterval(updateTime, 1000); // 1초마다 업데이트
+			  });
+		  
 		  
 		  function getWeekRange(date) {
 			  const day = date.getDay(); // 0: 일 ~ 6: 토
@@ -547,33 +654,24 @@
 		        document.querySelector("#remainOvertime").textContent = `남은 연장 근무시간 : ${remainOvertime}h`;
 		
 		        // 📈 차트 출력
-		        const options = {
-		          chart: {
-		            type: 'bar',
-		            height: 240,
-		            animations: {
-		              enabled: true,
-		              easing: 'easeinout',
-		              speed: 800,
-		              animateGradually: { enabled: true, delay: 150 },
-		              dynamicAnimation: { enabled: true, speed: 350 }
-		            }
-		          },
-		          series: [{ name: '근무시간(h)', data: seriesData }],
-		          xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
-		          colors: ['#0d6efd'],
-		          plotOptions: {
-		            bar: { borderRadius: 5, columnWidth: '45%' }
-		          },
-		          tooltip: {
-		            y: {
-		              formatter: val => `${val.toFixed(1)} 시간`,
-		              title: { formatter: () => '근무시간' }
-		            }
-		          }
-		        };
-		
-		        new ApexCharts(document.querySelector("#weeklyHoursChart"), options).render();
+		        new ApexCharts(document.querySelector("#weeklyHoursChart"), {
+		        	  chart: {
+		        	    id: "weeklyHoursChart",
+		        	    type: 'bar',
+		        	    height: 240,
+		        	    animations: {
+		        	      enabled: true,
+		        	      easing: 'easeinout',
+		        	      speed: 800
+		        	    }
+		        	  },
+		        	  series: [{ name: '근무시간(h)', data: seriesData }],
+		        	  xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
+		        	  colors: ['#0d6efd'],
+		        	  plotOptions: {
+		        	    bar: { borderRadius: 5, columnWidth: '45%' }
+		        	  }
+		        	}).render();
 		      });
 		  });
 		</script>
