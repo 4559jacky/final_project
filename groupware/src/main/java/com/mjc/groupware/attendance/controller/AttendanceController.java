@@ -41,6 +41,8 @@ import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.member.service.RoleService;
+import com.mjc.groupware.plan.entity.Plan;
+import com.mjc.groupware.plan.service.PlanService;
 import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.service.PosService;
 
@@ -59,6 +61,7 @@ public class AttendanceController {
 	private final AnnualLeavePolicyRepository annualLeavePolicyRepository;
 	private final MemberService memberService;
 	private final AttendanceRepository attendanceRepository;
+	private final PlanService planService;
 	
 	@GetMapping("/attendance/management")
 	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
@@ -111,7 +114,7 @@ public class AttendanceController {
 		
 		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 		
-		Page<Member> memberList = service.selectMemberAll(searchDto, pageDto);
+		Page<Member> memberList = service.selectMemberAllForAnnual(searchDto, pageDto);
 		
 		pageDto.setTotalPage(memberList.getTotalPages());
 		
@@ -124,7 +127,7 @@ public class AttendanceController {
 		model.addAttribute("memberList", memberList);
 		model.addAttribute("deptList", deptList);
 		model.addAttribute("posList", posList);
-		model.addAttribute("searchText", searchDto.getSearch_text());
+		model.addAttribute("searchDto", searchDto);
 		model.addAttribute("pageDto", pageDto);
 		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
 		
@@ -204,6 +207,10 @@ public class AttendanceController {
 	        model.addAttribute("todayAttendance", dto);
 	    }
 	    model.addAttribute("member", member);
+	    
+	    // 오늘 날짜의 휴가가 있는지
+	    Plan plan = planService.selectAnnualPlan(member, today);
+	    model.addAttribute("plan", plan);
 	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);

@@ -1,5 +1,6 @@
 package com.mjc.groupware.plan.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -103,6 +104,16 @@ public class PlanService {
 	        e.printStackTrace();
 	    }
 	    return result;
+	}
+
+	// 당일 근태관리를 위한 휴가 데이터 가져오기
+	public Plan selectAnnualPlan(Member member, LocalDate today) {
+	    LocalDateTime startOfDay = today.atStartOfDay();           // 2025-05-08T00:00
+	    LocalDateTime endOfDay = today.atTime(23, 59, 59);         // 2025-05-08T23:59:59
+
+	    return planRepository
+	            .findByMemberAndStartDateBetween(member, startOfDay, endOfDay, "휴가")
+	            .orElse(null);
 	}
 	
 

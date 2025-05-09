@@ -44,141 +44,162 @@ layout:decorate="~{/include/layout}">
 	  </div>
 	</div>
 
-	<div class="card">
-        <div class="card-body">
-        	<div class="tab-content" id="pills-tabContent">
-            	<div class="tab-pane fade show active" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
-            	<h5 class="fw-bold mb-3">사원 연차 관리</h5>
-					<div class="row">
-                   		<div class="col-lg-9 d-flex align-items-stretch" id="none_member_div">
-                    		<div class="card w-100 border position-relative overflow-hidden">
-                        		<div class="card-body p-4">
-                        			<form name="attendance_members_form" action="/annual/management" method="get">
-                        				<div class="d-flex justify-content-between align-items-center mb-3">
-										  
-										  <div class="d-flex align-items-center">
-										    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
-											
-										    <div class="input-group">
-										      <th:block th:if="${searchText != null}">
-											  	<input type="text" id="search_text" name="search_text" th:value="${searchText}" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
-										      </th:block>
-										      <th:block th:if="${searchText == null}">
-										      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
-										      </th:block>
-										      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
-										      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
-										    </div>
-										  </div>
-										
-										</div>
-										
-										<div class="table-responsive mb-4 border rounded-1">
-							                <table class="table text-nowrap mb-0 align-middle">
-							                  <thead class="text-dark fs-4">
-							                    <tr>
-							                      <!-- <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">선택</h6>
-							                      </th> -->
-							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
-							                      </th>
-							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">입사일</h6>
-							                      </th>
-							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">경력</h6>
-							                      </th>
-							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">연간 연차</h6>
-							                      </th>
-							                      <th>
-							                        <h6 class="fs-4 fw-semibold mb-0">남은 연차</h6>
-							                      </th>
-							                    </tr>
-							                  </thead>
-							                  <tbody id="member-tbody" class="member-tbody">
-						                		<tr th:each="member : ${memberList}" th:attr="data-member-no=${member.memberNo}">
-													<!-- <td>
-														<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
-													</td> -->
-													<td>
-														<div class="d-flex align-items-center">
-															<div class="ms-3">
-																<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
-																<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
-															</div>
-														</div>
-														<input type="hidden" id="memberNo" th:value="${member.memberNo}">
-													</td>
-													<td class="text-center">
-													    <h6 class="fs-4 fw-semibold mb-0" th:text="${#temporals.format(member.regDate,'yyyy.MM.dd')}">입사일</h6>
-													</td>
-													<td class="text-center">
-													  	<h6 class="fs-4 fw-semibold mb-0 th-year" th:attr="data-reg-date=${#temporals.format(member.regDate, 'yyyy-MM-dd')}">0년차</h6>
-													</td>
-													<td class="text-center">
-													  <h6 class="fs-4 fw-semibold mb-0">
-													    <span th:each="policy : ${annualLeavePolicyList}"
-													      th:if="${policy.year == T(java.time.Period).between(member.regDate.toLocalDate(), T(java.time.LocalDate).now()).years + 1}"
-													      th:text="${policy.leaveDays}">16</span>
-													  </h6>
-													</td>
-													<td class="text-center">
-														<h6 class="fs-4 fw-semibold mb-0" th:text="${member.annualLeave}">16</h6>
-													</td>
-											  	</tr>
-											  	<tr th:if="${memberList == null}">
-											  		<td colspan="7">사원 정보가 없습니다.</td>
-											  	</tr>
-							                  	</tbody>
-							                </table>
-							              
-							              </div>
-						                
-										<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
 
-										  <nav>
-											  <ul class="pagination mb-0">
-											    <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
-											      <a class="page-link"
-											         th:href="${pageDto.prev} ? @{/annual/management(nowPage=${pageDto.pageBarStart-1}, search_text=${searchText})} : '#'"
-											         aria-label="Previous">
-											        <span aria-hidden="true">&laquo;</span>
-											      </a>
-											    </li>
-												
-											    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
-											      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
-											        <a class="page-link"
-											           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
-											           th:href="@{/annual/management(nowPage=${num}, search_text=${searchText})}"
-											           th:text="${num}">페이지</a>
-											      </li>
-											    </th:block>
-											
-											    <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
-											      <a class="page-link"
-											         th:href="${pageDto.next} ? @{/annual/management(nowPage=${pageDto.pageBarEnd+1}, search_text=${searchText})} : '#'"
-											         aria-label="Next">
-											        <span aria-hidden="true">&raquo;</span>
-											      </a>
-											    </li>
-											  </ul>
-										    </nav>
-										  
-										</div>
-                        			</form>
-									
-                        		</div>
-                      		</div>
-                   		</div>
-                   		
-                  	</div>            	
-                </div>
-			</div>
-		</div>
+	<div class="card w-100 border position-relative overflow-hidden">
+   		<div class="card-body p-4">
+   			<form name="attendance_members_form" action="/annual/management" method="get">
+   				<div class="d-flex justify-content-between align-items-center mb-3">
+		  
+				  <div class="d-flex align-items-center">
+				    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
+					
+				    <div class="input-group">
+				      <th:block th:if="${searchDto.search_text != null}">
+					  	<input type="text" id="search_text" name="search_text" th:value="${searchDto.search_text}" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
+				      </th:block>
+				      <th:block th:if="${searchDto.search_text == null}">
+				      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
+				      </th:block>
+				      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
+				      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
+				    </div>
+				  </div>
+				  
+				  <div style="max-width: 200px;">
+					  <select name="reg_date_order" id="reg_date_order" class="form-select form-select-sm" style="width: 100%;">
+					    <option th:value="1" th:selected="${searchDto.reg_date_order == 1}">입사일 빠른 순</option>
+					    <option th:value="2" th:selected="${searchDto.reg_date_order == 2}">입사일 늦은 순</option>
+					  </select>
+					</div>
+				
+				</div>
+				
+				<div class="table-responsive mb-4 border rounded-1">
+		               <table class="table text-nowrap mb-0 align-middle">
+		                 <thead class="text-dark fs-4">
+		                   <tr>
+		                     <!-- <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+		                     </th> -->
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">입사일</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">경력</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">연간 연차</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">남은 연차</h6>
+		                     </th>
+		                   </tr>
+		                 </thead>
+		                 <tbody id="member-tbody" class="member-tbody">
+		              		<tr th:each="member : ${memberList}" th:attr="data-member-no=${member.memberNo}">
+							<!-- <td>
+								<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
+							</td> -->
+							<td>
+								<div class="d-flex align-items-center">
+									<div class="ms-3">
+										<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+										<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
+									</div>
+								</div>
+								<input type="hidden" id="memberNo" th:value="${member.memberNo}">
+							</td>
+							<td class="text-center">
+							    <h6 class="fs-4 fw-semibold mb-0" th:text="${#temporals.format(member.regDate,'yyyy.MM.dd')}">입사일</h6>
+							</td>
+							<td class="text-center">
+							  	<h6 class="fs-4 fw-semibold mb-0 th-year" th:attr="data-reg-date=${#temporals.format(member.regDate, 'yyyy-MM-dd')}">0년차</h6>
+							</td>
+							<td class="text-center">
+							  <h6 class="fs-4 fw-semibold mb-0">
+							    <span th:each="policy : ${annualLeavePolicyList}"
+							      th:if="${policy.year == T(java.time.Period).between(member.regDate.toLocalDate(), T(java.time.LocalDate).now()).years + 1}"
+							      th:text="${policy.leaveDays}">16</span>
+							  </h6>
+							</td>
+							<td class="text-center">
+								<h6 class="fs-4 fw-semibold mb-0" th:text="${member.annualLeave}">16</h6>
+							</td>
+					  	</tr>
+					  	<tr th:if="${memberList == null}">
+					  		<td colspan="7">사원 정보가 없습니다.</td>
+					  	</tr>
+		                 	</tbody>
+		               </table>
+		             
+		             </div>
+		              
+				<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+		
+				  <nav>
+					  <ul class="pagination mb-0">
+					
+					    <!-- 이전 페이지 -->
+					    <li class="page-item" th:if="${pageDto.prev}">
+					      <a class="page-link"
+					         th:href="@{/annual/management(
+					           nowPage=${pageDto.pageBarStart - 1},
+					           search_text=${searchDto.search_text},
+					           reg_date_order=${searchDto.reg_date_order}
+					         )}" aria-label="Previous">
+					        <span aria-hidden="true">&laquo;</span>
+					      </a>
+					    </li>
+					
+					    <!-- 페이지 번호 -->
+					    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+					      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+					        <a class="page-link"
+					           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+					           th:href="@{/annual/management(
+					             nowPage=${num},
+					             search_text=${searchDto.search_text},
+					             reg_date_order=${searchDto.reg_date_order}
+					           )}"
+					           th:text="${num}">페이지</a>
+					      </li>
+					    </th:block>
+					
+					    <!-- 다음 페이지 -->
+					    <li class="page-item" th:if="${pageDto.next}">
+					      <a class="page-link"
+					         th:href="@{/annual/management(
+					           nowPage=${pageDto.pageBarEnd + 1},
+					           search_text=${searchDto.search_text},
+					           reg_date_order=${searchDto.reg_date_order}
+					         )}" aria-label="Next">
+					        <span aria-hidden="true">&raquo;</span>
+					      </a>
+					    </li>
+					
+					  </ul>
+					</nav>
+				  
+				</div>
+  			</form>
+  		</div>
 	</div>
+	
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const regDateOrder = document.getElementById('reg_date_order');
+		regDateOrder.addEventListener('change', function(){
+			const reg_date_order = this.value;
+			const search_text = document.getElementById('search_text').value;
+			
+			location.href = '/annual/management?search_text='+search_text+'&reg_date_order='+reg_date_order;
+		})
+	});
+	</script>
+
 	
 	<div class="modal fade" id="annualPolicyModal" tabindex="-1" aria-hidden="true">
 	  <div class="modal-dialog modal-dialog-centered" style="max-width: 1000px;">
