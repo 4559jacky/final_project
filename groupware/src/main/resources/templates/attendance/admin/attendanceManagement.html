@@ -226,7 +226,7 @@ layout:decorate="~{/include/layout}">
 	    </div>
 	  </div>
 	</div>
-
+	
 	<script>
 		workTimeForm = document.work_time_form;
 		workTimeForm.addEventListener('submit', function(e){
@@ -330,6 +330,20 @@ layout:decorate="~{/include/layout}">
 	</div>
 	
 	<script>
+	  document.addEventListener('DOMContentLoaded', () => {
+	    // 출근 상태 변경 시 출근시간 초기화
+	    document.getElementById("editLateYn").addEventListener("change", function () {
+	      document.getElementById("editStartTime").value = '';
+	    });
+	
+	    // 퇴근 상태 변경 시 퇴근시간 초기화
+	    document.getElementById("editEarlyLeaveYn").addEventListener("change", function () {
+	      document.getElementById("editEndTime").value = '';
+	    });
+	  });
+	</script>
+	
+	<script>
 	  let selectedMemberNo = null;
 	
 	  document.querySelectorAll('#member-tbody tr').forEach(tr => {
@@ -361,10 +375,19 @@ layout:decorate="~{/include/layout}">
 	  });
 	
 	  function saveAttendanceUpdate() {
-	    const start = document.getElementById('editStartTime').value;
-	    const end = document.getElementById('editEndTime').value;
-	    const lateYn = document.getElementById('editLateYn').value;
-	    const earlyYn = document.getElementById('editEarlyLeaveYn').value;
+		
+	    const updateStart = document.getElementById('editStartTime').value;
+	    const updateEnd = document.getElementById('editEndTime').value;
+	    const updateLateYn = document.getElementById('editLateYn').value;
+	    const updateEarlyYn = document.getElementById('editEarlyLeaveYn').value;
+	    
+	    if(!updateStart) {
+	    	alert('출근시간을 입력해주세요.');
+	    	return;
+	    } else if(!updateEnd) {
+	    	alert('퇴근시간을 입력해주세요.');
+	    	return;
+	    }
 	
 	    const formData = new FormData();
 	    formData.append("startTime", start);
@@ -377,7 +400,7 @@ layout:decorate="~{/include/layout}">
 	
 	    if (!selectedMemberNo) return;
 	
-	    fetch(`/attendance/update/${selectedMemberNo}`, {
+	    fetch('/member/attendance/update/'+selectedMemberNo, {
 	      method: 'POST',
 	      headers: {
 	        [csrfHeader]: csrfToken
@@ -386,7 +409,7 @@ layout:decorate="~{/include/layout}">
 	    })
 	    .then(res => res.json())
 	    .then(data => {
-	      alert(data.res_msg || "수정되었습니다.");
+	      alert(data.res_msg);
 	      if (data.res_code == 200) {
 	        location.reload();
 	      }
@@ -424,9 +447,5 @@ layout:decorate="~{/include/layout}">
   	
   	<!-- Bootstrap Common JS Files End -->
   	
-  	<!-- jsTree -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-	<script th:src="@{/js/cjs/jstree.js}"></script>
-
 </th:block>
 </html>

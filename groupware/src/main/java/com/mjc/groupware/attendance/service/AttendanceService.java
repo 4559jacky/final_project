@@ -323,4 +323,12 @@ public class AttendanceService {
 		return list;
 	}
 
+	// 관리자 - 회원 근태 정보 수정
+	public int memberAttendStatusUpdateApi(Member member, AttendanceDto dto) {
+		
+		
+		
+		return 0;
+	}
+
 }
