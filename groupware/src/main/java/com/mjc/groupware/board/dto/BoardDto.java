@@ -31,8 +31,6 @@ public class BoardDto {
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
     
-    private String pos_name; // ✅ 직급명 추가
-
     private Boolean is_fixed; // 기본값 false로 초기화
 
     private List<BoardAttach> attachList;
@@ -54,7 +52,6 @@ public class BoardDto {
 
     // Board 엔티티에서 DTO로 변환
     public static BoardDto fromEntity(Board board) {
-        Member member = board.getMember();
 
         return BoardDto.builder()
                 .board_no(board.getBoardNo())
@@ -65,8 +62,7 @@ public class BoardDto {
                 .reg_date(board.getRegDate())
                 .mod_date(board.getModDate())
                 .views(board.getViews())
-                .member_no(member != null ? member.getMemberNo() : null)
-                .pos_name(member != null && member.getPos() != null ? member.getPos().getPosName() : null) // ✅ 직급명 세팅
+                .member_no(board.getMember() != null ? board.getMember().getMemberNo() : null)
                 .attachList(board.getAttachList())
                 .build();
     }

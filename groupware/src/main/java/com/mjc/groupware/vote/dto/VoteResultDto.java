@@ -16,6 +16,4 @@ public class VoteResultDto {
     private Long option_no;
     private Long member_no;
     private LocalDateTime vote_time;
-    
-    
 }

@@ -1,6 +1,5 @@
 package com.mjc.groupware.vote.controller;
 
-import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.dto.VoteDto;
 import com.mjc.groupware.vote.service.VoteService;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,20 +61,16 @@ public class VoteController {
         return ResponseEntity.ok("deleted");
     }
     
-    // 투표 참여(투표 제출)
-    @PostMapping("/vote/{voteNo}/submit")
-    public ResponseEntity<?> submitVote(
-        @PathVariable("voteNo") Long voteNo,
-        @RequestParam("optionNos") List<Long> optionNos,
-        @AuthenticationPrincipal MemberDetails memberDetails
-    ) {
-        if (memberDetails == null || memberDetails.getMember() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
-        }
 
-        Long memberNo = memberDetails.getMember().getMemberNo();
+    // 투표 참여(투표 제출) - 오류창이 여기서 발생(수정) - 정상작동 완료
+    @PostMapping("/vote/{voteNo}/submit")
+    @ResponseBody
+    public ResponseEntity<String> submitVote(
+            @PathVariable("voteNo") Long voteNo,
+            @RequestParam("optionNos") List<Long> optionNos,
+            @RequestParam("memberNo") Long memberNo) {
         voteService.participate(voteNo, optionNos, memberNo);
-        return ResponseEntity.ok("투표 성공");
+        return ResponseEntity.ok("submitted");
     }
     
 
@@ -115,15 +109,7 @@ public class VoteController {
     @GetMapping("/vote/{voteNo}/is-closed")
     @ResponseBody
     public ResponseEntity<Map<String, Boolean>> isVoteClosed(@PathVariable("voteNo") Long voteNo) {
-        System.out.println("🟡 isVoteClosed API 호출됨 - voteNo: " + voteNo);
-
         boolean closed = voteService.isVoteClosed(voteNo);
-        System.out.println("⏰ 마감 여부: " + closed);
-
-        if (closed) {
-            voteService.notifyVoteClosed(voteNo); // 🎯 마감 시 알림 전송
-        }
-
         return ResponseEntity.ok(Map.of("closed", closed));
     }
 
