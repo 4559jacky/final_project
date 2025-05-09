@@ -1,8 +1,10 @@
 package com.mjc.groupware.member.security;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,7 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final MemberRepository memberRepository;
 	private final LoginLogRepository loginLogRepository;
 	private final RedisLoginLogService redisLoginLogService;
+	private final RedisTemplate<String, Object> redisTemplate;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -62,7 +65,19 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
         
         redisLoginLogService.saveLoginLog(memberNo, redisDto);
         
+        // Redis에 "member:session:" + memberNo를 키로 세션 수를 저장 :: 동시로그인 제어
+        String key = "member:session:" + memberNo;  // 예: member:session:123
+        Long sessionCount = redisTemplate.opsForValue().increment(key, 1);  // 세션 수 1 증가
+        
+        if (sessionCount > 3) {
+        	redisTemplate.opsForValue().decrement(key);
+        	String errorMsg = "동시 접속 허용 수(3)를 초과했습니다.";
+            response.sendRedirect("/login?error=true&errorMsg=" + URLEncoder.encode(errorMsg, "UTF-8"));
+            return;
+        }
+        
 		System.out.println("MyLoginSuccessHandler :: 로그인 성공");
+		
 		response.sendRedirect("/");
 	}
 	

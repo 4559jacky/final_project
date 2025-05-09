@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +32,7 @@ public class WebSecurityConfig {
 	private final AccountStatusFilter accountStatusFilter;
 	private final MyLoginSuccessHandler myLoginSuccessHandler;
 	private final MyLoginFailureHandler myLoginFailureHandler;
+	private final MyLogoutSuccessHandler myLogoutSuccessHandler;
 	
 	// 정적 리소스 시큐리티 비활성화
 	@Bean
@@ -55,7 +57,7 @@ public class WebSecurityConfig {
 				.failureHandler(myLoginFailureHandler))
 		.logout(logout -> logout
 				.clearAuthentication(true)
-				.logoutSuccessUrl("/login")
+				.logoutSuccessHandler(myLogoutSuccessHandler)
 				.invalidateHttpSession(true)
 				.deleteCookies("remember-me"))
 		.rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember-me")
@@ -86,4 +88,10 @@ public class WebSecurityConfig {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 	
+	 // 세션 소멸 감지를 위한 필수 등록
+    @Bean
+    static HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+    
 }
