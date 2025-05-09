@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.MemberAttendanceDto;
+import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
@@ -38,6 +41,8 @@ import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.member.service.RoleService;
+import com.mjc.groupware.plan.entity.Plan;
+import com.mjc.groupware.plan.service.PlanService;
 import com.mjc.groupware.pos.entity.Pos;
 import com.mjc.groupware.pos.service.PosService;
 
@@ -56,31 +61,49 @@ public class AttendanceController {
 	private final AnnualLeavePolicyRepository annualLeavePolicyRepository;
 	private final MemberService memberService;
 	private final AttendanceRepository attendanceRepository;
+	private final PlanService planService;
 	
-	// 근태 관리페이지로 이동
 	@GetMapping("/attendance/management")
-	public String attendanceManagementViewApi(Model model) {
-		
-		WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
-		model.addAttribute("workSchedulePolicy", wsp);
-		
-		return "/attendance/admin/attendanceManagement";
+	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
+
+	    // 기본값: 오늘 날짜
+	    LocalDate targetDate = (searchDto.getTarget_date() != null) ? searchDto.getTarget_date() : LocalDate.now();
+
+	    // 페이징 처리
+	    if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Member> memberPage = service.selectMemberAll(searchDto, pageDto);
+	    pageDto.setTotalPage(memberPage.getTotalPages());
+
+	    // 날짜별 출근 정보 바인딩
+	    List<MemberAttendanceDto> dtoList = new ArrayList<>();
+	    for (Member member : memberPage.getContent()) {
+	        Attendance att = attendanceRepository.findByMemberAndAttendDate(member, targetDate);
+	        dtoList.add(new MemberAttendanceDto(member, att));
+	    }
+
+	    model.addAttribute("targetDate", targetDate); // 👉 뷰에서 날짜 초기값 표시용
+	    model.addAttribute("memberAttendanceList", dtoList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    
+	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	    model.addAttribute("workSchedulePolicy", wsp);
+	    
+	    // 부서/직책/정책 리스트
+	    model.addAttribute("deptList", deptService.selectDeptAll());
+	    model.addAttribute("posList", posService.selectPosAll());
+	    model.addAttribute("annualLeavePolicyList", annualLeavePolicyRepository.findAllByOrderByYearAsc());
+
+	    return "/attendance/admin/attendanceManagement";
 	}
 	
 	// 근태 정책 업데이트
 	@PostMapping("/attendance/manage")
 	@ResponseBody
-	public Map<String,String> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
-		Map<String,String> resultMap = new HashMap<String,String>();
-		resultMap.put("res_code", "500");
-		resultMap.put("res_msg", "근태 정책 변경에 실패하였습니다.");
+	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
-		int result = attendanceService.workTimeUpdateApi(dto);
-		
-		if(result > 0) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "근태 정책이 변경되었습니다.");
-		}
+		resultMap = attendanceService.workTimeUpdateApi(dto);
 		
 		return resultMap;
 	}
@@ -91,7 +114,7 @@ public class AttendanceController {
 		
 		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 		
-		Page<Member> memberList = service.selectMemberAll(searchDto, pageDto);
+		Page<Member> memberList = service.selectMemberAllForAnnual(searchDto, pageDto);
 		
 		pageDto.setTotalPage(memberList.getTotalPages());
 		
@@ -104,7 +127,7 @@ public class AttendanceController {
 		model.addAttribute("memberList", memberList);
 		model.addAttribute("deptList", deptList);
 		model.addAttribute("posList", posList);
-		model.addAttribute("searchText", searchDto.getSearch_text());
+		model.addAttribute("searchDto", searchDto);
 		model.addAttribute("pageDto", pageDto);
 		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
 		
@@ -165,14 +188,11 @@ public class AttendanceController {
 	
 	
 	
-	
-	
 	// 일반 사용자 근태 정보
-	
 	
 	// 근태 페이지로 이동
 	@GetMapping("/attendance/info")
-	public String attendanceInfoViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+	public String attendanceInfoViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails, AttendPageDto pageDto, SearchDto searchDto) {
 		
 		String userId = userDetails.getUsername();
 	    MemberDto memberDto = new MemberDto();
@@ -188,10 +208,39 @@ public class AttendanceController {
 	    }
 	    model.addAttribute("member", member);
 	    
+	    // 오늘 날짜의 휴가가 있는지
+	    Plan plan = planService.selectAnnualPlan(member, today);
+	    model.addAttribute("plan", plan);
+	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
+	    List<Attendance> attendanceList = attendanceService.selectAttendanceAll(member);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    
 	    return "/attendance/user/attendanceInfo";
+	}
+	
+	@GetMapping("/attendance/log")
+	public String attendanceLogViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails, AttendPageDto pageDto, SearchDto searchDto) {
+		
+		String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    
+	    Page<Attendance> attendancePageList = attendanceService.selectAttendanceAllByFilter(member, searchDto, pageDto);
+	    pageDto.setTotalPage(attendancePageList.getTotalPages());
+	    
+	    model.addAttribute("attendanceList", attendancePageList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    model.addAttribute("member", member);
+		
+		return "/attendance/user/attendanceLog";
 	}
 	
 	// 출근 시간 저장

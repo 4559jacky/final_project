@@ -20,84 +20,210 @@ layout:decorate="~{/include/layout}">
 	
 	<link th:href="@{/css/cjs/member_list.css}" rel="stylesheet">
 	
-	<!-- jsTree -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-	
 	<div class="page-titles mb-7 mb-md-5">
-		<div class="row">
-			<div class="col-lg-8 col-md-6 col-12 align-self-center">
-				<nav aria-label="breadcrumb">
-                	<ol class="breadcrumb align-items-center">
-                		<li class="breadcrumb-item">
-                    		<a class="text-muted text-decoration-none" th:href="@{/home}">
-                     			<i class="ti ti-home fs-5"></i>
-                    		</a>
-                   	 	</li>
-						<li class="breadcrumb-item" aria-current="page">근태 / 연차 및 근태 관리</li>
-                  	</ol>
-				</nav><br>
-				<h2 class="mb-0 fw-bolder fs-8">근태 관리</h2>
-			</div><br>
-		</div>
+	  <div class="row">
+	    <div class="col-12">
+	      <nav aria-label="breadcrumb">
+	        <ol class="breadcrumb align-items-center">
+	          <li class="breadcrumb-item">
+	            <a class="text-muted text-decoration-none" th:href="@{/home}">
+	              <i class="ti ti-home fs-5"></i>
+	            </a>
+	          </li>
+	          <li class="breadcrumb-item" aria-current="page">근태 / 근태 관리</li>
+	        </ol>
+	      </nav>
+	
+	      <div class="d-flex justify-content-between align-items-center mt-3">
+	        <h2 class="mb-0 fw-bolder fs-8">근태 관리</h2>
+	        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#workPolicyModal">
+			  근태 정책 설정
+			</button>
+	      </div>
+	    </div>
+	  </div>
 	</div>
 	
-	<div class="card mb-4">
-	  <div class="card-body">
-	  	<form name="work_time_form" action="/attendance/manage" method="post">
-	    <div class="d-flex justify-content-between align-items-center mb-4">
-	      <h4 class="fw-bold mb-0">근태 정책 설정</h4>
-	      <input type='hidden' value='1' name='work_schedule_policy_no'>
-	      <button type="submit" class="btn btn-primary">저장</button>
-	    </div>
+	<!-- 💥 사원 근태 관리 감싸던 div 제거됨 -->
+
+	<!-- 📌 바로 이 div부터 시작 -->
+	<div class="card w-100 border position-relative overflow-hidden">
+	  <div class="card-body p-4">
+	    <form name="attendance_members_form" action="/attendance/management" method="get">
 	
-	    <div class="row g-4 align-items-start">
-		
-	      <!-- 출근 시간 범위 -->
-	      <div class="col-md-6">
-	        <label class="form-label fw-semibold">출근 가능 시간 범위 (유연 근무제)</label>
-	        <div class="row g-2 align-items-center mb-2">
-	          <div class="col-auto">
-	            <input type="time" name="start_time_min" id="start_time_min" class="form-control" th:value="${workSchedulePolicy.startTimeMin}">
-	          </div>
-	          <div class="col-auto">~</div>
-	          <div class="col-auto">
-	            <input type="time" name="start_time_max" id="start_time_max" class="form-control" th:value="${workSchedulePolicy.startTimeMax}">
-	          </div>
-	        </div>
-	        <small class="text-muted">유연 근무제를 사용하지 않으면 동일한 시간으로 설정하세요.</small>
-	      </div>
-	
-	      <!-- 근무 시간 설정 -->
-	      <div class="col-md-6">
-	        <div class="mb-3">
-	          <label for="work_duration" class="form-label fw-semibold mb-1">하루 최소 근무시간</label>
-	          <div class="input-group">
-	            <input type="number" step="0.5" name="work_duration" id="work_duration" class="form-control" placeholder="예: 8.5"
-	            th:value="${workSchedulePolicy.workDuration}">
-	            <span class="input-group-text">시간</span>
+	      <!-- 🔍 검색 + 날짜 -->
+	      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+	        
+	        <!-- 🔍 검색 -->
+	        <div class="d-flex align-items-center me-3 mb-2" style="max-width: 400px;">
+	          <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
+	          <div class="input-group input-group-sm w-100">
+	            <input type="text" id="search_text" name="search_text"
+	              th:value="${searchDto.search_text}" class="form-control" placeholder="사원명(사번) 검색" />
+	            <button class="btn btn-primary" id="searchBtn">검색</button>
+	            <button class="btn btn-secondary" id="resetBtn" type="button">초기화</button>
 	          </div>
 	        </div>
 	
-	        <div class="mb-3">
-	          <label for="week_work_min_time" class="form-label fw-semibold mb-1">주 최소 근무시간</label>
-	          <div class="input-group">
-	            <input type="number" step="0.5" name="week_work_min_time" id="week_work_min_time" class="form-control" placeholder="예: 40"
-	            th:value="${workSchedulePolicy.weekWorkMinTime}">
-	            <span class="input-group-text">시간</span>
-	          </div>
-	        </div>
-	
-	        <div>
-	          <label for="week_work_max_time" class="form-label fw-semibold mb-1">주 최대 근무시간</label>
-	          <div class="input-group">
-	            <input type="number" step="0.5" name="week_work_max_time" id="week_work_max_time" class="form-control" placeholder="예: 52"
-	            th:value="${workSchedulePolicy.weekWorkMaxTime}">
-	            <span class="input-group-text">시간</span>
-	          </div>
+	        <!-- 📅 날짜 -->
+	        <div style="max-width: 200px;">
+	          <input type="date" id="target_date" name="target_date" th:value="${targetDate}" class="form-control form-control-sm">
 	        </div>
 	      </div>
-	    </div>
+	
+	      <!-- 📋 테이블 -->
+	      <div class="table-responsive mb-4 border rounded-1">
+	        <table class="table text-nowrap mb-0 align-middle">
+	          <thead class="text-dark fs-4">
+	            <tr>
+	              <th><h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6></th>
+	              <th><h6 class="fs-4 fw-semibold mb-0">날짜</h6></th>
+	              <th><h6 class="fs-4 fw-semibold mb-0">출근 시간</h6></th>
+	              <th><h6 class="fs-4 fw-semibold mb-0">퇴근 시간</h6></th>
+	              <th><h6 class="fs-4 fw-semibold mb-0">출근 상태</h6></th>
+	              <th><h6 class="fs-4 fw-semibold mb-0">퇴근 상태</h6></th>
+	            </tr>
+	          </thead>
+	          <tbody id="member-tbody">
+	            <tr th:each="dto : ${memberAttendanceList}">
+	              <td>
+	                <div class="d-flex align-items-center">
+	                  <div class="ms-3">
+	                    <h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${dto.member.memberName}">사원명</h6>
+	                    <span class="fw-normal" th:text="|#${dto.member.memberNo}|">#사번</span>
+	                  </div>
+	                </div>
+	                <input type="hidden" id="memberNo" th:value="${dto.member.memberNo}">
+	              </td>
+	              <td class="text-center"><h6 class="fs-4 fw-semibold mb-0" th:text="${dto.attendDate != null ? #temporals.format(dto.attendDate, 'yyyy.MM.dd') : '-'}"></h6></td>
+	              <td class="text-center"><h6 class="fs-4 fw-semibold mb-0" th:text="${dto.startTime != null ? dto.startTime : '-'}"></h6></td>
+	              <td class="text-center"><h6 class="fs-4 fw-semibold mb-0" th:text="${dto.endTime != null ? dto.endTime : '-'}"></h6></td>
+	              <td class="text-center"><h6 class="fs-4 fw-semibold mb-0" th:text="${dto.lateYn == 'Y' ? '지각' : (dto.lateYn == null ? '-' : '정상')}"></h6></td>
+	              <td class="text-center"><h6 class="fs-4 fw-semibold mb-0" th:text="${dto.earlyLeaveYn == 'Y' ? '조퇴' : (dto.earlyLeaveYn == null ? '-' : '정상')}"></h6></td>
+	            </tr>
+	          </tbody>
+	        </table>
+	      </div>
+	
+	      <!-- 📌 페이징 -->
+	      <div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+	        <nav>
+	          <ul class="pagination mb-0">
+	            <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
+	              <a class="page-link"
+	                th:href="${pageDto.prev} ? @{/attendance/management(nowPage=${pageDto.pageBarStart-1}, search_text=${searchDto.search_text}, target_date=${searchDto.target_date})} : '#'"
+	                aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+	            </li>
+	
+	            <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+	              <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+	                <a class="page-link"
+	                  th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+	                  th:href="@{/attendance/management(nowPage=${num}, search_text=${searchDto.search_text}, target_date=${searchDto.target_date})}"
+	                  th:text="${num}">페이지</a>
+	              </li>
+	            </th:block>
+	
+	            <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
+	              <a class="page-link"
+	                th:href="${pageDto.next} ? @{/attendance/management(nowPage=${pageDto.pageBarEnd+1}, search_text=${searchDto.search_text}, target_date=${searchDto.target_date})} : '#'"
+	                aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+	            </li>
+	          </ul>
+	        </nav>
+	      </div>
+	
 	    </form>
+	  </div>
+	</div>
+
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			  const dateInput = document.getElementById("target_date");
+	
+			  dateInput.addEventListener("change", function () {
+			    const searchText = document.getElementById('search_text').value;
+			    const targetDate = this.value;
+	
+	
+			    // 🔄 GET 요청
+			    location.href = '/attendance/management?search_text='+searchText+'&target_date='+targetDate;
+			});
+		});
+	</script>
+	
+	<!-- 모달창 -->
+	<div class="modal fade" id="workPolicyModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- 너비 넉넉하게 -->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title fw-bold">근태 정책 설정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+	      </div>
+	      
+	      <div class="modal-body">
+	        <form name="work_time_form" action="/attendance/manage" method="post">
+	          <input type="hidden" value="1" name="work_schedule_policy_no">
+	
+	          <div class="row g-4 align-items-start">
+	            <!-- 출근 시간 범위 -->
+	            <div class="col-md-6">
+	              <label class="form-label fw-semibold">출근 가능 시간 범위 (유연 근무제)</label>
+	              <div class="row g-2 align-items-center mb-2">
+	                <div class="col-auto">
+	                  <input type="time" name="start_time_min" id="start_time_min" class="form-control"
+	                    th:value="${workSchedulePolicy.startTimeMin}">
+	                </div>
+	                <div class="col-auto">~</div>
+	                <div class="col-auto">
+	                  <input type="time" name="start_time_max" id="start_time_max" class="form-control"
+	                    th:value="${workSchedulePolicy.startTimeMax}">
+	                </div>
+	              </div>
+	              <small class="text-muted">유연 근무제를 사용하지 않으면 동일한 시간으로 설정하세요.</small>
+	            </div>
+	
+	            <!-- 근무 시간 설정 -->
+	            <div class="col-md-6">
+	              <div class="mb-3">
+	                <label for="work_duration" class="form-label fw-semibold mb-1">하루 최소 근무시간</label>
+	                <div class="input-group">
+	                  <input type="number" step="0.5" name="work_duration" id="work_duration" class="form-control"
+	                    placeholder="예: 8.5" th:value="${workSchedulePolicy.workDuration}">
+	                  <span class="input-group-text">시간</span>
+	                </div>
+	                <small class="text-muted">최소 근무시간은 휴게시간 1시간이 포함됩니다.<br>실제 근무시간 : 최소 근무시간 - 1h</small>
+	              </div>
+	
+	              <div class="mb-3">
+	                <label for="week_work_min_time" class="form-label fw-semibold mb-1">주 최소 근무시간</label>
+	                <div class="input-group">
+	                  <input type="number" step="0.5" name="week_work_min_time" id="week_work_min_time"
+	                    class="form-control" placeholder="예: 40" th:value="${workSchedulePolicy.weekWorkMinTime}">
+	                  <span class="input-group-text">시간</span>
+	                </div>
+	              </div>
+	
+	              <div>
+	                <label for="week_work_max_time" class="form-label fw-semibold mb-1">주 최대 근무시간</label>
+	                <div class="input-group">
+	                  <input type="number" step="0.5" name="week_work_max_time" id="week_work_max_time"
+	                    class="form-control" placeholder="예: 52" th:value="${workSchedulePolicy.weekWorkMaxTime}">
+	                  <span class="input-group-text">시간</span>
+	                </div>
+	              </div>
+	            </div>
+	          </div>
+	
+	          <div class="mt-4 text-end">
+	            <button type="submit" class="btn btn-primary">저장</button>
+	            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	          </div>
+	        </form>
+	      </div>
+	
+	    </div>
 	  </div>
 	</div>
 
@@ -137,11 +263,146 @@ layout:decorate="~{/include/layout}">
 			.then(data => {
 				alert(data.res_msg);
 				if(data.res_code =='200') {
-					location.href = '/attendance/management';
+					document.getElementById('start_time_min').value = data.workPolicy.startTimeMin;
+					document.getElementById('start_time_max').value = data.workPolicy.startTimeMax;
+					document.getElementById('work_duration').value = data.workPolicy.workDuration;
+					document.getElementById('week_work_min_time').value = data.workPolicy.weekWorkMinTime;
+					document.getElementById('week_work_max_time').value = data.workPolicy.weekWorkMaxTime;
 				}
 			})
 		});
 	</script>
+	
+	<!-- 근무 상태 수정 모달 -->
+	<div class="modal fade" id="memberattendanceStatusUpdate" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title fw-bold">근무 상태 수정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+	      </div>
+	
+	      <div class="modal-body text-start">
+			  <p><strong id="modalMemberName">사원명 (#사번)</strong></p>
+			
+			  <div class="mb-3">
+			    <label for="attendDate" class="form-label fw-semibold">날짜</label>
+			    <input type="text" class="form-control" id="attendDate" readonly>
+			  </div>
+			
+			  <!-- ✅ 출근/퇴근 시간 한 줄 -->
+			  <div class="row">
+			    <div class="col-md-6 mb-3">
+			      <label for="editStartTime" class="form-label fw-semibold">출근 시간</label>
+			      <input type="time" class="form-control" id="editStartTime">
+			    </div>
+			    <div class="col-md-6 mb-3">
+			      <label for="editEndTime" class="form-label fw-semibold">퇴근 시간</label>
+			      <input type="time" class="form-control" id="editEndTime">
+			    </div>
+			  </div>
+			
+			  <!-- ✅ 출근/퇴근 상태 한 줄 -->
+			  <div class="row">
+			    <div class="col-md-6 mb-3">
+			      <label for="editLateYn" class="form-label fw-semibold">출근 상태</label>
+			      <select class="form-select" id="editLateYn">
+			        <option value="N">정상</option>
+			        <option value="Y">지각</option>
+			      </select>
+			    </div>
+			    <div class="col-md-6 mb-3">
+			      <label for="editEarlyLeaveYn" class="form-label fw-semibold">퇴근 상태</label>
+			      <select class="form-select" id="editEarlyLeaveYn">
+			        <option value="N">정상</option>
+			        <option value="Y">조퇴</option>
+			      </select>
+			    </div>
+			  </div>
+			</div>
+	
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" onclick="saveAttendanceUpdate()">저장</button>
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<script>
+	  let selectedMemberNo = null;
+	
+	  document.querySelectorAll('#member-tbody tr').forEach(tr => {
+	    tr.addEventListener('click', () => {
+	      const name = tr.querySelector('.member-name')?.textContent.trim();
+	      const memberNo = tr.querySelector('input#memberNo')?.value;
+	      const attendDate = tr.querySelectorAll('td')[1]?.textContent.trim();
+	      const startTime = tr.querySelectorAll('td')[2]?.textContent.trim();
+	      const endTime = tr.querySelectorAll('td')[3]?.textContent.trim();
+	      const lateStatus = tr.querySelectorAll('td')[4]?.textContent.trim();
+	      const earlyLeaveStatus = tr.querySelectorAll('td')[5]?.textContent.trim();
+	
+	      if (!memberNo || !name) return;
+	
+	      // 값 세팅
+	      document.getElementById('attendDate').value = attendDate;
+	      document.getElementById('modalMemberName').textContent = `${name} (#${memberNo})`;
+	      document.getElementById('editStartTime').value = startTime !== '-' ? startTime : '';
+	      document.getElementById('editEndTime').value = endTime !== '-' ? endTime : '';
+	      document.getElementById('editLateYn').value = (lateStatus === '지각') ? 'Y' : 'N';
+	      document.getElementById('editEarlyLeaveYn').value = (earlyLeaveStatus === '조퇴') ? 'Y' : 'N';
+	
+	      selectedMemberNo = memberNo;
+	
+	      const modalEl = document.getElementById('memberattendanceStatusUpdate');
+	      const modal = new bootstrap.Modal(modalEl);
+	      modal.show();
+	    });
+	  });
+	
+	  function saveAttendanceUpdate() {
+	    const start = document.getElementById('editStartTime').value;
+	    const end = document.getElementById('editEndTime').value;
+	    const lateYn = document.getElementById('editLateYn').value;
+	    const earlyYn = document.getElementById('editEarlyLeaveYn').value;
+	
+	    const formData = new FormData();
+	    formData.append("startTime", start);
+	    formData.append("endTime", end);
+	    formData.append("lateYn", lateYn);
+	    formData.append("earlyLeaveYn", earlyYn);
+	
+	    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+	    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+	
+	    if (!selectedMemberNo) return;
+	
+	    fetch(`/attendance/update/${selectedMemberNo}`, {
+	      method: 'POST',
+	      headers: {
+	        [csrfHeader]: csrfToken
+	      },
+	      body: formData
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	      alert(data.res_msg || "수정되었습니다.");
+	      if (data.res_code == 200) {
+	        location.reload();
+	      }
+	    })
+	    .catch(err => console.error("에러:", err));
+	  }
+	</script>
+	
+
+	<script>
+		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
+		document.getElementById("resetBtn").addEventListener("click", function () {
+		  location.href = '/attendance/management';
+		});
+	</script>
+	
 	<!-- Bootstrap Common JS Files Start -->
 	
 	<!-- Import vendorJs Files -->

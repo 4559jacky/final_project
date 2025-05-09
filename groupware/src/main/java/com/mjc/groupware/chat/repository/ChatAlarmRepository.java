@@ -9,5 +9,4 @@ import com.mjc.groupware.member.entity.Member;
 
 public interface  ChatAlarmRepository extends JpaRepository<ChatAlarm, Long>{
 
-	//List<ChatAlarm> findByReceiverNoAndReadStatus(Member receiverNo, String readStatus);
 }

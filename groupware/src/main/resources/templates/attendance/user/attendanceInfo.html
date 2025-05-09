@@ -44,8 +44,11 @@
 			<div class="col-lg-3">
 				<!-- 근태관리 카드 -->
 				<div class="card p-3 mb-3">
-					<h5 class="fw-bold text-primary mb-3">근태관리</h5>
-					<h2 class="fw-bold" id="nowTime">03:05:20</h2>
+				  <div class="d-flex justify-content-between align-items-center mb-3">
+				    <h5 class="fw-bold text-primary">근태관리</h5>
+				    <button class="btn btn-primary btn-sm" onclick="myAttendLogView();">내 근무 이력</button>
+				  </div>
+				  <h2 class="fw-bold" id="nowTime">03:05:20</h2>
 					<div class="mt-3 small">
 						<div class="d-flex justify-content-between mb-2">
 							<input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
@@ -95,7 +98,7 @@
 							    </th:block>
 							    <th:block th:if="${todayAttendance != null}">
 							      <span th:if="${todayAttendance.late_yn == 'N'}"
-							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상</span>
+							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상 출근</span>
 							      <span th:if="${todayAttendance.late_yn == 'Y'}"
 							        class="badge bg-warning-subtle text-warning fw-semibold px-2 py-1 rounded">지각</span>
 							    </th:block>
@@ -110,7 +113,7 @@
 							    </th:block>
 							    <th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
 							      <span th:if="${todayAttendance.early_leave_yn == 'N'}"
-							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상</span>
+							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상 퇴근</span>
 							      <span th:if="${todayAttendance.early_leave_yn == 'Y'}"
 							        class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1 rounded">조퇴</span>
 							    </th:block>
@@ -141,12 +144,18 @@
 				</div>
 			</div>
 
-			<script>
+		<script>
           	const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-          </script>
+        </script>
 
 			<script>
+			
+			const myAttendLogView = function(){
+				location.href = "/attendance/log";
+			}
+			
+			
 	          const startTime = function() {
 	        	  const now = new Date();
 	        	  const koreaOffset = 9 * 60; // KST: UTC+9
@@ -190,8 +199,8 @@
 	        	    	  switch (data.attendance.lateYn) {
 	        	    	    case "N":
 	        	    	      statusText = "정상 출근";
-	        	    	      bgClass = "bg-info-subtle";
-	        	    	      textClass = "text-info";
+	        	    	      bgClass = "bg-success-subtle";
+	        	    	      textClass = "text-success";
 	        	    	      break;
 	        	    	    case "Y":
 	        	    	      statusText = "지각";
@@ -338,7 +347,7 @@
 						</div>
 						<div class="text-end">
 							<h4 class="fw-bold" id="current_date2">2024.04</h4>
-							<p class="text-muted">오늘</p>
+							<p class="text-muted" id="month_week">0번째 주</p>
 						</div>
 					</div>
 
@@ -365,7 +374,6 @@
 					<h6 class="fw-bold mb-3">주간 근무시간 요약</h6>
 					<div id="weeklyHoursChart"></div>
 				</div>
-
 			</div>
 		</div>
 	</div>
@@ -385,15 +393,56 @@
 		    updateTime(); // 초기 실행
 		    setInterval(updateTime, 1000); // 1초마다 업데이트
 		  });
-	
-	    document.addEventListener("DOMContentLoaded", function () {
-	      const now = new Date();
-	      const days = ['일', '월', '화', '수', '목', '금', '토'];
-	      const formatted = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
-	      const formatted2 = now.getMonth()+1 <= 9 ? `${now.getFullYear()}.0${now.getMonth()+1}` : `${now.getFullYear()}.${now.getMonth()+1}`;
-	      document.getElementById("current-date").textContent = formatted;
-	      document.getElementById('current_date2').textContent = formatted2;
-	    });
+		  
+		  function getWeekRange(date) {
+			  const day = date.getDay(); // 0: 일 ~ 6: 토
+			  const monday = new Date(date);
+			  monday.setDate(date.getDate() - ((day + 6) % 7)); // 이번 주 요일
+
+			  const sunday = new Date(monday);
+			  sunday.setDate(monday.getDate() + 6); // 일요일
+
+			  const pad = (n) => n.toString().padStart(2, "0");
+
+			  const start = `${pad(monday.getMonth() + 1)}.${pad(monday.getDate())}`;
+			  const end = `${pad(sunday.getMonth() + 1)}.${pad(sunday.getDate())}`;
+
+			  return `${start} ~ ${end}`;
+			}
+	  
+		  function getWeekRange(date) {
+			  const day = date.getDay(); // 0: 일 ~ 6: 토
+			  const monday = new Date(date);
+			  monday.setDate(date.getDate() - ((day + 6) % 7)); // 이번 주 월요일
+
+			  const sunday = new Date(monday);
+			  sunday.setDate(monday.getDate() + 6); // 이번 주 일요일
+
+			  const pad = (n) => n.toString().padStart(2, "0");
+
+			  const start = `${pad(monday.getMonth() + 1)}.${pad(monday.getDate())}`;
+			  const end = `${pad(sunday.getMonth() + 1)}.${pad(sunday.getDate())}`;
+
+			  return `${start} ~ ${end}`;
+			}
+
+			document.addEventListener("DOMContentLoaded", function () {
+			  const now = new Date();
+			  const days = ['일', '월', '화', '수', '목', '금', '토'];
+
+			  const formatted = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+
+			  const dateFormatted = now.getDate() <= 9 ? `0${now.getDate()}` : now.getDate();
+			  const formatted2 = now.getMonth() + 1 <= 9
+			    ? `${now.getFullYear()}.0${now.getMonth() + 1}.${dateFormatted}`
+			    : `${now.getFullYear()}.${now.getMonth() + 1}.${dateFormatted}`;
+
+			  const weekRange = getWeekRange(now);
+
+			  document.getElementById("current-date").textContent = formatted;
+			  document.getElementById("current_date2").textContent = formatted2;
+			  document.getElementById("month_week").textContent = weekRange;
+			});
 	 </script>
 	 
 	 <script>
@@ -503,7 +552,8 @@
 		  });
 		</script>
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
+	
+	
 	<!-- Bootstrap Common JS Files Start -->
 
 	<!-- Import vendorJs Files -->

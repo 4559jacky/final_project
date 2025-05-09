@@ -29,7 +29,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class Accommodation {
+public class AccommodationReservation {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,8 +60,5 @@ public class Accommodation {
 	@ManyToOne
 	@JoinColumn(name = "accommodation_no")
 	private AccommodationInfo accommodationInfo;
-	
-
-	
 	
 }

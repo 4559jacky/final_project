@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.chat.dto.ChatAlarmDto;
 import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.dto.ChatRoomReadDto;
+import com.mjc.groupware.chat.entity.ChatAlarm;
 import com.mjc.groupware.chat.entity.ChatMapping;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
@@ -31,6 +33,7 @@ import com.mjc.groupware.chat.service.ChatMsgService;
 import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.chat.session.ChatSessionTracker;
 import com.mjc.groupware.chat.session.SessionRegistry;
+import com.mjc.groupware.member.entity.Member;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -110,45 +113,71 @@ public class ChatController {
 		return chatMsgDtoList;
 	}
 	
-	// 실시간 채팅
 	@MessageMapping("/chat/msg")
 	public void message(ChatMsgDto dto, SimpMessageHeaderAccessor accessor) {
+	    // 1. 메시지 저장
 	    ChatMsg saved = chatMsgService.createChatMsg(dto);
 
-	    // 수신자 없으면 전체 꺼내기
+	    // 2. 수신자 리스트가 비어있으면 직접 채우기 (stream X)
 	    if (dto.getMember_no_list() == null || dto.getMember_no_list().isEmpty()) {
 	        ChatRoom chatRoom = chatRoomService.selectChatRoomOne(dto.getChat_room_no());
 	        List<Long> receiverNos = new ArrayList<>();
-	        for (ChatMapping mapping : chatRoom.getMappings()) {
+
+	        List<ChatMapping> mappings = chatRoom.getMappings();
+	        for (int i = 0; i < mappings.size(); i++) {
+	            ChatMapping mapping = mappings.get(i);
 	            if (mapping.getMemberNo() != null) {
 	                receiverNos.add(mapping.getMemberNo().getMemberNo());
 	            }
 	        }
+
 	        dto.setMember_no_list(receiverNos);
 	    }
 
-	    // 메시지 전송 (모든 사람 수신)
+	    // 3. 채팅방 내부 메시지 전송
 	    messagingTemplate.convertAndSend("/topic/chat/room/" + dto.getChat_room_no(), dto);
 
-	    // 목록 업데이트
+	    // 4. 채팅 목록 갱신
 	    dto.setSend_date(LocalDateTime.now());
 	    messagingTemplate.convertAndSend("/topic/chat/room/update", dto);
 
-	    // ✅ 안 들어와 있는 사람만 뱃지/알림 전송
-	    for (Long receiverNo : dto.getMember_no_list()) {
+	    // 5. 알림 or 뱃지 전송
+	    List<Long> receivers = dto.getMember_no_list();
+	    for (int i = 0; i < receivers.size(); i++) {
+	        Long receiverNo = receivers.get(i);
+
+	        // 보낸 사람은 제외
 	        if (receiverNo.equals(dto.getMember_no())) continue;
 
 	        String sessionId = sessionRegistry.getSessionIdForMember(receiverNo);
+	        boolean isConnected = (sessionId != null);
+	        boolean isInRoom = isConnected && chatSessionTracker.isSessionInRoom(dto.getChat_room_no(), sessionId);
 
-	        boolean isInRoom = sessionId != null && chatSessionTracker.isSessionInRoom(dto.getChat_room_no(), sessionId);
-
-	        if (!isInRoom) {
+	        // ✅ CASE 1: chat.html은 켜져 있고 방은 안 들어온 상태 → 뱃지 전송
+	        if (isConnected && !isInRoom) {
 	            messagingTemplate.convertAndSend("/topic/chat/unread", dto);
-	        } else {
+	        }
+
+	        // ✅ CASE 2: chat.html에 아예 안 들어온 사람 → 알림 전송 + DB 저장
+	        if (!isInRoom) {
+	            chatAlarmService.createChatAlarm(dto.getChat_room_no(), receiverNo, saved);
+
+	            // 새 DTO 객체로 안전하게 전송
+	            ChatMsgDto alarmDto = new ChatMsgDto();
+	            alarmDto.setMember_no(receiverNo);
+	            alarmDto.setMember_name(dto.getMember_name());
+	            alarmDto.setMember_pos_name(dto.getMember_pos_name());
+	            alarmDto.setChat_msg_content(dto.getChat_msg_content());
+	            alarmDto.setChat_room_no(dto.getChat_room_no());
+
+
+	            messagingTemplate.convertAndSend("/topic/chat/alarm/" + receiverNo, alarmDto);
+
 	        }
 	    }
-
 	}
+
+
 
 	
 	// 읽음 시간 조회
@@ -208,6 +237,10 @@ public class ChatController {
 		if (result > 0) {
 	
 			chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
+			 messagingTemplate.convertAndSend(
+				        "/topic/chat/room/" + dto.getChat_room_no() + "/exit",
+				        dto
+				    );
 			
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");

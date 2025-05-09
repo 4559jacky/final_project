@@ -368,5 +368,34 @@ public class MemberService {
 		
 		return result;
 	}
+	
+	public Page<Member> selectMemberAllForAnnual(MemberSearchDto searchDto, PageDto pageDto) {		
+		Specification<Member> spec = (root,query,criteriaBuilder) -> null;
+		
+		Pageable pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("regDate").ascending());
+		if(searchDto.getReg_date_order() == 2) {
+			pageable = PageRequest.of(pageDto.getNowPage()-1, pageDto.getNumPerPage(), Sort.by("regDate").descending());
+		}
+		
+		if("".equals(searchDto.getSearch_text()) || searchDto.getSearch_text() == null) {
+			// 아무것도 입력하지않으면 findAll() 과 동일함
+			spec = spec.and(MemberSpecification.memberNotAdmin());
+		} else {
+			
+			spec = spec.and(MemberSpecification.memberNameContains(searchDto.getSearch_text()))
+					.and(MemberSpecification.memberNotAdmin());
+			
+			try {
+				Long memberNo = Long.parseLong(searchDto.getSearch_text());
+				spec = spec.or(MemberSpecification.memberNoEquals(memberNo));
+			} catch(Exception e) {
+				
+			}
+		}
+		
+		Page<Member> resultList = repository.findAll(spec, pageable);
+		
+		return resultList;
+	}
 
 }

@@ -2,6 +2,7 @@ package com.mjc.groupware.accommodationReservation.service;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +79,12 @@ public class AccommodationAttachService {
 
 	    accommodationAttachRepository.save(attach);
 	}
+
+	// 이미지 수정시 기존 파일 삭제
+	public void deleteAllByAccommodation(Long accommodationNo) {
+    	List<AccommodationAttach> attachList = accommodationAttachRepository.findByAccommodationInfo_AccommodationNo(accommodationNo);
+        accommodationAttachRepository.deleteAll(attachList);
+    }
 
 	
 }
