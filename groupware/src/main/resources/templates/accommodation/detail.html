@@ -63,20 +63,20 @@ layout:decorate="~{/include/layout}">
               <div class="d-flex align-items-center gap-3 mt-4 mb-4">
 				  <label class="fs-4 mb-0 fw-semibold">인원수</label>
 				  <div class="input-group input-group-sm w-auto">
-				    <button class="btn btn-outline-secondary" type="button" onclick="decreasePeopleCount()">-</button>
+				    <button class="btn btn-outline-secondary" type="button" onclick="decreasePeopleCount()" id="minusPeopleBtn">-</button>
 				    <input type="text" id="numberOfPeopleInput" name="number_of_people" class="form-control text-center" 
 				           th:value="1" />
-				    <button class="btn btn-outline-secondary" type="button" onclick="increasePeopleCount()">+</button>
+				    <button class="btn btn-outline-secondary" type="button" onclick="increasePeopleCount()" id="plusPeopleBtn">+</button>
 				  </div>
 				</div>
               <!-- 방갯수 -->
 	            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
 				  <label class="fs-4 mb-0 fw-semibold">방 갯수</label>
 				  <div class="input-group input-group-sm w-auto">
-				    <button class="btn btn-outline-secondary" type="button" onclick="decreaseRoomCount()">-</button>
+				    <button class="btn btn-outline-secondary" type="button" onclick="decreaseRoomCount()" id="minusRoomBtn">-</button>
 				    <input type="text" id="roomCountInput" name="room_count" class="form-control text-center" 
 				           th:value="${accommodation.room_count}" />
-				    <button class="btn btn-outline-secondary" type="button" onclick="increaseRoomCount()">+</button>
+				    <button class="btn btn-outline-secondary" type="button" onclick="increaseRoomCount()" id="plusRoomBtn">+</button>
 				  </div>
 				</div>
             </form>
@@ -107,81 +107,199 @@ layout:decorate="~{/include/layout}">
   <script th:src="@{/js/jquery-3.7.1.js}"></script>
   <script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
   <script>
-    $(document).ready(function () {
-      $('#imageCarousel').owlCarousel({
-        loop: true,
-        margin: 10,
-        nav: true,
-        items: 1
-      });
-    });
-
-   function handleColorTheme(e) {
-     document.documentElement.setAttribute("data-color-theme", e);
-   }
-  
-   // 인원수 버튼 동작
-   function increasePeopleCount() {
-	    const input = document.getElementById("numberOfPeopleInput");
-	    let value = parseInt(input.value) || 0;
-	    input.value = value + 1;
-	  }
-
-	  function decreasePeopleCount() {
-	    const input = document.getElementById("numberOfPeopleInput");
-	    let value = parseInt(input.value) || 0;
-	    if (value > 1) {
-	      input.value = value - 1;
-	    }
-	  }
-   
-   // 방갯수 버튼 동작
-   function increaseRoomCount() {
-	    const input = document.getElementById("roomCountInput");
-	    let value = parseInt(input.value) || 0;
-	    input.value = value + 1;
-	  }
-
-	  function decreaseRoomCount() {
-	    const input = document.getElementById("roomCountInput");
-	    let value = parseInt(input.value) || 0;
-	    if (value > 1) {
-	      input.value = value - 1;
-	    }
-	  }
+	    $(document).ready(function () {
+	      $('#imageCarousel').owlCarousel({
+	        loop: true,
+	        margin: 10,
+	        nav: true,
+	        items: 1
+	      });
+	    });
+	
+	   function handleColorTheme(e) {
+	     document.documentElement.setAttribute("data-color-theme", e);
+	   }
+	  
+	   // 인원수 버튼 동작
+	   function increasePeopleCount() {
+		    const input = document.getElementById("numberOfPeopleInput");
+		    let value = parseInt(input.value) || 0;
+		    input.value = value + 1;
+		  }
+	
+		  function decreasePeopleCount() {
+		    const input = document.getElementById("numberOfPeopleInput");
+		    let value = parseInt(input.value) || 0;
+		    if (value > 1) {
+		      input.value = value - 1;
+		    }
+		  }
+	   
+	   // 방갯수 버튼 동작
+	   function increaseRoomCount() {
+		    const input = document.getElementById("roomCountInput");
+		    let value = parseInt(input.value) || 0;
+		    input.value = value + 1;
+		  }
+	
+		  function decreaseRoomCount() {
+		    const input = document.getElementById("roomCountInput");
+		    let value = parseInt(input.value) || 0;
+		    if (value > 1) {
+		      input.value = value - 1;
+		    }
+		  }
 	  
 	  // 예약하기 버튼 클릭시 동작
-	  document.addEventListener("DOMContentLoaded",function(){
-		  document.getElementById("reserveBtn").addEventListener("click",function(){
-			  const form = new FormData();
-			  
-			  form.append("accommodation_no", document.getElementById("accommodation_no").value);
-			  form.append("check_in", document.getElementById("check_in").value);
-			  form.append("check_out", document.getElementById("check_out").value);
-			  form.append("number_of_people", document.getElementById("numberOfPeopleInput").value);
-			  
-			  fetch("/user/accommodation/reservation/create",{
-				  method: "POST",
-				  body: form,
-				  headers:{
-					  "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-				  }
-			  })
-			  .then(res => res.json())
-			  .then(data =>{
-				  if(data.res_code == "200"){
-					  alert("예약이 완료되었습니다.");
-					  location.href = "/accommodation/list";
-				  }else{
-					  alert("예약 실패 : "+data.res_msg);
-				  }
-			  })
-			  .catch(err =>{
-				 console.error(err);
-				 alert("서버 오류가 발생했습니다.");
-			  });
+	  document.addEventListener("DOMContentLoaded", function () {
+		  const MAX_PEOPLE = 50;
+		  const MAX_ROOMS = 50;
+		
+		  // 날짜 설정
+		  const today = new Date();
+		  const yyyy = today.getFullYear();
+		  const mm = String(today.getMonth() + 1).padStart(2, '0');
+		  const dd = String(today.getDate()).padStart(2, '0');
+		  const formattedToday = `${yyyy}-${mm}-${dd}`;
+		
+		  const checkInInput = document.getElementById("check_in");
+		  const checkOutInput = document.getElementById("check_out");
+		
+		  checkInInput.setAttribute("min", formattedToday);
+		  checkOutInput.setAttribute("min", formattedToday);
+		
+		  checkInInput.addEventListener("change", function () {
+		    const selectedDate = checkInInput.value;
+		    checkOutInput.setAttribute("min", selectedDate);
+		    if (checkOutInput.value < selectedDate) {
+		      checkOutInput.value = selectedDate;
+		    }
 		  });
-	  });
+		
+		  // 예약 버튼 클릭
+		  document.getElementById("reserveBtn").addEventListener("click", function () {
+		    const checkIn = checkInInput.value;
+		    const checkOut = checkOutInput.value;
+		
+		    if (!checkIn || !checkOut) {
+		      alert("체크인 및 체크아웃 날짜를 입력해주세요.");
+		      return;
+		    }
+		
+		    const checkInDate = new Date(checkIn);
+		    const checkOutDate = new Date(checkOut);
+		
+		    if (checkOutDate <= checkInDate) {
+		      alert("체크아웃 날짜는 체크인 날짜보다 이후여야 합니다.");
+		      return;
+		    }
+		
+		    const form = new FormData();
+		    form.append("accommodation_no", document.getElementById("accommodation_no").value);
+		    form.append("check_in", checkIn);
+		    form.append("check_out", checkOut);
+		    form.append("number_of_people", document.getElementById("numberOfPeopleInput").value);
+		
+		    fetch("/user/accommodation/reservation/create", {
+		      method: "POST",
+		      body: form,
+		      headers: {
+		        "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+		      }
+		    })
+		      .then(res => res.json())
+		      .then(data => {
+		        if (data.res_code == "200") {
+		          alert("예약이 완료되었습니다.");
+		          location.href = "/user/accommodation/reservation/list";
+		        } else {
+		          alert("예약 실패 : " + data.res_msg);
+		        }
+		      })
+		      .catch(err => {
+		        console.error(err);
+		        alert("서버 오류가 발생했습니다.");
+		      });
+		  });
+		
+		  // 숫자만 입력 + 최대값 제한
+		  function allowOnlyNumbersWithMax(inputId, maxValue, plusBtnId) {
+		    const input = document.getElementById(inputId);
+		    const plusBtn = document.getElementById(plusBtnId);
+		
+		    input.addEventListener("input", function () {
+		      this.value = this.value.replace(/[^0-9]/g, '');
+		      let value = parseInt(this.value) || 0;
+		
+		      if (value > maxValue) {
+		        this.value = maxValue;
+		        value = maxValue;
+		      }
+		
+		      if (plusBtn) {
+		        plusBtn.disabled = value >= maxValue;
+		      }
+		    });
+		
+		    input.addEventListener("keypress", function (e) {
+		      const charCode = e.charCode;
+		      if (charCode < 48 || charCode > 57) {
+		        e.preventDefault();
+		      }
+		    });
+		
+		    input.addEventListener("blur", function () {
+		      if (this.value.trim() === "") {
+		        this.value = 1;
+		      }
+		      if (plusBtn) {
+		        plusBtn.disabled = parseInt(this.value) >= maxValue;
+		      }
+		    });
+		  }
+		
+		  // + 버튼 기능: 최대값 도달 시 중지
+		  function setupPlusButton(inputId, plusBtnId, maxValue) {
+		    const input = document.getElementById(inputId);
+		    const plusBtn = document.getElementById(plusBtnId);
+		
+		    plusBtn.addEventListener("click", function () {
+		      let value = parseInt(input.value) || 0;
+		      if (value < maxValue) {
+		        input.value = value + 1;
+		      }
+		      if (value + 1 >= maxValue) {
+		        plusBtn.disabled = true;
+		      }
+		    });
+		  }
+		
+		  // - 버튼 기능
+		  function setupMinusButton(inputId, minusBtnId, plusBtnId) {
+		    const input = document.getElementById(inputId);
+		    const minusBtn = document.getElementById(minusBtnId);
+		    const plusBtn = document.getElementById(plusBtnId);
+		
+		    minusBtn.addEventListener("click", function () {
+		      let value = parseInt(input.value) || 1;
+		      if (value > 1) {
+		        input.value = value - 1;
+		        plusBtn.disabled = false;
+		      }
+		    });
+		  }
+		
+		  // 인원수 적용
+		  allowOnlyNumbersWithMax("numberOfPeopleInput", MAX_PEOPLE, "plusPeopleBtn");
+		  setupPlusButton("numberOfPeopleInput", "plusPeopleBtn", MAX_PEOPLE);
+		  setupMinusButton("numberOfPeopleInput", "minusPeopleBtn", "plusPeopleBtn");
+		
+		  // 방 갯수 적용
+		  allowOnlyNumbersWithMax("roomCountInput", MAX_ROOMS, "plusRoomBtn");
+		  setupPlusButton("roomCountInput", "plusRoomBtn", MAX_ROOMS);
+		  setupMinusButton("roomCountInput", "minusRoomBtn", "plusRoomBtn");
+		});
+
   </script>
     
   <div class="dark-transparent sidebartoggler"></div>
