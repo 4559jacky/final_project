@@ -95,11 +95,11 @@ layout:decorate="~{/include/layout}">
 				      <td th:text="${reservation.check_out}">체크아웃</td>
 				      <td th:text="${reservation.room_count}">방갯수</td>
 				      <td class="text-start">
-				           <select id="type" name="type" class="form-select w-75">
-				              <option selected>선택</option>
-				              <option value="1">승인</option>
-				              <option value="2">반려</option>
-				           </select>
+				           <select name="type" class="form-select w-75">
+				           <option th:value="'선택'" th:selected="${reservation.reservation_status == null or reservation.reservation_status == '선택'}">선택</option>
+                  <option th:value="1" th:selected="${reservation.reservation_status == '승인'}">승인</option>
+                  <option th:value="2" th:selected="${reservation.reservation_status == '반려'}">반려</option>
+                </select>
 	    				</td>
 				      <td>
 	   					<button type="button" class="btn btn-primary" id="submitBtn">확인</button>
@@ -119,7 +119,9 @@ layout:decorate="~{/include/layout}">
 		    button.addEventListener("click", function() {
 		      const row = button.closest("tr");
 		      const reservationNo = row.querySelector("input[type='checkbox']").value;
-		      const statusValue = row.querySelector("select").value;
+		      const select = row.querySelector("select");
+		      const statusValue = select.value;
+		      
 		
 		      const form = new FormData();
 		      form.append("reservationNo", reservationNo);
@@ -135,7 +137,8 @@ layout:decorate="~{/include/layout}">
 		      .then(res => res.json())
 		      .then(data => {
 		        if (data.res_code === "200") {
-		          location.href="/accommodation/adminHome";
+		          	alert("상태 변경이 완료되었습니다.");
+		        	select.value = statusValue;
 		        } else {
 		          alert("실패: " + data.res_msg);
 		        }

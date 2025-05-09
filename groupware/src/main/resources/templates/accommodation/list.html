@@ -89,10 +89,16 @@ layout:decorate="~{/include/layout}">
 				      <td th:text="${reservation.reservation_status}">상태</td>
 				      <td th:text="${#numbers.formatInteger(reservation.room_price, 3, 'COMMA')} + '원'">가격</td>
 				      <td>
-					    <button type="button" class="btn btn-primary"
+					    <!-- <button type="button" class="btn btn-primary"
 					            th:if="${reservation.reservation_status == '대기'}">예약취소</button>
 					    <button type="button" class="btn btn-primary"
-					            th:if="${reservation.reservation_status == '승인'}">결제하기</button>
+					            th:if="${reservation.reservation_status == '승인'}">결제하기</button> -->
+					    <th:block th:if="${reservation.reservation_status == '대기' || reservation.reservation_status == '반려'}">
+						  <button class="btn btn-primary">예약취소</button>
+						</th:block>
+						<th:block th:if="${reservation.reservation_status == '승인'}">
+						  <button class="btn btn-primary">결제하기</button>
+						</th:block>
 					  </td>
 
 				  </tr>
