@@ -52,9 +52,7 @@
 
           <!-- 오른쪽 영역: 버튼 -->
           <div class="ms-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteModal">
-              투표 추가
-            </button>
+			<button type="button" class="btn btn-primary" onclick="addVote()">투표 추가</button>
           </div>
         </div>
 
@@ -106,7 +104,7 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="saveVote()">투표 추가</button>
+        <button type="button" class="btn btn-primary" id="voteSubmitBtn" onclick="saveVote()">투표 추가</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
       </div>
     </div>
@@ -347,33 +345,37 @@ function deleteVote() {
 	}
 	// 투표 수정(다시 모달창으로 복귀)
 function editVote() {
-	  const voteJson = document.getElementById('vote_json').value;
-	  if (!voteJson) return;
+  const voteJson = document.getElementById('vote_json').value;
+  if (!voteJson) return;
 
-	  const data = JSON.parse(voteJson);
-	  const vote = data.voteDto;
-	  const options = data.options;
+  const data = JSON.parse(voteJson);
+  const vote = data.voteDto;
+  const options = data.options;
 
-	  document.getElementById('voteTitle').value = vote.vote_title;
-	  document.getElementById('voteEndDate').value = vote.end_date;
-	  document.getElementById('isAnonymous').checked = vote.is_anonymous === 'Y';
-	  document.getElementById('isMultipleChoice').checked = vote.is_multiple === 'Y';
+  document.getElementById('voteTitle').value = vote.vote_title;
+  document.getElementById('voteEndDate').value = vote.end_date;
+  document.getElementById('isAnonymous').checked = vote.is_anonymous === 'Y';
+  document.getElementById('isMultipleChoice').checked = vote.is_multiple === 'Y';
 
-	  const optionsContainer = document.getElementById('optionsContainer');
-	  optionsContainer.innerHTML = '';
-	  options.forEach(opt => {
-	    const div = document.createElement('div');
-	    div.className = 'input-group mb-2 option-item';
-	    div.innerHTML = `
-	      <input type="text" class="form-control" value="${opt.option_text}">
-	      <button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
-	    `;
-	    optionsContainer.appendChild(div);
-	  });
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = '';
+  options.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'input-group mb-2 option-item';
+    div.innerHTML = `
+      <input type="text" class="form-control" value="${opt.option_text}">
+      <button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
+    `;
+    optionsContainer.appendChild(div);
+  });
 
-	  const modal = new bootstrap.Modal(document.getElementById('voteModal'));
-	  modal.show();
-	}
+  // ✅ 버튼 텍스트를 '투표 수정'으로 변경
+  document.getElementById('voteSubmitBtn').textContent = '투표 수정';
+
+  const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+  modal.show();
+}
+
 	
 function addVote() {
 	  // 투표 입력값 초기화
@@ -386,8 +388,15 @@ function addVote() {
 	  const optionsContainer = document.getElementById('optionsContainer');
 	  optionsContainer.innerHTML = '';
 
-	  // JSON 값도 초기화 (필요시)
+	  // ✅ 기본 항목 2개 추가
+	  addOption();
+	  addOption();
+
+	  // JSON 값도 초기화
 	  document.getElementById('vote_json').value = '';
+
+	  // 버튼 텍스트 복원
+	  document.getElementById('voteSubmitBtn').textContent = '투표 추가';
 
 	  // 모달 띄우기
 	  const modal = new bootstrap.Modal(document.getElementById('voteModal'));
