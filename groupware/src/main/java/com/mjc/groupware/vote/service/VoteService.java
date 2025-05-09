@@ -183,7 +183,7 @@ public class VoteService {
     }
     
 
- // 투표가 마감되었는지 확인
+    // 투표가 마감되었는지 확인
     public boolean isVoteClosed(Long voteNo) {
         return voteRepo.findById(voteNo)
                 .map(vote -> vote.getEndDate().isBefore(LocalDateTime.now()))

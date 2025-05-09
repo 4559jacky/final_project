@@ -139,16 +139,15 @@
 <hr>
 
 <!-- 첨부파일 -->
-<div class="pt-3">
+<div class="border-top pt-3">
     <h5 class="fw-semibold">첨부파일</h5>
-
-<ul th:if="${attachList != null and not #lists.isEmpty(attachList)}">
-  <li th:each="boardAttach : ${attachList}">
+<ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+  <li th:each="boardAttach : ${attachList}" class="mb-1">
     <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" 
        class="file-link"
        th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">
-       <i class="bi bi-file-earmark-text me-1"></i>
-       <span th:text="${boardAttach.oriName}">파일명</span>
+       <i class="bi bi-file-earmark-text me-1 text-primary"></i>
+       <span th:text="${boardAttach.oriName}" class="file-link">파일명</span>
     </a>
   </li>
 </ul>
@@ -696,35 +695,33 @@ function submitVote() {
           plugins: {
             legend: { display: false },
             tooltip: {
-              callbacks: {
-                label: function (context) {
-                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                  const value = context.raw;
-                  const percent = ((value / total) * 100).toFixed(1);
-                  return `${context.label}: ${value}표 (${percent}%)`;
-                }
-              }
-            }
+            	  callbacks: {
+            	    label: function (context) {
+            	      const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            	      const value = context.raw;
+            	      const percent = ((value / total) * 100).toFixed(1);
+            	      const index = context.dataIndex;
+
+            	      let label = `${context.label}: ${value}표 (${percent}%)`;
+
+            	      // 익명이 아닐 경우 [부서]이름 리스트 추가
+            	      if (!isAnonymous) {
+            	        const voterNames = voters[index];
+            	        if (voterNames && voterNames.length > 0) {
+            	          label += `\n ${voterNames.join('\n')}`;
+            	        } else {
+            	          label += `\n 투표자 없음`;
+            	        }
+            	      }
+
+            	      return label;
+            	    }
+            	  }
+            	}
           },
           // 익명,실명 확인 해주는 스크립트 코드
           onClick: function (e, elements) {
-        	  if (elements.length === 0) return;
-
-        	  const index = elements[0].index;
-
-        	  if (isAnonymous) {
-        	    // 익명일 경우: 투표 수만 표시
-        	    const count = counts[index];
-        	    alert(`'${labels[index]}' ${count}표를 받았습니다.`);
-        	  } else {
-        	    // 실명일 경우: 이름 목록 표시
-        	    const voterNames = voters[index];
-        	    if (voterNames && voterNames.length > 0) {
-        	      alert(`'${labels[index]}' 투표자:\n\n${voterNames.join('\n')}`);
-        	    } else {
-        	      alert(`'${labels[index]}' 투표한 사람이 없습니다.`);
-        	    }
-        	  }
+			// 그래프 클릭시를 없애줌
         	}
         }
       });
