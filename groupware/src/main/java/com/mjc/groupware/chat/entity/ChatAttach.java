@@ -18,28 +18,29 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
 @Entity
-@Table(name="chat_msg")
+@Table(name="chat_attach")
 @Builder
 @Getter
-@Setter
-public class ChatMsg {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChatAttach {
+ 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="chat_msg_no")
-	private Long chatMsgNo;
+	private Long attachNo;
 	
-	@Column(name="chat_msg_content")
-	private String chatMsgContent;
-
-	@CreationTimestamp
-	@Column(updatable = false, name="send_date")
-	private LocalDateTime sendDate;
+	@Column(name="ori_name")
+	private String oriName;
+	
+	@Column(name="new_name")
+	private String newName;
+	
+	@Column(name="attach_path")
+	private String attachPath;;
 	
 	@ManyToOne
 	@JoinColumn(name="chat_room_no")
@@ -49,11 +50,11 @@ public class ChatMsg {
 	@JoinColumn(name="member_no")
 	private Member memberNo;
 	
+	@CreationTimestamp
+	@Column(updatable = false, name="send_date")
+	private LocalDateTime sendDate;
 	
-	@Column(name="chat_msg_type")
-	private String chatMsgType;
-	
-	@ManyToOne
-	@JoinColumn(name="attach_no")
-	private ChatAttach attachNo;
+	@Column(name = "file_size")
+	private Long fileSize;
+
 }
