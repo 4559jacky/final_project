@@ -29,6 +29,7 @@ public class VoteController {
         return ResponseEntity.ok(id);
     }
     
+    
     // 특정 투표 조회
     @GetMapping("/vote/{voteNo}")
     @ResponseBody
@@ -38,12 +39,14 @@ public class VoteController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    
     // 전체 투표 목록 조회
     @GetMapping("/vote")
     @ResponseBody
     public ResponseEntity<List<VoteDto>> getAllVotes() {
         return ResponseEntity.ok(voteService.getAllVotes());
     }
+    
     
     // 투표 수정
     @PutMapping("/vote/{voteNo}")
@@ -55,6 +58,7 @@ public class VoteController {
         return ResponseEntity.ok("updated");
     }
     
+    
     // 투표 삭제(투표 번호 기준)
     @DeleteMapping("/vote/{voteNo}")
     @ResponseBody
@@ -63,12 +67,15 @@ public class VoteController {
         return ResponseEntity.ok("deleted");
     }
     
-    // 투표 참여(투표 제출)
+
+    // 투표 참여(투표 제출) - 오류창이 여기서 발생(수정) - 정상작동 완료 / 투표하기(수정완료)
+    //@AuthenticationPrincipal MemberDetails memberDetails 추가
     @PostMapping("/vote/{voteNo}/submit")
-    public ResponseEntity<?> submitVote(
-        @PathVariable("voteNo") Long voteNo,
-        @RequestParam("optionNos") List<Long> optionNos,
-        @AuthenticationPrincipal MemberDetails memberDetails
+    @ResponseBody
+    public ResponseEntity<String> submitVote(
+            @PathVariable("voteNo") Long voteNo,
+            @RequestParam("optionNos") List<Long> optionNos,
+            @AuthenticationPrincipal MemberDetails memberDetails
     ) {
         if (memberDetails == null || memberDetails.getMember() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
@@ -100,6 +107,7 @@ public class VoteController {
         List<Map<String, Object>> result = voteService.getVoteResultForChart(voteNo);
         return ResponseEntity.ok(result);
     }
+    
 
     // 중복 투표 여부 체크
     @GetMapping("/vote/{voteNo}/has-voted")
@@ -110,6 +118,7 @@ public class VoteController {
         boolean voted = voteService.hasUserAlreadyVoted(voteNo, memberNo);
         return ResponseEntity.ok(Map.of("voted", voted));
     }
+    
 
     // 마감 여부 확인
     @GetMapping("/vote/{voteNo}/is-closed")
@@ -118,6 +127,6 @@ public class VoteController {
         boolean closed = voteService.isVoteClosed(voteNo);
         return ResponseEntity.ok(Map.of("closed", closed));
     }
-    
+
     
 }

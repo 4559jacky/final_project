@@ -138,17 +138,52 @@
     </div>
 
     <!-- Editor CSS & JS -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
-    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+   <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.css">
+   <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/theme/toastui-editor-dark.min.css">
+   <script src="https://uicdn.toast.com/editor/3.2.2/toastui-editor-all.min.js"></script>
 
     <script>
-      const editor = new toastui.Editor({
+    let editor;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+      // ✅ 내부 .toastui-editor-defaultUI 요소에 클래스 토글
+      function applyThemeFromSystem(isDark) {
+        const editorWrapper = document.querySelector('.toastui-editor-defaultUI');
+
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+          if (editorWrapper) editorWrapper.classList.add('toastui-editor-dark');
+        } else {
+          document.body.classList.remove('dark-mode');
+          if (editorWrapper) editorWrapper.classList.remove('toastui-editor-dark');
+        }
+      }
+
+      // Toast UI Editor 초기화
+      editor = new toastui.Editor({
         el: document.querySelector('#editor'),
         height: '400px',
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
       });
-      
+
+      // ✅ Editor 렌더 완료 후 다크모드 적용
+      setTimeout(() => {
+        applyThemeFromSystem(darkQuery.matches);
+      }, 0);
+
+      // 시스템 테마 변경 감지
+      darkQuery.addEventListener('change', e => {
+        applyThemeFromSystem(e.matches);
+      });
+
+      // ✅ 헤더 아이콘에서 호출되는 함수 정의
+      window.changeToDark = () => applyThemeFromSystem(true);
+      window.changeToLight = () => applyThemeFromSystem(false);
+    });
+    	
 
       const form = document.create_board_form;
       const submitBtn = form.querySelector('button[type="submit"]');

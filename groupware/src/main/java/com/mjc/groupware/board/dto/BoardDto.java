@@ -30,15 +30,11 @@ public class BoardDto {
     private String board_status;
     private LocalDateTime reg_date;
     private LocalDateTime mod_date;
+    
+    private Boolean is_fixed; // 기본값 false로 초기화
 
-    private Boolean is_fixed;  // 기본값 false로 초기화
-
-    // 파일 첨부 리스트
     private List<BoardAttach> attachList;
-
-    // 삭제할 파일 ID 리스트
     private List<Long> delete_files;
-    // 투표 기능 추가
     private VoteDto vote;
 
     // Board 엔티티로 변환
@@ -56,6 +52,7 @@ public class BoardDto {
 
     // Board 엔티티에서 DTO로 변환
     public static BoardDto fromEntity(Board board) {
+
         return BoardDto.builder()
                 .board_no(board.getBoardNo())
                 .board_title(board.getBoardTitle())

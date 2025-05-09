@@ -9,8 +9,6 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
-import com.mjc.groupware.member.security.MemberDetails;
-import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
@@ -20,13 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+
 import java.util.*;
 
 @Controller
@@ -48,7 +45,7 @@ public class BoardController {
 
     @PostMapping("/board")
     @ResponseBody
-    public Map<String, String> createBoard(BoardDto dto,
+    public Map<String, String> createBoard(@ModelAttribute BoardDto dto,
                                            @RequestParam(value = "files", required = false) List<MultipartFile> files,
                                            @RequestParam(value = "vote_json", required = false) String voteJson) {
 
@@ -61,8 +58,12 @@ public class BoardController {
             mapper.registerModule(new JavaTimeModule());
 
             VoteCreateRequest voteRequest = null;
-            if (voteJson != null && !voteJson.isEmpty()) {
-                voteRequest = mapper.readValue(voteJson, VoteCreateRequest.class);
+            if (voteJson != null) {
+                String trimmed = voteJson.trim();
+                // JSON 객체 또는 배열로 시작할 경우에만 파싱
+                if (!trimmed.isEmpty() && (trimmed.startsWith("{") || trimmed.startsWith("["))) {
+                    voteRequest = mapper.readValue(trimmed, VoteCreateRequest.class);
+                }
             }
 
             boardService.createBoard(dto, files, voteRequest);
@@ -97,10 +98,9 @@ public class BoardController {
     
 
     @GetMapping("/board/detail/{boardNo}")
-    public String selectBoardOne(@PathVariable("boardNo") Long boardNo,
-                                 @AuthenticationPrincipal MemberDetails memberDetails,
-                                 Model model) {
+    public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
         boardService.updateViews(boardNo);
+
         Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
         if (!optionalBoard.isPresent()) {
             model.addAttribute("error", "해당 게시글을 찾을 수 없습니다.");
@@ -110,21 +110,20 @@ public class BoardController {
         Board board = optionalBoard.get();
         model.addAttribute("board", board);
         model.addAttribute("attachList", boardAttachService.selectAttachList(boardNo));
-        model.addAttribute("replyList", replyService.getRepliesByBoardPaged(boardNo, 0, 5)); // 댓글 5개 보이게 하기 위해서 코드 생성
-
-        if (memberDetails != null && memberDetails.getMember() != null) {
-            model.addAttribute("memberNo", memberDetails.getMember().getMemberNo());
-        }
+        model.addAttribute("replyList", replyService.getHierarchicalRepliesByBoardNo(boardNo));
 
         if (board.getVote() != null) {
             model.addAttribute("vote", board.getVote());
-            model.addAttribute("voteOptions", board.getVote().getVoteOptions());
-            boolean isVoteClosed = board.getVote().getEndDate().isBefore(LocalDateTime.now());
+            model.addAttribute("voteOptions", board.getVote().getVoteOptions()); // 옵션 주입
+            
+         // 마감 여부 계산 후 모델에 추가
+            boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
         return "board/detail";
     }
+    
     
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
