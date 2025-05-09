@@ -162,8 +162,10 @@ public class AccommodationAdminController {
             // 기존 첨부파일 전체 삭제
 	        accommodationAttachService.deleteAllByAccommodation(accommodationNo);
 	        
-	        // 파일 처리 (선택)
+	        // 새 파일이 있는 경우만 기존 파일 삭제 + 새로운 파일 저장
 	        if (files != null && !files.isEmpty()) {
+	            accommodationAttachService.deleteAllByAccommodation(accommodationNo);
+
 	            for (MultipartFile mf : files) {
 	                if (!mf.isEmpty()) {
 	                    AccommodationAttachDto attachDto = accommodationAttachService.uploadFile(mf);
