@@ -102,19 +102,18 @@
                th:text="${option.optionText}">항목</label>
       </li>
     </ul>
-
-    <button type="button" class="btn btn-primary" onclick="submitVote()">투표 하기</button>
   </form>
 
-<!-- 마감 메시지 (기본 숨김, JS에서만 표시 제어) -->
+<div id="vote-buttons" class="d-flex gap-2 mt-2">
+  <button type="button" id="vote-submit-btn" class="btn btn-primary" onclick="submitVote()">투표 하기</button>
+  <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#voteResultModal">
+    결과 차트
+  </button>
+</div>
+
 <div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
   투표가 마감되었습니다.
 </div>
-
-  <!-- 결과 차트는 항상 표시 -->
-  <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#voteResultModal">
-    결과 차트
-  </button>
 
   <!-- 결과 차트 모달 -->
   <div class="modal fade"
@@ -541,40 +540,36 @@
   const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
 
   // 투표 중복 확인 및 마감 여부 실시간 반영
-  document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById('voteForm');
-    if (!form) return;
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById('voteForm');
+  const voteNo = form?.getAttribute('data-vote-no');
+  const voteButton = document.getElementById('vote-submit-btn');
+  const closedMsg = document.getElementById('vote-closed-message');
 
-    const voteNo = form.getAttribute('data-vote-no');
+  if (!form || !voteNo || !voteButton) return;
 
-    // 중복 여부 확인
-    fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.voted) {
-          const button = form.querySelector('button[type="button"]');
-          if (button) {
-            button.disabled = true;
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-danger');
-            button.innerText = '투표 완료';
-          }
-        }
-      });
+  // 중복 여부 확인
+  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.voted) {
+        voteButton.disabled = true;
+        voteButton.classList.remove('btn-primary');
+        voteButton.classList.add('btn-danger');
+        voteButton.innerText = '투표 완료';
+      }
+    });
 
-    // 마감 여부 확인
-    fetch(`/vote/${voteNo}/is-closed`)
-      .then(res => res.json())
-      .then(data => {
-    	  if (data.closed) {
-    		  form.style.display = 'none';
-    		  const msg = document.createElement('div');
-    		  msg.className = 'alert alert-warning mt-3';
-    		  msg.innerText = '투표가 마감되었습니다.';
-    		  form.parentNode.insertBefore(msg, form.nextSibling);
-    		}
-      });
-  });
+  // 마감 여부 확인
+  fetch(`/vote/${voteNo}/is-closed`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.closed) {
+        voteButton.style.display = 'none';  // ✅ 투표 버튼만 숨김
+        if (closedMsg) closedMsg.style.display = 'block'; // 마감 메시지 보임
+      }
+    });
+});
   
   
 //실시간 확인: 투표 마감 여부 UI 변경
