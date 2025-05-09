@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.mjc.groupware.chat.dto.ChatAlarmDto;
 import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.dto.ChatRoomReadDto;
-import com.mjc.groupware.chat.entity.ChatAlarm;
 import com.mjc.groupware.chat.entity.ChatMapping;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
@@ -33,7 +33,7 @@ import com.mjc.groupware.chat.service.ChatMsgService;
 import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.chat.session.ChatSessionTracker;
 import com.mjc.groupware.chat.session.SessionRegistry;
-import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.notice.dto.AttachDto;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -100,18 +100,17 @@ public class ChatController {
 	@PostMapping("/selectChatMsg/{id}")
 	@ResponseBody
 	public List<ChatMsgDto> selectChatMsgList(@PathVariable("id") Long chatRoomNo) {
-		
-		List<ChatMsg> resultlist = chatMsgService.selectChatMsgList(chatRoomNo);
-		
-		List<ChatMsgDto> chatMsgDtoList = new ArrayList<ChatMsgDto>();
-		
-		for (ChatMsg chatMsg : resultlist) {
-			ChatMsgDto dto = new ChatMsgDto().toDto(chatMsg);
-			chatMsgDtoList.add(dto);
-		}
-		
-		return chatMsgDtoList;
+	    List<ChatMsg> resultlist = chatMsgService.selectChatMsgList(chatRoomNo);
+
+	    List<ChatMsgDto> chatMsgDtoList = new ArrayList<>();
+	    for (ChatMsg chatMsg : resultlist) {
+	        ChatMsgDto dto = new ChatMsgDto().toDto(chatMsg); // 여기서 attach 정보까지 잘 들어감
+	        chatMsgDtoList.add(dto);
+	    }
+
+	    return chatMsgDtoList;
 	}
+
 	
 	@MessageMapping("/chat/msg")
 	public void message(ChatMsgDto dto, SimpMessageHeaderAccessor accessor) {
