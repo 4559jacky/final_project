@@ -110,7 +110,7 @@ public class BoardAttachService {
     private boolean isValidFileType(String fileName) {
         String[] validExtensions = { "jpg", "jpeg", "png", "gif", "webp",
         		"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "hwp",
-        		"csv", "json", "xml", "sql", "zip", "rar", "7z", "mp3", "wav", "mp4", "mov", "css" };
+        		"csv", "json", "xml", "sql", "zip", "rar", "7z", "mp3", "wav", "mp4", "mov", "css", "jar" };
         String fileExtension = getFileExtension(fileName);
         
         for (String ext : validExtensions) {

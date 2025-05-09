@@ -375,6 +375,25 @@ function editVote() {
 	  modal.show();
 	}
 	
+function addVote() {
+	  // 투표 입력값 초기화
+	  document.getElementById('voteTitle').value = '';
+	  document.getElementById('voteEndDate').value = '';
+	  document.getElementById('isAnonymous').checked = false;
+	  document.getElementById('isMultipleChoice').checked = false;
+
+	  // 옵션 목록 초기화
+	  const optionsContainer = document.getElementById('optionsContainer');
+	  optionsContainer.innerHTML = '';
+
+	  // JSON 값도 초기화 (필요시)
+	  document.getElementById('vote_json').value = '';
+
+	  // 모달 띄우기
+	  const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+	  modal.show();
+	}
+	
 	
 //페이지 로드시 현재 시각을 min 값으로 설정
 window.addEventListener('DOMContentLoaded', () => {
