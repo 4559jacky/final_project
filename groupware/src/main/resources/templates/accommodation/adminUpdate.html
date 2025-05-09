@@ -34,14 +34,28 @@ layout:decorate="~{/include/layout}">
 		  <div class="row justify-content-center">
 		    <!-- 왼쪽: 이미지 업로드 -->
 		    <div class="col-md-5 mb-4">
-		      <div class="border p-5 bg-light text-center rounded" style="height: 300px;">
-		        <span>@이곳에 파일을 드래그 하세요.</span><br>
-		        <span> 또는 파일 업로드를 클릭하세요</span><br>
-		        <!-- 실제 업로드 input은 숨기고 라벨로 연결 -->
-		        <input type="file" name="files" id="imageUpload" class="d-none" multiple>
-		        <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
-		      </div>
-		    </div>
+			  <div id="uploadBox" class="border bg-light text-center rounded position-relative"
+			       style="height: 300px;">
+			    <!-- 설명 문구 + 버튼 -->
+			    <div id="uploadText"
+			         style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			      <span>@이곳에 파일을 드래그 하세요.</span><br>
+			      <span> 또는 파일 업로드를 클릭하세요</span><br>
+			      <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
+			    </div>
+			
+			    <!-- 파일 선택 input -->
+			    <input type="file" name="files" id="imageUpload" class="d-none" accept="image/*">
+			
+			    <!-- 이미지 미리보기: 박스를 꽉 채움 -->
+			    <th:block th:if="${attachList != null and !attachList.isEmpty()}">
+				  <img th:src="@{'/uploads/accommodation/' + ${attachList[0].new_name}}"
+				       id="preview_image"
+				       style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; z-index:1;"
+				       class="rounded">
+				</th:block>
+			  </div>
+			</div>
 		            <input type="hidden" id="accommodation_no"
 		            	th:value="${accommodation.accommodation_no}">
 					<input type="hidden" id="room_count" value="1" >
@@ -144,6 +158,35 @@ layout:decorate="~{/include/layout}">
 			  const content = document.getElementById("content").value;
 			  editor.setHTML(content);
 			
+			  // 이미지 수정
+			  const imageInput = document.getElementById("imageUpload");
+			  const preview = document.getElementById("preview_image");
+				
+			  if (preview && imageInput) {
+				    preview.addEventListener("click", function () {
+				      imageInput.click();
+				    });
+				  }
+				
+				imageInput.addEventListener("change", function (e) {
+				   const file = e.target.files[0];
+				   if (file) {
+				     const reader = new FileReader();
+				     reader.onload = function (event) {
+				       preview.src = event.target.result;
+				       preview.style.display = "block";
+				       uploadText.style.display = "none"; // 설명 텍스트 숨기기
+				        
+				    // label 클릭 비활성화 → 중복 방지
+					const label = document.querySelector("#uploadText label");
+					if (label) {
+						label.style.pointerEvents = "none";
+					}
+				  };
+				  reader.readAsDataURL(file);
+				 }
+			  });
+			  
 			  // 수정 완료 버튼 클릭 시
 			  const updateBtn = document.getElementById("updateBtn");
 			  if (updateBtn) {
