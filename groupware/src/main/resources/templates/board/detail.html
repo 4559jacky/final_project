@@ -57,10 +57,10 @@
 <hr>
     
     <!-- 본문 내용 (테두리 없는 버전) -->
-    <div class="toastui-editor-contents"
-         style="background-color: white; min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
-         th:utext="${board.boardContent ?: '내용 없음'}">
-    </div>
+<div class="toastui-editor-contents"
+     style="min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
+     th:utext="${board.boardContent}">
+</div>
     
 <!-- 투표 정보 영역 -->
 <hr>
@@ -212,7 +212,7 @@
           <span th:id="'reply-toggle-' + ${reply.reply_no}"
                 th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
                 th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
-                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개()' : '답글 달기'"
+                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개' : '답글 달기'"
                 onclick="toggleSubReply(this)"
                 style="cursor: pointer;"></span>
 
@@ -559,7 +559,7 @@
             button.disabled = true;
             button.classList.remove('btn-primary');
             button.classList.add('btn-danger');
-            button.innerText = '투표 불가';
+            button.innerText = '투표 완료';
           }
         }
       });
@@ -714,15 +714,15 @@ function submitVote() {
 
         	  if (isAnonymous) {
         	    // 익명일 경우: 투표 수만 표시
-        	    const count = voters[index]?.length || 0;
-        	    alert(`'${labels[index]}' 항목은 ${count}표를 받았습니다.`);
+        	    const count = counts[index];
+        	    alert(`'${labels[index]}' ${count}표를 받았습니다.`);
         	  } else {
         	    // 실명일 경우: 이름 목록 표시
-        	    const voterNames = voters[index]; // 예: ["[인사팀]홍길동", "[개발팀]이순신"]
+        	    const voterNames = voters[index];
         	    if (voterNames && voterNames.length > 0) {
-        	      alert(`'${labels[index]}' 항목 투표자:\n\n${voterNames.join('\n')}`);
+        	      alert(`'${labels[index]}' 투표자:\n\n${voterNames.join('\n')}`);
         	    } else {
-        	      alert(`'${labels[index]}' 항목에 투표한 사람이 없습니다.`);
+        	      alert(`'${labels[index]}' 투표한 사람이 없습니다.`);
         	    }
         	  }
         	}
@@ -739,6 +739,7 @@ function submitVote() {
   document.getElementById('darkToggle')?.addEventListener('change', function () {
     document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
   });
+  
 </script>
  
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
