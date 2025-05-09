@@ -104,13 +104,15 @@
     </ul>
   </form>
 
-<div id="vote-buttons" class="d-flex gap-2 mt-2">
-  <button type="button" id="vote-submit-btn" class="btn btn-primary" onclick="submitVote()">투표 하기</button>
-  <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#voteResultModal">
+<!-- 투표/결과 버튼 묶음 -->
+<div class="d-flex gap-2 mt-3" id="vote-button-group">
+  <button type="button" class="btn btn-primary" id="submitVoteBtn" onclick="submitVote()">투표 하기</button>
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteResultModal">
     결과 차트
   </button>
 </div>
 
+<!-- 마감 메시지 (기본 숨김) -->
 <div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
   투표가 마감되었습니다.
 </div>
@@ -539,59 +541,51 @@
   const csrfToken1 = '';
   const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
 
-  // 투표 중복 확인 및 마감 여부 실시간 반영
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById('voteForm');
-  const voteNo = form?.getAttribute('data-vote-no');
-  const voteButton = document.getElementById('vote-submit-btn');
-  const closedMsg = document.getElementById('vote-closed-message');
+  document.addEventListener("DOMContentLoaded", function () {
+	  const form = document.getElementById('voteForm');
+	  const voteNo = form?.getAttribute('data-vote-no');
+	  const voteBtn = document.getElementById('submitVoteBtn');
+	  const voteClosedMsg = document.getElementById('vote-closed-message');
+	  const endSpan = document.getElementById('vote-end-time');
+	  const endTimeStr = endSpan?.getAttribute('data-end-time');
+	  const endTime = endTimeStr ? new Date(endTimeStr.replace(' ', 'T')) : null;
 
-  if (!form || !voteNo || !voteButton) return;
+	  // 중복 투표 여부 확인
+	  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+	    .then(res => res.json())
+	    .then(data => {
+	      if (data.voted) {
+	        voteBtn.disabled = true;
+	        voteBtn.classList.remove('btn-primary');
+	        voteBtn.classList.add('btn-danger');
+	        voteBtn.innerText = '투표 완료';
+	      }
+	    });
 
-  // 중복 여부 확인
-  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.voted) {
-        voteButton.disabled = true;
-        voteButton.classList.remove('btn-primary');
-        voteButton.classList.add('btn-danger');
-        voteButton.innerText = '투표 완료';
-      }
-    });
+	  // 마감 여부 확인 및 UI 처리
+	  fetch(`/vote/${voteNo}/is-closed`)
+	    .then(res => res.json())
+	    .then(data => {
+	      if (data.closed) {
+	        document.getElementById('vote-button-group')?.removeChild(voteBtn); // 투표 버튼 제거
+	        if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+	      }
+	    });
 
-  // 마감 여부 확인
-  fetch(`/vote/${voteNo}/is-closed`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.closed) {
-        voteButton.style.display = 'none';  // ✅ 투표 버튼만 숨김
-        if (closedMsg) closedMsg.style.display = 'block'; // 마감 메시지 보임
-      }
-    });
-});
-  
-  
-//실시간 확인: 투표 마감 여부 UI 변경
-  document.addEventListener('DOMContentLoaded', () => {
-  const endSpan = document.getElementById('vote-end-time');
-  const endTimeStr = endSpan.getAttribute('data-end-time');
-  const endTime = new Date(endTimeStr.replace(' ', 'T'));
+	  // 실시간 마감 체크
+	  const checkClosed = () => {
+	    const now = new Date();
+	    if (endTime && now >= endTime) {
+	      document.getElementById('vote-button-group')?.removeChild(voteBtn); // 투표 버튼 제거
+	      if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+	    }
+	  };
 
-  const checkClosed = () => {
-    const now = new Date();
-    if (now >= endTime) {
-      const voteForm = document.getElementById('voteForm');
-      const msg = document.getElementById('vote-closed-message');
-      
-      if (voteForm) voteForm.style.display = 'none';
-      if (msg) msg.style.display = 'block';
-    }
-  };
-
-  checkClosed(); // 초기 1회 체크
-  setInterval(checkClosed, 1000); // 이후 1초마다 체크
-});
+	  if (endTime) {
+	    checkClosed(); // 초기 실행
+	    setInterval(checkClosed, 1000); // 주기적 체크
+	  }
+	});
   
   
   
