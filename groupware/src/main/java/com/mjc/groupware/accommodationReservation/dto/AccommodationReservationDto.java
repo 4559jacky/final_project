@@ -34,6 +34,7 @@ public class AccommodationReservationDto {
 	private String accommodation_name;
 	private Long room_price;
 	private Long room_count;
+	private String reject_reason;
 	
 	public AccommodationReservation toEntity() {
 		return AccommodationReservation.builder()
@@ -45,6 +46,7 @@ public class AccommodationReservationDto {
 				.reservationStatus(reservation_status)
 				.member(Member.builder().memberNo(member_no).build())
 				.accommodationInfo(AccommodationInfo.builder().accommodationNo(accommodation_no).build())
+				.rejectReason(reject_reason)
 				.build();
 	}
 	
@@ -62,6 +64,7 @@ public class AccommodationReservationDto {
 				.accommodation_name(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getAccommodationName() : null)
 				.room_price(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getRoomPrice() : null)
 				.room_count(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getRoomCount() : null)
+				.reject_reason(accommodation.getRejectReason())
 				.build();
 	}
 	

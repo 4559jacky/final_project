@@ -34,7 +34,7 @@ public class AccommodationAttachService {
 				throw new Exception("존재하지 않는 파일입니다.");
 			}
 			long fileSize = file.getSize();
-			if(fileSize >= 1048576) {
+			if(fileSize >= 5242880) { //5MB
 				throw new Exception("허용 용량을 초과한 파일입니다.");
 			}
 			// 파일 최초이름 읽어오기

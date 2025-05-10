@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
 import com.mjc.groupware.accommodationReservation.service.AccommodationReservationService;
+import com.mjc.groupware.board.controller.BoardAttachController;
 import com.mjc.groupware.member.security.MemberDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 public class AccommodationReservationController {
+
+    private final BoardAttachController boardAttachController;
 
 	private final AccommodationReservationService reservationService;
 
@@ -72,10 +75,11 @@ public class AccommodationReservationController {
     @PostMapping("/admin/accommodation/reservation/updateStatus")
     @ResponseBody
     public Map<String, Object> updateReservationStatus(@RequestParam("reservationNo") Long reservationNo,
-                                                       @RequestParam("status") int status) {
+                                                       @RequestParam("status") int status,
+                                                       @RequestParam(value = "rejectReason", required = false) String rejectReason) {
         Map<String, Object> result = new HashMap<>();
         try {
-            reservationService.updateReservationStatus(reservationNo, status);
+            reservationService.updateReservationStatus(reservationNo, status, rejectReason);
             result.put("res_code", "200");
             result.put("res_msg", "상태가 성공적으로 변경되었습니다.");
         } catch (Exception e) {
