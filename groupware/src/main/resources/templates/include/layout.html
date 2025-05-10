@@ -151,25 +151,40 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<!-- 현재 로그인한 사원 사번  -->
 	<input type="hidden" id="member_no" th:value="${#authentication.principal.member.memberNo}">
 	
-		 <!-- 채팅 알림 모달 -->
 	<!-- 채팅 알림 모달 -->
-<div id="chat-alert-toast" class="position-fixed end-0 bottom-0 p-3 d-none" style="z-index: 1080;">
-  <div class="toast align-items-start text-dark shadow" role="alert" style="border: none; border-radius: 0.5rem;">
-    <div class="toast-header bg-primary text-white">
-      <strong class="me-auto">새로운 메세지가 도착했습니다.</strong>
-      <button type="button" class="btn-close btn-close-white ms-2 mb-1" onclick="closeChatToast()"></button>
-    </div>
-    <div class="toast-body">
-      <div><strong>[</strong> <span id="toast-chat-title">알림</span><strong>]</strong></div>
-      <div><strong id="toast-sender-name"></strong></div>
-      <div><span id="toast-msg-content"></span></div> 
-    </div>
-    <input type="hidden" id="toast-room-no" />
-  </div>
-</div>
+	<div id="chat-alert-toast" class="position-fixed end-0 bottom-0 p-3 d-none" style="z-index: 1080;">
+	  <div class="toast align-items-start text-dark shadow" role="alert" style="border: none; border-radius: 0.5rem;">
+	    <div class="toast-header bg-primary text-white">
+	      <strong class="me-auto">새로운 메세지가 도착했습니다.</strong>
+	      <button type="button" class="btn-close btn-close-white ms-2 mb-1" onclick="closeChatToast()"></button>
+	    </div>
+	    <div class="toast-body">
+	      <div><strong>[</strong> <span id="toast-chat-title">알림</span><strong>]</strong></div>
+	      <div><strong id="toast-sender-name"></strong></div>
+	      <div><span id="toast-msg-content"></span></div> 
+	    </div>
+	    <input type="hidden" id="toast-room-no" />
+	  </div>
+	</div>
+	
+	<!-- 전자결재 알림 모달 -->
+	<div id="approval-alert-toast" class="d-none" style="
+	  position: fixed;
+	  bottom: 30px;
+	  right: 30px;
+	  background: white;
+	  border: 2px solid #0d6efd;
+	  padding: 20px;
+	  z-index: 99999;
+	  display: block;
+	  opacity: 1;
+	">
+	  <strong>[전자결재 도착]</strong><br>
+	  <span id="approval-toast-title">테스트 제목</span><br>
+	  <span id="approval-toast-sender">홍길동</span><br>
+	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
+	</div>
 
-	
-	
 	<!-- Common JS Files -->
   
     <!-- jsTree -->
@@ -228,6 +243,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		        const dto = JSON.parse(msg.body);
 		        showChatAlertToast(dto);
 		      });
+		      
+		      // 전자결재 알림
+		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
+		    	    const dto = JSON.parse(msg.body);
+		    	    console.log("📢 전자결재 알림 도착:", dto);
+		    	    showApprovalAlertToast(dto);
+		    	  });
 		    }
 
 		  }, (error) => {
@@ -261,8 +283,32 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		  }, 5000);
 		}
 		
-
-
+		
+		// 전자결재 알림 토스트 모달
+		function showApprovalAlertToast(dto) {
+	
+		    const wrapper = document.getElementById("approval-alert-toast");
+		    if (!wrapper) return;
+		
+		    // 내용 세팅
+		    document.getElementById("approval-toast-title").textContent = dto.title || "전자결재";
+		    document.getElementById("approval-toast-sender").textContent = dto.senderName || "";
+		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
+		
+		    // 모달 표시
+		    wrapper.classList.remove("d-none");
+		
+		    // 자동 닫기 (5초 후)
+		    setTimeout(() => {
+		      wrapper.classList.add("d-none");
+		    }, 5000);
+		  }
+	
+	  function closeApprovalToast() {
+	    const wrapper = document.getElementById("approval-alert-toast");
+	    wrapper.classList.remove("active");
+	    wrapper.classList.add("d-none");
+	  }
 	</script>
 
 </body>

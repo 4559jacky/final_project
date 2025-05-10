@@ -27,3 +27,18 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 }
+
+#approval-alert-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1080;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#approval-alert-toast.active {
+  display: block !important;
+  opacity: 1 !important;
+}
+

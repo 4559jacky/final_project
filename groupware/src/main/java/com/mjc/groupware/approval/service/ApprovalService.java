@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +59,9 @@ public class ApprovalService {
 	private final MemberRepository memberRepository;
 	private final ApprovalMapper approvalMapper;
 	private final ApprovalAttachService approvalAttachService;
+	
+	// 알람
+	private final ApprovalAlarmService approvalAlarmService;
 
 	public int createApprovalApi(ApprovalFormDto dto) {
 		int result = 0;
@@ -191,6 +196,45 @@ public class ApprovalService {
 		                }
 		            }
 		        }
+			 
+			 // 결재 알림 보내기
+			 Set<Long> targetMemberNoSet = new HashSet<>();
+			 
+			 boolean hasAgreementers = approvalDto.getAgreementer_no() != null && !approvalDto.getAgreementer_no().isEmpty();
+			 boolean hasReferencers = approvalDto.getReferencer_no() != null && !approvalDto.getReferencer_no().isEmpty();
+
+			// 1합의자
+			if (hasAgreementers) {
+			    targetMemberNoSet.addAll(approvalDto.getAgreementer_no());
+			}
+
+			// 2참조자
+			if (hasReferencers) {
+			    targetMemberNoSet.addAll(approvalDto.getReferencer_no());
+			}
+
+			// 결재자 (합의자 없을 때만)
+			if (!hasAgreementers && approverList != null && !approverList.isEmpty()) {
+			    for (ApprApprover a : approverList) {
+			        if (a.getApproverOrder() == 1 &&
+			            a.getMember() != null &&
+			            a.getMember().getMemberNo() != null) {
+			            targetMemberNoSet.add(a.getMember().getMemberNo());
+			        }
+			    }
+			}
+			
+			System.out.println("🔔 합의자 번호: " + approvalDto.getAgreementer_no());
+			System.out.println("🔔 참조자 번호: " + approvalDto.getReferencer_no());
+			System.out.println("🔔 결재자 번호: " + approvalDto.getApprover_no());
+
+			// List로 변환해서 전송
+			List<Long> targetMemberNos = new ArrayList<>(targetMemberNoSet);
+			approvalAlarmService.sendAlarmToMembers(
+			    targetMemberNos,
+			    saved,
+			    "새로운 결재가 도착하였습니다."
+			);
 
 			result = 1;
 		} catch(Exception e) {
