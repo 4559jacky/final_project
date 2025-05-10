@@ -6,6 +6,26 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{/include/layout}">
 <th:block layout:fragment="content">
+<style>
+#approval-content {
+  width: 100%;
+}
+
+#approval-content .table,
+#approval-content figure.table {
+  width: 100% !important;
+}
+
+#approval-content table {
+  width: 100% !important;
+  table-layout: fixed;
+}
+
+#approval-content td,
+#approval-content th {
+  word-break: break-word;
+}
+</style>
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">

@@ -33,14 +33,9 @@ public class ChatMsgService {
 	
 	// 채팅 메세지 조회 selectChatMsg
 	public List<ChatMsg> selectChatMsgList(Long chatRoomNo) {
-		
-		Specification<ChatMsg> spec = (root, query, criteriaBuilder) -> null;
-		spec = spec.and(ChatMsgSpecification.chatRoomNoEquals(chatRoomNo));
-		
-		List<ChatMsg> resultList = chatMsgRepository.findAll(spec);
-		
-		return resultList;
+	    return chatMsgRepository.findAllWithAttachByChatRoomNo(chatRoomNo);
 	}
+
 	
 	// 채팅 메세지 db 등록
 	@Transactional(rollbackFor = Exception.class)

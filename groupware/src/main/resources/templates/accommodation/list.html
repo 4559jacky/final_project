@@ -93,6 +93,7 @@ layout:decorate="~{/include/layout}">
 					            th:if="${reservation.reservation_status == '대기'}">예약취소</button>
 					    <button type="button" class="btn btn-primary"
 					            th:if="${reservation.reservation_status == '승인'}">결제하기</button> -->
+
 					    <th:block th:if="${reservation.reservation_status == '대기'}">
 						  <button class="btn btn-primary">예약취소</button>
 						</th:block>
@@ -102,6 +103,7 @@ layout:decorate="~{/include/layout}">
 						<th:block th:if="${reservation.reservation_status == '반려'}">
 						  <button type="button" data-bs-toggle="modal"
 													class="btn btn-danger" data-bs-target="#returnReasonModal">반려사유</button>
+
 						</th:block>
 					  </td>
 

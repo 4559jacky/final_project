@@ -92,7 +92,9 @@ public class AccommodationReservationService {
 
 	// 예약 상태변경
 	@Transactional	
+
 	public void updateReservationStatus(Long reservationNo, int status) {
+
 		AccommodationReservation reservation = reservationRepository.findById(reservationNo)
 		        .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 		    String reserveStatus = "";

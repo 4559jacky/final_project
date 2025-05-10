@@ -25,10 +25,14 @@
 			<h4 class="fw-bold mb-0" id="current-date"></h4>
 			<div class="d-flex align-items-center gap-3">
 				<div class="text-end">
-					<h5 class="mb-0 fw-semibold"
-						th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|">이름</h5>
-					<p class="mb-0 text-muted"
-						th:text="${#authentication.principal.member.dept.deptName}">부서</p>
+				  <h5 class="mb-0 fw-semibold">
+				    <span th:text="${member.memberName}">이름</span>
+				    <span th:text="${member.pos != null} ? ${member.pos.posName} : '(직급미배정)'">직급</span>
+				  </h5>
+				  <p class="mb-0 text-muted"
+				     th:text="${member.dept != null} ? ${member.dept.deptName} : '(부서미배정)'">
+				    부서
+				  </p>
 				</div>
 				<div>
 					<img
@@ -39,6 +43,7 @@
 			</div>
 		</div>
 		<input type="hidden" th:value="${workPolicy.workDuration}" id="work_duration">
+		<input type="hidden" id="plan_title" th:if="${plan != null}" th:value="${plan.planTitle}">
 		<div class="row g-4">
 			<!-- 왼쪽 카드 -->
 			<div class="col-lg-3">
@@ -48,11 +53,13 @@
 				    <h5 class="fw-bold text-primary">근태관리</h5>
 				    <button class="btn btn-primary btn-sm" onclick="myAttendLogView();">내 근무 이력</button>
 				  </div>
-				  <h2 class="fw-bold" id="nowTime">03:05:20</h2>
+				  <h2 class="fw-bold" id="nowTime"></h2>
 					<div class="mt-3 small">
 						<div class="d-flex justify-content-between mb-2">
 							<input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
 							<input type="hidden" id="start_time_max" th:value="${workPolicy.startTimeMax}">
+							<!-- 퇴근 계산용 포맷된 시간 (HH:mm:ss 형식으로 강제 출력) -->
+							<input type="hidden" id="start_time_max_str" th:value="${#temporals.format(workPolicy.startTimeMax, 'HH:mm:ss')}">
 							<span class="text-muted">출근</span>
 							<th:block th:if="${todayAttendance == null}">
 								<div id="checkInWrap">
@@ -149,191 +156,273 @@
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
         </script>
 
-			<script>
-			
-			const myAttendLogView = function(){
+		<script>
+			const myAttendLogView = function () {
 				location.href = "/attendance/log";
 			}
+
+		
+			const startTime = function () {
+				const now = new Date();
+				const koreaOffset = 9 * 60;
+				const localDate = new Date(now.getTime() + (koreaOffset * 60 * 1000));
+				const attendDate = localDate.toISOString().slice(0, 10);
+		
+				const hours = String(now.getHours()).padStart(2, '0');
+				const minutes = String(now.getMinutes()).padStart(2, '0');
+				const seconds = String(now.getSeconds()).padStart(2, '0');
+				const checkIn = `${hours}:${minutes}:${seconds}`;
+		
+				if (!confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`)) return;
+		
+				// 휴가에 따른 출근 기준 시간 조정
+				const planTitle = document.getElementById('plan_title')?.value || '';
+				const isMorningLeave = planTitle.includes('[오전반차]');
+				let maxStartStr = document.getElementById('start_time_max').value;
+		
+				if (isMorningLeave) {
+					// 출근 허용 시간 4시간 늦춤
+					const [h, m, s] = maxStartStr.split(":").map(Number);
+					const newHour = h + 4;
+					maxStartStr = `${String(newHour).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+				}
+		
+				fetch('/attendance/saveStartTime', {
+					method: 'POST',
+					headers: {
+						[csrfHeader]: csrfToken,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						attend_date: attendDate,
+						check_in: checkIn,
+						plan_title: planTitle // 🔥 서버에서 lateYn 판정할 때 필요
+					})
+				})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+		
+						if (data.res_code === "200") {
+							document.getElementById("checkInWrap").innerHTML =
+								`<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
+		
+							document.getElementById('end_time_btn').disabled = false;
+							const statusSpan = document.getElementById("checkInStatus");
+		
+							let statusText = "";
+							let bgClass = "";
+							let textClass = "";
+		
+							switch (data.attendance.lateYn) {
+								case "N":
+									statusText = "정상 출근";
+									bgClass = "bg-success-subtle";
+									textClass = "text-success";
+									break;
+								case "Y":
+									statusText = "지각";
+									bgClass = "bg-warning-subtle";
+									textClass = "text-warning";
+									break;
+								default:
+									statusText = "출근전";
+									bgClass = "bg-secondary-subtle";
+									textClass = "text-secondary";
+							}
+		
+							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+							statusSpan.innerText = statusText;
+						}
+					})
+					.catch(err => {
+						alert("출근 처리 중 오류 발생!");
+						console.error("출근 저장 실패", err);
+					});
+			}
+		
+			const endTime = function () {
+				const now = new Date();
+				const attendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+				// 출근 시간 파싱
+				const checkInStr = document.getElementById('start_time').innerHTML;
+				const [inHour, inMin, inSec] = checkInStr.split(":").map(Number);
+				const baseCheckInMin = inHour * 60 + inMin + inSec / 60;
+
+				// 휴가 유형 확인
+				const planTitle = document.getElementById('plan_title')?.value || '';
+				const isMorningLeave = planTitle.includes('[오전반차]');
+				const isAfternoonLeave = planTitle.includes('[오후반차]');
+
+				// 회사 마지노선 출근시간
+				const maxStartStr = document.getElementById('start_time_max_str')?.value;
+				const [maxHour, maxMin, maxSec] = maxStartStr.split(":").map(Number);
+				const maxStartMin = maxHour * 60 + maxMin;
+
+				// 기준 출근 시간 결정
+				let baseTotalMin;
+				if (!isMorningLeave && !isAfternoonLeave && baseCheckInMin >= maxStartMin) {
+					baseTotalMin = maxStartMin;
+				} else {
+					// 정상 출근 또는 반차 → 실제 출근 기준
+					baseTotalMin = baseCheckInMin;
+				}
+
+				// 근무시간 가져오기
+				const workDuration = parseFloat(document.getElementById('work_duration')?.value) || 9.0;
+
+				// 퇴근 기준 시간 계산
+				let requiredMin;
+				if (isMorningLeave || isAfternoonLeave) {
+					requiredMin = baseCheckInMin + 4 * 60;
+				} else {
+					requiredMin = baseTotalMin + workDuration * 60;
+				}
+
+				// 현재 시간 계산
+				const nowTotalMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+				const currentTimeStr = now.toTimeString().slice(0, 8);
+
+				let earlyLeaveYn = 'N';
+				let confirmMsg = "";
+
+				if (nowTotalMin < requiredMin) {
+					const requiredHour = Math.floor(requiredMin / 60);
+					const requiredMinute = Math.floor(requiredMin % 60);
+					confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
+					earlyLeaveYn = 'Y';
+					
+					console.log("🧾 실제 출근 시간 (baseCheckInMin):", baseCheckInMin);
+					console.log("🧾 기준 출근 시간 (baseTotalMin):", baseTotalMin); // 지각이면 660(11시)이어야 함
+					console.log("🧾 workDuration:", workDuration);
+					console.log("🧾 퇴근 기준 requiredMin (분):", requiredMin);
+					console.log("🕒 퇴근 기준 시각:", requiredHour + ":" + requiredMinute);
+					console.log("🧾 maxStartMin (회사 마지노선):", maxStartMin);
+					console.log("🧾 baseCheckInMin:", baseCheckInMin);
+					console.log("🧾 비교 결과:", baseCheckInMin >= maxStartMin);
+
+				} else {
+					confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
+				}
+				
+				
+				if (!confirm(confirmMsg)) return;
+
+				// 퇴근 요청
+				fetch('/attendance/saveEndTime', {
+					method: 'POST',
+					headers: {
+						[csrfHeader]: csrfToken,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						attend_date: attendDate,
+						check_out: currentTimeStr,
+						early_leave_yn: earlyLeaveYn,
+						plan_title: planTitle
+					})
+				})
+					.then(response => response.json())
+					.then(data => {
+						alert(data.res_msg);
+
+						if (data.res_code === "200") {
+							document.getElementById("checkOutWrap").innerHTML =
+								`<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
+
+							const statusSpan = document.getElementById("checkOutStatus");
+
+							let statusText = "";
+							let bgClass = "";
+							let textClass = "";
+
+							switch (data.attendance.early_leave_yn) {
+								case "Y":
+									statusText = "조퇴";
+									bgClass = "bg-primary-subtle";
+									textClass = "text-primary";
+									break;
+								case "N":
+									statusText = "정상 퇴근";
+									bgClass = "bg-success-subtle";
+									textClass = "text-success";
+									break;
+								default:
+									statusText = "퇴근";
+									bgClass = "bg-secondary-subtle";
+									textClass = "text-secondary";
+							}
+
+							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+							statusSpan.innerText = statusText;
+							
+							updateWeeklyHours();
+						}
+					})
+					.catch(err => {
+						alert("퇴근 처리 중 오류 발생!");
+						console.error("퇴근 저장 실패", err);
+					});
+			};
 			
+			// 퇴근 누르면 프로그레스바랑 차트 업데이트
+			function updateWeeklyHours() {
+			  const weekDates = getCurrentWeekRange(); // 이미 정의된 함수
+			  const start = weekDates[0];
+			  const end = weekDates[6];
 			
-	          const startTime = function() {
-	        	  const now = new Date();
-	        	  const koreaOffset = 9 * 60; // KST: UTC+9
-	        	  const localDate = new Date(now.getTime() + (koreaOffset * 60 * 1000));
-	        	  const attendDate = localDate.toISOString().slice(0, 10);
-	
-	        	  // LocalTime
-	        	  const hours = String(now.getHours()).padStart(2, '0');
-	        	  const minutes = String(now.getMinutes()).padStart(2, '0');
-	        	  const seconds = String(now.getSeconds()).padStart(2, '0');
-	        	  const checkIn = `${hours}:${minutes}:${seconds}`;
-	
-	        	  if (!confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`)) return;
-	
-	        	  fetch('/attendance/saveStartTime', {
-	        	    method: 'POST',
-	        	    headers: {
-	        	      [csrfHeader]: csrfToken,
-	        	      'Content-Type': 'application/json'
-	        	    },
-	        	    body: JSON.stringify({
-	        	      attend_date: attendDate,
-	        	      check_in: checkIn
-	        	    })
-	        	  })
-	        	  .then(response => response.json())
-	        	  .then(data => {
-	        	      alert(data.res_msg);
-
-	        	      if (data.res_code === "200") {
-	        	    	  const checkInWrap = document.getElementById("checkInWrap");
-	        	    	  checkInWrap.innerHTML = `<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
-
-	        	    	  const statusSpan = document.getElementById("checkInStatus");
-	        	    	  document.getElementById('end_time_btn').disabled = false;
-	        	    	  // 상태 코드에 따라 텍스트/클래스 동적으로 반영
-	        	    	  let statusText = "";
-	        	    	  let bgClass = "";
-	        	    	  let textClass = "";
-
-	        	    	  switch (data.attendance.lateYn) {
-	        	    	    case "N":
-	        	    	      statusText = "정상 출근";
-	        	    	      bgClass = "bg-success-subtle";
-	        	    	      textClass = "text-success";
-	        	    	      break;
-	        	    	    case "Y":
-	        	    	      statusText = "지각";
-	        	    	      bgClass = "bg-warning-subtle";
-	        	    	      textClass = "text-warning";
-	        	    	      break;
-	        	    	      break;
-	        	    	    default:
-	        	    	      statusText = "출근전";
-	        	    	      bgClass = "bg-secondary-subtle";
-	        	    	      textClass = "text-secondary";
-	        	    	  }
-
-	        	    	  // 기존 클래스 싹 지우고 새로 적용
-	        	    	  statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
-	        	    	  statusSpan.innerText = statusText;
-	        	    	}
-	        	    })
-	        	    .catch(err => {
-	        	      alert("출근 처리 중 오류 발생!");
-	        	      console.error("출근 저장 실패", err);
-	        	    });
-	        	}
-          	
-	          const endTime = function () {
-	        	  // ✅ 현재 시간 (today는 변경하지 말고 고정!)
-	        	  const now = new Date();
-				  const attendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-	        	  // ✅ 출근 시간 파싱 (예: "11:10:00")
-	        	  const checkInStr = document.getElementById('start_time').innerHTML;
-	        	  const [inHour, inMin, inSec] = checkInStr.split(":").map(Number);
-
-	        	  // ✅ 최대 출근 가능 시간 파싱 (예: "11:00:00")
-	        	  const maxStartStr = document.getElementById('start_time_max').value;
-	        	  const [maxHour, maxMin, maxSec] = maxStartStr.split(":").map(Number);
-
-	        	  // ✅ 기준 출근시간 계산
-	        	  let baseHour = inHour;
-	        	  let baseMin = inMin;
-	        	  let baseSec = inSec;
-
-	        	  if (
-	        	    inHour > maxHour ||
-	        	    (inHour === maxHour && inMin > maxMin) ||
-	        	    (inHour === maxHour && inMin === maxMin && inSec > maxSec)
-	        	  ) {
-	        	    baseHour = maxHour;
-	        	    baseMin = maxMin;
-	        	    baseSec = maxSec;
-	        	  }
-
-	        	  const baseTotalMin = baseHour * 60 + baseMin + baseSec / 60;
-
-	        	  // ✅ 근무시간 (예: 8.5시간 → 분으로)
-	        	  const workDuration = parseFloat(document.getElementById('work_duration').value);
-	        	  const requiredMin = baseTotalMin + workDuration * 60;
-
-	        	  // ✅ 현재 시간 (분 단위로 변환)
-	        	  const nowTotalMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-	        	  const currentTimeStr = now.toTimeString().slice(0, 8); // HH:mm:ss
-
-	        	  // ✅ 조퇴 여부 판단
-	        	  let earlyLeaveYn = 'N';
-	        	  let confirmMsg = "";
-
-	        	  if (nowTotalMin < requiredMin) {
-	        	    const requiredHour = Math.floor(requiredMin / 60);
-	        	    const requiredMinute = Math.floor(requiredMin % 60);
-	        	    confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
-	        	    earlyLeaveYn = 'Y';
-	        	  } else {
-	        	    confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
-	        	  }
-
-	        	  // ✅ 사용자 확인
-	        	  if (!confirm(confirmMsg)) return;
-
-	        	  // ✅ 퇴근 요청
-	        	  fetch('/attendance/saveEndTime', {
-	        	    method: 'POST',
-	        	    headers: {
-	        	      [csrfHeader]: csrfToken,
-	        	      'Content-Type': 'application/json'
-	        	    },
-	        	    body: JSON.stringify({
-	        	      attend_date: attendDate,
-	        	      check_out: currentTimeStr,
-	        	      early_leave_yn: earlyLeaveYn
-	        	    })
-	        	  })
-	        	    .then(response => response.json())
-	        	    .then(data => {
-	        	      alert(data.res_msg);
-
-	        	      if (data.res_code === "200") {
-	        	        // ✅ 퇴근 시간 UI 갱신
-	        	        document.getElementById("checkOutWrap").innerHTML =
-	        	          `<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
-
-	        	        // ✅ 상태 표시
-	        	        const statusSpan = document.getElementById("checkOutStatus");
-	        	        let statusText = "";
-	        	        let bgClass = "";
-	        	        let textClass = "";
-
-	        	        switch (data.attendance.early_leave_yn) {
-	        	          case "Y":
-	        	            statusText = "조퇴";
-	        	            bgClass = "bg-primary-subtle";
-	        	            textClass = "text-primary";
-	        	            break;
-	        	          case "N":
-	        	            statusText = "정상 퇴근";
-	        	            bgClass = "bg-success-subtle";
-	        	            textClass = "text-success";
-	        	            break;
-	        	          default:
-	        	            statusText = "퇴근";
-	        	            bgClass = "bg-secondary-subtle";
-	        	            textClass = "text-secondary";
-	        	        }
-
-	        	        statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
-	        	        statusSpan.innerText = statusText;
-	        	      }
-	        	    })
-	        	    .catch(err => {
-	        	      alert("퇴근 처리 중 오류 발생!");
-	        	      console.error("퇴근 저장 실패", err);
-	        	    });
-	        	};
-          </script>
+			  fetch(`/attendance/weeklyHours?startDate=${start}&endDate=${end}`)
+			    .then(res => res.json())
+			    .then(data => {
+			      const workTimeMap = {};
+			      data.forEach(item => {
+			        workTimeMap[item.attendDate] = item.workingHours;
+			      });
+			
+			      const seriesData = weekDates.map(date => workTimeMap[date] || 0);
+			      const totalHours = seriesData.reduce((sum, h) => sum + h, 0);
+			      const minHours = parseFloat(document.getElementById("week_min_work_time").value);
+			      const maxHours = parseFloat(document.getElementById("week_max_work_time").value);
+			      const percent = Math.min(100, Math.round((totalHours / maxHours) * 100));
+			
+			      // ✅ progress bar
+			      const progressBar = document.querySelector(".progress-bar");
+			      progressBar.style.width = `${percent}%`;
+			      progressBar.textContent = `${totalHours.toFixed(1)}h`;
+			
+			      // ✅ 남은 근무/연장 시간
+			      const remainTime = Math.max(0, minHours - totalHours).toFixed(1);
+			      document.getElementById("remainTime").textContent = `남은 최소 근무시간 : ${remainTime}h`;
+			
+			      let remainOvertime = 0;
+			      if (totalHours < minHours) {
+			        remainOvertime = 12.0;
+			      } else if (totalHours < maxHours) {
+			        remainOvertime = (maxHours - totalHours).toFixed(1);
+			      }
+			      document.getElementById("remainOvertime").textContent = `남은 연장 근무시간 : ${remainOvertime}h`;
+			
+			      // ✅ 차트 갱신
+			      const chart = ApexCharts.getChartByID("weeklyHoursChart");
+			      if (chart) {
+			        chart.updateSeries([{ name: "근무시간(h)", data: seriesData }]);
+			      } else {
+			        new ApexCharts(document.querySelector("#weeklyHoursChart"), {
+			          chart: {
+			            id: "weeklyHoursChart",
+			            type: 'bar',
+			            height: 240
+			          },
+			          series: [{ name: '근무시간(h)', data: seriesData }],
+			          xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
+			          colors: ['#0d6efd'],
+			          plotOptions: { bar: { borderRadius: 5, columnWidth: '45%' } },
+			        }).render();
+			      }
+			    });
+			}
+		</script>
 
 
 			<!-- 가운데 근무시간 + 차트 -->
@@ -343,7 +432,12 @@
 						class="d-flex justify-content-between align-items-center flex-wrap mb-3">
 						<div>
 							<h6 class="mb-1">선택적 근로시간</h6>
-							<p class="text-muted mb-0" th:text="|${member.memberName} ${member.pos.posName} / ${member.dept.deptName}|">김세영 대리 / 마케팅팀</p>
+							<p class="text-muted mb-0">
+							  <span th:text="${member.memberName}">이름</span>
+							  <span th:text="${member.pos != null ? ' ' + member.pos.posName : ' (직급미배정)'}"></span>
+							  <span> / </span>
+							  <span th:text="${member.dept != null ? member.dept.deptName : '(부서미배정)'}"></span>
+							</p>
 						</div>
 						<div class="text-end">
 							<h4 class="fw-bold" id="current_date2">2024.04</h4>
@@ -377,22 +471,61 @@
 			</div>
 		</div>
 	</div>
+	
+	<script>
+		// 출퇴근 조작 방지를 위해 한국 표준시간을 가져와서 사용
+	  /* document.addEventListener("DOMContentLoaded", function () {
+	    async function fetchKoreanTimeAndRunClock() {
+	      try {
+	        const res = await fetch("https://timeapi.io/api/Time/current/zone?timeZone=Asia/Seoul");
+	        const data = await res.json();
+	
+	        let hour = data.hour;
+	        let minute = data.minute;
+	        let second = data.seconds;
+	
+	        function updateTime() {
+	          second++;
+	          if (second === 60) { second = 0; minute++; }
+	          if (minute === 60) { minute = 0; hour++; }
+	          if (hour === 24) { hour = 0; }
+	
+	          const hh = String(hour).padStart(2, "0");
+	          const mm = String(minute).padStart(2, "0");
+	          const ss = String(second).padStart(2, "0");
+	
+	          document.getElementById("nowTime").textContent = `${hh}:${mm}:${ss}`;
+	        }
+	
+	        updateTime();
+	        setInterval(updateTime, 1000);
+	
+	      } catch (e) {
+	        console.error("🔥 한국 시간 불러오기 실패:", e);
+	        document.getElementById("nowTime").textContent = "시간 오류";
+	      }
+	    }
+	
+	    fetchKoreanTimeAndRunClock();
+	  }); */
+	</script>
 
 	<script>
-  	
-	  function updateTime() {
-		    const now = new Date();
-		    const hours = String(now.getHours()).padStart(2, '0');
-		    const minutes = String(now.getMinutes()).padStart(2, '0');
-		    const seconds = String(now.getSeconds()).padStart(2, '0');
-		    document.getElementById('nowTime').textContent = `${hours}:${minutes}:${seconds}`;
-		  }
-	
-		  // 페이지 로드 후 매초마다 실행
-		  document.addEventListener("DOMContentLoaded", function () {
-		    updateTime(); // 초기 실행
-		    setInterval(updateTime, 1000); // 1초마다 업데이트
-		  });
+  		// 시간 임의로 변경하여 출퇴근 테스트 할 때 사용
+		  function updateTime() {
+			    const now = new Date();
+			    const hours = String(now.getHours()).padStart(2, '0');
+			    const minutes = String(now.getMinutes()).padStart(2, '0');
+			    const seconds = String(now.getSeconds()).padStart(2, '0');
+			    document.getElementById('nowTime').textContent = `${hours}:${minutes}:${seconds}`;
+			  }
+			  
+			  // 페이지 로드 후 매초마다 실행
+			  document.addEventListener("DOMContentLoaded", function () {
+			    updateTime(); // 초기 실행
+			    setInterval(updateTime, 1000); // 1초마다 업데이트
+			  });
+		  
 		  
 		  function getWeekRange(date) {
 			  const day = date.getDay(); // 0: 일 ~ 6: 토
@@ -521,33 +654,24 @@
 		        document.querySelector("#remainOvertime").textContent = `남은 연장 근무시간 : ${remainOvertime}h`;
 		
 		        // 📈 차트 출력
-		        const options = {
-		          chart: {
-		            type: 'bar',
-		            height: 240,
-		            animations: {
-		              enabled: true,
-		              easing: 'easeinout',
-		              speed: 800,
-		              animateGradually: { enabled: true, delay: 150 },
-		              dynamicAnimation: { enabled: true, speed: 350 }
-		            }
-		          },
-		          series: [{ name: '근무시간(h)', data: seriesData }],
-		          xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
-		          colors: ['#0d6efd'],
-		          plotOptions: {
-		            bar: { borderRadius: 5, columnWidth: '45%' }
-		          },
-		          tooltip: {
-		            y: {
-		              formatter: val => `${val.toFixed(1)} 시간`,
-		              title: { formatter: () => '근무시간' }
-		            }
-		          }
-		        };
-		
-		        new ApexCharts(document.querySelector("#weeklyHoursChart"), options).render();
+		        new ApexCharts(document.querySelector("#weeklyHoursChart"), {
+		        	  chart: {
+		        	    id: "weeklyHoursChart",
+		        	    type: 'bar',
+		        	    height: 240,
+		        	    animations: {
+		        	      enabled: true,
+		        	      easing: 'easeinout',
+		        	      speed: 800
+		        	    }
+		        	  },
+		        	  series: [{ name: '근무시간(h)', data: seriesData }],
+		        	  xaxis: { categories: ['월', '화', '수', '목', '금', '토', '일'] },
+		        	  colors: ['#0d6efd'],
+		        	  plotOptions: {
+		        	    bar: { borderRadius: 5, columnWidth: '45%' }
+		        	  }
+		        	}).render();
 		      });
 		  });
 		</script>
