@@ -170,7 +170,7 @@
   <!-- 댓글 및 대댓글 영역 -->
   <div id="comment-container" class="container my-4">
     <!-- 댓글 + 대댓글 리스트 -->
-    <div th:each="reply : ${replyList}" class="reply-item mb-3">
+	<div th:each="reply : ${replyList}" class="reply-item mb-3">
       <div class="d-flex align-items-start mb-2">
 		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 권한이 막혀있어서 프로필 이미지 등록이 안되는거였음
 		이중 파싱을 하든 그냥 일반 파싱을 해도 권한을 설정해준다면 정상적으로 일반사용자도 프로필이 나오게 할수있음 -->
@@ -267,10 +267,10 @@
       </div>
     </div>
   </div>
-<div class="text-center mt-3">
+<div class="text-center mt-3" th:if="${hasMoreReplies}">
   <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button>
 </div>
-</div> 
+</div>
 
    
     <!-- 댓글 작성 영역 (하단 고정) -->
@@ -484,55 +484,64 @@
         });
       });
     });
-    // + 더보기 버튼 추가(보류)
-    let currentPage = 1;
-    const pageSize = 5;
-    
-    function loadMoreReplies() {
-      fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('comment-container');
+// + 더보기 버튼 추가
+let currentPage = 1; // page=0은 이미 서버 렌더링됨
+const pageSize = 5;
+const boardNo = /*[[${board.boardNo}]]*/ 0;
 
-          data.forEach(reply => {
-            const div = document.createElement('div');
-            div.className = 'reply-item mb-3';
-            div.innerHTML = `
-              <div class="d-flex align-items-start mb-2">
-                <div class="profile-icon rounded-circle me-3">
-                  <img src="${reply.attachPath}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
-                      <small class="ms-2 time-display">${reply.regDateFormatted}</small>
-                    </div>
-                  </div>
-                  <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
+function loadMoreReplies() {
+  fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`, {
+    headers: { [csrfHeader]: csrfToken }
+  })
+    .then(res => res.json())
+    .then(data => {
+      const replies = data.replies;
+      const hasMore = data.hasMore;
+      const container = document.getElementById('comment-container');
+
+      if (!replies || replies.length === 0) {
+        console.warn("❗ 댓글 없음 또는 서버 응답 문제");
+        document.getElementById('load-more-btn')?.remove();
+        return;
+      }
+
+      replies.forEach(reply => {
+        const div = document.createElement('div');
+        div.className = 'reply-item mb-3';
+        div.innerHTML = `
+          <div class="d-flex align-items-start mb-2">
+            <div class="profile-icon rounded-circle me-3">
+              <img src="${reply.attachPath || '/img/default_profile.png'}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
+                  <small class="ms-2 time-display">${reply.regDateFormatted}</small>
                 </div>
               </div>
-            `;
-            container.appendChild(div);
-          });
+              <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
+            </div>
+          </div>
+        `;
+        // 댓글을 "더보기 버튼 위"에 삽입
+        const buttonWrapper = document.getElementById('load-more-btn')?.parentElement;
+        container.insertBefore(div, buttonWrapper || null);
+      });
 
-          if (data.length < pageSize) {
-            document.getElementById('load-more-btn').style.display = 'none';
-          }
-          currentPage++;
-        })
-        .catch(err => {
-          alert('댓글을 불러오지 못했습니다.');
-          console.error(err);
-        });
-    }
-
-    document.getElementById('load-more-btn').addEventListener('click', loadMoreReplies);
-
-    // 첫 로드
-    document.addEventListener('DOMContentLoaded', () => {
-      loadMoreReplies();
+      if (!hasMore) {
+        document.getElementById('load-more-btn')?.remove();
+      } else {
+        currentPage++; // 다음 요청을 위해 증가
+      }
+    })
+    .catch(err => {
+      alert('❌ 댓글을 불러오지 못했습니다.');
+      console.error(err);
     });
+}
+
+document.getElementById('load-more-btn')?.addEventListener('click', loadMoreReplies);
   </script>
   
   
@@ -724,10 +733,6 @@ function submitVote() {
     });
 });
 
-  // 다크모드 스위치 적용
-  document.getElementById('darkToggle')?.addEventListener('change', function () {
-    document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
-  });
   
 </script>
  

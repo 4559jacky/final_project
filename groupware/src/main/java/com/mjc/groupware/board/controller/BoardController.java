@@ -9,6 +9,7 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
+import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
@@ -110,13 +111,16 @@ public class BoardController {
         Board board = optionalBoard.get();
         model.addAttribute("board", board);
         model.addAttribute("attachList", boardAttachService.selectAttachList(boardNo));
-        model.addAttribute("replyList", replyService.getHierarchicalRepliesByBoardNo(boardNo));
+
+        List<ReplyDto> allReplies = replyService.getHierarchicalRepliesByBoardNo(boardNo);
+
+        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5); // ✔ 실제 페이징 사용
+        model.addAttribute("replyList", initialReplies);
+        model.addAttribute("hasMoreReplies", initialReplies.size() == 5);
 
         if (board.getVote() != null) {
             model.addAttribute("vote", board.getVote());
-            model.addAttribute("voteOptions", board.getVote().getVoteOptions()); // 옵션 주입
-            
-         // 마감 여부 계산 후 모델에 추가
+            model.addAttribute("voteOptions", board.getVote().getVoteOptions());
             boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
