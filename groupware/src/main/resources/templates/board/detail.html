@@ -130,9 +130,9 @@
           <h5 class="modal-title fw-bold" id="voteResultModalLabel">투표 결과</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
         </div>
-        <div class="modal-body">
-          <canvas id="voteResultChart" width="300" height="300"></canvas>
-        </div>
+<div class="modal-body p-4" style="height: 500px;">
+  <canvas id="voteResultChart" style="width: 100%; height: 100%;"></canvas>
+</div>
       </div>
     </div>
   </div>
@@ -656,6 +656,7 @@ function submitVote() {
         },
         options: {
         	  responsive: true,
+        	  maintainAspectRatio: false, // 중요!
         	  animation: false, // 애니메이션 제거
         	  scales: {
         	    x: {
@@ -677,28 +678,39 @@ function submitVote() {
         	  plugins: {
         	    legend: { display: false },
         	    tooltip: {
-        	      callbacks: {
-        	        label: function (context) {
-        	          const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-        	          const value = context.raw;
-        	          const percent = ((value / total) * 100).toFixed(1);
-        	          const index = context.dataIndex;
+        	    	  callbacks: {
+        	    	    title: function () {
+        	    	      // 상단 title(예: "22: 항목명") 제거
+        	    	      return '';
+        	    	    },
+        	    	    label: function (context) {
+        	    	    	  const value = context.raw;
+        	    	    	  const index = context.dataIndex;
 
-        	          let label = `${context.label}: ${value}표 (${percent}%)`;
+        	    	    	  const rawLabel = context.label;
+        	    	    	  const cleanedLabel = rawLabel.includes(':')
+        	    	    	    ? rawLabel.split(':').slice(1).join(':').trim()
+        	    	    	    : rawLabel;
 
-        	          if (!isAnonymous) {
-        	            const voterNames = voters[index];
-        	            if (voterNames && voterNames.length > 0) {
-        	              label += `\n ${voterNames.join('\n')}`;
-        	            } else {
-        	              label += `\n 투표자 없음`;
-        	            }
-        	          }
+        	    	    	  const lines = [`${cleanedLabel}: ${value}표`];
 
-        	          return label;
-        	        }
-        	      }
-        	    }
+        	    	    	  if (!isAnonymous) {
+        	    	    	    const voterNames = voters[index];
+        	    	    	    if (voterNames && voterNames.length > 0) {
+        	    	    	      const chunked = [];
+        	    	    	      for (let i = 0; i < voterNames.length; i += 3) {
+        	    	    	    	  chunked.push(voterNames.slice(i, i + 3).join(', '));
+        	    	    	    	}
+        	    	    	      lines.push(...chunked); // 각 줄 추가
+        	    	    	    } else {
+        	    	    	      lines.push('투표자 없음');
+        	    	    	    }
+        	    	    	  }
+
+        	    	    	  return lines;
+        	    	    	}
+        	    	  }
+        	    	}
         	  },
         	  onClick: function (e, elements) {
         	    // 그래프 클릭 이벤트 제거
