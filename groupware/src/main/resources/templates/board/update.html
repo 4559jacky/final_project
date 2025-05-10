@@ -57,21 +57,13 @@
                            th:value="${board.boardTitle}"
                            maxlength="100" placeholder="제목을 입력하세요" required>
                 </div>
-
-                <!-- 오른쪽: 투표 버튼 바로 삭제될수있게 로직 구현해주면 됨-->
-                <div class="ms-3">
-                    <button type="button" class="btn btn-danger" onclick="deleteVote()">
-                        투표 삭제
-                    </button>
-                </div>
+				<!-- 오른쪽: 투표 삭제 버튼은 투표가 있을 때만 표시 -->
+				<div class="ms-3" th:if="${board.vote != null}">
+    				<button type="button" class="btn btn-danger" onclick="deleteVote()">
+        				투표 삭제
+    				</button>
+				</div>
             </div>
-            
-<!--          <div class="ms-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteModal">
-              투표 추가
-            </button>
-          </div>
-        </div> -->
 
             <!-- 내용 -->
             <div class="mb-3">
