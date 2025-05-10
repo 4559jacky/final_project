@@ -72,7 +72,7 @@ public class AccommodationReservationController {
     @PostMapping("/admin/accommodation/reservation/updateStatus")
     @ResponseBody
     public Map<String, Object> updateReservationStatus(@RequestParam("reservationNo") Long reservationNo,
-                                                       @RequestParam("status") String status) {
+                                                       @RequestParam("status") int status) {
         Map<String, Object> result = new HashMap<>();
         try {
             reservationService.updateReservationStatus(reservationNo, status);

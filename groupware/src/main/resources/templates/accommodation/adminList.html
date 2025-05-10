@@ -96,10 +96,13 @@ layout:decorate="~{/include/layout}">
 				      <td th:text="${reservation.room_count}">방갯수</td>
 				      <td class="text-start">
 				           <select name="type" class="form-select w-75">
-				           <option th:value="'선택'" th:selected="${reservation.reservation_status == null or reservation.reservation_status == '선택'}">선택</option>
-                  <option th:value="1" th:selected="${reservation.reservation_status == '승인'}">승인</option>
-                  <option th:value="2" th:selected="${reservation.reservation_status == '반려'}">반려</option>
-                </select>
+
+				           <option th:value="0" th:selected="${reservation.reservation_status == null or reservation.reservation_status == '선택'}">선택</option>
+				           <option th:value="1" th:selected="${reservation.reservation_status == '대기'}">대기</option>
+		                  <option th:value="2" th:selected="${reservation.reservation_status == '승인'}">승인</option>
+		                  <option th:value="3" th:selected="${reservation.reservation_status == '반려'}">반려</option>
+		                </select>
+
 	    				</td>
 				      <td>
 	   					<button type="button" class="btn btn-primary" id="submitBtn">확인</button>
@@ -125,8 +128,8 @@ layout:decorate="~{/include/layout}">
 		
 		      const form = new FormData();
 		      form.append("reservationNo", reservationNo);
-		      form.append("status", statusValue === "1" ? "승인" : "반려");
-		
+		      /* form.append("status", statusValue === "1" ? "승인" : "반려"); */
+				form.append("status", statusValue);
 		      fetch("/admin/accommodation/reservation/updateStatus", {
 		        method: "POST",
 		        body: form,

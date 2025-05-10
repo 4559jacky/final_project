@@ -93,11 +93,17 @@ layout:decorate="~{/include/layout}">
 					            th:if="${reservation.reservation_status == '대기'}">예약취소</button>
 					    <button type="button" class="btn btn-primary"
 					            th:if="${reservation.reservation_status == '승인'}">결제하기</button> -->
-					    <th:block th:if="${reservation.reservation_status == '대기' || reservation.reservation_status == '반려'}">
+
+					    <th:block th:if="${reservation.reservation_status == '대기'}">
 						  <button class="btn btn-primary">예약취소</button>
 						</th:block>
 						<th:block th:if="${reservation.reservation_status == '승인'}">
-						  <button class="btn btn-primary">결제하기</button>
+						  <button class="btn btn-success">결제하기</button>
+						</th:block>
+						<th:block th:if="${reservation.reservation_status == '반려'}">
+						  <button type="button" data-bs-toggle="modal"
+													class="btn btn-danger" data-bs-target="#returnReasonModal">반려사유</button>
+
 						</th:block>
 					  </td>
 
@@ -109,6 +115,20 @@ layout:decorate="~{/include/layout}">
 	        </table>
 	      </div>
 	    </div>
+	</div>
+	
+	<div class="modal fade" id="returnReasonModal" tabindex="-1"
+		aria-hidden="true">
+		<div class="modal-dialog" style="max-width: 1000px;">
+			<!-- 너비만 크게 조정 -->
+			<div class="modal-content p-4 rounded-4 shadow-lg">
+				
+				<div class="modal-footer justify-content-end">
+					<button type="button" class="btn btn-primary"
+						onclick="selectApprovalMember();">선택 완료</button>
+				</div>
+			</div>
+		</div>
 	</div>
 		
 	<!-- <script>
