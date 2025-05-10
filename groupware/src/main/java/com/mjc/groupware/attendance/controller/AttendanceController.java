@@ -39,6 +39,7 @@ import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.member.service.MemberService;
 import com.mjc.groupware.member.service.RoleService;
 import com.mjc.groupware.plan.entity.Plan;
@@ -60,6 +61,7 @@ public class AttendanceController {
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
 	private final AnnualLeavePolicyRepository annualLeavePolicyRepository;
 	private final MemberService memberService;
+	private final MemberRepository memberRepository;
 	private final AttendanceRepository attendanceRepository;
 	private final PlanService planService;
 	
@@ -107,6 +109,29 @@ public class AttendanceController {
 		
 		return resultMap;
 	}
+	
+	
+	// 사원의 근태 정보 업데이트
+	@PostMapping("/member/attendance/update/{id}")
+	@ResponseBody
+	public Map<String,String> memberAttendStatusUpdateApi(@PathVariable("id") Long id, @RequestBody AttendanceDto dto) {
+	    Member member = memberRepository.findById(id).orElse(null);
+	    Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "회원 근태 정보 수정을 실패하였습니다.");
+		
+		int result = attendanceService.memberAttendStatusUpdateApi(member, dto);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "회원 근태 정보가 수정되었습니다.");
+		}
+		
+		return resultMap;
+	    
+	}
+	
+	
 	
 	// 연차 관리페이지로 이동
 	@GetMapping("/annual/management")
@@ -210,6 +235,7 @@ public class AttendanceController {
 	    
 	    // 오늘 날짜의 휴가가 있는지
 	    Plan plan = planService.selectAnnualPlan(member, today);
+	    System.out.println("휴가 일정 : " + plan);
 	    model.addAttribute("plan", plan);
 	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);

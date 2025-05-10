@@ -28,6 +28,7 @@ public class AttendanceDto {
 	private String late_yn;
 	private String early_leave_yn;
 	private Long member_no;
+	private String plan_title;
 	
 	public Attendance toEntity () {
 		return Attendance.builder()
