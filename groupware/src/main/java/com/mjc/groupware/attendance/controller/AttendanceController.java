@@ -114,7 +114,7 @@ public class AttendanceController {
 	// 사원의 근태 정보 업데이트
 	@PostMapping("/member/attendance/update/{id}")
 	@ResponseBody
-	public Map<String,String> memberAttendStatusUpdateApi(@PathVariable("id") Long id, AttendanceDto dto) {
+	public Map<String,String> memberAttendStatusUpdateApi(@PathVariable("id") Long id, @RequestBody AttendanceDto dto) {
 	    Member member = memberRepository.findById(id).orElse(null);
 	    Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");

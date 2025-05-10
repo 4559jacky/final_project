@@ -376,10 +376,14 @@ layout:decorate="~{/include/layout}">
 	
 	  function saveAttendanceUpdate() {
 		
+		const attendDate = document.getElementById('attendDate').value;
+		const formattedDate = attendDate.replaceAll('.', '-');
 	    const updateStart = document.getElementById('editStartTime').value;
 	    const updateEnd = document.getElementById('editEndTime').value;
 	    const updateLateYn = document.getElementById('editLateYn').value;
 	    const updateEarlyYn = document.getElementById('editEarlyLeaveYn').value;
+	    
+	    console.log(attendDate);
 	    
 	    if(!updateStart) {
 	    	alert('출근시간을 입력해주세요.');
@@ -389,12 +393,6 @@ layout:decorate="~{/include/layout}">
 	    	return;
 	    }
 	
-	    const formData = new FormData();
-	    formData.append("startTime", start);
-	    formData.append("endTime", end);
-	    formData.append("lateYn", lateYn);
-	    formData.append("earlyLeaveYn", earlyYn);
-	
 	    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 	    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 	
@@ -403,9 +401,16 @@ layout:decorate="~{/include/layout}">
 	    fetch('/member/attendance/update/'+selectedMemberNo, {
 	      method: 'POST',
 	      headers: {
+	    	'Content-Type': 'application/json',
 	        [csrfHeader]: csrfToken
 	      },
-	      body: formData
+	      body: JSON.stringify({
+				attend_date: formattedDate,
+				check_in: updateStart,
+				check_out: updateEnd,
+				late_yn : updateLateYn,
+				early_leave_yn: updateEarlyYn
+			})
 	    })
 	    .then(res => res.json())
 	    .then(data => {

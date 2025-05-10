@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
+import com.mjc.groupware.accommodationReservation.controller.AccommodationAdminController;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendPageDto;
@@ -48,7 +48,7 @@ public class AttendanceService {
 	private final MemberRepository memberRepository;
 	private final AttendanceRepository attendanceRepository;
 
-	
+
 	// 근태 정책 변경
 	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
@@ -195,7 +195,7 @@ public class AttendanceService {
 
 	// 퇴근 시간 저장
 	public Map<String, Object> saveEndTime(MemberDto member, AttendanceDto dto) {
-	    Map<String,Object> resultMap = new HashMap<>();
+	    Map<String, Object> resultMap = new HashMap<>();
 	    System.out.println(">>> memberNo: " + member.getMember_no());
 	    System.out.println(">>> attendDate: " + dto.getAttend_date());
 	    try {
@@ -218,17 +218,27 @@ public class AttendanceService {
 	        LocalTime checkIn = oldAttendanceDto.getCheck_in();
 	        LocalTime checkOut = dto.getCheck_out();
 	        Duration duration = Duration.between(checkIn, checkOut);
-	        LocalTime workingTime = LocalTime.ofSecondOfDay(duration.getSeconds());
+
+	        // 🔥 총 근무 시간 계산
+	        long totalSeconds = duration.getSeconds();
+
+	        // 🔥 9시간 이상이면 자동 휴게시간 1시간 감산
+	        if (totalSeconds >= 9 * 60 * 60) {
+	            totalSeconds -= 60 * 60;
+	        }
+
+	        // 🔥 실근무시간 저장
+	        LocalTime workingTime = LocalTime.ofSecondOfDay(totalSeconds);
 	        oldAttendanceDto.setWorking_time(workingTime);
 
 	        // 조퇴 여부 판단
-	        long workedMinutes = duration.toMinutes();
+	        long workedMinutes = totalSeconds / 60;
 	        long requiredMinutes;
 
 	        if (isMorningLeave || isAfternoonLeave) {
 	            requiredMinutes = 4 * 60;
 	        } else {
-	            requiredMinutes = (long)(workDuration * 60);
+	            requiredMinutes = (long) (workDuration * 60);
 	        }
 
 	        if (workedMinutes < requiredMinutes) {
@@ -244,7 +254,7 @@ public class AttendanceService {
 	        resultMap.put("res_msg", "퇴근 시간이 저장되었습니다.");
 	        resultMap.put("attendance", oldAttendanceDto);
 
-	    } catch(Exception e) {
+	    } catch (Exception e) {
 	        e.printStackTrace();
 	        resultMap.put("res_code", "500");
 	        resultMap.put("res_msg", "퇴근 저장 실패");
@@ -326,9 +336,46 @@ public class AttendanceService {
 	// 관리자 - 회원 근태 정보 수정
 	public int memberAttendStatusUpdateApi(Member member, AttendanceDto dto) {
 		
+		int result = 0;
 		
+		try {
+			System.out.println("test : "+dto.getAttend_date());
+			Attendance entity = attendanceRepository.findByMember_MemberNoAndAttendDate(
+		            member.getMemberNo(), dto.getAttend_date());
+			
+			AttendanceDto beforeDto = new AttendanceDto().toDto(entity);
+			beforeDto.setCheck_in(dto.getCheck_in());
+			beforeDto.setCheck_out(dto.getCheck_out());
+			beforeDto.setLate_yn(dto.getLate_yn());
+			beforeDto.setEarly_leave_yn(dto.getEarly_leave_yn());
+			
+			// 출근 / 퇴근 시간
+	        LocalTime checkIn = dto.getCheck_in();
+	        LocalTime checkOut = dto.getCheck_out();
+	        Duration duration = Duration.between(checkIn, checkOut);
+
+	        // 총 근무 시간 계산
+	        long totalSeconds = duration.getSeconds();
+
+	        // 9시간 이상이면 자동 휴게시간 1시간 감산
+	        if (totalSeconds >= 9 * 60 * 60) {
+	            totalSeconds -= 60 * 60;
+	        }
+
+	        // 실근무시간 저장
+	        LocalTime workingTime = LocalTime.ofSecondOfDay(totalSeconds);
+	        beforeDto.setWorking_time(workingTime);
+	        
+	        
+	        Attendance attendance = beforeDto.toEntity();
+	        attendanceRepository.save(attendance);
+	        
+	        result = 1;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
-		return 0;
+		return result;
 	}
 
 }
