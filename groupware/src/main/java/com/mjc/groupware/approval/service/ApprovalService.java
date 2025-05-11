@@ -224,10 +224,6 @@ public class ApprovalService {
 			    }
 			}
 			
-			System.out.println("🔔 합의자 번호: " + approvalDto.getAgreementer_no());
-			System.out.println("🔔 참조자 번호: " + approvalDto.getReferencer_no());
-			System.out.println("🔔 결재자 번호: " + approvalDto.getApprover_no());
-
 			// List로 변환해서 전송
 			List<Long> targetMemberNos = new ArrayList<>(targetMemberNoSet);
 			approvalAlarmService.sendAlarmToMembers(
@@ -388,7 +384,32 @@ public class ApprovalService {
 	                approvalDto2.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
 
 	                Approval approvalParam2 = approvalDto2.toEntity(parentApproval);
-	                approvalRepository.save(approvalParam2);
+	                Approval saved = approvalRepository.save(approvalParam2);
+	                
+	                Long requesterNo = saved.getMember().getMemberNo();
+	                List<Long> targetMemberNos = new ArrayList<>();
+	                targetMemberNos.add(requesterNo);
+
+	                approvalAlarmService.sendAlarmToMembers(
+	                    targetMemberNos,
+	                    saved,
+	                    "결재가 최종 승인되었습니다."
+	                );
+	            } else {
+	            	int nextOrder = approvalEntity.getApprOrderStatus(); // 현재는 ++된 상태임
+	                for (ApprApprover a : approverList) {
+	                    if (a.getApproverOrder() == nextOrder) {
+	                        List<Long> targetMemberNos = new ArrayList<>();
+	                        targetMemberNos.add(a.getMember().getMemberNo());
+
+	                        approvalAlarmService.sendAlarmToMembers(
+	                            targetMemberNos,
+	                            approvalEntity,
+	                            "새로운 결재가 도착하였습니다."
+	                        );
+	                        break;
+	                    }
+	                }
 	            }
 	        }
 
@@ -434,7 +455,17 @@ public class ApprovalService {
 			
 			Approval approvalEntity = approvalDto.toEntity(parentApproval);
 			
-			approvalRepository.save(approvalEntity);
+			Approval saved = approvalRepository.save(approvalEntity);
+			
+			Long requesterNo = saved.getMember().getMemberNo();
+            List<Long> targetMemberNos = new ArrayList<>();
+            targetMemberNos.add(requesterNo);
+
+            approvalAlarmService.sendAlarmToMembers(
+                targetMemberNos,
+                saved,
+                "결재가 반려 되었습니다."
+            );
 			
 			result = 1;
 			
@@ -486,7 +517,24 @@ public class ApprovalService {
 					
 					Approval approvalParam = approvalDto.toEntity();
 					
-					approvalRepository.save(approvalParam);
+					Approval saved = approvalRepository.save(approvalParam);
+					
+					// 1차 결재자 알림
+				    List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(id);
+				    List<Long> targetMemberNos = new ArrayList<>();
+
+				    for (ApprApprover approver : approverList) {
+				        if (approver.getApproverOrder() == 1) {
+				            targetMemberNos.add(approver.getMember().getMemberNo());
+				        }
+				    }
+
+				    approvalAlarmService.sendAlarmToMembers(
+				        targetMemberNos,
+				        saved,
+				        "모든 합의가 완료되어 결재가 시작되었습니다."
+				    );
+					
 				}
 			}
 			result = 1;
@@ -526,7 +574,17 @@ public class ApprovalService {
 			
 			Approval approvalParam = approvalDto.toEntity();
 			
-			approvalRepository.save(approvalParam);
+			Approval saved = approvalRepository.save(approvalParam);
+			
+			Long requesterNo = saved.getMember().getMemberNo();
+            List<Long> targetMemberNos = new ArrayList<>();
+            targetMemberNos.add(requesterNo);
+
+            approvalAlarmService.sendAlarmToMembers(
+                targetMemberNos,
+                saved,
+                "결재가 반려 되었습니다."
+            );
 			
 			result = 1;
 			
@@ -592,7 +650,17 @@ public class ApprovalService {
 					.build();
 			
 			ApprApprover approverEntity = apprApproverDto.toEntity();
-			apprApproverRepository.save(approverEntity);
+			ApprApprover savedApprover = apprApproverRepository.save(approverEntity);
+			
+			// 알림 보내기: 최종 결재자에게 결재 회수 알림
+			List<Long> targetMemberNos = new ArrayList<>();
+			targetMemberNos.add(savedApprover.getMember().getMemberNo());
+
+			approvalAlarmService.sendAlarmToMembers(
+			    targetMemberNos,
+			    entity,
+			    "결재가 회수되어 다시 결재가 요청되었습니다."
+			);
 			
 			result = 1;
 			
@@ -633,6 +701,7 @@ public class ApprovalService {
 		return result;
 	}
 	
+	// 결재 재기안
 	@Transactional(rollbackFor = Exception.class)
 	public int retryApprovalApi(ApprovalDto approvalDto, List<MultipartFile> files, List<Long> deleteFiles) {
 		int result = 0;
@@ -643,7 +712,7 @@ public class ApprovalService {
 			// 합의자 여부 확인
 			List<ApprAgreementer> agreementers = apprAgreementerRepository.findAllByApproval_ApprNo(entity.getApprNo());
 			
-			
+			System.out.println(approvalDto.getApprover_no());
 			// 합의자가 있으면 합의자 먼저, 없으면 바로 결재자로
 			if(agreementers.size() != 0) {
 				approvalDto.setAppr_status("A");
@@ -659,7 +728,7 @@ public class ApprovalService {
 			
 			Approval newEntity = approvalDto.toEntity();
 			
-			approvalRepository.save(newEntity);
+			Approval saved = approvalRepository.save(newEntity);
 			
 			if (deleteFiles != null) {
 				System.out.println("test");
@@ -684,6 +753,47 @@ public class ApprovalService {
 		            }
 		        }
 		    }
+			
+			Set<Long> targetMemberNoSet = new HashSet<>();
+			
+			List<ApprReferencer> referencers = apprReferencerRepository.findAllByApproval_ApprNo(entity.getApprNo());
+
+			boolean hasAgreementers = agreementers != null && !agreementers.isEmpty();
+			boolean hasReferencers = referencers != null && !referencers.isEmpty();
+
+			// 합의자
+			if (hasAgreementers) {
+				for(ApprAgreementer ag : agreementers) {
+					targetMemberNoSet.add(ag.getMember().getMemberNo());
+				}
+			}
+
+			// 참조자
+			if (hasReferencers) {
+				for(ApprReferencer rf : referencers) {
+					targetMemberNoSet.add(rf.getMember().getMemberNo());
+				}
+			}
+
+			// 합의자가 없을 경우 → 1차 결재자 추가
+			if (!hasAgreementers) {
+
+			    List<ApprApprover> approverList = apprApproverRepository.findAllByApproval_ApprNo(entity.getApprNo());
+			    for (ApprApprover a : approverList) {
+			        if (a.getApproverOrder() == 1 && a.getMember() != null && a.getMember().getMemberNo() != null) {
+			            targetMemberNoSet.add(a.getMember().getMemberNo());
+			            break;
+			        }
+			    }
+			}
+
+			// 알림 전송
+			List<Long> targetMemberNos = new ArrayList<>(targetMemberNoSet);
+			approvalAlarmService.sendAlarmToMembers(
+			    targetMemberNos,
+			    saved,
+			    "재기안된 결재 문서가 도착하였습니다."
+			);
 			
 			result = 1;
 			
