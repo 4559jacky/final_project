@@ -192,6 +192,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 		  stompClient.connect({}, () => {
 		    console.log("📡 STOMP WebSocket 연결 성공");
+
+		    const myNo = document.getElementById("member_no").value;
+		    
+		    stompClient.send("/app/chat/session-register", {}, JSON.stringify({
+		        memberNo: myNo
+		      }));
 	
 		    // 채팅방 생성 실시간 반영
 		    stompClient.subscribe("/topic/chat/room/new", (message) => {
@@ -220,7 +226,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 		    
 		    // 채팅 알림 
-		    const myNo = document.getElementById("member_no").value;
 
 		    const path = window.location.pathname;
 		    if (!path.includes("/chat")) {

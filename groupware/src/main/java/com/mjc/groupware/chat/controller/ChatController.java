@@ -74,10 +74,8 @@ public class ChatController {
 		        resultMap.put("res_msg", "채팅방 추가가 완료되었습니다.");
 		       
 		        // 실시간 전송!!
-		        System.out.println("test1"+createdRoom.getChatRoomNo());
 		        ChatRoom chatRoom = chatRoomService.selectChatRoomOne(createdRoom.getChatRoomNo());
 			    ChatRoomDto roomDto = ChatRoomDto.toDto(chatRoom);
-			    System.out.println("test2"+roomDto);
 		       
 		        messagingTemplate.convertAndSend("/topic/chat/room/new", roomDto);
 		    }
@@ -104,7 +102,7 @@ public class ChatController {
 
 	    List<ChatMsgDto> chatMsgDtoList = new ArrayList<>();
 	    for (ChatMsg chatMsg : resultlist) {
-	        ChatMsgDto dto = new ChatMsgDto().toDto(chatMsg); // 여기서 attach 정보까지 잘 들어감
+	        ChatMsgDto dto = new ChatMsgDto().toDto(chatMsg); 
 	        chatMsgDtoList.add(dto);
 	    }
 
@@ -168,7 +166,6 @@ public class ChatController {
 	            alarmDto.setMember_pos_name(dto.getMember_pos_name());
 	            alarmDto.setChat_msg_content(dto.getChat_msg_content());
 	            alarmDto.setChat_room_no(dto.getChat_room_no());
-
 
 	            messagingTemplate.convertAndSend("/topic/chat/alarm/" + receiverNo, alarmDto);
 

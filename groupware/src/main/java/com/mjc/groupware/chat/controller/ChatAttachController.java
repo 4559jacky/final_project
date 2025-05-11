@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -25,13 +26,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.chat.dto.ChatAttachDto;
+import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.entity.ChatAttach;
 import com.mjc.groupware.chat.entity.ChatMapping;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.repository.ChatMsgRepository;
+import com.mjc.groupware.chat.repository.ChatRoomRepository;
+import com.mjc.groupware.chat.service.ChatAlarmService;
 import com.mjc.groupware.chat.service.ChatAttachService;
 import com.mjc.groupware.chat.service.ChatRoomService;
+import com.mjc.groupware.chat.session.ChatSessionTracker;
+import com.mjc.groupware.chat.session.SessionRegistry;
 import com.mjc.groupware.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
@@ -44,83 +50,147 @@ public class ChatAttachController {
 	private final ChatRoomService chatRoomService;
 	private final ChatMsgRepository chatMsgRepository;
 	private final SimpMessagingTemplate messagingTemplate;
+	private final ChatRoomRepository chatRoomRepository;
+	
+	private final ChatAlarmService chatAlarmService;
+    private final SessionRegistry sessionRegistry; 
+    private final ChatSessionTracker chatSessionTracker; 
 	
 	// 파일 업로드 
-	@PostMapping("/chat/attach/create")
-	@ResponseBody
-	public Map<String,String> createAttachApi(@RequestParam("files") List<MultipartFile> files,
-	                                          @RequestParam("chatRoomNo") Long roomNo,
-	                                          @RequestParam("memberNo") Long memberNo) {
+    @PostMapping("/chat/attach/create")
+    @ResponseBody
+    public Map<String, String> createAttachApi(@RequestParam("files") List<MultipartFile> files,
+                                               @RequestParam("chatRoomNo") Long roomNo,
+                                               @RequestParam("memberNo") Long memberNo) {
 
-	    Map<String, String> resultMap = new HashMap<>();
-	    resultMap.put("res_code", "500");
-	    resultMap.put("res_msg", "파일 등록 중 오류가 발생하였습니다.");
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("res_code", "500");
+        resultMap.put("res_msg", "파일 등록 중 오류가 발생하였습니다.");
 
-	    try {
-	        ChatRoom chatRoom = chatRoomService.selectChatRoomOne(roomNo);
-	        List<ChatMapping> mappings = chatRoom.getMappings();
+        try {
+            ChatRoom chatRoom = chatRoomService.selectChatRoomOne(roomNo);
+            List<ChatMapping> mappings = chatRoom.getMappings();
 
-	        // 업로더 정보 조회
-	        Member sender = mappings.stream()
-	            .map(ChatMapping::getMemberNo)
-	            .filter(m -> m.getMemberNo().equals(memberNo))
-	            .findFirst()
-	            .orElseThrow(() -> new RuntimeException("멤버 매핑 없음"));
+            Member sender = mappings.stream()
+                    .map(ChatMapping::getMemberNo)
+                    .filter(m -> m.getMemberNo().equals(memberNo))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("멤버 매핑 없음"));
 
-	        for (MultipartFile mf : files) {
-	            ChatAttachDto dto = attachService.uploadFile(mf);
+            for (MultipartFile mf : files) {
+                ChatAttachDto dto = attachService.uploadFile(mf);
 
-	            if (dto != null) {
-	                // 1. 파일 DB 저장
-	                dto.setChat_room_no(roomNo);
-	                dto.setMember_no(memberNo);
-	                dto.setFile_size(mf.getSize());
-	                Long savedAttachNo = attachService.createAttach(dto); // PK 반환되도록 설정 필요
+                if (dto != null) {
+                    dto.setChat_room_no(roomNo);
+                    dto.setMember_no(memberNo);
+                    dto.setFile_size(mf.getSize());
 
-	                // 2. chatMsg 생성 시 attach_no FK로 연결
-	                ChatAttach attachEntity = attachService.findById(savedAttachNo); // 방금 저장한 attach 엔티티
+                    // ✅ MIME 타입 추출 및 저장
+                    String mimeType = getMimeType(dto.getAttach_path());
 
-	                ChatMsg fileMsg = ChatMsg.builder()
-	                    .chatRoomNo(chatRoom)
-	                    .memberNo(sender)
-	                    .chatMsgContent(null)
-	                    .chatMsgType("FILE")
-	                    .attachNo(attachEntity) // 🔥 여기!
-	                    .sendDate(LocalDateTime.now())
-	         
-	                    .build();
+                    Long savedAttachNo = attachService.createAttach(dto);
+                    ChatAttach attachEntity = attachService.findById(savedAttachNo);
 
-	                ChatMsg savedMsg = chatMsgRepository.save(fileMsg);
+                    String content = mimeType != null && mimeType.startsWith("image/")
+                            ? sender.getMemberName() + "님이 이미지를 전송했습니다."
+                            : sender.getMemberName() + "님이 파일을 전송했습니다.";
 
-	                // 3. WebSocket 메시지 전송
-	                Map<String, Object> socketMsg = new HashMap<>();
-	                socketMsg.put("chat_msg_no", savedMsg.getChatMsgNo());
-	                socketMsg.put("chat_room_no", roomNo);
-	                socketMsg.put("member_no", memberNo);
-	                socketMsg.put("msg_type", "FILE");
-	                socketMsg.put("file_name", dto.getOri_name());
-	                socketMsg.put("file_url", "/chat/download/" + savedAttachNo);
-	                socketMsg.put("file_type", getMimeType(dto.getAttach_path()));
-	                socketMsg.put("send_date", savedMsg.getSendDate().toString());
-	                socketMsg.put("member_name", sender.getMemberName());
-	                socketMsg.put("member_pos_name", sender.getPos().getPosName());
-	                socketMsg.put("member_dept_name", sender.getDept().getDeptName());
-	                socketMsg.put("file_size", formatFileSize(dto.getFile_size()));
+                    ChatMsg fileMsg = ChatMsg.builder()
+                            .chatRoomNo(chatRoom)
+                            .memberNo(sender)
+                            .chatMsgContent(null)
+                            .chatMsgType("FILE")
+                            .attachNo(attachEntity)
+                            .sendDate(LocalDateTime.now())
+                            .build();
 
-	                messagingTemplate.convertAndSend("/topic/chat/room/" + roomNo, socketMsg);
-	            }
-	        }
+                    ChatMsg savedMsg = chatMsgRepository.save(fileMsg);
 
-	        resultMap.put("res_code", "200");
-	        resultMap.put("res_msg", "파일이 업로드되었습니다.");
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+                    // 채팅방 마지막 메시지 갱신
+                    chatRoom.setLastMsg(content);
+                    chatRoom.setLastMsgDate(LocalDateTime.now());
+                    chatRoomRepository.save(chatRoom);
 
-	    return resultMap;
-	}
+                    // 채팅방 내부 전송
+                    Map<String, Object> innerMsg = new HashMap<>();
+                    innerMsg.put("chat_msg_no", savedMsg.getChatMsgNo());
+                    innerMsg.put("chat_room_no", roomNo);
+                    innerMsg.put("member_no", memberNo);
+                    innerMsg.put("msg_type", "FILE");
+                    innerMsg.put("chat_msg_content", null);
+                    innerMsg.put("file_name", dto.getOri_name());
+                    innerMsg.put("file_url", "/chat/download/" + savedAttachNo);
+                    innerMsg.put("file_type", mimeType);
+                    innerMsg.put("send_date", savedMsg.getSendDate().toString());
+                    innerMsg.put("member_name", sender.getMemberName());
+                    innerMsg.put("member_pos_name", sender.getPos().getPosName());
+                    innerMsg.put("member_dept_name", sender.getDept().getDeptName());
+                    innerMsg.put("file_size", formatFileSize(dto.getFile_size()));
 
-		
+                    messagingTemplate.convertAndSend("/topic/chat/room/" + roomNo, innerMsg);
+
+                    // 목록/알림용 DTO
+                    ChatMsgDto updateDto = new ChatMsgDto();
+                    updateDto.setChat_msg_no(savedMsg.getChatMsgNo());
+                    updateDto.setChat_room_no(roomNo);
+                    updateDto.setMember_no(memberNo);
+                    updateDto.setChat_msg_content(content);
+                    updateDto.setSend_date(savedMsg.getSendDate());
+                    updateDto.setChat_msg_type("FILE");
+                    updateDto.setMember_name(sender.getMemberName());
+                    updateDto.setMember_pos_name(sender.getPos().getPosName());
+                    updateDto.setMember_dept_name(sender.getDept().getDeptName());
+                    updateDto.setFile_url("/chat/download/" + savedAttachNo);
+                    updateDto.setFile_size_str(formatFileSize(dto.getFile_size()));
+
+                    // 수신자 설정
+                    List<Long> receiverNos = mappings.stream()
+                            .map(m -> m.getMemberNo().getMemberNo())
+                            .filter(no -> !no.equals(memberNo))
+                            .collect(Collectors.toList());
+                    updateDto.setMember_no_list(receiverNos);
+
+                    // 목록 갱신
+                    messagingTemplate.convertAndSend("/topic/chat/room/update", updateDto);
+
+                    // 뱃지 + 알림
+                    for (Long receiverNo : receiverNos) {
+                        String sessionId = sessionRegistry.getSessionIdForMember(receiverNo);
+                        boolean isConnected = (sessionId != null);
+                        boolean isInRoom = isConnected && chatSessionTracker.isSessionInRoom(roomNo, sessionId);
+
+                        if (isConnected && !isInRoom) {
+                            messagingTemplate.convertAndSend("/topic/chat/unread", updateDto);
+                        }
+
+                        if (!isInRoom) {
+                            chatAlarmService.createChatAlarm(roomNo, receiverNo, savedMsg);
+
+                            ChatMsgDto alarmDto = new ChatMsgDto();
+                            alarmDto.setMember_no(receiverNo);
+                            alarmDto.setMember_name(sender.getMemberName());
+                            alarmDto.setMember_pos_name(sender.getPos().getPosName());
+                            alarmDto.setChat_msg_content(content);
+                            alarmDto.setChat_room_no(roomNo);
+
+                            messagingTemplate.convertAndSend("/topic/chat/alarm/" + receiverNo, alarmDto);
+                        }
+                    }
+                }
+            }
+
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "파일이 업로드되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return resultMap;
+    }
+
+
+
+
 		 // 1. 파일 타입 추출 함수
 	    private String getMimeType(String path) {
 	        try {

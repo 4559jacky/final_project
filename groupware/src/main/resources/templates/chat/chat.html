@@ -185,60 +185,45 @@
     
 						    <!-- 스크롤되는 영역 -->
 						    <div class="flex-grow-1 overflow-auto" data-simplebar>
-						        <div class="p-3 d-flex align-items-center justify-content-end">
-						            <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
-						               href="javascript:void(0)">
-						                <i class="ti ti-x"></i>
-						            </a>
-						        </div>
-						        <div class="offcanvas-body px-4 pt-0">
-						            <!-- 참여자 -->
-									<div class="section-block mb-5">
-										<h6 class="fw-semibold mb-3 text-nowrap d-flex align-items-center gap-2">
-										  참여자 <span class="text-muted" id="memberCount">(3)</span>
-										  <button class="btn btn-rounded btn-light" id="add_btn" type="button"  style="font-size: 14px; padding: 1px 6px;">+</button>
-										</h6>
-										<div class="d-flex flex-wrap gap-2" id="memberInfo"></div>
-									</div>
-						            <!-- 이미지 -->
-						            <div class="section-block mb-5">
-						                <h6 class="fw-semibold mb-3 text-nowrap">
-						                    이미지 <span class="text-muted">(36)</span>
-						                </h6>
-						                <div class="row g-2">
-						                    <div class="col-4">
-						                        <img src="../assets/images/products/product-1.jpg" width="100%" class="rounded" alt="이미지" />
-						                    </div>
-						                    <div class="col-4">
-						                        <img src="../assets/images/products/product-2.jpg" width="100%" class="rounded" alt="이미지" />
-						                    </div>
-						                </div>
-						            </div>
-						
-						            <!-- 파일 -->
-						            <div class="section-block mb-5">
-						                <h6 class="fw-semibold mb-3 text-nowrap">
-						                    Files <span class="text-muted">(36)</span>
-						                </h6>
-						                <a href="javascript:void(0)" class="hstack gap-3 file-chat-hover justify-content-between text-nowrap mb-3">
-						                    <div class="d-flex align-items-center gap-3">
-						                        <div class="rounded-1 text-bg-light p-6">
-						                            <img src="../assets/images/chat/icon-zip-folder.svg" alt="zip" width="24" height="24" />
-						                        </div>
-						                        <div>
-						                            <h6 class="fw-semibold">work-project.zip</h6>
-						                            <div class="d-flex align-items-center gap-3 fs-2 text-muted">
-						                                <span>2 MB</span> <span>2 Dec 2024</span>
-						                            </div>
-						                        </div>
-						                    </div>
-						                    <span class="position-relative nav-icon-hover download-file">
-						                        <i class="ti ti-download text-dark fs-6 bg-hover-primary"></i>
-						                    </span>
-						                </a>
-						            </div>
-						        </div>
-						    </div>
+			  <div class="p-3 d-flex align-items-center justify-content-end">
+			    <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
+			       href="javascript:void(0)">
+			      <i class="ti ti-x"></i>
+			    </a>
+			  </div>
+			
+			  <div class="offcanvas-body px-4 pt-0">
+			    <!-- 참여자 -->
+			    <div class="section-block mb-5">
+			      <h6 class="fw-semibold mb-3 text-nowrap d-flex align-items-center gap-2">
+			        참여자 <span class="text-muted" id="memberCount">(0)</span>
+			        <button class="btn btn-rounded btn-light" id="add_btn" type="button" style="font-size: 14px; padding: 1px 6px;">+</button>
+			      </h6>
+			      <div class="d-flex flex-wrap gap-2" id="memberInfo"></div>
+			    </div>
+			
+			    <!-- 이미지 -->
+			    <div class="section-block mb-5" id="chat-image-section">
+			      <h6 class="fw-semibold mb-3 text-nowrap">
+			        이미지 <span class="text-muted">(0)</span>
+			      </h6>
+			      <div class="row g-2" id="chat-image-list">
+			        <!-- JS로 col-4 이미지 append됨 -->
+			      </div>
+			    </div>
+			
+			    <!-- 파일 -->
+			    <div class="section-block mb-5" id="chat-file-section">
+			      <h6 class="fw-semibold mb-3 text-nowrap">
+			        Files <span class="text-muted">(0)</span>
+			      </h6>
+			      <div class="row g-2 flex-column" id="chat-file-list">
+			        <!-- JS로 파일 카드 append됨 -->
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
 						
 						    <!-- 항상 아래 고정되는 버튼 -->
 						    <div class="border-top px-4 py-3">
@@ -426,6 +411,17 @@
 		</div>
 	</div>
 	
+	<!-- 이미지 확대 모달 -->
+	<div class="modal fade" id="imagePreviewModal" tabindex="-1">
+	  <div class="modal-dialog modal-dialog-centered modal-lg">
+	    <div class="modal-content bg-white rounded shadow">
+	      <div class="modal-body p-0">
+	        <img src="" id="imagePreviewTarget" class="w-100 h-auto" style="border-radius: 8px;" />
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
 	<script>
 	// 메인 진입 포인트
 
@@ -536,16 +532,6 @@
 	
 	  showUnreadBadge(roomNo, myNo);
 	}
-
-	
-	/* // 채팅방 이동  클릭 시 처리
-	function moveToChatRoom() {
-		  const roomNo = document.getElementById("modal-room-no").value;
-		  if (roomNo) {
-		    window.location.href = `/chat/${roomNo}`; // ✅ URI는 실제 경로에 맞게 조정!
-		  }
-		} */
-
 
 	// 1. 모달 이벤트 처리
 	function initModalEvents() {
@@ -788,34 +774,51 @@
 	        })
 	        .then(res => res.json())
 	        .then(msgData => {
-	        	 console.log("💬 [불러온 메시지 목록]", msgData);
 	          const chatList = document.querySelector(".chat-box-inner .chat.active-chat");
+	          // 초기화 
+	          document.querySelector("#chat-image-section h6 span").textContent = "(0)";
+			document.querySelector("#chat-file-section h6 span").textContent = "(0)";
+			document.getElementById("chat-image-list").innerHTML = "";
+			document.getElementById("chat-file-list").innerHTML = "";
+
 	          chatList.innerHTML = "";
 	
 	          msgData.forEach(msg => {
-	        	  console.log("🧾 [개별 메시지]", msg);
 	        	  const isMine = msg.member_no == myMemberNo;
 
-	        	  // 🔥 FILE 메시지면 파일 버블 생성
 	        	  if (msg.chat_msg_type === "FILE") {
-					  const fileBubble = createFileBubble({
-					    file_type: msg.ori_name?.match(/\.(jpg|jpeg|png|gif|bmp)$/i) ? "image" : "file",
-					    file_url: msg.file_url || "/upload/groupware/chat/" + msg.new_name,
-					    file_name: msg.ori_name,
-					    file_size: msg.file_size_str || "",
-					    send_date: msg.send_date,
-					    member_name: msg.member_name,
-					    member_pos_name: msg.member_pos_name,
-					    member_dept_name: msg.member_dept_name
-					  }, isMine, memberImage);
-					
-					  chatList.appendChild(fileBubble);
-					}
-					 else {
-	        	    // 일반 메시지 버블
+	        	    const oriName = msg.ori_name || "";
+	        	    const hasDot = oriName.includes(".");
+	        	    const extension = hasDot ? oriName.split('.').pop().toLowerCase() : "";
+	        	    const fileType = ["png", "jpg", "jpeg", "gif", "bmp", "webp"].includes(extension)
+	        	      ? "image"
+	        	      : "file";
+
+	        	    const fileBubble = createFileBubble({
+	        	      file_type: fileType,
+	        	      file_url: msg.file_url || "/upload/groupware/chat/" + msg.new_name,
+	        	      file_name: msg.ori_name || "파일이름없음",
+	        	      file_size: msg.file_size_str || "",
+	        	      send_date: msg.send_date,
+	        	      member_name: msg.member_name,
+	        	      member_pos_name: msg.member_pos_name,
+	        	      member_dept_name: msg.member_dept_name
+	        	    }, isMine, memberImage);
+
+	        	    chatList.appendChild(fileBubble);
+
+	        	    // ✅ 사이드바에도 append
+	        	    appendFileBubbleToSidebar({
+	        	      file_url: msg.file_url,
+	        	      file_name: msg.ori_name,
+	        	      file_size: msg.file_size_str,
+	        	      send_date: msg.send_date
+	        	    }, isMine);
+	        	  } else {
 	        	    chatList.appendChild(createMessageBubble(msg, isMine, memberImage));
 	        	  }
 	        	});
+
 
 	
 	          chatList.scrollTop = chatList.scrollHeight;
@@ -945,18 +948,22 @@
 	      window.stompClient.subscribe(`/topic/chat/room/${roomNo}`, msg => {
 	    	  const data = JSON.parse(msg.body);
 	    	  const chatList = document.querySelector(".chat-box-inner .chat.active-chat");
+	    	  const myNo = document.getElementById("createMemberNo")?.value;
+	    	  const isMine = data.member_no == myNo;
 
 	    	  // 🔥 FILE 메시지 처리
 	    	  if (data.msg_type === "FILE") {
-	    		  
-	    		  const isMine = data.member_no == document.getElementById("createMemberNo").value;
-	    		    const fileBubble = createFileBubble(data, isMine, memberImage);
-	    		    chatList.appendChild(fileBubble);
-	    		    chatList.scrollTop = chatList.scrollHeight;
-	    		    return;
-	    	  }
+				  const fileBubble = createFileBubble(data, isMine, memberImage);
+				  chatList.appendChild(fileBubble);
+				
+				  // ✅ 동일한 버블 형식으로 사이드에도 append
+				  appendFileBubbleToSidebar(data, isMine);
+				
+				  chatList.scrollTop = chatList.scrollHeight;
+				  return;
+				}
 
-	    	  // 기존 시스템 메시지 or 일반 텍스트 처리
+	    	  // 🔔 시스템 메시지
 	    	  if (data.chat_msg_type === "Y") {
 	    	    const systemMsgWrapper = document.createElement("div");
 	    	    systemMsgWrapper.style.cssText = "display:flex;justify-content:center;align-items:center;width:100%;margin-top:10px;";
@@ -964,15 +971,14 @@
 	    	    chatList.appendChild(systemMsgWrapper);
 	    	    window.onChatMemberExit(data);
 	    	  } else {
-	    	    const isMine = data.member_no == document.getElementById("createMemberNo").value;
+	    	    // 💬 일반 텍스트 메시지
 	    	    chatList.appendChild(createMessageBubble({
 	    	      ...data,
 	    	      send_date: new Date().toISOString()
 	    	    }, isMine, memberImage));
 	    	  }
 
-	    	  // 읽음 처리
-	    	  const myNo = document.getElementById("createMemberNo")?.value;
+	    	  // ✅ 읽음 처리
 	    	  fetch("/chat/read/update", {
 	    	    method: "POST",
 	    	    headers: {
@@ -1189,17 +1195,27 @@
 	// 파일 전송 버블
 	function createFileBubble(data, isMine, memberImage) {
 	  const wrapper = document.createElement("div");
-	  const isImage = data.file_type?.startsWith("image/");
+	
+	  const isImage = (() => {
+	    const fileName = data.file_name || "";
+	    const ext = fileName.split(".").pop()?.toLowerCase();
+	    return ["png", "jpg", "jpeg", "gif", "bmp", "webp"].includes(ext);
+	  })();
+	
 	  const time = new Date(data.send_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 	  const fullName = `${data.member_name || ''} ${data.member_pos_name || ''} (${data.member_dept_name || ''})`;
 	
-	  // ✅ 이미지 버블
+	  const fileUrl = data.file_url || "#";
+	  const fileName = data.file_name || "다운로드_파일";
+	  const fileSize = data.file_size || "-";
+	
+	  // 이미지 버블
 	  const imageTemplate = `
 	    <div class="d-flex align-items-end gap-2 file-hover-area">
 	      ${isMine ? `<div class="text-muted fs-2 align-self-end">${time}</div>` : ''}
 	      <div class="position-relative">
-	        <img src="${data.file_url}" class="img-fluid rounded" style="max-width: 200px;">
-	        <a href="${data.file_url}" download
+	        <img src="${fileUrl}" class="img-fluid rounded chat-img-clickable" style="max-width: 200px;" data-url="${fileUrl}">
+	        <a href="${fileUrl}" download="${fileName}"
 	           class="position-relative nav-icon-hover download-btn"
 	           style="opacity: 0;">
 	          <i class="ti ti-download text-dark fs-5 bg-hover-primary"></i>
@@ -1209,20 +1225,20 @@
 	    </div>
 	  `;
 	
-	  // ✅ 파일 버블
+	  // 일반 파일 버블
 	  const fileTemplate = `
 	    <div class="d-flex align-items-end gap-2 file-hover-area">
 	      ${isMine ? `<div class="text-muted fs-2 align-self-end">${time}</div>` : ''}
-	      <a href="${data.file_url}" download
+	      <a href="${fileUrl}" download="${fileName}"
 	         class="hstack gap-3 justify-content-between text-nowrap text-decoration-none p-2 border rounded bg-light">
 	        <div class="d-flex align-items-center gap-3">
 	          <div class="rounded-1 text-bg-light p-2">
 	            <img src="../assets/images/chat/icon-zip-folder.svg" alt="file" width="24" height="24" />
 	          </div>
 	          <div>
-	            <h6 class="fw-semibold mb-1">${data.file_name}</h6>
+	            <h6 class="fw-semibold mb-1">${fileName}</h6>
 	            <div class="d-flex align-items-center gap-3 fs-2 text-muted">
-	              <span>${data.file_size}</span>
+	              <span>${fileSize}</span>
 	              <span>${new Date(data.send_date).toLocaleDateString()}</span>
 	            </div>
 	          </div>
@@ -1235,31 +1251,90 @@
 	    </div>
 	  `;
 	
-	  if (isMine) {
-	    wrapper.innerHTML = `
-	      <div class="d-flex justify-content-end mb-3 text-end">
-	        <div>
-	          ${isImage ? imageTemplate : fileTemplate}
-	        </div>
-	      </div>
-	    `;
-	  } else {
-	    wrapper.innerHTML = `
-	      <div class="d-flex align-items-start mb-3">
-	        <img src="${memberImage}" width="40" height="40" class="rounded-circle me-2" />
-	        <div>
-	          <div class="fw-bold fs-2 mb-1">${fullName}</div>
-	          ${isImage ? imageTemplate : fileTemplate}
-	        </div>
-	      </div>
-	    `;
-	  }
+	  wrapper.innerHTML = isMine
+	    ? `<div class="d-flex justify-content-end mb-3 text-end"><div>${isImage ? imageTemplate : fileTemplate}</div></div>`
+	    : `<div class="d-flex align-items-start mb-3"><img src="${memberImage}" width="40" height="40" class="rounded-circle me-2" /><div><div class="fw-bold fs-2 mb-1">${fullName}</div>${isImage ? imageTemplate : fileTemplate}</div></div>`;
 	
 	  return wrapper;
 	}
-
-
-
+	
+	
+	// 사이드 패널용 함수
+	function appendFileBubbleToSidebar(data, isMine) {
+	  const fileUrl = data.file_url || "#";
+	  const fileName = data.file_name || "파일명없음";
+	  const fileSize = data.file_size || "-";
+	  const time = new Date(data.send_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+	
+	  const ext = (fileName || "").split(".").pop()?.toLowerCase();
+	  const isImage = ["png", "jpg", "jpeg", "gif", "bmp", "webp"].includes(ext);
+	
+	  const imageTemplate = `
+	    <div class="d-flex align-items-end gap-2 file-hover-area mb-2">
+	      <div class="position-relative">
+	        <img src="${fileUrl}" class="img-fluid rounded chat-img-clickable" style="width: 120px; height: auto;" data-url="${fileUrl}">
+	        <a href="${fileUrl}" download="${fileName}"
+	           class="position-relative nav-icon-hover download-btn"
+	           style="opacity: 0;">
+	          <i class="ti ti-download text-dark fs-5 bg-hover-primary"></i>
+	        </a>
+	      </div>
+	    </div>
+	  `;
+	
+	  const fileTemplate = `
+	    <div class="d-flex align-items-end gap-2 file-hover-area mb-2">
+	      <a href="${fileUrl}" download="${fileName}"
+	         class="hstack gap-3 justify-content-between text-nowrap text-decoration-none p-2 border rounded bg-light w-100">
+	        <div class="d-flex align-items-center gap-3">
+	          <div class="rounded-1 text-bg-light p-2">
+	            <img src="../assets/images/chat/icon-zip-folder.svg" alt="file" width="24" height="24" />
+	          </div>
+	          <div>
+	            <h6 class="fw-semibold mb-1">${fileName}</h6>
+	            <div class="d-flex align-items-center gap-3 fs-2 text-muted">
+	              <span>${fileSize}</span>
+	              <span>${new Date(data.send_date).toLocaleDateString()}</span>
+	            </div>
+	          </div>
+	        </div>
+	        <span class="position-relative nav-icon-hover download-btn" style="opacity: 0;">
+	          <i class="ti ti-download text-dark fs-5 bg-hover-primary"></i>
+	        </span>
+	      </a>
+	    </div>
+	  `;
+	
+	  const container = isImage
+	    ? document.getElementById("chat-image-list")
+	    : document.getElementById("chat-file-list");
+	
+	  const wrapper = document.createElement("div");
+	  wrapper.className = isImage ? "col-4" : "col-12";
+	  wrapper.innerHTML = isImage ? imageTemplate : fileTemplate;
+	  container.appendChild(wrapper);
+	
+	  // ✅ 개수 갱신
+	  const countSpan = document.querySelector(
+	    isImage ? "#chat-image-section h6 span" : "#chat-file-section h6 span"
+	  );
+	  if (countSpan) {
+	    countSpan.textContent = `(${container.children.length})`;
+	  }
+	}
+	
+	
+	// ✅ 이미지 클릭 시 모달 오픈 이벤트
+	document.addEventListener("click", function (e) {
+	  const target = e.target;
+	  if (target.classList.contains("chat-img-clickable")) {
+	    const url = target.getAttribute("data-url");
+	    const modalImg = document.getElementById("imagePreviewTarget");
+	    modalImg.src = url;
+	    const modal = new bootstrap.Modal(document.getElementById("imagePreviewModal"));
+	    modal.show();
+	  }
+	});
 
 	</script>
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
