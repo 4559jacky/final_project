@@ -241,10 +241,6 @@ public class AttendanceController {
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
-	    List<Attendance> attendanceList = attendanceService.selectAttendanceAll(member);
-	    model.addAttribute("pageDto", pageDto);
-	    model.addAttribute("searchDto", searchDto);
-	    
 	    return "/attendance/user/attendanceInfo";
 	}
 	

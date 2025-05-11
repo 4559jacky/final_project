@@ -48,85 +48,93 @@
 			<!-- 왼쪽 카드 -->
 			<div class="col-lg-3">
 				<!-- 근태관리 카드 -->
-				<div class="card p-3 mb-3">
+				<div class="card shadow-sm rounded-4 p-4 mb-4 border-0 bg-white">
 				  <div class="d-flex justify-content-between align-items-center mb-3">
-				    <h5 class="fw-bold text-primary">근태관리</h5>
-				    <button class="btn btn-primary btn-sm" onclick="myAttendLogView();">내 근무 이력</button>
+				    <h5 class="fw-bold text-dark mb-0">
+				      <i class="bi bi-clock-history me-1 text-primary"></i> 근태관리
+				    </h5>
+				    <button class="btn btn-primary btn-sm rounded-pill" onclick="myAttendLogView();">
+				      내 근무 이력
+				    </button>
 				  </div>
-				  <h2 class="fw-bold" id="nowTime"></h2>
-					<div class="mt-3 small">
-						<div class="d-flex justify-content-between mb-2">
-							<input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
-							<input type="hidden" id="start_time_max" th:value="${workPolicy.startTimeMax}">
-							<!-- 퇴근 계산용 포맷된 시간 (HH:mm:ss 형식으로 강제 출력) -->
-							<input type="hidden" id="start_time_max_str" th:value="${#temporals.format(workPolicy.startTimeMax, 'HH:mm:ss')}">
-							<span class="text-muted">출근</span>
-							<th:block th:if="${todayAttendance == null}">
-								<div id="checkInWrap">
-									<button class="btn btn-primary btn-sm" onclick="startTime();">출근</button>
-								</div>
-							</th:block>
-							<th:block th:if="${todayAttendance != null}">
-								<div id="checkInWrap">
-									<span class="fw-bold text-success" id="start_time"
-										th:text="${todayAttendance.check_in}"></span>
-								</div>
-							</th:block>
-						</div>
-						<div class="d-flex justify-content-between mb-2">
-							<span class="text-muted">퇴근</span>
-							<th:block th:if="${todayAttendance == null}">
-								<div id="checkOutWrap">
-									<button id="end_time_btn" class="btn btn-primary btn-sm"
-								onclick="endTime();" th:disabled="${todayAttendance == null}">퇴근</button>
-								</div>
-							</th:block>
-							<th:block th:if="${todayAttendance != null and todayAttendance.check_out == null}">
-								<div id="checkOutWrap">
-									<button id="end_time_btn" class="btn btn-primary btn-sm"
-								onclick="endTime();">퇴근</button>
-								</div>
-							</th:block>
-							<th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
-								<div id="checkOutWrap">
-									<span class="fw-bold text-success" id="end_time"
-										th:text="${todayAttendance.check_out}"></span>
-								</div>
-							</th:block>
-						</div>
-						<!-- 근무 상태 → 출근/퇴근 상태로 나눔 -->
-							<div class="mt-2 border-top pt-2">
-							  <!-- 출근 상태 -->
-							  <div class="d-flex justify-content-between mb-1">
-							    <span class="text-muted">출근 상태</span>
-							    <th:block th:if="${todayAttendance == null}">
-							      <span id="checkInStatus"
-							        class="badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded">-</span>
-							    </th:block>
-							    <th:block th:if="${todayAttendance != null}">
-							      <span th:if="${todayAttendance.late_yn == 'N'}"
-							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상 출근</span>
-							      <span th:if="${todayAttendance.late_yn == 'Y'}"
-							        class="badge bg-warning-subtle text-warning fw-semibold px-2 py-1 rounded">지각</span>
-							    </th:block>
-							  </div>
-							
-							  <!-- 퇴근 상태 -->
-							  <div class="d-flex justify-content-between mb-1">
-							    <span class="text-muted">퇴근 상태</span>
-							    <th:block th:if="${todayAttendance == null or todayAttendance.check_out == null}">
-							      <span id="checkOutStatus"
-							        class="badge bg-secondary-subtle text-secondary fw-semibold px-2 py-1 rounded">-</span>
-							    </th:block>
-							    <th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
-							      <span th:if="${todayAttendance.early_leave_yn == 'N'}"
-							        class="badge bg-success-subtle text-success fw-semibold px-2 py-1 rounded">정상 퇴근</span>
-							      <span th:if="${todayAttendance.early_leave_yn == 'Y'}"
-							        class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1 rounded">조퇴</span>
-							    </th:block>
-							  </div>
-							</div>
-					</div>
+				
+				  <h2 class="fw-bold text-center text-primary mb-3" id="nowTime"></h2>
+				
+				  <input type="hidden" id="start_time_min" th:value="${workPolicy.startTimeMin}">
+				  <input type="hidden" id="start_time_max" th:value="${workPolicy.startTimeMax}">
+				  <input type="hidden" id="start_time_max_str" th:value="${#temporals.format(workPolicy.startTimeMax, 'HH:mm:ss')}">
+				
+				  <div class="row text-center small g-3 mb-3">
+				    <div class="col">
+				      <div class="border rounded p-2 bg-light-subtle">
+				        <div class="text-muted">출근</div>
+				        <th:block th:if="${todayAttendance == null}">
+				          <div id="checkInWrap">
+				            <button class="btn btn-sm btn-primary rounded-pill" onclick="startTime();">출근</button>
+				          </div>
+				        </th:block>
+				        <th:block th:if="${todayAttendance != null}">
+				          <div id="checkInWrap">
+				            <span class="fw-bold text-success" id="start_time" th:text="${todayAttendance.check_in}"></span>
+				          </div>
+				        </th:block>
+				      </div>
+				    </div>
+				
+				    <div class="col">
+				      <div class="border rounded p-2 bg-light-subtle">
+				        <div class="text-muted">퇴근</div>
+				        <th:block th:if="${todayAttendance == null}">
+				          <div id="checkOutWrap">
+				            <button id="end_time_btn" class="btn btn-sm btn-primary rounded-pill"
+				              onclick="endTime();" th:disabled="${todayAttendance == null}">퇴근</button>
+				          </div>
+				        </th:block>
+				        <th:block th:if="${todayAttendance != null and todayAttendance.check_out == null}">
+				          <div id="checkOutWrap">
+				            <button id="end_time_btn" class="btn btn-sm btn-primary rounded-pill"
+				              onclick="endTime();">퇴근</button>
+				          </div>
+				        </th:block>
+				        <th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
+				          <div id="checkOutWrap">
+				            <span class="fw-bold text-success" id="end_time" th:text="${todayAttendance.check_out}"></span>
+				          </div>
+				        </th:block>
+				      </div>
+				    </div>
+				  </div>
+				
+				  <div class="border-top pt-3">
+				    <div class="d-flex justify-content-between align-items-center mb-2">
+				      <span class="text-muted">출근 상태</span>
+				      <th:block th:if="${todayAttendance == null}">
+				        <span id="checkInStatus" class="badge bg-secondary-subtle text-secondary fw-semibold px-3 rounded-pill">-</span>
+				      </th:block>
+				      <th:block th:if="${todayAttendance != null}">
+				        <span th:if="${todayAttendance.late_yn == 'N'}"
+				              id="checkInStatus"
+				              class="badge bg-success-subtle text-success fw-semibold px-3 rounded-pill">정상 출근</span>
+				        <span th:if="${todayAttendance.late_yn == 'Y'}"
+				              id="checkInStatus"
+				              class="badge bg-warning-subtle text-warning fw-semibold px-3 rounded-pill">지각</span>
+				      </th:block>
+				    </div>
+				    <div class="d-flex justify-content-between align-items-center">
+				      <span class="text-muted">퇴근 상태</span>
+				      <th:block th:if="${todayAttendance == null or todayAttendance.check_out == null}">
+				        <span id="checkOutStatus" class="badge bg-secondary-subtle text-secondary fw-semibold px-3 rounded-pill">-</span>
+				      </th:block>
+				      <th:block th:if="${todayAttendance != null and todayAttendance.check_out != null}">
+				        <span th:if="${todayAttendance.early_leave_yn == 'N'}"
+				              id="checkOutStatus"
+				              class="badge bg-success-subtle text-success fw-semibold px-3 rounded-pill">정상 퇴근</span>
+				        <span th:if="${todayAttendance.early_leave_yn == 'Y'}"
+				              id="checkOutStatus"
+				              class="badge bg-primary-subtle text-primary fw-semibold px-3 rounded-pill">조퇴</span>
+				      </th:block>
+				    </div>
+				  </div>
 				</div>
 
 				<!-- 잔여연차 카드 -->
