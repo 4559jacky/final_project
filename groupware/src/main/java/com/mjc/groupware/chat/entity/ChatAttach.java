@@ -57,4 +57,5 @@ public class ChatAttach {
 	@Column(name = "file_size")
 	private Long fileSize;
 
+
 }
