@@ -220,7 +220,7 @@
 								<ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
 			  						<li th:each="attach : ${attachList}" class="mb-1">
 			    						<i class="bi bi-file-earmark-image me-1 text-primary"></i>
-			    						<a th:href="@{/notice/download(fileNo=${attach.attachNo})}"
+			    						<a th:href="@{/approval/attach/download(fileNo=${attach.attachNo})}"
 			       					  	   th:text="${attach.oriName}"
 			      					  	   class="file-link"></a>
 			  						</li>
