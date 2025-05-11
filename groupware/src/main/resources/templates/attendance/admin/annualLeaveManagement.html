@@ -406,6 +406,12 @@ layout:decorate="~{/include/layout}">
 		  $('#annualPolicyModal').on('shown.bs.modal', function() {
 		    loadAnnualPolicy();
 		  });
+		  
+		  $('#annualPolicyModal').on('hidden.bs.modal', function() {
+			    loadAnnualPolicy();
+			    document.getElementById('year').value = '';
+			    document.getElementById('leave_days').value = '';
+		  });
 		});
 		
 		function loadAnnualPolicy() {
