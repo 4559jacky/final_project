@@ -95,18 +95,17 @@ layout:decorate="~{/include/layout}">
 				      <td th:text="${reservation.check_out}">체크아웃</td>
 				      <td th:text="${reservation.room_count}">방갯수</td>
 				      <td class="text-start">
-				           <select name="type" class="form-select w-75">
-
-				           <option th:value="0" th:selected="${reservation.reservation_status == null or reservation.reservation_status == '선택'}">선택</option>
-				           <option th:value="1" th:selected="${reservation.reservation_status == '대기'}">대기</option>
-		                  <option th:value="2" th:selected="${reservation.reservation_status == '승인'}">승인</option>
-		                  <option th:value="3" th:selected="${reservation.reservation_status == '반려'}">반려</option>
-		                </select>
-
-	    				</td>
-				      <td>
-	   					<button type="button" class="btn btn-primary" id="submitBtn">확인</button>
-	   				  </td>
+				         <select name="type" class="form-select w-75">
+				           <!-- <option th:value="0" th:selected="${reservation.reservation_status == null or reservation.reservation_status == '선택'}">선택</option> -->
+				            <option th:value="1" th:selected="${reservation.reservation_status == '대기'}">대기</option>
+		                    <option th:value="2" th:selected="${reservation.reservation_status == '승인'}">승인</option>
+		                    <option th:value="3" th:selected="${reservation.reservation_status == '반려'}">반려</option>
+		                 </select>
+	    			  </td>
+	   				  <td>
+					     <input type="hidden" class="reservationNo" th:value="${reservation.reservation_no}" />
+					     <button type="button" class="btn btn-primary actionBtn">확인</button>
+					  </td>
 				  </tr>
 			      <tr th:if="${#lists.isEmpty(reservationList)}">
 			          <td colspan="8">예약 내역이 없습니다.</td>
@@ -116,45 +115,111 @@ layout:decorate="~{/include/layout}">
 	      </div>
 	    </div>
 	</div>
+	
+	  <!-- 반려 사유 입력 모달 -->
+	  <div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-hidden="true">
+	    <div class="modal-dialog">
+	      <div class="modal-content p-4 rounded-4 shadow-lg">
+	        <div class="modal-header">
+	          <h5 class="modal-title">반려 사유 입력</h5>
+	          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	        </div>
+	        <div class="modal-body">
+	          <textarea id="rejectReasonInput" class="form-control" placeholder="반려 사유를 입력하세요." rows="4"></textarea>
+	        </div>
+	        <div class="modal-footer">
+	          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+	          <button type="button" class="btn btn-primary" id="confirmRejectBtn">확인</button>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	  
 	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-		  document.querySelectorAll("#submitBtn").forEach(function(button) {
-		    button.addEventListener("click", function() {
-		      const row = button.closest("tr");
-		      const reservationNo = row.querySelector("input[type='checkbox']").value;
-		      const select = row.querySelector("select");
-		      const statusValue = select.value;
-		      
-		
-		      const form = new FormData();
-		      form.append("reservationNo", reservationNo);
-		      /* form.append("status", statusValue === "1" ? "승인" : "반려"); */
-				form.append("status", statusValue);
-		      fetch("/admin/accommodation/reservation/updateStatus", {
-		        method: "POST",
-		        body: form,
-		        headers: {
-		          "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-		        }
-		      })
-		      .then(res => res.json())
-		      .then(data => {
-		        if (data.res_code === "200") {
-		          	alert("상태 변경이 완료되었습니다.");
-		        	select.value = statusValue;
-		        } else {
-		          alert("실패: " + data.res_msg);
-		        }
-		      })
-		      .catch(err => {
-		        console.error(err);
-		        alert("서버 오류가 발생했습니다.");
-		      });
-		    });
-		  });
-		});
+	  let currentRow = null;
+	  let currentStatus = null;
+	
+	  document.addEventListener("DOMContentLoaded", function () {
+	    console.log("JS 작동 확인");
+	
+	    document.querySelectorAll("tr").forEach(function (row) {
+	      const select = row.querySelector("select");
+	      const button = row.querySelector(".actionBtn");
+	      const reservationNoInput = row.querySelector(".reservationNo");
+	
+	      if (!select || !button || !reservationNoInput) return;
+	
+	      const reservationNo = reservationNoInput.value;
+	
+	      select.addEventListener("change", function () {
+	        if (select.value === "3") {
+	          button.textContent = "반려사유";
+	          button.classList.remove("btn-primary");
+	          button.classList.add("btn-danger");
+	        } else {
+	          button.textContent = "확인";
+	          button.classList.remove("btn-danger");
+	          button.classList.add("btn-primary");
+	        }
+	      });
+	
+	      button.addEventListener("click", function () {
+	        const status = select.value;
+	
+	        if (status === "3") {
+	          currentRow = row;
+	          currentStatus = status;
+	          new bootstrap.Modal(document.getElementById("rejectReasonModal")).show();
+	        } else {
+	          submitStatusChange(reservationNo, status, "");
+	        }
+	      });
+	    });
+	
+	    document.getElementById("confirmRejectBtn").addEventListener("click", function () {
+	      const reason = document.getElementById("rejectReasonInput").value.trim();
+	      if (!reason) {
+	        alert("반려 사유를 입력해주세요.");
+	        return;
+	      }
+	
+	      const reservationNo = currentRow.querySelector(".reservationNo").value;
+	      submitStatusChange(reservationNo, currentStatus, reason);
+	      bootstrap.Modal.getInstance(document.getElementById("rejectReasonModal")).hide();
+	      document.getElementById("rejectReasonInput").value = "";
+	    });
+	  });
+	
+	  function submitStatusChange(reservationNo, status, reason) {
+	    const form = new FormData();
+	    form.append("reservationNo", reservationNo);
+	    form.append("status", status);
+	    if (status === "3") {
+	      form.append("rejectReason", reason);
+	    }
+	
+	    fetch("/admin/accommodation/reservation/updateStatus", {
+	      method: "POST",
+	      body: form,
+	      headers: {
+	        "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+	      }
+	    })
+	      .then(res => res.json())
+	      .then(data => {
+	        if (data.res_code === "200") {
+	          alert("상태 변경이 완료되었습니다.");
+	          location.reload();
+	        } else {
+	          alert("실패: " + data.res_msg);
+	        }
+	      })
+	      .catch(err => {
+	        console.error(err);
+	        alert("서버 오류가 발생했습니다.");
+	      });
+	  }
 	</script>
-
 	
 	<!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
