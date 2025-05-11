@@ -46,6 +46,7 @@ public class AccommodationReservationDto {
 				.reservationStatus(reservation_status)
 				.member(Member.builder().memberNo(member_no).build())
 				.accommodationInfo(AccommodationInfo.builder().accommodationNo(accommodation_no).build())
+				.roomCount(room_count)
 				.rejectReason(reject_reason)
 				.build();
 	}
@@ -63,7 +64,7 @@ public class AccommodationReservationDto {
 				.accommodation_no(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getAccommodationNo() : null)
 				.accommodation_name(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getAccommodationName() : null)
 				.room_price(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getRoomPrice() : null)
-				.room_count(accommodation.getAccommodationInfo() != null ? accommodation.getAccommodationInfo().getRoomCount() : null)
+				.room_count(accommodation.getRoomCount())
 				.reject_reason(accommodation.getRejectReason())
 				.build();
 	}
