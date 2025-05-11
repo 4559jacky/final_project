@@ -19,7 +19,9 @@ layout:decorate="~{/include/layout}">
 	          <li class="breadcrumb-item" aria-current="page">사내복지 / 제휴숙소 관리 / 숙소 예약현황</li>
 	        </ol>
 	      </nav><br>
-	      <h2 class="mb-0 fw-bolder fs-8">숙소 예약현황</h2>
+	      <h2 class="mb-0 fw-bolder fs-8">숙소 예약현황</h2><br>
+	      <p class="fs-6 text-muted mt-1" th:text="'[' + ${accommodationName} + ']의 예약현황입니다.'">[숙소명]의 예약현황입니다.</p>
+	      
 	    </div><br>
     	<!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
 	    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
@@ -104,6 +106,7 @@ layout:decorate="~{/include/layout}">
 	    			  </td>
 	   				  <td>
 					     <input type="hidden" class="reservationNo" th:value="${reservation.reservation_no}" />
+					     <input type="hidden" class="rejectReason" th:value="${reservation.reject_reason}" />
 					     <button type="button" class="btn btn-primary actionBtn">확인</button>
 					  </td>
 				  </tr>
@@ -150,7 +153,19 @@ layout:decorate="~{/include/layout}">
 	      if (!select || !button || !reservationNoInput) return;
 	
 	      const reservationNo = reservationNoInput.value;
-	
+	      
+	      // 페이지 로딩 시 상태값 보고 버튼 초기 세팅
+	      if (select.value === "3") {
+	        button.textContent = "반려사유";
+	        button.classList.remove("btn-primary");
+	        button.classList.add("btn-danger");
+	      } else {
+	        button.textContent = "확인";
+	        button.classList.remove("btn-danger");
+	        button.classList.add("btn-primary");
+	      }
+	      
+	      // 상태 변경 시 버튼 모양 변경
 	      select.addEventListener("change", function () {
 	        if (select.value === "3") {
 	          button.textContent = "반려사유";
@@ -163,12 +178,19 @@ layout:decorate="~{/include/layout}">
 	        }
 	      });
 	
+	      //버튼 클릭시 동작
 	      button.addEventListener("click", function () {
 	        const status = select.value;
 	
 	        if (status === "3") {
 	          currentRow = row;
 	          currentStatus = status;
+	          
+	          // 기존 반려사유가 있다면 모달에 표시
+	          const rejectInput = row.querySelector(".rejectReason");
+	          const rejectReasonText = rejectInput ? rejectInput.value : "";
+	          document.getElementById("rejectReasonInput").value = rejectReasonText;
+	          
 	          new bootstrap.Modal(document.getElementById("rejectReasonModal")).show();
 	        } else {
 	          submitStatusChange(reservationNo, status, "");
@@ -176,6 +198,7 @@ layout:decorate="~{/include/layout}">
 	      });
 	    });
 	
+	    // 반려사유 모달 내 '확인' 버튼 클릭 시
 	    document.getElementById("confirmRejectBtn").addEventListener("click", function () {
 	      const reason = document.getElementById("rejectReasonInput").value.trim();
 	      if (!reason) {
@@ -190,6 +213,7 @@ layout:decorate="~{/include/layout}">
 	    });
 	  });
 	
+	  // 서버에 상태 변경 요청
 	  function submitStatusChange(reservationNo, status, reason) {
 	    const form = new FormData();
 	    form.append("reservationNo", reservationNo);
@@ -209,7 +233,26 @@ layout:decorate="~{/include/layout}">
 	      .then(data => {
 	        if (data.res_code === "200") {
 	          alert("상태 변경이 완료되었습니다.");
-	          location.reload();
+	          
+	          if (currentRow) {
+	              const button = currentRow.querySelector(".actionBtn");
+	              const select = currentRow.querySelector("select");
+	              const rejectInput = currentRow.querySelector(".rejectReason");
+	              
+	              if (select.value === "3") {
+	                button.textContent = "반려사유";
+	                button.classList.remove("btn-primary");
+	                button.classList.add("btn-danger");
+	                
+	                if (rejectInput) rejectInput.value = reason;
+	              } else {
+	                button.textContent = "확인";
+	                button.classList.remove("btn-danger");
+	                button.classList.add("btn-primary");
+	                
+	                if (rejectInput) rejectInput.value = "";
+	              }
+	            }
 	        } else {
 	          alert("실패: " + data.res_msg);
 	        }

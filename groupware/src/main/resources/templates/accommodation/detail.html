@@ -63,20 +63,20 @@ layout:decorate="~{/include/layout}">
               <div class="d-flex align-items-center gap-3 mt-4 mb-4">
 				  <label class="fs-4 mb-0 fw-semibold">인원수</label>
 				  <div class="input-group input-group-sm w-auto">
-				    <button class="btn btn-outline-secondary" type="button" onclick="decreasePeopleCount()" id="minusPeopleBtn">-</button>
+				    <button class="btn btn-outline-secondary" type="button" id="minusPeopleBtn">-</button>
 				    <input type="text" id="numberOfPeopleInput" name="number_of_people" class="form-control text-center" 
 				           th:value="1" />
-				    <button class="btn btn-outline-secondary" type="button" onclick="increasePeopleCount()" id="plusPeopleBtn">+</button>
+				    <button class="btn btn-outline-secondary" type="button" id="plusPeopleBtn">+</button>
 				  </div>
 				</div>
               <!-- 방갯수 -->
 	            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
 				  <label class="fs-4 mb-0 fw-semibold">방 갯수</label>
 				  <div class="input-group input-group-sm w-auto">
-				    <button class="btn btn-outline-secondary" type="button" onclick="decreaseRoomCount()" id="minusRoomBtn">-</button>
+				    <button class="btn btn-outline-secondary" type="button" id="minusRoomBtn">-</button>
 				    <input type="text" id="roomCountInput" name="room_count" class="form-control text-center" 
 				           th:value="${accommodation.room_count}" />
-				    <button class="btn btn-outline-secondary" type="button" onclick="increaseRoomCount()" id="plusRoomBtn">+</button>
+				    <button class="btn btn-outline-secondary" type="button" id="plusRoomBtn">+</button>
 				  </div>
 				</div>
             </form>
@@ -199,6 +199,7 @@ layout:decorate="~{/include/layout}">
 		    form.append("check_in", checkIn);
 		    form.append("check_out", checkOut);
 		    form.append("number_of_people", document.getElementById("numberOfPeopleInput").value);
+		    form.append("room_count", document.getElementById("roomCountInput").value);
 		
 		    fetch("/user/accommodation/reservation/create", {
 		      method: "POST",
@@ -268,9 +269,10 @@ layout:decorate="~{/include/layout}">
 		      if (value < maxValue) {
 		        input.value = value + 1;
 		      }
-		      if (value + 1 >= maxValue) {
+		      /* if (value + 1 >= maxValue) {
 		        plusBtn.disabled = true;
-		      }
+		      } */
+		      plusBtn.disabled = (parseInt(input.value) >= maxValue);
 		    });
 		  }
 		
