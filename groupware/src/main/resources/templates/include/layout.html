@@ -244,12 +244,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		        showChatAlertToast(dto);
 		      });
 		      
-		      // 전자결재 알림
+		   	  // 전자결재 알림
 		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
 		    	    const dto = JSON.parse(msg.body);
-		    	    console.log("📢 전자결재 알림 도착:", dto);
+		    	    console.log("전자결재 알림 도착:", dto);
 		    	    showApprovalAlertToast(dto);
-		    	  });
+		      });
+		      
 		    }
 
 		  }, (error) => {
