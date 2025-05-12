@@ -291,6 +291,10 @@ layout:decorate="~{/include/layout}">
 		    .then(data => {
 			      const tbody = document.getElementById("annual-policy-body");
 			      tbody.innerHTML = ""; // 초기화
+			      
+			      const rowOne = document.createElement("tr");
+			      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+			      tbody.appendChild(rowOne);
 
 			      // 전역 저장 (사원 목록 계산용)
 			      window.annualPolicyList = data;
@@ -469,6 +473,10 @@ layout:decorate="~{/include/layout}">
 			    .then(data => {
 				      const tbody = document.getElementById("annual-policy-body");
 				      tbody.innerHTML = ""; // 초기화
+				      
+				      const rowOne = document.createElement("tr");
+				      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+				      tbody.appendChild(rowOne);
 				      
 				      // 전역 저장 (사원 목록 계산용)
 				      window.annualPolicyList = data;
