@@ -28,7 +28,7 @@ public class ApprovalAttachService {
             String newName = UUID.randomUUID().toString() + "_" + ori;
             String path = "C:/upload/approval/" + newName;
 
-            File uploadDir = new File("C:/upload/approval/");
+            File uploadDir = new File("C:/upload/groupware/approval/");
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
