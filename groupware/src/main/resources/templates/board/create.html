@@ -244,7 +244,6 @@
       });
 
       
-      
    	  // 항목 추가
       function addOption() {
         const optionsContainer = document.getElementById('optionsContainer');
@@ -325,22 +324,27 @@
 
         const previewContainer = document.getElementById('vote-preview-container');
         previewContainer.innerHTML = `
-          <div class="card border rounded p-3 mt-3">
-            <h5 class="fw-bold">
-              [투표] ${title}
-              <small class="text-muted ms-2" style="font-size: 0.9rem;">[${voteTypeText}]</small>
-            </h5>
-            <p class="mb-1">마감일시: ${endDate.replace('T', ' ')}</p>
-            <ul class="list-group mb-3">
-              ${options.map(opt => `<li class="list-group-item">${opt.option_text}</li>`).join('')}
-            </ul>
-            <div class="d-flex gap-2 justify-content-end">
-              <button type="button" class="btn btn-primary btn-sm" onclick="editVote()">투표 수정</button>
-              <button type="button" class="btn btn-danger btn-sm" onclick="deleteVote()">투표 삭제</button>
-            </div>
-          </div>
-        `;
+        	  <div class="mb-3">
+        	    <div class="d-flex justify-content-between align-items-center mb-2">
+        	      <h5 class="fw-bold mb-0">
+        	        [투표] ${title}
+        	        <small class="text-muted align-middle ms-2" style="font-size: 0.9rem;">[${voteTypeText}]</small>
+        	      </h5>
+        	      <p class="mb-0 text-muted" style="font-size: 0.9rem;">
+        	        마감일시: ${endDate.replace('T', ' ')}
+        	      </p>
+        	    </div>
 
+        	    <ul class="list-group mb-3">
+        	      ${options.map(opt => `<li class="list-group-item">${opt.option_text}</li>`).join('')}
+        	    </ul>
+
+        	    <div class="d-flex gap-2 justify-content-end">
+        	      <button type="button" class="btn btn-primary btn-sm" onclick="editVote()">투표 수정</button>
+        	      <button type="button" class="btn btn-danger btn-sm" onclick="deleteVote()">투표 삭제</button>
+        	    </div>
+        	  </div>
+        	`;
         bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide();
       }
 
