@@ -103,7 +103,7 @@ public class CompanyController {
 			model.addAttribute("roleList", roleList);
 		}
 		
-		return "/company/settings";
+		return "company/settings";
 	}
 	
 	@PostMapping("/admin/company/create")
