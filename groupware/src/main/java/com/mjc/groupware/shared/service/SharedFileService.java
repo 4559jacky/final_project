@@ -43,9 +43,10 @@ public class SharedFileService {
 	@Value("${ffupload.location}")
 	private String filePath;
 	
-	public void saveFiles(List<MultipartFile> files, Long folderId) {
+	public void saveFiles(List<MultipartFile> files, Long folderId,Member member) {
 		SharedFolder folder = folderRepository.findById(folderId).orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
-
+		
+		Long uploaderNo = folder.getMember() != null ? folder.getMember().getMemberNo() : /* fallback */  member.getMemberNo();
 		for (MultipartFile file : files) {
 			try{
 				String oriName = file.getOriginalFilename();
@@ -56,13 +57,13 @@ public class SharedFileService {
 			file.transferTo(savePath.toFile());
 			
 			SharedFileDto dto = SharedFileDto.builder()
-					.file_name(oriName)
-					.file_path(newName)
-					.file_size(file.getSize())
-					.file_status("N")
-					.file_shared("N")
-					.member_no(folder.getMember().getMemberNo()) //로그인 사용자
-					.build();
+				    .file_name(oriName)
+				    .file_path(newName)
+				    .file_size(file.getSize())
+				    .file_status("N")
+				    .file_shared("N")
+				    .member_no(uploaderNo)
+				    .build();
 			
 			SharedFile entity = dto.toEntity();
 			entity.setFolder(folder);
@@ -90,7 +91,7 @@ public class SharedFileService {
 	        return result;
 	    }
 	    
-	    // ✅ 루트 폴더 여러 개일 경우 (최상단)
+	 // ✅ folderId가 null이고 folderIds가 들어왔을 경우 루트 폴더 목록 조회
 	    if (folderId == null && folderIds != null && !folderIds.isEmpty()) {
 	        subFolders = folderRepository.findAllById(folderIds).stream()
 	            .filter(f -> "N".equals(f.getFolderStatus()))
@@ -114,23 +115,27 @@ public class SharedFileService {
 	    // ✅ 폴더 클릭했을 경우
 	    if (folderId != null) {
 	        currentFolder = folderRepository.findById(folderId)
-	                .orElseThrow(() -> new RuntimeException("해당 폴더가 없습니다."));
+	                .filter(f -> "N".equals(f.getFolderStatus()))
+	                .orElseThrow(() -> new RuntimeException("해당 폴더가 없거나 삭제된 상태입니다."));
 
 	        boolean isOwner = currentFolder.getFolderType() == 1 &&
 	                currentFolder.getMember() != null &&
+	                member != null &&
 	                currentFolder.getMember().getMemberNo().equals(member.getMemberNo());
 
 	        boolean sameDept = currentFolder.getFolderType() == 2 &&
 	                currentFolder.getDept() != null &&
+	                member != null &&
 	                member.getDept() != null &&
 	                currentFolder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
 
 	        boolean isShared = currentFolder.getFolderType() == 3;
 
 	        if (!(isOwner || sameDept || isShared)) {
+	            // 여기가 핵심: member가 null이거나 조건에 안 맞으면 접근권한 실패
 	            throw new RuntimeException("해당 폴더에 접근 권한이 없습니다.");
 	        }
-
+	        	
 	        subFolders = folderRepository.findByParentFolderFolderNo(folderId).stream()
 	            .filter(folder -> {
 	                if (folder.getParentFolder() == null ||
