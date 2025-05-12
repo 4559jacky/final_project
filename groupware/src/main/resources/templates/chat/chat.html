@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{/include/layout}">
+	layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
@@ -93,7 +93,7 @@
 								</a>
 							</li>
 						</ul>
-						<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0">
+						<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0" id="empty-chat-msg">
 							<li>
 								<div class="ms-3 d-inline-block w-75 text-center">
 									<h6 class="mb-1 fw-semibold chat-title">현재 채팅 중인 방이 없습니다.</h6>
@@ -269,7 +269,7 @@
 					<ul th:if="${!#lists.isEmpty(chatRoomList)}" 
 						th:each="chatRoom : ${chatRoomList}"
 						th:attr="data-room-no=${chatRoom.chat_room_no}"
-						class="class="chat-users p-0 m-0" style="padding-top: 0; padding-bottom: 0;"" data-simplebar>
+						class="chat-users p-0 m-0" style="padding-top: 0; padding-bottom: 0;" data-simplebar>
 						<li><a href="javascript:void(0)"
 							class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
 							id="chat_user_3" data-user-id="3">
@@ -666,22 +666,33 @@
 
 	
 	// 3-1. 새로운 채팅방 실시간 추가 
-   function appendNewChatRoom(room) {
-	  const chatList = document.querySelector(".app-chat .chat-users");
+	function appendNewChatRoom(room) {
+	  const wrapper = document.querySelector(".app-chat"); // ul 감싸는 div
+	  const myNo = parseInt(document.getElementById("createMemberNo").value, 10);
+	
+	  // ✅ 내가 소속된 채팅방인지 확인
+	  const isMember = room.memberInfos.some(m => m.memberNo === myNo);
+	  if (!isMember) return;
+	  
+	  // ✅ 안내 메시지 li 제거
+	  const emptyMsg = document.querySelector("#empty-chat-msg li");
+	  if (emptyMsg) emptyMsg.remove();
+	
+	  // ✅ 기존 ul 찾기 (없으면 새로 만들기)
+	  let ul = wrapper.querySelector(".chat-users");
+	  if (!ul) {
+	    ul = document.createElement("ul");
+	    ul.className = "chat-users mb-0";
+	    wrapper.insertBefore(ul, wrapper.firstChild);
+	  }
+	
+	  // ✅ li 생성
 	  const li = document.createElement("li");
 	
-	  const myNo = document.getElementById("createMemberNo").value;
-	
-	  // 소속 아닌 사람은 return
-	  const isMember = room.memberInfos.some(m => m.memberNo == myNo);
-
-	  if (!isMember) return; 
-
-	
-	  // 채팅방 제목 처리
+	  // ✅ 제목 처리
 	  let title = room.chat_room_title;
 	  if (!title || title.trim() === "") {
-	    const others = room.memberInfos.filter(m => m.memberNo != myNo);
+	    const others = room.memberInfos.filter(m => m.memberNo !== myNo);
 	    title = others.map(m => `${m.memberName} ${m.positionName || ''}`).join(", ");
 	  }
 	
@@ -709,11 +720,12 @@
 	    </a>
 	  `;
 	
-	  chatList.prepend(li);
+	  // ✅ ul 맨 위에 prepend
+	  ul.insertBefore(li, ul.firstChild);
+	
+	  // ✅ 이벤트 연결
 	  initChatRoomClick();
 	}
-
-
 
 
 	// 4. 채팅방 클릭 시 정보 조회 및 메시지 불러오기
@@ -944,41 +956,31 @@
 	        roomNo: roomNo
 	      }));
 		
-
 	      window.stompClient.subscribe(`/topic/chat/room/${roomNo}`, msg => {
 	    	  const data = JSON.parse(msg.body);
 	    	  const chatList = document.querySelector(".chat-box-inner .chat.active-chat");
 	    	  const myNo = document.getElementById("createMemberNo")?.value;
 	    	  const isMine = data.member_no == myNo;
 
-	    	  // 🔥 FILE 메시지 처리
 	    	  if (data.msg_type === "FILE") {
-				  const fileBubble = createFileBubble(data, isMine, memberImage);
-				  chatList.appendChild(fileBubble);
-				
-				  // ✅ 동일한 버블 형식으로 사이드에도 append
-				  appendFileBubbleToSidebar(data, isMine);
-				
-				  chatList.scrollTop = chatList.scrollHeight;
-				  return;
-				}
-
-	    	  // 🔔 시스템 메시지
-	    	  if (data.chat_msg_type === "Y") {
+	    	    const fileBubble = createFileBubble(data, isMine, memberImage);
+	    	    chatList.appendChild(fileBubble);
+	    	    appendFileBubbleToSidebar(data, isMine);
+	    	  } else if (data.chat_msg_type === "Y") {
 	    	    const systemMsgWrapper = document.createElement("div");
 	    	    systemMsgWrapper.style.cssText = "display:flex;justify-content:center;align-items:center;width:100%;margin-top:10px;";
 	    	    systemMsgWrapper.innerHTML = `<div style='display:block;text-align:center;color:#888;font-size:15px;width:100%;'>[${data.chat_msg_content}]</div>`;
 	    	    chatList.appendChild(systemMsgWrapper);
 	    	    window.onChatMemberExit(data);
 	    	  } else {
-	    	    // 💬 일반 텍스트 메시지
+	    	    // 일반 메시지
 	    	    chatList.appendChild(createMessageBubble({
 	    	      ...data,
 	    	      send_date: new Date().toISOString()
 	    	    }, isMine, memberImage));
 	    	  }
 
-	    	  // ✅ 읽음 처리
+	    	  // ✅ 파일이든 텍스트든 공통 읽음 처리
 	    	  fetch("/chat/read/update", {
 	    	    method: "POST",
 	    	    headers: {
@@ -994,6 +996,7 @@
 
 	    	  chatList.scrollTop = chatList.scrollHeight;
 	    	});
+
 
 	      setupSendEvents(roomNo);
 	    });
@@ -1094,22 +1097,34 @@
 	  });
 	}
 	
-	window.onChatMemberExit = function(dto) {
+	window.onChatMemberExit = function (dto) {
 		  const roomNo = dto.chat_room_no;
+		  const myNo = parseInt(document.getElementById("createMemberNo")?.value);
 
-		  const tryClick = () => {
-		    const roomEl = document.querySelector(`.chat-user[data-room-id='${roomNo}']`);
-		    if (roomEl) {
-		      roomEl.click();
-		    } else {
-		      setTimeout(tryClick, 300); // 재시도
-		    }
-		  };
+		  // ✅ 타이틀이 비어 있으면 직접 계산
+		  let title = dto.chat_room_title?.trim();
+		  if (!title) {
+		    const validMembers = dto.memberInfos?.filter(
+		      m => m.memberNo !== myNo && m.memberStatus === "Y"
+		    ) || [];
 
-		  tryClick();
+		    title = validMembers.map(m => `${m.memberName} ${m.positionName || ""}`).join(", ");
+		    if (!title.trim()) title = "(알 수 없음)";
+		  }
+
+		  // ✅ 모든 채팅방 목록에 대해 제목 갱신
+		  document.querySelectorAll(`.chat-user[data-room-id='${roomNo}']`).forEach(el => {
+		    const titleEl = el.querySelector(".chat-title");
+		    if (titleEl) titleEl.textContent = title;
+		  });
+
+		  // ✅ 내가 그 방에 들어와 있다면 클릭해서 정보 갱신
+		  const currentRoomNo = parseInt(document.getElementById("chatRoomNo")?.value);
+		  if (currentRoomNo === parseInt(roomNo)) {
+		    const el = document.querySelector(`.chat-user[data-room-id='${roomNo}']`);
+		    if (el) el.click();
+		  }
 		};
-
-
 
 	// 8. 초대 인원 제거
 	function initChatInvite() {
