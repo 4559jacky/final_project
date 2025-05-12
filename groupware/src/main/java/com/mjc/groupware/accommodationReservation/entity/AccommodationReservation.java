@@ -61,4 +61,10 @@ public class AccommodationReservation {
 	@JoinColumn(name = "accommodation_no")
 	private AccommodationInfo accommodationInfo;
 	
+	@Column(name = "reject_reason")
+	private String rejectReason;
+	
+	@Column(name = "room_count")
+	private Long roomCount;
+	
 }

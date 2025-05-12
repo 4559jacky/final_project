@@ -51,9 +51,6 @@ public class AccommodationInfo {
 	@Column(name = "accommodation_site")
 	private String accommodationSite;
 	
-	@Column(name = "room_count")
-	private Long roomCount;
-	
 	@Column(name = "room_price")
 	private Long roomPrice;
 	

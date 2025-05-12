@@ -89,18 +89,21 @@ layout:decorate="~{/include/layout}">
 				      <td th:text="${reservation.reservation_status}">상태</td>
 				      <td th:text="${#numbers.formatInteger(reservation.room_price, 3, 'COMMA')} + '원'">가격</td>
 				      <td>
-					    <!-- <button type="button" class="btn btn-primary"
-					            th:if="${reservation.reservation_status == '대기'}">예약취소</button>
-					    <button type="button" class="btn btn-primary"
-					            th:if="${reservation.reservation_status == '승인'}">결제하기</button> -->
-					    <th:block th:if="${reservation.reservation_status == '대기' || reservation.reservation_status == '반려'}">
+					    <th:block th:if="${reservation.reservation_status == '대기'}">
 						  <button class="btn btn-primary">예약취소</button>
 						</th:block>
 						<th:block th:if="${reservation.reservation_status == '승인'}">
-						  <button class="btn btn-primary">결제하기</button>
+						  <button class="btn btn-success">결제하기</button>
 						</th:block>
+						<th:block th:if="${reservation.reservation_status == '반려'}">
+		                  <button type="button" class="btn btn-danger"
+		                          data-bs-toggle="modal"
+		                          th:data-reason="${reservation.reject_reason}"
+		                          data-bs-target="#returnReasonModal"
+		                          onclick="showRejectReason(this)">반려사유
+		                  </button>
+                		</th:block>
 					  </td>
-
 				  </tr>
 			      <tr th:if="${#lists.isEmpty(reservationList)}">
 			          <td colspan="8">예약 내역이 없습니다.</td>
@@ -110,37 +113,31 @@ layout:decorate="~{/include/layout}">
 	      </div>
 	    </div>
 	</div>
+	
+	<!-- 반려 사유 모달 -->
+	  <div class="modal fade" id="returnReasonModal" tabindex="-1" aria-hidden="true">
+	    <div class="modal-dialog">
+	      <div class="modal-content p-4 rounded-4 shadow-lg">
+	        <div class="modal-header">
+	          <h5 class="modal-title">반려 사유</h5>
+	          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	        </div>
+	        <div class="modal-body">
+	          <p id="rejectReasonText">사유를 불러오는 중입니다...</p>
+	        </div>
+	        <div class="modal-footer">
+	          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
 		
-	<!-- <script>
-	  document.addEventListener("DOMContentLoaded",function(){
-		  document.getElementById("reserveBtn").addEventListener("click",function(){
-			  const form = new FormData();
-			  
-			  form.append("accommodation_no", document.getElementById("accommodation_no").value);
-			  
-			  fetch("/accommodation/reservation/create",{
-				  method: "POST",
-				  body: form,
-				  headers:{
-					  "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-				  }
-			  })
-			  .then(res => res.json())
-			  .then(data =>{
-				  if(data.res_code == "200"){
-					  alert("예약이 완료되었습니다.");
-					  location.href = "/accommodation/list";
-				  }else{
-					  alert("예약 실패 : "+data.res_msg);
-				  }
-			  })
-			  .catch(err =>{
-				 console.error(err);
-				 alert("서버 오류가 발생했습니다.");
-			  });
-		  });
-	  });
-	</script> -->
+	<script>
+		function showRejectReason(button) {
+		      const reason = button.getAttribute("data-reason");
+		      document.getElementById("rejectReasonText").textContent = reason || "사유 없음";
+		    }
+	</script>
 	
 	
 <!-- Import vendorJs Files -->

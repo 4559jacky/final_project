@@ -2,8 +2,6 @@ package com.mjc.groupware.chat.service;
 
 import org.springframework.stereotype.Service;
 
-import com.mjc.groupware.chat.dto.ChatAlarmDto;
-import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.entity.ChatAlarm;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.repository.ChatAlarmRepository;

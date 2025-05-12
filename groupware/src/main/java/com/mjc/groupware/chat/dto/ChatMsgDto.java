@@ -49,11 +49,12 @@ public class ChatMsgDto {
 	 private Long file_size;
 	 private String file_size_str;
 	 private String file_url;
+	 private String file_type;
 	
 	 // 변환 메서드 (Entity → DTO)
 	 public ChatMsgDto toDto(ChatMsg msg) {
 		    ChatAttach attach = msg.getAttachNo();
-
+		    
 		    return ChatMsgDto.builder()
 		            .chat_msg_no(msg.getChatMsgNo())
 		            .chat_msg_content(msg.getChatMsgContent())
@@ -64,7 +65,6 @@ public class ChatMsgDto {
 		            .member_pos_name(msg.getMemberNo().getPos() != null ? msg.getMemberNo().getPos().getPosName() : null)
 		            .member_dept_name(msg.getMemberNo().getDept() != null ? msg.getMemberNo().getDept().getDeptName() : null)
 		            .chat_msg_type(msg.getChatMsgType())
-		            // 🔥 파일 정보들 추가
 		            .attach_no(attach != null ? attach.getAttachNo() : null)
 		            .ori_name(attach != null ? attach.getOriName() : null)
 		            .new_name(attach != null ? attach.getNewName() : null)
@@ -74,6 +74,7 @@ public class ChatMsgDto {
 		            .file_url(attach != null ? "/upload/groupware/chat/" + attach.getNewName() : null)
 		            .build();
 		}
+
 	 
 	 private String formatFileSize(Long bytes) {
 		    if (bytes == null) return "";

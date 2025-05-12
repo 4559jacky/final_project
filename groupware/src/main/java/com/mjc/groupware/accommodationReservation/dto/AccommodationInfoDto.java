@@ -31,7 +31,7 @@ public class AccommodationInfoDto {
 	private String accommodation_phone;
 	private String accommodation_email;
 	private String accommodation_site;
-	private Long room_count;
+//	private Long room_count;
 	private Long room_price;
 	private String accommodation_location;
 	private String accommodation_content;
@@ -50,7 +50,6 @@ public class AccommodationInfoDto {
 				.accommodationPhone(accommodation_phone)
 				.accommodationEmail(accommodation_email)
 				.accommodationSite(accommodation_site)
-				.roomCount(room_count)
 				.roomPrice(room_price)
 				.accommodationLocation(accommodation_location)
 				.accommodationContent(accommodation_content)
@@ -68,7 +67,6 @@ public class AccommodationInfoDto {
 				.accommodation_phone(accommodationInfo.getAccommodationPhone())
 				.accommodation_email(accommodationInfo.getAccommodationEmail())
 				.accommodation_site(accommodationInfo.getAccommodationSite())
-				.room_count(accommodationInfo.getRoomCount())
 				.room_price(accommodationInfo.getRoomPrice())
 				.accommodation_location(accommodationInfo.getAccommodationLocation())
 				.accommodation_content(accommodationInfo.getAccommodationContent())

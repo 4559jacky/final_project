@@ -37,6 +37,9 @@ public class AccommodationReservationService {
             dto.setCheck_in(reservation.getCheckIn());
             dto.setCheck_out(reservation.getCheckOut());
             dto.setReservation_status(reservation.getReservationStatus());
+            dto.setRoom_count(reservation.getRoomCount());
+            dto.setReject_reason(reservation.getRejectReason());
+
 
             if (reservation.getMember() != null) {
                 dto.setMember_no(reservation.getMember().getMemberNo());
@@ -47,7 +50,6 @@ public class AccommodationReservationService {
                 dto.setAccommodation_no(reservation.getAccommodationInfo().getAccommodationNo());
                 dto.setAccommodation_name(reservation.getAccommodationInfo().getAccommodationName());
                 dto.setRoom_price(reservation.getAccommodationInfo().getRoomPrice());
-                dto.setRoom_count(reservation.getAccommodationInfo().getRoomCount());
             }
 
             dtoList.add(dto);
@@ -71,6 +73,8 @@ public class AccommodationReservationService {
 	        dto.setCheck_in(reservation.getCheckIn());
 	        dto.setCheck_out(reservation.getCheckOut());
 	        dto.setReservation_status(reservation.getReservationStatus());
+	        dto.setRoom_count(reservation.getRoomCount());
+	        dto.setReject_reason(reservation.getRejectReason());
 
 	        if (reservation.getMember() != null) {
 	            dto.setMember_no(reservation.getMember().getMemberNo());
@@ -81,7 +85,6 @@ public class AccommodationReservationService {
 	            dto.setAccommodation_no(reservation.getAccommodationInfo().getAccommodationNo());
 	            dto.setAccommodation_name(reservation.getAccommodationInfo().getAccommodationName());
 	            dto.setRoom_price(reservation.getAccommodationInfo().getRoomPrice());
-	            dto.setRoom_count(reservation.getAccommodationInfo().getRoomCount());
 	        }
 
 	        dtoList.add(dto);
@@ -89,17 +92,31 @@ public class AccommodationReservationService {
 
 	    return dtoList;
 	}
-
+	
 	// 예약 상태변경
 	@Transactional	
-	public void updateReservationStatus(Long reservationNo, String status) {
+
+	public void updateReservationStatus(Long reservationNo, int status, String rejectReason) {
+
 		AccommodationReservation reservation = reservationRepository.findById(reservationNo)
 		        .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
-		    
-		    reservation.setReservationStatus(status); // "승인" 또는 "반려"
-		    
-		    // 강제 flush
-		    reservationRepository.flush();
+		
+		String reserveStatus;
+	    if (status == 1) {
+	        reserveStatus = "대기";
+	        reservation.setRejectReason(null);
+	    } else if (status == 2) {
+	        reserveStatus = "승인";
+	        reservation.setRejectReason(null);
+	    } else if (status == 3) {
+	        reserveStatus = "반려";
+	        reservation.setRejectReason(rejectReason); // 반려사유 저장
+	    } else {
+	        throw new IllegalArgumentException("유효하지 않은 상태 코드입니다.");
+	    }
+
+	    reservation.setReservationStatus(reserveStatus); // "대기", "승인" 또는 "반려"
+	    reservationRepository.flush(); // 강제 flush
 	}
 
 
