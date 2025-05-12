@@ -102,19 +102,20 @@
                th:text="${option.optionText}">항목</label>
       </li>
     </ul>
-
-    <button type="button" class="btn btn-primary" onclick="submitVote()">투표 하기</button>
   </form>
 
-<!-- 마감 메시지 (기본 숨김, JS에서만 표시 제어) -->
+<!-- 투표/결과 버튼 묶음 -->
+<div class="d-flex gap-2 mt-3" id="vote-button-group">
+  <button type="button" class="btn btn-primary" id="submitVoteBtn" onclick="submitVote()">투표 하기</button>
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteResultModal">
+    결과 차트
+  </button>
+</div>
+
+<!-- 마감 메시지 (기본 숨김) -->
 <div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
   투표가 마감되었습니다.
 </div>
-
-  <!-- 결과 차트는 항상 표시 -->
-  <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#voteResultModal">
-    결과 차트
-  </button>
 
   <!-- 결과 차트 모달 -->
   <div class="modal fade"
@@ -129,14 +130,13 @@
           <h5 class="modal-title fw-bold" id="voteResultModalLabel">투표 결과</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
         </div>
-        <div class="modal-body">
-          <canvas id="voteResultChart" width="300" height="300"></canvas>
-        </div>
+<div class="modal-body p-4" style="height: 500px;">
+  <canvas id="voteResultChart" style="width: 100%; height: 100%;"></canvas>
+</div>
       </div>
     </div>
   </div>
 </div>
-<hr>
 
 <!-- 첨부파일 -->
 <div class="border-top pt-3">
@@ -170,7 +170,7 @@
   <!-- 댓글 및 대댓글 영역 -->
   <div id="comment-container" class="container my-4">
     <!-- 댓글 + 대댓글 리스트 -->
-    <div th:each="reply : ${replyList}" class="reply-item mb-3">
+	<div th:each="reply : ${replyList}" class="reply-item mb-3">
       <div class="d-flex align-items-start mb-2">
 		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 권한이 막혀있어서 프로필 이미지 등록이 안되는거였음
 		이중 파싱을 하든 그냥 일반 파싱을 해도 권한을 설정해준다면 정상적으로 일반사용자도 프로필이 나오게 할수있음 -->
@@ -267,10 +267,10 @@
       </div>
     </div>
   </div>
-<div class="text-center mt-3">
+<div class="text-center mt-3" th:if="${hasMoreReplies}">
   <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button>
 </div>
-</div> 
+</div>
 
    
     <!-- 댓글 작성 영역 (하단 고정) -->
@@ -484,55 +484,61 @@
         });
       });
     });
-    // + 더보기 버튼 추가(보류)
-    let currentPage = 1;
-    const pageSize = 5;
-    
-    function loadMoreReplies() {
-      fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('comment-container');
+// + 더보기 버튼 추가
+let currentPage = 1; // page=0은 이미 서버 렌더링됨
+const pageSize = 5;
+const boardNo = /*[[${board.boardNo}]]*/ 0;
 
-          data.forEach(reply => {
-            const div = document.createElement('div');
-            div.className = 'reply-item mb-3';
-            div.innerHTML = `
-              <div class="d-flex align-items-start mb-2">
-                <div class="profile-icon rounded-circle me-3">
-                  <img src="${reply.attachPath}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
-                      <small class="ms-2 time-display">${reply.regDateFormatted}</small>
-                    </div>
-                  </div>
-                  <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
-                </div>
-              </div>
-            `;
-            container.appendChild(div);
-          });
+function loadMoreReplies() {
+	  fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`, {
+	    headers: { [csrfHeader]: csrfToken }
+	  })
+	    .then(res => res.json())
+	    .then(data => {
+	      const replies = data.replies;
+	      const hasMore = data.hasMore;
+	      const container = document.getElementById('comment-container');
+	      
+	      if (!replies || replies.length === 0) {
+	        document.getElementById('load-more-btn')?.remove();
+	        return;
+	      }
 
-          if (data.length < pageSize) {
-            document.getElementById('load-more-btn').style.display = 'none';
-          }
-          currentPage++;
-        })
-        .catch(err => {
-          alert('댓글을 불러오지 못했습니다.');
-          console.error(err);
-        });
-    }
+	      replies.forEach(reply => {
+	        const div = document.createElement('div');
+	        div.className = 'reply-item mb-3';
+	        div.innerHTML = `
+	          <div class="d-flex align-items-start mb-2">
+	            <div class="profile-icon rounded-circle me-3">
+	              <img src="${reply.attachPath || '/img/default_profile.png'}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+	            </div>
+	            <div class="flex-grow-1">
+	              <div class="d-flex justify-content-between align-items-center">
+	                <div>
+	                  <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
+	                  <small class="ms-2 time-display">${reply.regDateFormatted}</small>
+	                </div>
+	              </div>
+	              <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
+	            </div>
+	          </div>
+	        `;
 
-    document.getElementById('load-more-btn').addEventListener('click', loadMoreReplies);
+	        // 덮어쓰기 X → 그냥 container에 추가
+	        container.appendChild(div);
+	      });
 
-    // 첫 로드
-    document.addEventListener('DOMContentLoaded', () => {
-      loadMoreReplies();
-    });
+	      if (!hasMore) {
+	        document.getElementById('load-more-btn')?.remove();
+	      } else {
+	        currentPage++;
+	      }
+	    })
+	    .catch(err => {
+	      console.error("❌ 댓글 불러오기 실패:", err);
+	    });
+	}
+document.getElementById('load-more-btn')?.addEventListener('click', loadMoreReplies);
   </script>
   
   
@@ -541,67 +547,52 @@
   const csrfToken1 = '';
   const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
 
-  // 투표 중복 확인 및 마감 여부 실시간 반영
   document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById('voteForm');
-    if (!form) return;
+	  const form = document.getElementById('voteForm');
+	  const voteNo = form?.getAttribute('data-vote-no');
+	  const voteBtn = document.getElementById('submitVoteBtn');
+	  const voteClosedMsg = document.getElementById('vote-closed-message');
+	  const endSpan = document.getElementById('vote-end-time');
+	  const endTimeStr = endSpan?.getAttribute('data-end-time');
+	  const endTime = endTimeStr ? new Date(endTimeStr.replace(' ', 'T')) : null;
 
-    const voteNo = form.getAttribute('data-vote-no');
+	  // 중복 투표 여부 확인
+	  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+	    .then(res => res.json())
+	    .then(data => {
+	      if (data.voted) {
+	        voteBtn.disabled = true;
+	        voteBtn.classList.remove('btn-primary');
+	        voteBtn.classList.add('btn-danger');
+	        voteBtn.innerText = '투표 완료';
+	      }
+	    });
 
-    // 중복 여부 확인
-    fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.voted) {
-          const button = form.querySelector('button[type="button"]');
-          if (button) {
-            button.disabled = true;
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-danger');
-            button.innerText = '투표 완료';
-          }
-        }
-      });
+	  // 마감 여부 확인 및 UI 처리
+	  fetch(`/vote/${voteNo}/is-closed`)
+	    .then(res => res.json())
+	    .then(data => {
+	      if (data.closed) {
+	        document.getElementById('vote-button-group')?.removeChild(voteBtn); // 투표 버튼 제거
+	        if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+	      }
+	    });
 
-    // 마감 여부 확인
-    fetch(`/vote/${voteNo}/is-closed`)
-      .then(res => res.json())
-      .then(data => {
-    	  if (data.closed) {
-    		  form.style.display = 'none';
-    		  const msg = document.createElement('div');
-    		  msg.className = 'alert alert-warning mt-3';
-    		  msg.innerText = '투표가 마감되었습니다.';
-    		  form.parentNode.insertBefore(msg, form.nextSibling);
-    		}
-      });
-  });
+	  // 실시간 마감 체크
+	  const checkClosed = () => {
+	    const now = new Date();
+	    if (endTime && now >= endTime) {
+	      document.getElementById('vote-button-group')?.removeChild(voteBtn); // 투표 버튼 제거
+	      if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+	    }
+	  };
+
+	  if (endTime) {
+	    checkClosed(); // 초기 실행
+	    setInterval(checkClosed, 1000); // 주기적 체크
+	  }
+	});
   
-  
-//실시간 확인: 투표 마감 여부 UI 변경
-  document.addEventListener('DOMContentLoaded', () => {
-  const endSpan = document.getElementById('vote-end-time');
-  const endTimeStr = endSpan.getAttribute('data-end-time');
-  const endTime = new Date(endTimeStr.replace(' ', 'T'));
-
-  const checkClosed = () => {
-    const now = new Date();
-    if (now >= endTime) {
-      const voteForm = document.getElementById('voteForm');
-      const msg = document.getElementById('vote-closed-message');
-      
-      if (voteForm) voteForm.style.display = 'none';
-      if (msg) msg.style.display = 'block';
-    }
-  };
-
-  checkClosed(); // 초기 1회 체크
-  setInterval(checkClosed, 1000); // 이후 1초마다 체크
-});
-  
-  
-  
-
   // 투표 제출
 function submitVote() {
   const form = document.getElementById('voteForm');
@@ -632,7 +623,7 @@ function submitVote() {
     });
 }
 
-  // Chart.js 결과 차트 표시
+  // Chart.js 결과 차트 표시(막대 그래프)
   document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
   const voteNo = this.getAttribute('data-vote-no');
 
@@ -670,60 +661,67 @@ function submitVote() {
           }]
         },
         options: {
-          responsive: true,
-          animation: {
-            duration: 800,
-            easing: 'easeInOutQuart'
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              title: { display: false }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1,
-                callback: value => `${value}표`
-              },
-              title: {
-                display: true,
-                text: '득표 수'
-              }
-            }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-            	  callbacks: {
-            	    label: function (context) {
-            	      const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-            	      const value = context.raw;
-            	      const percent = ((value / total) * 100).toFixed(1);
-            	      const index = context.dataIndex;
+        	  responsive: true,
+        	  maintainAspectRatio: false, // 중요!
+        	  animation: false, // 애니메이션 제거
+        	  scales: {
+        	    x: {
+        	      grid: { display: false },
+        	      title: { display: false }
+        	    },
+        	    y: {
+        	      beginAtZero: true,
+        	      ticks: {
+        	        stepSize: 1,
+        	        callback: value => `${value}표`
+        	      },
+        	      title: {
+        	        display: true,
+        	        text: '득표 수'
+        	      }
+        	    }
+        	  },
+        	  plugins: {
+        	    legend: { display: false },
+        	    tooltip: {
+        	    	  callbacks: {
+        	    	    title: function () {
+        	    	      // 상단 title(예: "22: 항목명") 제거
+        	    	      return '';
+        	    	    },
+        	    	    label: function (context) {
+        	    	    	  const value = context.raw;
+        	    	    	  const index = context.dataIndex;
 
-            	      let label = `${context.label}: ${value}표 (${percent}%)`;
+        	    	    	  const rawLabel = context.label;
+        	    	    	  const cleanedLabel = rawLabel.includes(':')
+        	    	    	    ? rawLabel.split(':').slice(1).join(':').trim()
+        	    	    	    : rawLabel;
 
-            	      // 익명이 아닐 경우 [부서]이름 리스트 추가
-            	      if (!isAnonymous) {
-            	        const voterNames = voters[index];
-            	        if (voterNames && voterNames.length > 0) {
-            	          label += `\n ${voterNames.join('\n')}`;
-            	        } else {
-            	          label += `\n 투표자 없음`;
-            	        }
-            	      }
+        	    	    	  const lines = [`${cleanedLabel}: ${value}표`];
 
-            	      return label;
-            	    }
-            	  }
-            	}
-          },
-          // 익명,실명 확인 해주는 스크립트 코드
-          onClick: function (e, elements) {
-			// 그래프 클릭시를 없애줌
+        	    	    	  if (!isAnonymous) {
+        	    	    	    const voterNames = voters[index];
+        	    	    	    if (voterNames && voterNames.length > 0) {
+        	    	    	      const chunked = [];
+        	    	    	      for (let i = 0; i < voterNames.length; i += 3) {
+        	    	    	    	  chunked.push(voterNames.slice(i, i + 3).join(', '));
+        	    	    	    	}
+        	    	    	      lines.push(...chunked); // 각 줄 추가
+        	    	    	    } else {
+        	    	    	      lines.push('투표자 없음');
+        	    	    	    }
+        	    	    	  }
+
+        	    	    	  return lines;
+        	    	    	}
+        	    	  }
+        	    	}
+        	  },
+        	  onClick: function (e, elements) {
+        	    // 그래프 클릭 이벤트 제거
+        	  }
         	}
-        }
       });
     })
     .catch(err => {
@@ -732,10 +730,6 @@ function submitVote() {
     });
 });
 
-  // 다크모드 스위치 적용
-  document.getElementById('darkToggle')?.addEventListener('change', function () {
-    document.body.setAttribute('data-bs-theme', this.checked ? 'dark' : 'light');
-  });
   
 </script>
  

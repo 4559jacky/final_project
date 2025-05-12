@@ -42,10 +42,6 @@
     <button type="submit" class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
         <i class="ti ti-search fs-6 text-dark"></i>
     </button>
-    <!-- 초기화 버튼 추가 -->
-<!--     <button type="button" class="btn position-absolute top-50 start-100 translate-middle-y bg-transparent border-0 p-0 ms-3" onclick="resetSearch()">
-        <i class="ti ti-x fs-6 text-dark"></i>
-    </button> -->
 </div>
 </div>
 
@@ -79,7 +75,6 @@
                     <th>제목</th>
                     <th>작성자</th>
                     <th>등록일</th>
-<!--                     <th>수정일</th> -->
                     <th>조회수</th>
                 </tr>
             </thead>
@@ -117,7 +112,6 @@
     <td class="text-center" th:text="${board.boardTitle}">제목</td>
     <td th:text="${board.member.memberName}">작성자</td>
     <td th:text="${#temporals.format(board.regDate, 'yyyy/MM/dd HH:mm')}">등록일</td>
-<!--     <td th:text="${#temporals.format(board.modDate, 'yyyy/MM/dd HH:mm')}">수정일</td> -->
     <td th:text="${board.views}">조회수</td>
 </tr>
     </tbody>
