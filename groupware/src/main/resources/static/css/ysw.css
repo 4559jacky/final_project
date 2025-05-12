@@ -72,3 +72,14 @@
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
   }
+  
+  .download-btn {
+  transition: opacity 0.2s ease;
+}
+
+.file-hover-area:hover .download-btn {
+  opacity: 1 !important;
+}
+
+
+  

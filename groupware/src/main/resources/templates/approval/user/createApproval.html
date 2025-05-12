@@ -97,6 +97,7 @@
 										      <span> ~ </span>
 										      <input type="date" id="end_date" name="end_date" class="form-control" style="width: 150px; height: 36px;">
 										      &nbsp;
+										      <input type="hidden" id="annual_leave" th:value="${member.annualLeave}">
 										      <span id="annualInfoText" style="display: none;">남은 연차 : <span th:text="${member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 : <span id="use_annual_leave">0</span>
 										      &nbsp;<label><input class="form-check-input" type="checkbox" name="annual_leave_type" id="am" value="1" disabled>&nbsp;오전</label>
 										      &nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="annual_leave_type" id="pm" value="2" disabled>&nbsp;오후</label></span>
@@ -397,6 +398,7 @@
 
 	        let form_no = document.createElement('input');
 	        form_no.setAttribute('type', 'hidden');
+	        form_no.setAttribute('id', 'approval_type_no');
 	        form_no.setAttribute('name', 'approval_type_no');
 	        form_no.setAttribute('value', `${approvalFormNo}`);
 	        form_div.appendChild(form_no);
@@ -1069,7 +1071,14 @@
 			} else {
 				document.querySelector("input[name='appr_text']").value = editorInstance.getData();
 				let payload = new FormData(createApprovalForm);
+				let annual_leave = document.getElementById('annual_leave').value;
 				let use_annual_leave = document.getElementById('use_annual_leave').innerText;
+				if(document.getElementById('approval_type_no').value == 1) {
+					if(parseFloat(document.getElementById('use_annual_leave').innerText) > parseFloat(document.getElementById('annual_leave').value)) {
+						alert('사용연차가 남은연차보다 많습니다.');
+						return;
+					}
+				}
 				let annual_leave_type = 0; // 기본값: 0 (선택 없음)
 		        if (document.getElementById('am').checked) {
 		            annual_leave_type = 1; // 오전
