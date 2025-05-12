@@ -97,10 +97,12 @@
           <input class="form-check-input" type="checkbox" id="isAnonymous">
           <label class="form-check-label" for="isAnonymous">익명 투표</label>
         </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="isMultipleChoice">
-          <label class="form-check-label" for="isMultipleChoice">중복 선택 허용</label>
-        </div>
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" id="isMultipleChoice">
+  <label class="form-check-label" for="isMultipleChoice">
+    중복 선택 허용 (미선택 시 단일 투표)
+  </label>
+</div>
       </div>
 
       <div class="modal-footer">
@@ -286,7 +288,7 @@
         const isAnonymous = document.getElementById('isAnonymous').checked ? 'Y' : 'N';
         const isMultiple = document.getElementById('isMultipleChoice').checked ? 'Y' : 'N';
         const formattedEndDate = endDate.replace('T', ' ');
-        const voteTypeText = (isAnonymous === 'Y' ? '익명' : '실명') + (isMultiple === 'Y' ? ', 중복 투표' : '');
+        const voteTypeText = (isAnonymous === 'Y' ? '익명' : '실명') + (isMultiple === 'Y' ? ', 중복 투표' : ', 단일 투표');
 
         const options = Array.from(document.querySelectorAll('#optionsContainer input'))
           .map((el, idx) => ({

@@ -54,16 +54,16 @@
   </div>
 </div>
 </div>
-<hr>
+
     
     <!-- 본문 내용 (테두리 없는 버전) -->
 <div class="toastui-editor-contents"
      style="min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
      th:utext="${board.boardContent}">
 </div>
-    
+
+<br>    
 <!-- 투표 정보 영역 -->
-<hr>
 <div th:if="${board.vote != null}" class="mt-4">
   <h5 class="fw-bold">
     [투표] <span th:text="${board.vote.voteTitle}">투표 제목</span>
@@ -72,6 +72,7 @@
       <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
       <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
       <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
+      <span th:if="${board.vote.isMultiple == 'N'}">,단일 투표</span>
       ]
     </small>
   </h5>
@@ -93,30 +94,30 @@
     <ul class="list-group mb-3">
       <li class="list-group-item d-flex align-items-center"
           th:each="option : ${board.vote.voteOptions}">
-        <input th:name="optionNos"
-               th:id="'option-' + ${option.optionNo}"
-               th:value="${option.optionNo}"
-               class="form-check-input me-2"
-               th:attr="type=${board.vote.isMultiple == 'Y' ? 'checkbox' : 'radio'}" />
+		<input th:name="optionNos"
+       		   th:id="'option-' + ${option.optionNo}"
+       		   th:value="${option.optionNo}"
+       		   class="form-check-input me-2"
+       		   th:type="${board.vote.isMultiple == 'Y'} ? 'checkbox' : 'radio'" />
         <label class="form-check-label" th:for="'option-' + ${option.optionNo}"
                th:text="${option.optionText}">항목</label>
       </li>
     </ul>
   </form>
 
-<!-- 투표/결과 버튼 묶음 -->
-<div class="d-flex gap-2 mt-3" id="vote-button-group">
-  <button type="button" class="btn btn-primary" id="submitVoteBtn" onclick="submitVote()">투표 하기</button>
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteResultModal">
-    결과 차트
-  </button>
-</div>
-
-<!-- 마감 메시지 (기본 숨김) -->
+<!-- 투표 마감 메시지를 버튼 위로 이동 -->
 <div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
   투표가 마감되었습니다.
 </div>
 
+<!-- 투표/결과 버튼 묶음 -->
+<div class="d-flex gap-2 mt-3" id="vote-button-group">
+  <button type="button" class="btn btn-primary" id="submitVoteBtn" onclick="submitVote()">투표 하기</button>
+  <button type="button" class="btn btn-primary" id="resultChartBtn" style="display: none;"
+          data-bs-toggle="modal" data-bs-target="#voteResultModal">
+    결과 차트
+  </button>
+</div>
   <!-- 결과 차트 모달 -->
   <div class="modal fade"
      id="voteResultModal"
@@ -137,7 +138,7 @@
     </div>
   </div>
 </div>
-
+<br>
 <!-- 첨부파일 -->
 <div class="border-top pt-3">
     <h5 class="fw-semibold">첨부파일</h5>
@@ -151,7 +152,6 @@
     </a>
   </li>
 </ul>
-
     <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
 </div>
 
@@ -551,12 +551,13 @@ document.getElementById('load-more-btn')?.addEventListener('click', loadMoreRepl
 	  const form = document.getElementById('voteForm');
 	  const voteNo = form?.getAttribute('data-vote-no');
 	  const voteBtn = document.getElementById('submitVoteBtn');
+	  const chartBtn = document.getElementById('resultChartBtn');
 	  const voteClosedMsg = document.getElementById('vote-closed-message');
 	  const endSpan = document.getElementById('vote-end-time');
 	  const endTimeStr = endSpan?.getAttribute('data-end-time');
 	  const endTime = endTimeStr ? new Date(endTimeStr.replace(' ', 'T')) : null;
 
-	  // 중복 투표 여부 확인
+	  // 1. 투표 여부 확인
 	  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
 	    .then(res => res.json())
 	    .then(data => {
@@ -565,31 +566,51 @@ document.getElementById('load-more-btn')?.addEventListener('click', loadMoreRepl
 	        voteBtn.classList.remove('btn-primary');
 	        voteBtn.classList.add('btn-danger');
 	        voteBtn.innerText = '투표 완료';
+	        chartBtn.style.display = 'inline-block'; // 투표한 사용자만 결과 차트 보기 가능
 	      }
 	    });
 
-	  // 마감 여부 확인 및 UI 처리
+	  // 2. 마감 여부 확인
 	  fetch(`/vote/${voteNo}/is-closed`)
 	    .then(res => res.json())
 	    .then(data => {
 	      if (data.closed) {
-	        document.getElementById('vote-button-group')?.removeChild(voteBtn); // 투표 버튼 제거
+	        if (form) form.style.display = 'none'; // 폼 제거
+	        if (voteBtn) voteBtn.remove(); // 버튼 제거
 	        if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+
+	        // 마감 + 이미 투표한 사용자라면 차트 보기 가능
+	        fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+	          .then(res => res.json())
+	          .then(data => {
+	            if (data.voted) {
+	              chartBtn.style.display = 'inline-block';
+	            }
+	          });
 	      }
 	    });
 
-	  // 실시간 마감 체크
+	  // 3. 실시간 마감 체크
 	  const checkClosed = () => {
 	    const now = new Date();
 	    if (endTime && now >= endTime) {
-	      document.getElementById('vote-button-group')?.removeChild(voteBtn); // 투표 버튼 제거
+	      if (form) form.style.display = 'none';
+	      if (voteBtn) voteBtn.remove();
 	      if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+
+	      fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+	        .then(res => res.json())
+	        .then(data => {
+	          if (data.voted) {
+	            chartBtn.style.display = 'inline-block';
+	          }
+	        });
 	    }
 	  };
 
 	  if (endTime) {
-	    checkClosed(); // 초기 실행
-	    setInterval(checkClosed, 1000); // 주기적 체크
+	    checkClosed();
+	    setInterval(checkClosed, 1000);
 	  }
 	});
   
@@ -616,12 +637,18 @@ function submitVote() {
     .then(res => res.ok ? res.text() : Promise.reject("투표 실패"))
     .then(() => {
       alert("투표 완료!");
-      location.reload();
+   // 버튼 처리
+      const voteBtn = document.getElementById('submitVoteBtn');
+      voteBtn.disabled = true;
+      voteBtn.classList.remove('btn-primary');
+      voteBtn.classList.add('btn-danger');
+      voteBtn.innerText = '투표 완료';
+
+      // 차트 버튼 보이기
+      document.getElementById('resultChartBtn').style.display = 'inline-block';
+
     })
-    .catch(err => {
-      alert("투표 중 오류 발생: " + err);
-    });
-}
+  }
 
   // Chart.js 결과 차트 표시(막대 그래프)
   document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
