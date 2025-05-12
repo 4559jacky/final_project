@@ -125,10 +125,11 @@
 <!-- 투표 미리보기 영역 (에디터 아래에 위치) -->
 <div id="vote-preview-container" class="mb-4"></div>
 
-        <div class="mb-3">
-          <label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
-          <input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
-        </div>
+	<!-- 🔼 파일 첨부 input -->
+		<div class="mb-3">
+  			<label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
+  			<input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
+		</div>
 
         <div class="d-flex justify-content-end gap-2 mt-4">
           <button type="submit" class="btn btn-primary">작성 완료</button>
@@ -336,8 +337,8 @@
         	    </div>
 
         	    <ul class="list-group mb-3">
-        	      ${options.map(opt => `<li class="list-group-item">${opt.option_text}</li>`).join('')}
-        	    </ul>
+        	    ${options.map(opt => `<li class="list-group-item" style="font-size: 1.1rem;">${opt.option_text}</li>`).join('')}
+        	  </ul>
 
         	    <div class="d-flex gap-2 justify-content-end">
         	      <button type="button" class="btn btn-primary btn-sm" onclick="editVote()">투표 수정</button>

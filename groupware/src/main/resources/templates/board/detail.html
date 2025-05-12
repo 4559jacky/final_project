@@ -101,8 +101,7 @@
        		   th:value="${option.optionNo}"
        		   class="form-check-input me-2"
        		   th:type="${board.vote.isMultiple == 'Y'} ? 'checkbox' : 'radio'" />
-        <label class="form-check-label" th:for="'option-' + ${option.optionNo}"
-               th:text="${option.optionText}">항목</label>
+<label class="form-check-label" style="font-size: 1.1rem;" th:for="'option-' + ${option.optionNo}" th:text="${option.optionText}">항목</label>
       </li>
     </ul>
   </form>
@@ -141,20 +140,20 @@
   </div>
 </div>
 <br>
-<!-- 첨부파일 -->
+<!-- 🔽 첨부파일 다운로드 영역 -->
 <div class="border-top pt-3">
-    <h5 class="fw-semibold">첨부파일</h5>
-<ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
-  <li th:each="boardAttach : ${attachList}" class="mb-1">
-    <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" 
-       class="file-link"
-       th:data-url="@{/upload/path/{filename}(filename=${boardAttach.oriName})}">
-       <i class="bi bi-file-earmark-text me-1 text-primary"></i>
-       <span th:text="${boardAttach.oriName}" class="file-link">파일명</span>
-    </a>
-  </li>
-</ul>
-    <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
+  <h5 class="fw-semibold">첨부파일</h5>
+
+  <ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+    <li th:each="boardAttach : ${attachList}" class="mb-1">
+      <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" class="file-link">
+        <i class="bi bi-file-earmark-text me-1 text-primary"></i>
+        <span th:text="${boardAttach.oriName}" class="file-link">파일명</span>
+      </a>
+    </li>
+  </ul>
+
+  <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
 </div>
 
     <!-- 수정/삭제 버튼(본인이 쓴 글은 보일수있고, 남이 볼때는 보이지 않게 처리) -->
