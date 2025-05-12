@@ -423,6 +423,9 @@
 		                        console.log('성공');
 		                        location.href = '/approval/receive/detail/' + apprNo;
 		                    }
+		                    if(data.res_code == '501') {
+		                    	location.href = '/approval/receive/detail/' + apprNo;
+		                    }
 		                })
 		                .catch(error => {
 		                    console.error("에러 발생:", error);

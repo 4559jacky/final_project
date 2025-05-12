@@ -555,6 +555,11 @@ public class ApprovalService {
 		
 		try {
 			
+			Approval rejectCheckApproval = approvalRepository.findById(id).orElse(null);
+			if("R".equals(rejectCheckApproval.getApprStatus())) {
+				return 2;
+			}
+			
 			// 합의자맵핑 데이터를 찾아서 상태변경
 			ApprAgreementer agreementer = apprAgreementerRepository.findByMember_MemberNoAndApproval_ApprNo(member.getMember_no(), id);
 			ApprAgreementerDto agreementerDto = new ApprAgreementerDto().toDto(agreementer);
