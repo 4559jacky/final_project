@@ -76,16 +76,28 @@ public class SharedFileService {
 	}
 	
 	public Map<String, Object> getFolderContent(Long folderId, List<Long> folderIds, Member member, String type) {
-	    // ✅ folderId가 null이고 folderIds만 있는 경우
+	    Map<String, Object> result = new HashMap<>();
+	    List<Map<String, Object>> list = new ArrayList<>();
+
+	    List<SharedFolder> subFolders;
+	    SharedFolder currentFolder = null;
+
+
+	    // folderId도 없고 folderIds도 비어 있음 → 최상위에 아무것도 없음
+	    if (folderId == null && (folderIds == null || folderIds.isEmpty())) {
+	        result.put("items", new ArrayList<>());
+	        result.put("parentFolderNo", null);
+	        return result;
+	    }
+	    
+	    // ✅ 루트 폴더 여러 개일 경우 (최상단)
 	    if (folderId == null && folderIds != null && !folderIds.isEmpty()) {
-	        List<Map<String, Object>> list = new ArrayList<>();
+	        subFolders = folderRepository.findAllById(folderIds).stream()
+	            .filter(f -> "N".equals(f.getFolderStatus()))
+	            .sorted(Comparator.comparing(SharedFolder::getFolderName))
+	            .toList();
 
-	        List<SharedFolder> folders = folderRepository.findAllById(folderIds).stream()
-	                .filter(f -> "N".equals(f.getFolderStatus()))
-	                .sorted(Comparator.comparing(SharedFolder::getFolderName))
-	                .toList();
-
-	        for (SharedFolder folder : folders) {
+	        for (SharedFolder folder : subFolders) {
 	            Map<String, Object> map = new HashMap<>();
 	            map.put("type", "folder");
 	            map.put("id", folder.getFolderNo());
@@ -94,14 +106,89 @@ public class SharedFileService {
 	            list.add(map);
 	        }
 
-	        Map<String, Object> result = new HashMap<>();
 	        result.put("items", list);
 	        result.put("parentFolderNo", null);
 	        return result;
 	    }
 
-	    // ✅ 그렇지 않으면 기존 로직으로 위임
-	    return getFolderContent(folderId, null, member, type);
+	    // ✅ 폴더 클릭했을 경우
+	    if (folderId != null) {
+	        currentFolder = folderRepository.findById(folderId)
+	                .orElseThrow(() -> new RuntimeException("해당 폴더가 없습니다."));
+
+	        boolean isOwner = currentFolder.getFolderType() == 1 &&
+	                currentFolder.getMember() != null &&
+	                currentFolder.getMember().getMemberNo().equals(member.getMemberNo());
+
+	        boolean sameDept = currentFolder.getFolderType() == 2 &&
+	                currentFolder.getDept() != null &&
+	                member.getDept() != null &&
+	                currentFolder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
+
+	        boolean isShared = currentFolder.getFolderType() == 3;
+
+	        if (!(isOwner || sameDept || isShared)) {
+	            throw new RuntimeException("해당 폴더에 접근 권한이 없습니다.");
+	        }
+
+	        subFolders = folderRepository.findByParentFolderFolderNo(folderId).stream()
+	            .filter(folder -> {
+	                if (folder.getParentFolder() == null ||
+	                    !folder.getParentFolder().getFolderNo().equals(folderId)) {
+	                    return false; // 🔥 루프 방지 조건
+	                }
+
+	                boolean childIsOwner = folder.getFolderType() == 1 &&
+	                        folder.getMember() != null &&
+	                        member != null &&
+	                        folder.getMember().getMemberNo().equals(member.getMemberNo());
+
+	                    boolean childSameDept = folder.getFolderType() == 2 &&
+	                        folder.getDept() != null &&
+	                        member.getDept() != null &&
+	                        folder.getDept().getDeptNo().equals(member.getDept().getDeptNo());
+
+	                    boolean childIsShared = folder.getFolderType() == 3;
+
+	                    return childIsOwner || childSameDept || childIsShared;
+	            })
+	            .sorted(Comparator.comparing(SharedFolder::getFolderName))
+	            .toList();
+
+	        for (SharedFolder folder : subFolders) {
+	            if (!"N".equals(folder.getFolderStatus())) continue;
+	            Map<String, Object> map = new HashMap<>();
+	            map.put("type", "folder");
+	            map.put("id", folder.getFolderNo());
+	            map.put("name", folder.getFolderName());
+	            map.put("regDate", folder.getRegDate());
+	            list.add(map);
+	        }
+
+	        // ✅ 해당 폴더 내 파일 추가
+	        List<SharedFile> files = fileRepository.findByFolderFolderNo(folderId).stream()
+	            .filter(f -> "N".equals(f.getFileStatus()))
+	            .sorted(Comparator.comparing(SharedFile::getFileName))
+	            .toList();
+
+	        for (SharedFile file : files) {
+	            Map<String, Object> map = new HashMap<>();
+	            map.put("type", "file");
+	            map.put("id", file.getFileNo());
+	            map.put("name", file.getFileName());
+	            map.put("size", file.getFileSize());
+	            map.put("regDate", file.getRegDate());
+	            list.add(map);
+	        }
+
+	        result.put("items", list);
+	        result.put("parentFolderNo",
+	                currentFolder.getParentFolder() != null
+	                        ? currentFolder.getParentFolder().getFolderNo()
+	                        : null);
+	    }
+
+	    return result;
 	}
 
 

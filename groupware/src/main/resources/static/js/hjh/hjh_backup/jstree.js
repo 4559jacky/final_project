@@ -452,7 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // 🗑️ 휴지통 불러오기
 function loadTrashBin() {
-	fetch("/shared/trash/list")
+	fetch(`/shared/trash/list?type=${currentType}`)
 	    .then(res => res.json())
 	    .then(data => {
 	      renderTrashTable(data.items); // ✅ 수정 포인트

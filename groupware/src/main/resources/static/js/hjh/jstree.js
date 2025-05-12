@@ -1,7 +1,9 @@
-// 📦 공유문서함 JS 전체 리팩토링 - 트리와 리스트 절대 동기화 버전
+//  공유문서함 JS 전체 리팩토링
 
 window.currentType = 'personal';
 window.initialFolderId = null;
+
+let selectedParentNo = null;
 
 const folderTypeMap = {
   personal: 1,
@@ -10,8 +12,15 @@ const folderTypeMap = {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("📦 공유문서함 스크립트 로딩됨");
+  console.log("공유문서함 스크립트 로딩됨");
 
+  $('#folderModal').on('shown.bs.modal', function () {
+    initModalTree();
+	document.getElementById("new-folder-name").value = ""; 
+	 selectedParentNo = null; //  선택된 부모 초기화
+	 lastSelectedId = null; // 중복 클릭 방지 초기화.
+  });
+  
   document.querySelectorAll('#shared-type-tab button[data-type]').forEach(btn => {
     btn.addEventListener('click', function () {
       const selectedType = this.dataset.type;
@@ -19,14 +28,25 @@ document.addEventListener("DOMContentLoaded", function () {
       window.currentType = selectedType;
       console.log("현재 선택된 문서함 타입:", selectedType);
 
-      loadTree(selectedType);
-      loadTrashBin();
-      loadUsageChart();
+	  loadTree(selectedType, () => {
+	    loadFolderList(null); // ✅ 트리 로딩 완료 후에 호출
+	  });
+	  loadTrashBin();
+	  loadUsageChart();
     });
   });
 
-  function loadTree(type) {
-    $('#shared-tree').jstree(true).settings.core.data.url = function () {
+  function loadTree(type,callback) {
+  
+	$('#shared-tree')
+	   .off('ready.jstree') // 이전 이벤트 제거
+	   .on('ready.jstree', function () {
+	     console.log("✅ 트리 로드 완료됨");
+	     if (typeof callback === 'function') callback();
+	   });
+	
+	
+	  $('#shared-tree').jstree(true).settings.core.data.url = function () {
       return `/shared/main/tree?type=${type}`;
     };
     $('#shared-tree').jstree(true).settings.core.data.dataFilter = function (data) {
@@ -143,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function createNewFolder() {
   const folderName = document.getElementById("new-folder-name").value;
   const memberNo = document.getElementById("member-no-hidden").value;
-  const folderType = document.querySelector('input[name="folder_type"]:checked').value;
+  const folderType = folderTypeMap[currentType];
 
   if (!folderName) {
     alert("폴더 이름을 입력해주세요.");
@@ -177,6 +197,56 @@ function createNewFolder() {
       alert("폴더 생성 중 오류 발생");
     });
 }
+
+let lastSelectedId = null;
+
+function initModalTree() {
+  $('#modal-folder-tree').jstree('destroy').empty();
+
+  $('#modal-folder-tree').jstree({
+    core: {
+      check_callback: true,
+      data: {
+        url: function () {
+          return `/shared/main/tree?type=${currentType}`;
+        },
+        dataType: 'json',
+        dataFilter: function (data) {
+          const parsed = JSON.parse(data);
+          const targetType = folderTypeMap[currentType] ?? 1;
+          const filtered = parsed.filter(item =>
+            item.folder_type === targetType && !item.id.toString().startsWith("file-")
+          );
+          return JSON.stringify(filtered);
+        }
+      }
+    },
+    plugins: ['radio']
+  });
+
+  //  클릭 -> 선택, 다시 클릭 -> 선택 해제
+  $('#modal-folder-tree').on('changed.jstree', function (e, data) {
+    if (data.selected.length === 0) {
+      selectedParentNo = null;
+      lastSelectedId = null;
+      return;
+    }
+
+    const clickedId = data.selected[0];
+
+    if (lastSelectedId === clickedId) {
+      $(this).jstree(true).deselect_node(clickedId);
+      selectedParentNo = null;
+      lastSelectedId = null;
+    } else {
+      selectedParentNo = clickedId;
+      lastSelectedId = clickedId;
+    }
+  });
+}
+
+
+
 // 파일 업로드.
 async function uploadFiles() {
   const files = document.getElementById("fileUpload").files;
@@ -251,12 +321,12 @@ function loadFolderList(folderId) {
   if (folderId == null) {
     const treeInstance = $('#shared-tree').jstree(true);
     const nodes = treeInstance.get_json('#', { flat: true });
-    const rootFolderIds = nodes
-      .filter(n => !n.id.toString().startsWith('file-') && n.parent === '#')
-      .map(n => n.id);
+	const rootFolderIds = nodes
+	  .filter(n => !n.id.toString().startsWith('file-') && n.parent === '#')
+	  .map(n => n.id);
 
-    // 여러 루트 폴더들을 리스트로 보여주기 위해 서버로 배열 전송
-    params.append("folderIds", rootFolderIds.join(","));
+	// 서버에서 List<Long> folderIds로 받기.
+	rootFolderIds.forEach(id => params.append("folderIds", id));
     console.log("📂 루트 폴더 리스트 로드:", rootFolderIds);
   } else {
     params.append("folderId", folderId);
@@ -445,7 +515,7 @@ function restoreSelected() {
       [document.querySelector('meta[name="_csrf_header"]').content]:
         document.querySelector('meta[name="_csrf"]').content
     },
-    body: JSON.stringify({ folderIds, fileIds })
+	body: JSON.stringify({ folderIds, fileIds, type: currentType })
   })
   .then(async res => {
     if (!res.ok) {
@@ -498,7 +568,7 @@ function deleteSelected() {
       [document.querySelector('meta[name="_csrf_header"]').content]:
         document.querySelector('meta[name="_csrf"]').content
     },
-    body: JSON.stringify({ folderIds, fileIds })
+	body: JSON.stringify({ folderIds, fileIds, type: currentType })
   })
   .then(async res => {
     if (!res.ok) {

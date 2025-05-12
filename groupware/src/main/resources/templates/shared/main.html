@@ -156,11 +156,6 @@
           <div class="col-6">
             <input type="hidden" id="member-no-hidden" th:value="${#authentication.principal.member.memberNo}">
             <input type="text" id="new-folder-name" class="form-control mb-3" placeholder="폴더 이름">
-            <div id="folder-type-group">
-              <label><input type="radio" name="folder_type" value="1" checked> 개인</label><br>
-              <label><input type="radio" name="folder_type" value="2"> 부서</label><br>
-              <label><input type="radio" name="folder_type" value="3"> 공유</label>
-            </div>
             <br>
             <button class="btn btn-primary" onclick="createNewFolder()">📁 폴더 생성</button>
           </div>
