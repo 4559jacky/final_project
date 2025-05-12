@@ -44,7 +44,6 @@ public class AccommodationService {
 	        dto.setAccommodation_email(accom.getAccommodationEmail());
 	        dto.setAccommodation_site(accom.getAccommodationSite());
 	        dto.setAccommodation_location(accom.getAccommodationLocation());
-	        dto.setRoom_count(accom.getRoomCount());
 	        dto.setAccommodation_content(accom.getAccommodationContent());
 	        dto.setRoom_price(accom.getRoomPrice());
 	        dto.setReg_date(accom.getRegDate());
@@ -102,7 +101,6 @@ public class AccommodationService {
         dto.setAccommodation_email(accom.getAccommodationEmail());
         dto.setAccommodation_site(accom.getAccommodationSite());
         dto.setAccommodation_location(accom.getAccommodationLocation());
-        dto.setRoom_count(accom.getRoomCount());
         dto.setAccommodation_content(accom.getAccommodationContent());
         dto.setRoom_price(accom.getRoomPrice());
         dto.setReg_date(accom.getRegDate());
@@ -158,7 +156,7 @@ public class AccommodationService {
     	entity.setAccommodationEmail(dto.getAccommodation_email());
     	entity.setAccommodationSite(dto.getAccommodation_site());
     	entity.setAccommodationLocation(dto.getAccommodation_location());
-    	entity.setRoomCount(dto.getRoom_count());
+//    	entity.setRoomCount(dto.getRoom_count());
     	entity.setAccommodationContent(dto.getAccommodation_content());
     	entity.setRoomPrice(dto.getRoom_price());
     	entity.setModDate(dto.getMod_date());

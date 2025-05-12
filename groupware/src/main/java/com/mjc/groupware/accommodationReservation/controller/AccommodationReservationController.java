@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
 import com.mjc.groupware.accommodationReservation.service.AccommodationReservationService;
-import com.mjc.groupware.board.controller.BoardAttachController;
+import com.mjc.groupware.accommodationReservation.service.AccommodationService;
 import com.mjc.groupware.member.security.MemberDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AccommodationReservationController {
 
-    private final BoardAttachController boardAttachController;
-
+	private final AccommodationService accommodationService;
 	private final AccommodationReservationService reservationService;
 
     // 예약 등록
@@ -67,7 +67,13 @@ public class AccommodationReservationController {
     @GetMapping("/admin/accommodation/reservation/list")
     public String adminReservationList(@RequestParam("accommodation_no") Long accommodationNo, Model model) {
         List<AccommodationReservationDto> list = reservationService.getReservationsByAccommodation(accommodationNo);
+        
+        // AccommodationService 통해 숙소명 직접 가져오기
+        AccommodationInfoDto accommodation = accommodationService.findById(accommodationNo);
+        String accommodationName = (accommodation != null) ? accommodation.getAccommodation_name() : "숙소명 없음";
+        
         model.addAttribute("reservationList", list);
+        model.addAttribute("accommodationName", accommodationName); //숙소명 가져오기
         return "accommodation/adminList";
     }
     

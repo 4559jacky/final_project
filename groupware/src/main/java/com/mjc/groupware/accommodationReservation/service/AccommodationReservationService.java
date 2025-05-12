@@ -37,6 +37,7 @@ public class AccommodationReservationService {
             dto.setCheck_in(reservation.getCheckIn());
             dto.setCheck_out(reservation.getCheckOut());
             dto.setReservation_status(reservation.getReservationStatus());
+            dto.setRoom_count(reservation.getRoomCount());
             dto.setReject_reason(reservation.getRejectReason());
 
 
@@ -49,7 +50,6 @@ public class AccommodationReservationService {
                 dto.setAccommodation_no(reservation.getAccommodationInfo().getAccommodationNo());
                 dto.setAccommodation_name(reservation.getAccommodationInfo().getAccommodationName());
                 dto.setRoom_price(reservation.getAccommodationInfo().getRoomPrice());
-                dto.setRoom_count(reservation.getAccommodationInfo().getRoomCount());
             }
 
             dtoList.add(dto);
@@ -73,6 +73,7 @@ public class AccommodationReservationService {
 	        dto.setCheck_in(reservation.getCheckIn());
 	        dto.setCheck_out(reservation.getCheckOut());
 	        dto.setReservation_status(reservation.getReservationStatus());
+	        dto.setRoom_count(reservation.getRoomCount());
 	        dto.setReject_reason(reservation.getRejectReason());
 
 	        if (reservation.getMember() != null) {
@@ -84,7 +85,6 @@ public class AccommodationReservationService {
 	            dto.setAccommodation_no(reservation.getAccommodationInfo().getAccommodationNo());
 	            dto.setAccommodation_name(reservation.getAccommodationInfo().getAccommodationName());
 	            dto.setRoom_price(reservation.getAccommodationInfo().getRoomPrice());
-	            dto.setRoom_count(reservation.getAccommodationInfo().getRoomCount());
 	        }
 
 	        dtoList.add(dto);
@@ -92,7 +92,7 @@ public class AccommodationReservationService {
 
 	    return dtoList;
 	}
-
+	
 	// 예약 상태변경
 	@Transactional	
 

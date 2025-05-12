@@ -64,4 +64,7 @@ public class AccommodationReservation {
 	@Column(name = "reject_reason")
 	private String rejectReason;
 	
+	@Column(name = "room_count")
+	private Long roomCount;
+	
 }
