@@ -103,12 +103,10 @@ layout:decorate="~{/include/layout}">
 							<!-- <td>
 								<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
 							</td> -->
-							<td>
-								<div class="d-flex align-items-center">
-									<div class="ms-3">
-										<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
-										<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
-									</div>
+							<td class="text-center">
+								<div>
+									<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+									<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
 								</div>
 								<input type="hidden" id="memberNo" th:value="${member.memberNo}">
 							</td>
