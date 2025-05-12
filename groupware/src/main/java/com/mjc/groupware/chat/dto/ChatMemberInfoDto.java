@@ -19,4 +19,5 @@ public class ChatMemberInfoDto {
     private String memberName;
     private String positionName;
     private String departmentName;
+    private String memberStatus;
 }
