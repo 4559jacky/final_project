@@ -43,6 +43,8 @@ public class ChatMsgDto {
 	 
 	 private Long attach_no;
 	 
+	 private String chat_alarm_content;
+	 
 	 private String ori_name;
 	 private String new_name;
 	 private String attach_path;

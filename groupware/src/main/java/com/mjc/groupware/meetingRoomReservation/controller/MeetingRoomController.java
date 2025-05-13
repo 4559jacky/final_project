@@ -204,7 +204,7 @@ public class MeetingRoomController {
 		model.addAttribute("reservationList",resultList);
 		model.addAttribute("meetingRoomList",meetingRoomList);
 		 
-		return "meetingRoom/AdminMeetingReservation";
+		return "meetingRoom/adminMeetingReservation";
 	}
 	
 	// 관리자 - 회의실 전체 예약 내역 조회 필터
@@ -237,7 +237,7 @@ public class MeetingRoomController {
 		
 		model.addAttribute("meetingRoomList",resultList);
 
-		return "/meetingRoom/AdminMeetingRoomSelect";
+		return "/meetingRoom/adminMeetingRoomSelect";
 	}
 	
 	// 관리자 - 회의실 등록

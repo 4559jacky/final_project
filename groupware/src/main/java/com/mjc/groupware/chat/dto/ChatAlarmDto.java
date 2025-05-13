@@ -23,10 +23,6 @@ public class ChatAlarmDto {
 	
 	private Long member_no;
 	
-	private String member_name;
-	
-	private String member_pos_name;
-	
 	private Long chat_room_no;
 	
 	private String chat_room_name;
@@ -40,6 +36,18 @@ public class ChatAlarmDto {
 	private Long chat_msg_no;
 	
 	private String chat_msg_content;
+	
+	private String chat_mag_type;
+
+	private String sender_no;
+	
+	private String sender_name;
+	
+	private String sender_pos_name;
+	
+	private String sender_dept_name;
+	
+    private String chat_alarm_content;
 	
 
 }
