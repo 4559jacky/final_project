@@ -26,7 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import java.time.ZoneId;
 import java.util.*;
 
 @Controller
@@ -124,6 +124,7 @@ public class BoardController {
             model.addAttribute("vote", board.getVote());
             model.addAttribute("voteOptions", board.getVote().getVoteOptions());
             boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
+            // (ZoneId.of("Asia/Seoul") - 추가해줘야함
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
