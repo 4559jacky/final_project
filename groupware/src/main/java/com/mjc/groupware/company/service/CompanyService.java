@@ -69,7 +69,7 @@ public class CompanyService {
 			    File saveFile = new File(fullPath);
 			    file.transferTo(saveFile);
 			    
-			    dto.setAttach_path("groupware/profile/" + newName);
+			    dto.setAttach_path("groupware/" + newName);
 				
 			    return dto;
 			}
