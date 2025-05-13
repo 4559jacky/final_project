@@ -1,6 +1,8 @@
 package com.mjc.groupware.vote.entity;
 
 import com.mjc.groupware.board.entity.Board;
+import com.mjc.groupware.member.entity.Member;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -44,4 +46,5 @@ public class Vote {
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteOption> voteOptions = new ArrayList<>();
-}
+    
+	}

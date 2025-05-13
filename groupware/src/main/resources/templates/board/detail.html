@@ -92,7 +92,9 @@
   </div>
 
   <!-- 투표 가능한 경우 -->
-  <form th:if="${not isVoteClosed}" id="voteForm" th:data-vote-no="${board.vote.voteNo}">
+<form id="voteForm"
+      th:data-vote-no="${board.vote.voteNo}"
+      th:style="${isVoteClosed} ? 'display:none' : ''">
     <ul class="list-group mb-3">
       <li class="list-group-item d-flex align-items-center"
           th:each="option : ${board.vote.voteOptions}">
@@ -757,8 +759,6 @@ function submitVote() {
       console.error(err);
     });
 });
-
-  
 </script>
  
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
