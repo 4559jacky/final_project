@@ -1,6 +1,7 @@
 package com.mjc.groupware.company.service;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,16 +59,19 @@ public class CompanyService {
 				String newName = UUID.randomUUID().toString().replaceAll("-", "") + fileExt;
 				dto.setNew_name(newName);
 				
-				String downDir = fileDir+newName;
-				dto.setAttach_path(downDir);
+				String uploadPath = fileDir;
+			    File dir = new File(uploadPath);
+			    if (!dir.exists()) {
+			        dir.mkdirs();
+			    }
+			    
+			    String fullPath = Paths.get(uploadPath, newName).toString();
+			    File saveFile = new File(fullPath);
+			    file.transferTo(saveFile);
+			    
+			    dto.setAttach_path("groupware/profile/" + newName);
 				
-				File saveFile = new File(downDir);
-				
-				if(!saveFile.exists()) {
-					saveFile.mkdirs();
-				}
-				
-				file.transferTo(saveFile);
+			    return dto;
 			}
 		} 
 		catch(Exception e) {
