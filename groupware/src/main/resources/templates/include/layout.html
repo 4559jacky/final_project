@@ -185,6 +185,29 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
 	</div>
 	
+	
+	
+	<!-- 🗳️ 투표 마감 알림 토스트 -->
+	<div id="vote-alert-toast" class="d-none" style="
+  		position: fixed;
+  		bottom: 30px;
+  		right: 30px;
+  		background: #fffbe6;
+  		border: 2px solid #ffc107;
+  		padding: 24px 28px;
+  		z-index: 99999;
+  		border-radius: 14px;
+  		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  		font-size: 1.1rem;
+  		line-height: 1.6rem;
+  		width: 340px;
+  		max-width: 90%;">
+  	<strong style="font-size: 1.2rem;">[투표 마감]</strong><br>
+  	<span id="vote-toast-title" style="font-weight: bold; font-size: 1.15rem;">투표 제목</span><br>
+  	<span id="vote-toast-sender" style="color: #333;">작성자</span><br>
+  	<span id="vote-toast-msg">마감 메시지</span>
+	</div>
+	
 
 	<!-- Common JS Files -->
   
@@ -214,6 +237,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    stompClient.send("/app/chat/session-register", {}, JSON.stringify({
 		        memberNo: myNo
 		      }));
+		    
+		    // 투표 마감 알림
+		    const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
+		    if (voteNo && myNo) {
+		      fetch(`/vote/${voteNo}/should-alert?memberNo=${myNo}`);
+		    }
 	
 		    // 채팅방 생성 실시간 반영
 		    stompClient.subscribe("/topic/chat/room/new", (message) => {
@@ -255,6 +284,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    	    const dto = JSON.parse(msg.body);
 		    	    console.log("전자결재 알림 도착:", dto);
 		    	    showApprovalAlertToast(dto);
+		      });
+		   	  
+		   	  // 투표 마감 알림
+		      stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
+		        const dto = JSON.parse(msg.body);
+		        console.log("🗳️ 투표 마감 알림 도착:", dto);
+		        showVoteAlertToast(dto.title, dto.senderName, dto.message);
 		      });
 		      
 		    }
@@ -310,6 +346,24 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      wrapper.classList.add("d-none");
 		    }, 5000);
 		  }
+		// 투표 마감
+		function showVoteAlertToast(title, senderName, msg) {
+			  const wrapper = document.getElementById("vote-alert-toast");
+			  if (!wrapper) return;
+
+			  document.getElementById("vote-toast-title").textContent = title || "투표";
+			  document.getElementById("vote-toast-sender").textContent = senderName || "";
+			  document.getElementById("vote-toast-msg").textContent = msg || "투표가 마감되었습니다.";
+
+			  wrapper.classList.remove("d-none");
+			  wrapper.classList.remove("active");
+			  void wrapper.offsetWidth;
+			  wrapper.classList.add("active");
+
+			  setTimeout(() => {
+			    wrapper.classList.add("d-none");
+			  }, 5000);
+			}
 	
 	  function closeApprovalToast() {
 	    const wrapper = document.getElementById("approval-alert-toast");
