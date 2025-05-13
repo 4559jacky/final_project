@@ -44,8 +44,9 @@ public class BoardController {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
-    
-
+    // @AuthenticationPrincipal(expression = "member") Member loginMember) = 첨부파일이 안되서 다시 추가
+    @PostMapping("/board")
+    @ResponseBody
     public Map<String, String> createBoard(@ModelAttribute BoardDto dto,
             							   @RequestParam(value = "files", required = false) List<MultipartFile> files,
             							   @RequestParam(value = "vote_json", required = false) String voteJson,
@@ -150,11 +151,13 @@ public class BoardController {
     public ResponseEntity<Map<String, String>> updateBoard(@PathVariable("boardNo") Long boardNo,
                                                            @ModelAttribute BoardDto boardDto,
                                                            @RequestParam(value = "files", required = false) List<MultipartFile> files,
-                                                           @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {
+                                                           @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles,
+                                                           @AuthenticationPrincipal(expression = "member") Member loginMember) {
         Map<String, String> result = new HashMap<>();
         try {
             boardDto.setBoard_no(boardNo);
             boardDto.setDelete_files(deleteFiles);
+            boardDto.setMember_no(loginMember.getMemberNo()); // ✅ 수정 시에도 로그인 사용자 주입
             if (boardDto.getIs_fixed() == null) boardDto.setIs_fixed(false);
 
             boardService.updateBoard(boardDto, files);
