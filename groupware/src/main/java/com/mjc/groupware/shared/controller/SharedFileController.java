@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,8 +38,11 @@ public class SharedFileController {
 	@PostMapping("/shared/files/upload")
 	@ResponseBody
 	public Map<String, String> uploadFiles(@RequestParam("files") List<MultipartFile> files,
-										   @RequestParam("folderId") Long folderId){
-		sharedFileService.saveFiles(files,folderId);
+										   @RequestParam("folderId") Long folderId,
+										   @AuthenticationPrincipal MemberDetails memberDetails	){
+		
+	    Member member = memberDetails.getMember();
+		sharedFileService.saveFiles(files,folderId,member);
 		
 		return Map.of("message","파일이 성공적으로 업로드 되었습니다.");
 	}
