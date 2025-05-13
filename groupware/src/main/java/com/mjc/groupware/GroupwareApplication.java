@@ -18,8 +18,11 @@ public class GroupwareApplication implements WebMvcConfigurer {
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		if (!fileDir.endsWith("/")) {
+		    fileDir += "/";
+		}
 		registry.addResourceHandler("/uploads/**")
-				.addResourceLocations("file:///"+fileDir);
+				.addResourceLocations("file:" + fileDir);
 	}
 
 }
