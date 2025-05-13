@@ -6,11 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,14 +20,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationAttachDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
-import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
+import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
+import com.mjc.groupware.accommodationReservation.dto.PageDto;
+import com.mjc.groupware.accommodationReservation.dto.SearchDto;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.service.AccommodationAttachService;
+import com.mjc.groupware.accommodationReservation.service.AccommodationReservationService;
 import com.mjc.groupware.accommodationReservation.service.AccommodationService;
-import com.mjc.groupware.board.controller.BoardAttachController;
+import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.common.annotation.CheckPermission;
-import com.mjc.groupware.member.security.MemberDetails;
-import com.mjc.groupware.notice.dto.NoticeDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +38,8 @@ public class AccommodationAdminController {
 
 	private final AccommodationService accommodationService;
 	private final AccommodationAttachService accommodationAttachService;
+	private final AddressService addressService;
+	private final AccommodationReservationService reservationService; 
 	
 	// 관리자(adminHome 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
@@ -53,8 +52,14 @@ public class AccommodationAdminController {
 	
 	// 관리자(adminCreate 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
-	@GetMapping("/admin/create")
-	public String adminCreateView() {
+	@GetMapping("/admin/accommodation/create")
+	public String adminCreateView(Model model) {
+		List<String> addr1List = addressService.selectAddr1Distinct();
+		model.addAttribute("addr1List", addr1List);
+		model.addAttribute("selectedAddr1", null);
+		model.addAttribute("addr2List", List.of());
+		model.addAttribute("selectedAddr2", null);
+		
 		return "accommodation/adminCreate";
 	}
 	
@@ -65,11 +70,30 @@ public class AccommodationAdminController {
 	}
 	
 	// 사용자(nav바 사내복지 클릭시 home.html 페이지로 이동/조회)
+//	@GetMapping("/accommodation")
+//	public String showHomeView(Model model) {
+//		List<AccommodationInfoDto> list = accommodationService.showHomeView();
+//		model.addAttribute("accommodationList", list);
+//		return "accommodation/home";
+//	}
+	
+	// home화면 필터링
 	@GetMapping("/accommodation")
-	public String showHomeView(Model model) {
-		List<AccommodationInfoDto> list = accommodationService.showHomeView();
-		model.addAttribute("accommodationList", list);
-		return "accommodation/home";
+	public String showHomeView(@ModelAttribute SearchDto searchDto,
+							   @ModelAttribute PageDto pageDto,
+							   Model model) {
+		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		if(pageDto.getNumPerPage() == 0) pageDto.setNumPerPage(6);
+		
+		Page<AccommodationInfoDto> pageList = accommodationService.getFilteredList(searchDto,pageDto);
+		
+		pageDto.setTotalPage(pageList.getTotalPages());
+		pageDto.setTotalCount((int)pageList.getTotalElements());
+		
+	    model.addAttribute("accommodationList", pageList.getContent());
+	    model.addAttribute("searchDto", searchDto);
+	    model.addAttribute("pageDto",pageDto);
+	    return "accommodation/home";
 	}
 
 	// 사용자(list 페이지로 이동)
@@ -125,8 +149,11 @@ public class AccommodationAdminController {
 		}
 
 		List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+		
+		AccommodationReservationDto reservationDto = reservationService.findLatestByAccommodationNo(accommodationNo);
 		model.addAttribute("accommodation", dto);
 		model.addAttribute("attachList", attachList); // 이미지 리스트 전달
+		model.addAttribute("reservation", reservationDto);
 		    
 		return "accommodation/adminDetail";
 	}
@@ -159,11 +186,9 @@ public class AccommodationAdminController {
 
 	        AccommodationInfo updated = accommodationService.update(dto); // 서비스 호출
 
-            // 기존 첨부파일 전체 삭제
-	        accommodationAttachService.deleteAllByAccommodation(accommodationNo);
-	        
 	        // 새 파일이 있는 경우만 기존 파일 삭제 + 새로운 파일 저장
-	        if (files != null && !files.isEmpty()) {
+	        if (files != null && !files.isEmpty() && !files.get(0).isEmpty()) {
+	            // 기존 이미지 삭제
 	            accommodationAttachService.deleteAllByAccommodation(accommodationNo);
 
 	            for (MultipartFile mf : files) {
@@ -195,9 +220,27 @@ public class AccommodationAdminController {
 	    }
 
 	    List<AccommodationAttachDto> attachList = accommodationService.findAttachList(id);
+	    
+	 // 주소 select box용 데이터 처리
+	    List<String> addr1List = addressService.selectAddr1Distinct();
+	    String fullAddress = dto.getAccommodation_address();
+	    String selectedAddr1 = "";
+	    String selectedAddr2 = "";
+
+	    if (fullAddress != null && fullAddress.contains(" ")) {
+	        String[] parts = fullAddress.split(" ", 2);
+	        selectedAddr1 = parts[0];
+	        selectedAddr2 = parts[1];
+	    }
+
+	    List<String> addr2List = addressService.selectAddr2ByAddr1(selectedAddr1);
 
 	    model.addAttribute("accommodation", dto);
 	    model.addAttribute("attachList", attachList);
+	    model.addAttribute("addr1List", addr1List);
+	    model.addAttribute("addr2List", addr2List);
+	    model.addAttribute("selectedAddr1", selectedAddr1);
+	    model.addAttribute("selectedAddr2", selectedAddr2);
 
 	    return "accommodation/adminUpdate";  // 수정과 생성 페이지 공유
 	}

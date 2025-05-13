@@ -1,5 +1,27 @@
 package com.mjc.groupware.board.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mjc.groupware.board.dto.BoardDto;
@@ -9,23 +31,14 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-
-import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -42,39 +55,39 @@ public class BoardController {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
-    
-
+    // @AuthenticationPrincipal(expression = "member") Member loginMember) = 첨부파일이 안되서 다시 추가
     @PostMapping("/board")
     @ResponseBody
     public Map<String, String> createBoard(@ModelAttribute BoardDto dto,
-                                           @RequestParam(value = "files", required = false) List<MultipartFile> files,
-                                           @RequestParam(value = "vote_json", required = false) String voteJson) {
+            							   @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            							   @RequestParam(value = "vote_json", required = false) String voteJson,
+            							   @AuthenticationPrincipal(expression = "member") Member loginMember) {
+    			Map<String, String> resultMap = new HashMap<>();
+    			resultMap.put("res_code", "500");
+    			resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
 
-        Map<String, String> resultMap = new HashMap<>();
-        resultMap.put("res_code", "500");
-        resultMap.put("res_msg", "게시글 등록 중 오류가 발생하였습니다.");
+    				try {
+    					dto.setMember_no(loginMember.getMemberNo()); // ✅ 서버에서 직접 설정
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
+    					ObjectMapper mapper = new ObjectMapper();
+    					mapper.registerModule(new JavaTimeModule());
 
-            VoteCreateRequest voteRequest = null;
-            if (voteJson != null) {
-                String trimmed = voteJson.trim();
-                // JSON 객체 또는 배열로 시작할 경우에만 파싱
-                if (!trimmed.isEmpty() && (trimmed.startsWith("{") || trimmed.startsWith("["))) {
-                    voteRequest = mapper.readValue(trimmed, VoteCreateRequest.class);
-                }
-            }
+    					VoteCreateRequest voteRequest = null;
+    					if (voteJson != null) {
+    						String trimmed = voteJson.trim();
+    						if (!trimmed.isEmpty() && (trimmed.startsWith("{") || trimmed.startsWith("["))) {
+    							voteRequest = mapper.readValue(trimmed, VoteCreateRequest.class);
+    						}
+    					}
 
-            boardService.createBoard(dto, files, voteRequest);
-            resultMap.put("res_code", "200");
-            resultMap.put("res_msg", "게시글이 등록되었습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("res_msg", e.getMessage());
-        }
-        return resultMap;
+    					boardService.createBoard(dto, files, voteRequest);
+    					resultMap.put("res_code", "200");
+    					resultMap.put("res_msg", "게시글이 등록되었습니다.");
+    				} catch (Exception e) {
+    					e.printStackTrace();
+    					resultMap.put("res_msg", e.getMessage());
+    				}
+    				return resultMap;
     }
     
 
@@ -114,7 +127,7 @@ public class BoardController {
 
         List<ReplyDto> allReplies = replyService.getHierarchicalRepliesByBoardNo(boardNo);
 
-        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5); // ✔ 실제 페이징 사용
+        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5); // 실제 페이징 사용
         model.addAttribute("replyList", initialReplies);
         model.addAttribute("hasMoreReplies", initialReplies.size() == 5);
 
@@ -122,6 +135,7 @@ public class BoardController {
             model.addAttribute("vote", board.getVote());
             model.addAttribute("voteOptions", board.getVote().getVoteOptions());
             boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
+            // (ZoneId.of("Asia/Seoul") - 추가해줘야함
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
@@ -149,11 +163,13 @@ public class BoardController {
     public ResponseEntity<Map<String, String>> updateBoard(@PathVariable("boardNo") Long boardNo,
                                                            @ModelAttribute BoardDto boardDto,
                                                            @RequestParam(value = "files", required = false) List<MultipartFile> files,
-                                                           @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles) {
+                                                           @RequestParam(value = "deleteFiles", required = false) List<Long> deleteFiles,
+                                                           @AuthenticationPrincipal(expression = "member") Member loginMember) {
         Map<String, String> result = new HashMap<>();
         try {
             boardDto.setBoard_no(boardNo);
             boardDto.setDelete_files(deleteFiles);
+            boardDto.setMember_no(loginMember.getMemberNo()); // ✅ 수정 시에도 로그인 사용자 주입
             if (boardDto.getIs_fixed() == null) boardDto.setIs_fixed(false);
 
             boardService.updateBoard(boardDto, files);

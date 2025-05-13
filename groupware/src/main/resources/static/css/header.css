@@ -18,3 +18,41 @@ html[data-bs-theme="dark"] .logo-text {
 html[data-bs-theme="light"] .logo-text {
 	color: #333;
 }
+
+.chat-popup-badge {
+  position: absolute;
+  top: 6px;
+  right: 0px;
+  font-size: 11px;
+  line-height: 16px;
+  height: 18px;
+  min-width: 18px;
+  text-align: center;
+  padding: 0 5px;
+  z-index: 10;
+}
+
+@media (min-width: 992px) {
+  .chat-popup-badge {
+    top: 2px !important;
+  }
+}
+
+.chat-message-body {
+  max-height: 300px;       /* ✅ 최대 높이 지정 */
+  overflow-y: auto;        /* ✅ 세로 스크롤 */
+  overflow-x: hidden;      /* 가로 스크롤 방지 */
+}
+
+.chat-message-body::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-message-body::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+.chat-message-body::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+

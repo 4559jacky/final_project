@@ -69,23 +69,23 @@ public class BoardAttachService {
     // 파일 업로드 처리
     public List<BoardAttach> uploadFiles(List<MultipartFile> files, Long boardNo) {
         List<BoardAttach> savedAttachments = new ArrayList<>();
-        
+
+        String boardDir = fileDir + "/board";
+        File uploadDir = new File(boardDir);
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
         for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                continue;
-            }
+            if (file.isEmpty()) continue;
 
             String oriName = file.getOriginalFilename();
-            if (!isValidFileType(oriName)) {
-                continue;
-            }
+            if (!isValidFileType(oriName)) continue;
 
             String newName = UUID.randomUUID().toString() + "-" + oriName;
-            String filePath = fileDir + "/" + newName;
+            String relativePath = "/board/" + newName;
+            String fullPath = fileDir + relativePath;
 
             try {
-                File destinationFile = new File(filePath);
-                file.transferTo(destinationFile);
+                file.transferTo(new File(fullPath));
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;
@@ -94,7 +94,7 @@ public class BoardAttachService {
             BoardAttach boardAttach = BoardAttach.builder()
                 .oriName(oriName)
                 .newName(newName)
-                .attachPath(fileDir + "/" + newName)  // 경로를 상대경로로 변경
+                .attachPath(relativePath)  // ✅ 상대경로로 저장
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
                 .board(Board.builder().boardNo(boardNo).build())

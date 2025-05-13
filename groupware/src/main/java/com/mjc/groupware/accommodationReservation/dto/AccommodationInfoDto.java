@@ -31,12 +31,12 @@ public class AccommodationInfoDto {
 	private String accommodation_phone;
 	private String accommodation_email;
 	private String accommodation_site;
-//	private Long room_count;
 	private Long room_price;
 	private String accommodation_location;
 	private String accommodation_content;
 	private LocalDateTime reg_date;
 	private LocalDateTime mod_date;
+	private String accommodation_type_name;
 	
 	private List<AccommodationAttachDto> attachList;
 	private List<MultipartFile> files;
@@ -75,6 +75,13 @@ public class AccommodationInfoDto {
 				.build();
 	}
 	
-	
+	public String getAccommodationTypeName() {
+	    return switch (this.accommodation_type) {
+	        case "1" -> "리조트";
+	        case "2" -> "호텔";
+	        default -> "기타";
+	    };
+	}
+
 	
 }
