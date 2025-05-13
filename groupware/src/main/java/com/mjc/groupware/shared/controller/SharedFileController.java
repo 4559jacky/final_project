@@ -31,7 +31,7 @@ public class SharedFileController {
 	// 공유문서함 메인화면 view
 	@GetMapping("/shared")
 	public String mainView() {
-		return "/shared/main";
+		return "shared/main";
 	}
 	
 	// 파일 업로드
