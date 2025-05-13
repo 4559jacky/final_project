@@ -43,24 +43,29 @@ public class ChatRoomDto {
 	
 	private List<Long> member_no;
 	
+	private String member_status;
+	
 	// selectChatRoonOne 조회용
 	private List<ChatMemberInfoDto> memberInfos;
 	
 	public static ChatRoomDto toDto(ChatRoom room) {
 	    List<Long> memberNoList = new ArrayList<>();
 	    List<ChatMemberInfoDto> memberInfoList = new ArrayList<>();
-	    
+
 	    if (room.getMappings() != null) {
 	        for (ChatMapping mapping : room.getMappings()) {
 	            Member member = mapping.getMemberNo();
-	            if (member != null) {
+
+	            // ✅ 상태가 'Y'인 멤버만 처리
+	            if (member != null && "Y".equals(mapping.getMemberStatus())) {
 	                memberNoList.add(member.getMemberNo());
 
 	                ChatMemberInfoDto info = new ChatMemberInfoDto(
 	                    member.getMemberNo(),
 	                    member.getMemberName(),
 	                    member.getPos() != null ? member.getPos().getPosName() : null,
-	                    member.getDept() != null ? member.getDept().getDeptName() : null
+	                    member.getDept() != null ? member.getDept().getDeptName() : null,
+	                    mapping.getMemberStatus() 
 	                );
 	                memberInfoList.add(info);
 	            }
@@ -68,26 +73,21 @@ public class ChatRoomDto {
 	    }
 
 	    return ChatRoomDto.builder()
-	            .chat_room_no(room.getChatRoomNo())
-	            .chat_room_title(room.getChatRoomTitle())
-	            .create_member_no(room.getCreateMemberNo().getMemberNo())
-	            .member_name(room.getCreateMemberNo().getMemberName())
-	            .member_pos_name(
-	                room.getCreateMemberNo().getPos() != null 
-	                    ? room.getCreateMemberNo().getPos().getPosName() 
-	                    : null
-	            )
-	            .member_dept_name(
-	                room.getCreateMemberNo().getDept() != null 
-	                    ? room.getCreateMemberNo().getDept().getDeptName() 
-	                    : null
-	            )
-	            .last_msg(room.getLastMsg())
-	            .last_msg_date(room.getLastMsgDate())
-	            .reg_date(room.getRegDate())
-	            .member_no(memberNoList)
-	            .memberInfos(memberInfoList)
-	            .build();
+	        .chat_room_no(room.getChatRoomNo())
+	        .chat_room_title(room.getChatRoomTitle())
+	        .create_member_no(room.getCreateMemberNo().getMemberNo())
+	        .member_name(room.getCreateMemberNo().getMemberName())
+	        .member_pos_name(room.getCreateMemberNo().getPos() != null 
+	                         ? room.getCreateMemberNo().getPos().getPosName() : null)
+	        .member_dept_name(room.getCreateMemberNo().getDept() != null 
+	                          ? room.getCreateMemberNo().getDept().getDeptName() : null)
+	        .last_msg(room.getLastMsg())
+	        .last_msg_date(room.getLastMsgDate())
+	        .reg_date(room.getRegDate())
+	        .member_no(memberNoList)
+	        .memberInfos(memberInfoList)
+	        .build();
 	}
+
 
 }

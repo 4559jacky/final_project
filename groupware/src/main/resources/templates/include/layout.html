@@ -152,20 +152,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<input type="hidden" id="member_no" th:value="${#authentication.principal.member.memberNo}">
 	
 	<!-- 채팅 알림 모달 -->
-	<div id="chat-alert-toast" class="position-fixed end-0 bottom-0 p-3 d-none" style="z-index: 1080;">
-	  <div class="toast align-items-start text-dark shadow" role="alert" style="border: none; border-radius: 0.5rem;">
-	    <div class="toast-header bg-primary text-white">
-	      <strong class="me-auto">새로운 메세지가 도착했습니다.</strong>
-	      <button type="button" class="btn-close btn-close-white ms-2 mb-1" onclick="closeChatToast()"></button>
-	    </div>
-	    <div class="toast-body">
-	      <div><strong>[</strong> <span id="toast-chat-title">알림</span><strong>]</strong></div>
-	      <div><strong id="toast-sender-name"></strong></div>
-	      <div><span id="toast-msg-content"></span></div> 
-	    </div>
-	    <input type="hidden" id="toast-room-no" />
-	  </div>
+	<div id="chatAlertToast" class="position-fixed end-0 bottom-0 m-4 p-3 shadow-lg rounded-3 border bg-white text-dark d-none" style="width: 320px; z-index: 1080;">
+	  <div class="fw-bold text-primary mb-2">[채팅 알림] 새로운 메시지가 도착했습니다.</div>
+	  <div><strong>제목:</strong> <span id="toast-chat-title">-</span></div>
+	  <div><strong>보낸 사람:</strong> <span id="toast-sender-name">-</span></div>
+	  <div><strong>내용:</strong> <span id="toast-msg-content">-</span></div>
+	  <input type="hidden" id="toast-room-no" />
 	</div>
+
+
 	
 	<!-- 전자결재 알림 모달 -->
 	<div id="approval-alert-toast" class="d-none" style="
@@ -184,6 +179,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  <span id="approval-toast-sender">홍길동</span><br>
 	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
 	</div>
+	
 
 	<!-- Common JS Files -->
   
@@ -239,6 +235,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      }
 		    });
 
+		    // 나가기 실시간 반영 
+		    stompClient.subscribe("/topic/chat/room/exit", (msg) => {
+			  const dto = JSON.parse(msg.body);
+			
+			  if (typeof window.onChatMemberExit === "function") {
+			    window.onChatMemberExit(dto);  // ✅ dto.chat_room_no로 처리
+			  }
+			});
 		    
 		    // 채팅 알림 
 
@@ -268,27 +272,21 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		function showChatAlertToast(dto) {
 		  console.log("🔥 모달 함수 진입", dto);
 		
-		  const wrapper = document.getElementById("chat-alert-toast");
-		  if (!wrapper) return;
-		
 		  // 값 세팅
 		  document.getElementById("toast-room-no").value = dto.chat_room_no;
 		  document.getElementById("toast-sender-name").textContent = `${dto.member_name} ${dto.member_pos_name}`;
 		  document.getElementById("toast-msg-content").textContent = dto.chat_msg_content;
+		  document.getElementById("toast-chat-title").textContent = dto.chat_room_title || "제목 없음";
 		
-		  // ✅ 무조건 초기화
-		  wrapper.classList.remove("d-none");     // display: none 제거
-		  wrapper.classList.remove("active");     // 이전 active 제거
-		  void wrapper.offsetWidth;               // 강제 reflow
-		  wrapper.classList.add("active");        // 다시 active 추가
+		  const toastEl = document.getElementById("chatAlertToast");
+		  toastEl.classList.remove("d-none");
 		
-		  // ✅ 5초 후 숨김 처리
+		  // 5초 뒤 사라짐
 		  setTimeout(() => {
-		    wrapper.classList.remove("active");
-		    wrapper.classList.add("d-none");      // 다시 숨김
+		    toastEl.classList.add("d-none");
 		  }, 5000);
 		}
-		
+
 		
 		// 전자결재 알림 토스트 모달
 		function showApprovalAlertToast(dto) {
@@ -315,6 +313,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	    wrapper.classList.remove("active");
 	    wrapper.classList.add("d-none");
 	  }
+	  
 	</script>
 
 </body>

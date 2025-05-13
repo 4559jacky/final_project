@@ -1,5 +1,6 @@
 package com.mjc.groupware.member.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class Member {
     private String signature;
 	
 	@Column(name="reg_date")
-	private LocalDateTime regDate;
+	private LocalDate regDate;
 	
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
@@ -134,6 +135,10 @@ public class Member {
 	
 	public void changeRoleNo(Role role) {
 		this.role = role;
+	}
+	
+	public void updateAnnualLeave(double leave) {
+		this.annualLeave = this.annualLeave+leave;
 	}
 	
 }

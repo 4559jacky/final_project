@@ -1,13 +1,15 @@
 package com.mjc.groupware.accommodationReservation.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationAttachDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
+import com.mjc.groupware.accommodationReservation.dto.SearchDto;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.repository.AccommodationAttachRepository;
@@ -56,36 +58,36 @@ public class AccommodationService {
 	}
 	
 	// 사용자 홈화면 목록용 (썸네일 이미지 포함)
-	public List<AccommodationInfoDto> showHomeView() {
-	    List<AccommodationInfo> list = accommodationInfoRepository.findAll();
-	    List<AccommodationInfoDto> dtoList = new ArrayList<>();
-
-	    for (AccommodationInfo accom : list) {
-	        AccommodationInfoDto dto = new AccommodationInfoDto();
-	        dto.setAccommodation_no(accom.getAccommodationNo());
-	        dto.setAccommodation_name(accom.getAccommodationName());
-	        dto.setRoom_price(accom.getRoomPrice());
-
-	        // 대표 이미지 1개만 추가
-	        List<AccommodationAttach> attachList = accommodationAttachRepository
-	                .findByAccommodationInfo_AccommodationNo(accom.getAccommodationNo());
-
-	        if (!attachList.isEmpty()) {
-	            AccommodationAttach attach = attachList.get(0); // 첫 번째 이미지
-	            AccommodationAttachDto attachDto = new AccommodationAttachDto();
-	            attachDto.setAttach_no(attach.getAttachNo());
-	            attachDto.setNew_name(attach.getNewName());
-	            attachDto.setAttach_path(attach.getAttachPath());
-	            attachDto.setAccommodation_no(accom.getAccommodationNo());
-
-	            dto.setAttachList(List.of(attachDto));
-	        }
-
-	        dtoList.add(dto);
-	    }
-
-	    return dtoList;
-	}
+//	public List<AccommodationInfoDto> showHomeView() {
+//	    List<AccommodationInfo> list = accommodationInfoRepository.findAll();
+//	    List<AccommodationInfoDto> dtoList = new ArrayList<>();
+//
+//	    for (AccommodationInfo accom : list) {
+//	        AccommodationInfoDto dto = new AccommodationInfoDto();
+//	        dto.setAccommodation_no(accom.getAccommodationNo());
+//	        dto.setAccommodation_name(accom.getAccommodationName());
+//	        dto.setRoom_price(accom.getRoomPrice());
+//
+//	        // 대표 이미지 1개만 추가
+//	        List<AccommodationAttach> attachList = accommodationAttachRepository
+//	                .findByAccommodationInfo_AccommodationNo(accom.getAccommodationNo());
+//
+//	        if (!attachList.isEmpty()) {
+//	            AccommodationAttach attach = attachList.get(0); // 첫 번째 이미지
+//	            AccommodationAttachDto attachDto = new AccommodationAttachDto();
+//	            attachDto.setAttach_no(attach.getAttachNo());
+//	            attachDto.setNew_name(attach.getNewName());
+//	            attachDto.setAttach_path(attach.getAttachPath());
+//	            attachDto.setAccommodation_no(accom.getAccommodationNo());
+//
+//	            dto.setAttachList(List.of(attachDto));
+//	        }
+//
+//	        dtoList.add(dto);
+//	    }
+//
+//	    return dtoList;
+//	}
 
     // 숙소 상세(관리자)
     public AccommodationInfoDto findById(Long accommodationNo) {
@@ -168,6 +170,111 @@ public class AccommodationService {
 	public void deleteAccommodation(Long accommodationNo) {
 		accommodationInfoRepository.deleteById(accommodationNo);
 	}
+
+	//필터링
+//	public List<AccommodationInfoDto> getFilteredList(String address, String sort, String type) {
+//	    List<AccommodationInfo> list = accommodationInfoRepository.findAll();
+//	    List<AccommodationInfoDto> dtoList = new ArrayList<>();
+//
+//	    for (AccommodationInfo accom : list) {
+//	        // 지역 필터링 조건
+//	        if (address != null && !address.equals("전체") &&
+//	        		(accom.getAccommodationAddress() == null || !accom.getAccommodationAddress().startsWith(address))) {
+//	            continue;
+//	        }
+//	        // 숙소유형 필터링 조건
+//	        if (type != null && !type.equals(accom.getAccommodationType())) {
+//	            continue;
+//	        }
+//
+//	        AccommodationInfoDto dto = new AccommodationInfoDto();
+//	        dto.setAccommodation_no(accom.getAccommodationNo());
+//	        dto.setAccommodation_name(accom.getAccommodationName());
+//	        dto.setAccommodation_type(accom.getAccommodationType());
+//	        dto.setAccommodation_address(accom.getAccommodationAddress());
+//	        dto.setAccommodation_phone(accom.getAccommodationPhone());
+//	        dto.setAccommodation_email(accom.getAccommodationEmail());
+//	        dto.setAccommodation_site(accom.getAccommodationSite());
+//	        dto.setAccommodation_location(accom.getAccommodationLocation());
+//	        dto.setAccommodation_content(accom.getAccommodationContent());
+//	        dto.setRoom_price(accom.getRoomPrice());
+//	        dto.setReg_date(accom.getRegDate());
+//	        dto.setMod_date(accom.getModDate());
+//
+//	        // 이미지 1장만 추가
+//	        List<AccommodationAttach> attachList = accommodationAttachRepository
+//	            .findByAccommodationInfo_AccommodationNo(accom.getAccommodationNo());
+//	        if (!attachList.isEmpty()) {
+//	            AccommodationAttach attach = attachList.get(0);
+//	            AccommodationAttachDto attachDto = new AccommodationAttachDto();
+//	            attachDto.setAttach_no(attach.getAttachNo());
+//	            attachDto.setNew_name(attach.getNewName());
+//	            attachDto.setAttach_path(attach.getAttachPath());
+//	            attachDto.setAccommodation_no(accom.getAccommodationNo());
+//	            dto.setAttachList(List.of(attachDto));
+//	        }
+//
+//	        dtoList.add(dto);
+//	    }
+//
+//	    // 가격 정렬
+//	    if ("asc".equals(sort)) {
+//	        dtoList.sort(Comparator.comparing(AccommodationInfoDto::getRoom_price));
+//	    } else if ("desc".equals(sort)) {
+//	        dtoList.sort(Comparator.comparing(AccommodationInfoDto::getRoom_price).reversed());
+//	    }
+//
+//	    return dtoList;
+//	}
+
+	public List<AccommodationInfoDto> getFilteredList(SearchDto searchDto) {
+        List<AccommodationInfo> list = accommodationInfoRepository.findAll();
+        List<AccommodationInfoDto> dtoList = new ArrayList<>();
+
+        for (AccommodationInfo accom : list) {
+            AccommodationInfoDto dto = new AccommodationInfoDto().toDto(accom);
+
+            // 지역필터
+            if(searchDto.getAccommodation_address() != null &&
+            		!searchDto.getAccommodation_address().equals("전체") &&
+            		(dto.getAccommodation_address() == null || !dto.getAccommodation_address().startsWith(searchDto.getAccommodation_address()))) {
+            	continue;
+            }
+            
+        	//유형필터
+            if(searchDto.getAccommodation_type() != null &&
+            		!searchDto.getAccommodation_type().equals(dto.getAccommodationTypeName())) {
+            	continue;
+            }
+            
+            // 출력용 이름 설정
+            dto.setAccommodation_type(dto.getAccommodationTypeName());
+
+            List<AccommodationAttach> attachList = accommodationAttachRepository.findByAccommodationInfo_AccommodationNo(accom.getAccommodationNo());
+            if (!attachList.isEmpty()) {
+                AccommodationAttach attach = attachList.get(0);
+                AccommodationAttachDto attachDto = new AccommodationAttachDto();
+                attachDto.setAttach_no(attach.getAttachNo());
+                attachDto.setNew_name(attach.getNewName());
+                attachDto.setAttach_path(attach.getAttachPath());
+                attachDto.setAccommodation_no(accom.getAccommodationNo());
+                dto.setAttachList(List.of(attachDto));
+            }
+
+            dtoList.add(dto);
+        }
+
+        if ("asc".equals(searchDto.getRoom_price_sort())) {
+            dtoList.sort(Comparator.comparing(AccommodationInfoDto::getRoom_price));
+        } else if ("desc".equals(searchDto.getRoom_price_sort())) {
+            dtoList.sort(Comparator.comparing(AccommodationInfoDto::getRoom_price).reversed());
+        }
+
+        return dtoList;
+    }
+
+
+
 
  
 

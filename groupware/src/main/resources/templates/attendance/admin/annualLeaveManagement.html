@@ -73,7 +73,7 @@ layout:decorate="~{include/layout :: layout}">
 					</div>
 				
 				</div>
-				
+				<input type="hidden" th:value="${today}" id="today">
 				<div class="table-responsive mb-4 border rounded-1">
 		               <table class="table text-nowrap mb-0 align-middle">
 		                 <thead class="text-dark fs-4">
@@ -88,7 +88,7 @@ layout:decorate="~{include/layout :: layout}">
 		                       <h6 class="fs-4 fw-semibold mb-0">입사일</h6>
 		                     </th>
 		                     <th>
-		                       <h6 class="fs-4 fw-semibold mb-0">경력</h6>
+		                       <h6 class="fs-4 fw-semibold mb-0">근속 연수</h6>
 		                     </th>
 		                     <th>
 		                       <h6 class="fs-4 fw-semibold mb-0">연간 연차</h6>
@@ -103,12 +103,10 @@ layout:decorate="~{include/layout :: layout}">
 							<!-- <td>
 								<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
 							</td> -->
-							<td>
-								<div class="d-flex align-items-center">
-									<div class="ms-3">
-										<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
-										<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
-									</div>
+							<td class="text-center">
+								<div>
+									<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+									<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
 								</div>
 								<input type="hidden" id="memberNo" th:value="${member.memberNo}">
 							</td>
@@ -121,8 +119,15 @@ layout:decorate="~{include/layout :: layout}">
 							<td class="text-center">
 							  <h6 class="fs-4 fw-semibold mb-0">
 							    <span th:each="policy : ${annualLeavePolicyList}"
-							      th:if="${policy.year == T(java.time.Period).between(member.regDate.toLocalDate(), T(java.time.LocalDate).now()).years + 1}"
-							      th:text="${policy.leaveDays}">16</span>
+								        th:if="${policy.year == (T(java.time.LocalDate).now().isBefore(member.regDate.plusYears(1)) 
+								                                  ? 0 
+								                                  : T(java.time.Period).between(member.regDate, T(java.time.LocalDate).now()).getYears())}"
+								        th:text="${policy.leaveDays}">연차</span>
+								
+								  <!-- 연차 정책이 없는 경우: 1년 미만이면서 정책 없음 -->
+								  <span th:unless="${#lists.contains(annualLeavePolicyList.?[year == 0], true)}"
+								        th:if="${T(java.time.LocalDate).now().isBefore(member.regDate.plusYears(1))}">-</span>
+
 							  </h6>
 							</td>
 							<td class="text-center">
@@ -237,7 +242,11 @@ layout:decorate="~{include/layout :: layout}">
 	              </tr>
 	            </thead>
 	            <tbody id="annual-policy-body">
-	              <!-- JS로 tr 삽입 -->
+					<tr>
+						<td>1년 미만</td>
+						<td>만근 시 한달에 1일</td>
+						<td></td>
+					</tr>
 	            </tbody>
 	          </table>
 	        </div>
@@ -282,6 +291,10 @@ layout:decorate="~{include/layout :: layout}">
 		    .then(data => {
 			      const tbody = document.getElementById("annual-policy-body");
 			      tbody.innerHTML = ""; // 초기화
+			      
+			      const rowOne = document.createElement("tr");
+			      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+			      tbody.appendChild(rowOne);
 
 			      // 전역 저장 (사원 목록 계산용)
 			      window.annualPolicyList = data;
@@ -422,6 +435,10 @@ layout:decorate="~{include/layout :: layout}">
 			    .then(data => {
 			      const tbody = document.getElementById("annual-policy-body");
 			      tbody.innerHTML = ""; // 초기화
+			      
+			      const rowOne = document.createElement("tr");
+			      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+			      tbody.appendChild(rowOne);
 
 			      // 전역 저장 (사원 목록 계산용)
 			      window.annualPolicyList = data;
@@ -456,7 +473,11 @@ layout:decorate="~{include/layout :: layout}">
 			    .then(data => {
 				      const tbody = document.getElementById("annual-policy-body");
 				      tbody.innerHTML = ""; // 초기화
-
+				      
+				      const rowOne = document.createElement("tr");
+				      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+				      tbody.appendChild(rowOne);
+				      
 				      // 전역 저장 (사원 목록 계산용)
 				      window.annualPolicyList = data;
 
@@ -478,31 +499,37 @@ layout:decorate="~{include/layout :: layout}">
 		}
 	</script>
 	
+	
 	<script>
-	  document.addEventListener("DOMContentLoaded", function () {
-	    const today = new Date();
-	    const currentYear = today.getFullYear();
-	
-	    document.querySelectorAll(".th-year").forEach(el => {
-	      const regDateStr = el.dataset.regDate;
-	      if (!regDateStr) return;
-	
-	      const regDate = new Date(regDateStr);
-	      let years = currentYear - regDate.getFullYear();
-	
-	      // 입사기념일 안 지났으면 1년차 덜 줘
-	      const notYet = today.getMonth() < regDate.getMonth() ||
-	                    (today.getMonth() === regDate.getMonth() && today.getDate() < regDate.getDate());
-	      if (notYet) {
-	        years--;
-	      }
-	
-	      // 연차는 최소 1년차부터
-	      years = Math.max(1, years + 1);
-	
-	      el.textContent = `${years}년차`;
-	    });
-	  });
+		  document.addEventListener("DOMContentLoaded", function () {
+		    const todayStr = document.getElementById("today")?.value;
+		    if (!todayStr) {
+		      console.error("⛔ today 값 없음");
+		      return;
+		    }
+		
+		    const today = new Date(todayStr); // "YYYY-MM-DD"
+		
+		    document.querySelectorAll(".th-year").forEach(el => {
+		      const regDateStr = el.dataset.regDate;
+		      if (!regDateStr) return;
+		
+		      const regDate = new Date(regDateStr);
+		      const yearDiff = today.getFullYear() - regDate.getFullYear();
+		
+		      const oneYearPassed =
+		        today.getMonth() > regDate.getMonth() ||
+		        (today.getMonth() === regDate.getMonth() && today.getDate() >= regDate.getDate());
+		
+		      if (yearDiff === 0 || (yearDiff === 1 && !oneYearPassed)) {
+		        el.textContent = "1년 미만";
+		        return;
+		      }
+		
+		      const serviceYears = oneYearPassed ? yearDiff + 1 : yearDiff;
+		      el.textContent = `${serviceYears - 1}년차`;
+		    });
+		  });
 	</script>
 	
 	<script>

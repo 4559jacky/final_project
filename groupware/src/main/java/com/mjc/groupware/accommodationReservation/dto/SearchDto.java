@@ -1,4 +1,4 @@
-package com.mjc.groupware.chat.dto;
+package com.mjc.groupware.accommodationReservation.dto;
 
 
 import lombok.AllArgsConstructor;
@@ -14,10 +14,9 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class ChatMemberInfoDto {
-    private Long memberNo;
-    private String memberName;
-    private String positionName;
-    private String departmentName;
-    private String memberStatus;
+public class SearchDto {
+
+	private String accommodation_address;
+	private String room_price_sort;
+	private String accommodation_type;
 }

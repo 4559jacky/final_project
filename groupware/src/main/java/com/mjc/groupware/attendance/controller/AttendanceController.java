@@ -1,6 +1,7 @@
 package com.mjc.groupware.attendance.controller;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -147,7 +148,8 @@ public class AttendanceController {
 		List<Pos> posList = posService.selectPosAll();
 		List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
 		
-		
+		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+	    model.addAttribute("today", today);
 		
 		model.addAttribute("memberList", memberList);
 		model.addAttribute("deptList", deptList);

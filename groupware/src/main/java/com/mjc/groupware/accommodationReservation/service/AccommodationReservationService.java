@@ -119,5 +119,37 @@ public class AccommodationReservationService {
 	    reservationRepository.flush(); // 강제 flush
 	}
 
+	public AccommodationReservationDto findLatestByAccommodationNo(Long accommodationNo) {
+	    return reservationRepository
+	            .findTopByAccommodationInfo_AccommodationNoOrderByReservationDateDesc(accommodationNo)
+	            .map(reservation -> {
+	                AccommodationReservationDto dto = new AccommodationReservationDto();
+
+	                dto.setReservation_no(reservation.getReservationNo());
+	                dto.setNumber_of_people(reservation.getNumberOfPeople());
+	                dto.setReservation_date(reservation.getReservationDate());
+	                dto.setCheck_in(reservation.getCheckIn());
+	                dto.setCheck_out(reservation.getCheckOut());
+	                dto.setReservation_status(reservation.getReservationStatus());
+	                dto.setRoom_count(reservation.getRoomCount());
+	                dto.setReject_reason(reservation.getRejectReason());
+
+	                if (reservation.getMember() != null) {
+	                    dto.setMember_no(reservation.getMember().getMemberNo());
+	                    dto.setMember_name(reservation.getMember().getMemberName());
+	                }
+
+	                if (reservation.getAccommodationInfo() != null) {
+	                    dto.setAccommodation_no(reservation.getAccommodationInfo().getAccommodationNo());
+	                    dto.setAccommodation_name(reservation.getAccommodationInfo().getAccommodationName());
+	                    dto.setRoom_price(reservation.getAccommodationInfo().getRoomPrice());
+	                }
+
+	                return dto;
+	            })
+	            .orElse(null);
+	}
+
+
 
 }

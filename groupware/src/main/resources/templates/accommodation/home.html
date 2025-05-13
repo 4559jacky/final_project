@@ -55,35 +55,41 @@ layout:decorate="~{include/layout :: layout}">
                 <ul class="list-group pt-2 border-bottom rounded-0">
                   <h6 class="my-3 mx-4">지역</h6>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
-                    <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
-                      <i class="ti ti-circles fs-5"></i>전체
-                    </a>
-                  </li>
-                  <li class="list-group-item border-0 p-0 mx-4 mb-2">
-                    <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
+                    <a class="region-filter d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)"
+                    	data-region="서울">
                       <i class="ti ti-map-pin fs-5"></i>서울
                     </a>
                   </li>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
-                    <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
+                    <a class="region-filter d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)"
+                    	data-region="부산">
                       <i class="ti ti-map-pin fs-5"></i>부산
                     </a>
                   </li>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
-                    <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
-                      <i class="ti ti-map-pin fs-5"></i>제주도
+                    <a class="region-filter d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)"
+                    	data-region="제주">
+                      <i class="ti ti-map-pin fs-5"></i>제주
+                    </a>
+                  </li>
+                  <li class="list-group-item border-0 p-0 mx-4 mb-2">
+                    <a class="region-filter d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)"
+                    	data-region="전체">
+                      <i class="ti ti-circles fs-5"></i>전체
                     </a>
                   </li>
                 </ul>
                 <ul class="list-group pt-2 border-bottom rounded-0">
                   <h6 class="my-3 mx-4">가격</h6>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
-                    <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
+                    <a class="price-sort d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)"
+                    	data-sort="desc">
                       <i class="ti ti-sort-ascending-2 fs-5"></i>높은순
                     </a>
                   </li>
                   <li class="list-group-item border-0 p-0 mx-4 mb-2">
-                    <a class="d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)">
+                    <a class="price-sort d-flex align-items-center gap-6 list-group-item-action text-dark px-3 py-6 rounded-1" href="javascript:void(0)"
+                    	data-sort="asc">
                       <i class="ti ti-sort-descending-2 fs-5"></i>
                       </i>낮은순
                     </a>
@@ -93,32 +99,19 @@ layout:decorate="~{include/layout :: layout}">
                   <h6 class="mt-4 mb-3 mx-4 fw-semibold">숙소유형</h6>
                   <div class="pb-4 px-4">
                     <div class="form-check py-2 mb-0">
-                      <input class="form-check-input p-2" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+                      <input class="form-check-input p-2" type="radio" name="exampleRadios" id="exampleRadios1" 
+                      		value="리조트"
+                      		th:checked="${searchDto.accommodation_type} == null or ${searchDto.accommodation_type} == '리조트'">
                       <label class="form-check-label d-flex align-items-center ps-2" for="exampleRadios1">
                         리조트
                       </label>
                     </div>
                     <div class="form-check py-2 mb-0">
-                      <input class="form-check-input p-2" type="radio" name="exampleRadios" id="exampleRadios2" value="option1">
+                      <input class="form-check-input p-2" type="radio" name="exampleRadios" id="exampleRadios2" 
+                      		value="호텔"
+                      		th:checked="${searchDto.accommodation_type} == '호텔'">
                       <label class="form-check-label d-flex align-items-center ps-2" for="exampleRadios2">
                         호텔
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="by-pricing border-bottom rounded-0">
-                  <h6 class="mt-4 mb-3 mx-4 fw-semibold">이용가능 여부</h6>
-                  <div class="pb-4 px-4">
-                    <div class="form-check py-2 mb-0">
-                      <input class="form-check-input p-2" type="radio" name="exampleRadios" id="exampleRadios5" value="option1" checked>
-                      <label class="form-check-label d-flex align-items-center ps-2" for="exampleRadios5">
-                        예약가능
-                      </label>
-                    </div>
-                    <div class="form-check py-2 mb-0">
-                      <input class="form-check-input p-2" type="radio" name="exampleRadios" id="exampleRadios6" value="option1">
-                      <label class="form-check-label d-flex align-items-center ps-2" for="exampleRadios6">
-                        예약불가능
                       </label>
                     </div>
                   </div>
@@ -171,6 +164,7 @@ layout:decorate="~{include/layout :: layout}">
 				        </div>
 				        <div class="card-body pt-3 p-4">
 				          <h6 class="fs-4" th:text="${accommodation.accommodation_name}">숙소명</h6>
+				          <p class="text-muted mb-1" th:text="${accommodation.accommodation_type_name}">숙소유형</p>
 				          <div class="d-flex align-items-center justify-content-between">
 				            <h6 class="fs-4 mb-0">
 				              <span th:text="${#numbers.formatInteger(accommodation.room_price, 3, 'COMMA')} + '원'">0원</span>
@@ -203,6 +197,53 @@ layout:decorate="~{include/layout :: layout}">
 		    });
 		  });
 	  
+	  // 지역 필터링
+	   document.addEventListener("DOMContentLoaded", function () {
+		  const regionLinks = document.querySelectorAll(".region-filter");
+		  const typeRadios = document.querySelectorAll("input[name='exampleRadios']");
+		  const resetBtn = document.querySelector(".btn.w-100");
+		  const param = new URLSearchParams(window.location.search);
+		
+		  regionLinks.forEach(el => {
+		    el.addEventListener("click", function () {
+		      const region = this.dataset.region;
+		
+		      if (region === "전체") {
+		        param.delete("accommodation_address");
+		        param.delete("room_price_sort");
+		        param.delete("accommodation_type");
+		      } else {
+		        param.set("accommodation_address", region);
+		      }
+		
+		      window.location.search = param.toString();
+		    });
+		  });
+		
+		  // 가격 필터링
+		  const priceSortLinks = document.querySelectorAll(".price-sort");
+		  priceSortLinks.forEach(link => {
+			 link.addEventListener("click", function(){
+				 const sort = this.dataset.sort;
+				 param.set("room_price_sort", sort);
+				 window.location.search = param.toString();
+			 });
+		  });
+		  // 숙소유형 필터링
+		  typeRadios.forEach(radio => {
+			  radio.addEventListener("change", function () {
+			    if (this.checked) {
+			      param.set("accommodation_type", this.value); // value로 직접 설정
+			      window.location.search = param.toString();
+			    }
+			  });
+			});
+		
+		  resetBtn?.addEventListener("click", function () {
+		    window.location.href = "/accommodation";
+		  });
+		  
+		});
 	</script>
 
   <!-- Import vendorJs Files -->

@@ -6,11 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,14 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationAttachDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
-import com.mjc.groupware.accommodationReservation.entity.AccommodationAttach;
+import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
+import com.mjc.groupware.accommodationReservation.dto.SearchDto;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.service.AccommodationAttachService;
+import com.mjc.groupware.accommodationReservation.service.AccommodationReservationService;
 import com.mjc.groupware.accommodationReservation.service.AccommodationService;
-import com.mjc.groupware.board.controller.BoardAttachController;
+import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.common.annotation.CheckPermission;
-import com.mjc.groupware.member.security.MemberDetails;
-import com.mjc.groupware.notice.dto.NoticeDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +36,8 @@ public class AccommodationAdminController {
 
 	private final AccommodationService accommodationService;
 	private final AccommodationAttachService accommodationAttachService;
+	private final AddressService addressService;
+	private final AccommodationReservationService reservationService; 
 	
 	// 관리자(adminHome 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
@@ -53,8 +50,14 @@ public class AccommodationAdminController {
 	
 	// 관리자(adminCreate 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
-	@GetMapping("/admin/create")
-	public String adminCreateView() {
+	@GetMapping("/admin/accommodation/create")
+	public String adminCreateView(Model model) {
+		List<String> addr1List = addressService.selectAddr1Distinct();
+		model.addAttribute("addr1List", addr1List);
+		model.addAttribute("selectedAddr1", null);
+		model.addAttribute("addr2List", List.of());
+		model.addAttribute("selectedAddr2", null);
+		
 		return "accommodation/adminCreate";
 	}
 	
@@ -65,11 +68,20 @@ public class AccommodationAdminController {
 	}
 	
 	// 사용자(nav바 사내복지 클릭시 home.html 페이지로 이동/조회)
+//	@GetMapping("/accommodation")
+//	public String showHomeView(Model model) {
+//		List<AccommodationInfoDto> list = accommodationService.showHomeView();
+//		model.addAttribute("accommodationList", list);
+//		return "accommodation/home";
+//	}
+	
+	// home화면 필터링
 	@GetMapping("/accommodation")
-	public String showHomeView(Model model) {
-		List<AccommodationInfoDto> list = accommodationService.showHomeView();
-		model.addAttribute("accommodationList", list);
-		return "accommodation/home";
+	public String showHomeView(@ModelAttribute SearchDto searchDto, Model model) {
+	    List<AccommodationInfoDto> resultList = accommodationService.getFilteredList(searchDto);
+	    model.addAttribute("accommodationList", resultList);
+	    model.addAttribute("searchDto", searchDto);
+	    return "accommodation/home";
 	}
 
 	// 사용자(list 페이지로 이동)
@@ -125,8 +137,11 @@ public class AccommodationAdminController {
 		}
 
 		List<AccommodationAttachDto> attachList = accommodationService.findAttachList(accommodationNo); // 이미지 리스트
+		
+		AccommodationReservationDto reservationDto = reservationService.findLatestByAccommodationNo(accommodationNo);
 		model.addAttribute("accommodation", dto);
 		model.addAttribute("attachList", attachList); // 이미지 리스트 전달
+		model.addAttribute("reservation", reservationDto);
 		    
 		return "accommodation/adminDetail";
 	}
