@@ -53,8 +53,8 @@ public class VoteController {
     @ResponseBody
     public ResponseEntity<String> updateVote(
             @PathVariable("voteNo") Long voteNo,
-            @RequestBody VoteDto dto) {
-        voteService.updateVote(voteNo, dto);
+            @RequestBody VoteCreateRequest req) {
+        voteService.updateVote(voteNo, req.getVoteDto(), req.getOptions());
         return ResponseEntity.ok("updated");
     }
     

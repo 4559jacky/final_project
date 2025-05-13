@@ -37,7 +37,10 @@ import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
 
-import lombok.RequiredArgsConstructor;
+
+import java.time.ZoneId;
+import java.util.*;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -134,6 +137,7 @@ public class BoardController {
             model.addAttribute("vote", board.getVote());
             model.addAttribute("voteOptions", board.getVote().getVoteOptions());
             boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
+            // (ZoneId.of("Asia/Seoul") - 추가해줘야함
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 

@@ -86,13 +86,9 @@ layout:decorate="~{/include/layout}">
 	          </thead>
 	          <tbody id="member-tbody">
 	            <tr th:each="dto : ${memberAttendanceList}">
-	              <td>
-	                <div class="d-flex align-items-center">
-	                  <div class="ms-3">
-	                    <h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${dto.member.memberName}">사원명</h6>
-	                    <span class="fw-normal" th:text="|#${dto.member.memberNo}|">#사번</span>
-	                  </div>
-	                </div>
+	              <td class="text-center">
+                    <h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${dto.member.memberName}">사원명</h6>
+                    <span class="fw-normal" th:text="|#${dto.member.memberNo}|">#사번</span>
 	                <input type="hidden" id="memberNo" th:value="${dto.member.memberNo}">
 	              </td>
 	              <td class="text-center"><h6 class="fs-4 fw-semibold mb-0" th:text="${dto.attendDate != null ? #temporals.format(dto.attendDate, 'yyyy.MM.dd') : '-'}"></h6></td>
