@@ -52,4 +52,26 @@ public class RegularEventScheduler {
 		}
 		System.out.println("연차 지급 완료 : " + givenCount + "명");
 	}
+	
+//	@Scheduled(cron = "0 0 0 L * ?")
+//	@Transactional(rollbackFor = Exception.class)
+//	public void grantMonthlyLeave() {
+//	    LocalDate today = LocalDate.now();
+//	    LocalDate oneMonthAgo = today.minusMonths(1);
+//
+//	    List<Member> members = memberRepository.findAll();
+//
+//	    for (Member member : members) {
+//	        if (member.getRegDate().isAfter(oneMonthAgo)) {
+//	            continue; // 입사한 지 한 달이 안 된 사원은 제외
+//	        }
+//
+//	        long workingDays = calculateWorkingDays(oneMonthAgo, today.minusDays(1), holidays);
+//
+//	        if (workingDays == expectedWorkingDays) {
+//	            member.setAnnualLeave(member.getAnnualLeave() + 1);
+//	            memberRepository.save(member);
+//	        }
+//	    }
+//	}
 }
