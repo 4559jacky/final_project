@@ -59,19 +59,16 @@ public class CompanyService {
 				String newName = UUID.randomUUID().toString().replaceAll("-", "") + fileExt;
 				dto.setNew_name(newName);
 				
-				String uploadPath = fileDir;
-			    File dir = new File(uploadPath);
-			    if (!dir.exists()) {
-			        dir.mkdirs();
-			    }
-			    
-			    String fullPath = Paths.get(uploadPath, newName).toString();
-			    File saveFile = new File(fullPath);
-			    file.transferTo(saveFile);
-			    
-			    dto.setAttach_path("groupware/" + newName);
+				String downDir = fileDir+"/"+newName;
+				dto.setAttach_path(downDir);
 				
-			    return dto;
+				File saveFile = new File(downDir);
+				
+				if(!saveFile.exists()) {
+					saveFile.mkdirs();
+				}
+				
+				file.transferTo(saveFile);
 			}
 		} 
 		catch(Exception e) {
