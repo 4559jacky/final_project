@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,15 +19,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AttachService {
 
+	@Value("${ffupload.location}")
+	private String filePath;
+	
     private final AttachRepository attachRepository;
 
     public void saveFile(MultipartFile file, Notice notice) throws IOException {
         if (!file.isEmpty()) {
             String ori = file.getOriginalFilename();
             String newName = UUID.randomUUID().toString() + "_" + ori;
-            String path = "C:/upload/notice/" + newName;
+            String path = filePath + newName;
 
-            File uploadDir = new File("C:/upload/notice/");
+            File uploadDir = new File(filePath);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }

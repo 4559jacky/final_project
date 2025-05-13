@@ -4,6 +4,7 @@ package com.mjc.groupware.shared.dto;
 
 import java.time.LocalDateTime;
 
+import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.shared.entity.SharedFile;
 
@@ -48,6 +49,7 @@ public class SharedFileDto {
 				// 🔽 새 필드
 				.fileDeletedBy(file_deleted_by)
 				.fileDeletedAt(file_deleted_at)
+			
 				.originalFolderNo(original_folder_no)
 				.build();
 	}

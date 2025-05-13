@@ -49,7 +49,7 @@ public class SharedFileController {
 	
 	@GetMapping("/shared/files/list")
 	@ResponseBody
-	public Map<String, Object> getFolderContent(
+	public  ResponseEntity<Map<String, Object>> getFolderContent(
 	        @RequestParam(value = "folderId", required = false) Long folderId,
 	        @RequestParam(value = "folderIds", required = false) List<Long> folderIds,
 	        @RequestParam("type") String type,
@@ -58,7 +58,12 @@ public class SharedFileController {
 	    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
 	    Member member = memberDetails.getMember();
 
-	    return sharedFileService.getFolderContent(folderId, folderIds, member, type);
+	    try {
+	        Map<String, Object> result = sharedFileService.getFolderContent(folderId, folderIds, member, type);
+	        return ResponseEntity.ok(result);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(403).body(Map.of("error", "접근 권한이 없습니다."));
+	    }
 	}
 	
 	// 파일 다운로드

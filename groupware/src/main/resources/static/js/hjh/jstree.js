@@ -2,7 +2,6 @@
 
 window.currentType = 'personal';
 window.initialFolderId = null;
-
 let selectedParentNo = null;
 
 const folderTypeMap = {
@@ -90,8 +89,8 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       themes: { dots: true, icons: true }
     },
-    plugins: ['dnd', 'contextmenu'],
-    contextmenu: {
+    plugins: ['dnd'],
+  /*  contextmenu: {
       items: function ($node) {
         return {
           deleteItem: {
@@ -127,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         };
       }
-    },
+    },*/
     dnd: {
       is_draggable: function (node) {
         return true;
@@ -140,7 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
     loadFolderList(null); // → 루트 기준으로 리스트 출력
   });
 
+  let suppressChangeEvent = false; // 🚫 중복 방지용 플래그 추가
   $('#shared-tree').on("changed.jstree", function (e, data) {
+    if (suppressChangeEvent) return; // 중복 방지
     const folderId = data.selected[0];
     if (typeof folderId === 'string' && folderId.startsWith("file-")) {
       $('#shared-tree').jstree('deselect_node', folderId);
@@ -345,10 +346,14 @@ function loadFolderList(folderId) {
       console.log("📄 폴더/파일 데이터 로드 완료:", data.items?.length ?? 0, "개");
       renderFolderTable(data.items, data.parentFolderNo, folderId ?? null);
     })
-    .catch(error => {
-      console.error("❌ 목록 조회 실패:", error);
-      alert("📂 폴더/파일 목록 조회 중 오류가 발생하였습니다.");
-    });
+	.catch(error => {
+	  console.error("❌ 목록 조회 실패:", error.message);
+	  alert("🚫 접근 권한이 없습니다.");
+
+	  suppressChangeEvent = true; // 이벤트 무시 시작
+	  $('#shared-tree').jstree('deselect_all');
+	  setTimeout(() => suppressChangeEvent = false, 100); // 잠깐 후 다시 허용
+	});
 }
 
 // 폴더 리스트 출력.
@@ -389,11 +394,17 @@ function renderFolderTable(data, parentFolderNo, currentFolderId){
 
 		
 		tr.innerHTML = `
-			  <td title="${item.name}">${icon} ${item.name}</td>
-		      <td>${typeLabel}</td>
-		      <td>${size}</td>
-		      <td>${regDate}</td>
-		    `;
+		  <td class="doc-checkbox-cell"><input type="checkbox" class="doc-checkbox" data-id="${item.id}" data-type="${item.type}"></td>
+		  <td title="${item.name}">${icon} ${item.name}</td>
+		  <td>${typeLabel}</td>
+		  <td>${size}</td>
+		  <td>${regDate}</td>
+		`;
+		
+		const checkbox = tr.querySelector(".doc-checkbox");
+		checkbox.addEventListener("click", function(e) {
+		  e.stopPropagation(); // ✅ 체크박스 클릭 시 tr 이벤트 막기
+		});
 		
 		// 클릭 이벤트 분기
 		tr.addEventListener("click", function(){
@@ -422,11 +433,11 @@ function formatDate(dateString){
 	return date.toLocaleDateString();
 }
 
-// 폴더 클릭시 (탐색)
 function onFolderClick(folderId){
+	suppressChangeEvent = true;
 	$('#shared-tree').jstree('deselect_all');
-	$('#shared-tree').jstree('select_node', folderId); // 트리에서 이동
-	loadFolderList(folderId); // 리스트로 이동
+	$('#shared-tree').jstree('select_node', folderId); // ✅ 이러면 changed.jstree가 호출됨
+	setTimeout(() => suppressChangeEvent = false, 100);
 }
 
 // 파일 클릭시 (다운로드)
@@ -592,4 +603,91 @@ function deleteSelected() {
     console.error("삭제 실패", err);
     alert("삭제 중 오류 발생: " + err.message);
   });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btnStart = document.getElementById("btn-start-delete");
+  const btnConfirm = document.getElementById("btn-confirm-delete");
+  const btnCancel = document.getElementById("btn-cancel-delete");
+  const wrapper = document.querySelector(".table-wrapper");
+
+  btnStart.addEventListener("click", () => {
+    wrapper.classList.add("delete-mode");
+    btnStart.classList.add("d-none");
+    btnConfirm.classList.remove("d-none");
+    btnCancel.classList.remove("d-none");
+  });
+
+  btnCancel.addEventListener("click", () => {
+    wrapper.classList.remove("delete-mode");
+    btnStart.classList.remove("d-none");
+    btnConfirm.classList.add("d-none");
+    btnCancel.classList.add("d-none");
+
+    // 체크 해제
+    document.querySelectorAll(".doc-checkbox").forEach(cb => cb.checked = false);
+  });
+
+  btnConfirm.addEventListener("click", () => {
+    deleteSelectedDocs(); // 기존 함수 그대로 사용
+    btnCancel.click(); // 완료 후 취소 동작으로 되돌림
+  });
+});
+
+window.deleteSelectedDocs = async function () {
+  const checkboxes = document.querySelectorAll(".doc-checkbox:checked");
+  if (checkboxes.length === 0) {
+    alert("삭제할 항목을 선택해주세요.");
+    return;
+  }
+
+  if (!confirm("선택한 항목을 삭제하시겠습니까?")) return;
+
+  const folderIds = [];
+  const fileIds = [];
+
+  checkboxes.forEach(cb => {
+    const id = parseInt(cb.dataset.id);
+    const type = cb.dataset.type;
+    if (type === "folder") folderIds.push(id);
+    else fileIds.push(id);
+  });
+
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+  const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+
+  try {
+    // 🔁 폴더 삭제
+    for (const id of folderIds) {
+      await fetch("/shared/folder/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ id })
+      });
+    }
+
+    // 🔁 파일 삭제
+    for (const id of fileIds) {
+      await fetch("/shared/file/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ id })
+      });
+    }
+
+    alert("삭제 완료!");
+    const currentFolderId = $('#shared-tree').jstree('get_selected')[0];
+    loadFolderList(currentFolderId);
+    $('#shared-tree').jstree(true).refresh();
+    loadUsageChart();
+  } catch (err) {
+    console.error("삭제 중 오류 발생:", err);
+    alert("삭제 중 오류 발생: " + err.message);
+  }
 }

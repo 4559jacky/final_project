@@ -41,3 +41,17 @@
   margin: 0 auto;
   max-width: 100%;
 }
+
+/* 삭제 모드가 아닐 때 체크박스 숨김 */
+#folder-table th.doc-checkbox-col,
+#folder-table td.doc-checkbox-cell {
+  display: none;
+}
+
+/* 삭제 모드가 활성화되면 체크박스 보이게 */
+.delete-mode #folder-table th.doc-checkbox-col,
+.delete-mode #folder-table td.doc-checkbox-cell {
+  display: table-cell;
+}
+
+
