@@ -40,10 +40,12 @@ public class BoardAttachController {
             return ResponseEntity.notFound().build();
         }
 
-        Path filePath = Paths.get(uploadDir + fileData.getAttachPath()); // ✅ 절대경로 완성
+        Path filePath = Paths.get(uploadDir, fileData.getAttachPath()); // <-- 여기 수정
+
+        System.out.println("📂 경로 확인: " + filePath.toAbsolutePath());
 
         if (!Files.exists(filePath)) {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         Resource resource = new InputStreamResource(Files.newInputStream(filePath));
