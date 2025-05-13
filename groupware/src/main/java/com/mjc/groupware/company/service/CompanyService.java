@@ -61,7 +61,7 @@ public class CompanyService {
 				// String downDir = fileDir+"/"+newName;
 				// dto.setAttach_path(downDir);
 				
-				String downDir = "/home/mjc/upload/groupware/" + newName;
+				String downDir = "/app/uploads/groupware/" + newName;
 				dto.setAttach_path(downDir);
 				
 				File saveFile = new File(downDir);
