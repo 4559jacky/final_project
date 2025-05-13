@@ -192,6 +192,13 @@ public class AccommodationService {
             dtoList.sort(Comparator.comparing(AccommodationInfoDto::getRoom_price).reversed());
         }
         
+        // 최신순,오래된순 정렬
+        if ("asc".equals(searchDto.getReg_date_sort())) {
+            dtoList.sort(Comparator.comparing(AccommodationInfoDto::getReg_date));
+        } else if ("desc".equals(searchDto.getReg_date_sort())) {
+            dtoList.sort(Comparator.comparing(AccommodationInfoDto::getReg_date).reversed());
+        }
+        
         int start = (int) pageable.getOffset();
         int end = Math.min(start+pageable.getPageSize(), dtoList.size());
 
