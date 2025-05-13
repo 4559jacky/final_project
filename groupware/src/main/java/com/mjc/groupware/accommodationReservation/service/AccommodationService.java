@@ -177,7 +177,8 @@ public class AccommodationService {
 
 	    for (AccommodationInfo accom : list) {
 	        // 필터링 조건
-	        if (address != null && !address.equals("전체") && !address.equals(accom.getAccommodationAddress())) {
+	        if (address != null && !address.equals("전체") &&
+	        		(accom.getAccommodationAddress() == null || !accom.getAccommodationAddress().startsWith(address))) {
 	            continue;
 	        }
 

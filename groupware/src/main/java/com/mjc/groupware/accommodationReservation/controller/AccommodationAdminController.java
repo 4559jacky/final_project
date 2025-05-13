@@ -74,7 +74,7 @@ public class AccommodationAdminController {
 //		return "accommodation/home";
 //	}
 	
-	//필터링
+	// home화면 필터링
 	@GetMapping("/accommodation")
 	public String showHomeView(
 			@RequestParam(name = "accommodation_address", required = false) String address,
