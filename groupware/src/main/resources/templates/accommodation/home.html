@@ -117,7 +117,7 @@ layout:decorate="~{/include/layout}">
                   </div>
                 </div>
                 <div class="p-4">
-                  <a href="javascript:void(0)" class="btn btn-primary w-100">필터 초기화</a>
+                  <a href="javascript:void(0)" id="resetFilterBtn" class="btn btn-primary w-100">필터 초기화</a>
                 </div>
               </div>
               <div class="card-body p-4 pb-0">
@@ -241,7 +241,6 @@ layout:decorate="~{/include/layout}">
 	   document.addEventListener("DOMContentLoaded", function () {
 		  const regionLinks = document.querySelectorAll(".region-filter");
 		  const typeRadios = document.querySelectorAll("input[name='exampleRadios']");
-		  const resetBtn = document.querySelector(".btn.w-100");
 		  const param = new URLSearchParams(window.location.search);
 		
 		  regionLinks.forEach(el => {
@@ -278,23 +277,24 @@ layout:decorate="~{/include/layout}">
 			    }
 			  });
 			});
-		
-		  /* resetBtn?.addEventListener("click", function () {
-			const param = new URLSearchParams(window.location.search);
-			param.delete("accommodation_address");
-			param.delete("room_price_sort");
-			param.delete("accommodation_type");
-			param.delete("nowPage");
-			
-			const typeRadios = document.querySeletorAll("input[name='exampleRadios']");
-			typeRadios.forEach(r => r.checked=false);
-			
-		    window.location.href = window.location.pathname;
-		  }); */
-		  
-		  
 		});
+	   // 필터 초기화
+	   document.addEventListener("DOMContentLoaded", function () {
+		   const resetBtn = document.querySelector("#resetFilterBtn");
+		   const param = new URLSearchParams(window.location.search);
+
+		   resetBtn?.addEventListener("click", function () {
+		     param.delete("accommodation_address");
+		     param.delete("room_price_sort");
+		     param.delete("accommodation_type");
+		     param.delete("nowPage");
+
+		     window.location.href = window.location.pathname;
+		   });
+		 });
+	  
 	</script>
+	
 
   <!-- Import vendorJs Files -->
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
