@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationAttachDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
+import com.mjc.groupware.accommodationReservation.dto.SearchDto;
 import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.accommodationReservation.service.AccommodationAttachService;
 import com.mjc.groupware.accommodationReservation.service.AccommodationReservationService;
@@ -76,14 +77,10 @@ public class AccommodationAdminController {
 	
 	// home화면 필터링
 	@GetMapping("/accommodation")
-	public String showHomeView(
-			@RequestParam(name = "accommodation_address", required = false) String address,
-		    @RequestParam(name = "room_price_sort", required = false) String sort,
-		    @RequestParam(name = "accommodation_type", required = false) String type,
-	    Model model
-	) {
-	    List<AccommodationInfoDto> list = accommodationService.getFilteredList(address, sort, type);
-	    model.addAttribute("accommodationList", list);
+	public String showHomeView(@ModelAttribute SearchDto searchDto, Model model) {
+	    List<AccommodationInfoDto> resultList = accommodationService.getFilteredList(searchDto);
+	    model.addAttribute("accommodationList", resultList);
+	    model.addAttribute("searchDto", searchDto);
 	    return "accommodation/home";
 	}
 
