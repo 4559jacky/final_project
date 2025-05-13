@@ -44,9 +44,16 @@ public class AccommodationAdminController {
 	// 관리자(adminHome 페이지로 이동)
 	@CheckPermission("WELFARE_ADMIN")
 	@GetMapping("/accommodation/adminHome")
-	public String adminHomeView(Model model) {
-		List<AccommodationInfoDto> accommodations = accommodationService.getAllAccommodations();
-	    model.addAttribute("accommodations", accommodations);
+	public String adminHomeView(@ModelAttribute SearchDto searchDto,
+								@ModelAttribute PageDto pageDto,
+								Model model) {
+		if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		if (pageDto.getNumPerPage() == 0) pageDto.setNumPerPage(5);
+		
+		Page<AccommodationInfoDto> pageList = accommodationService.getFilteredList(searchDto, pageDto);
+		
+	    model.addAttribute("accommodations", pageList.getContent());
+	    model.addAttribute("searchDto",searchDto);
 		return "accommodation/adminHome";
 	}
 	
@@ -68,14 +75,6 @@ public class AccommodationAdminController {
 	public String adminListView() {
 		return "accommodation/adminList";
 	}
-	
-	// 사용자(nav바 사내복지 클릭시 home.html 페이지로 이동/조회)
-//	@GetMapping("/accommodation")
-//	public String showHomeView(Model model) {
-//		List<AccommodationInfoDto> list = accommodationService.showHomeView();
-//		model.addAttribute("accommodationList", list);
-//		return "accommodation/home";
-//	}
 	
 	// home화면 필터링
 	@GetMapping("/accommodation")

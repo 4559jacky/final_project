@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<div class="container-fluid px-4">
@@ -28,7 +28,7 @@ layout:decorate="~{/include/layout}">
 	        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
 	          <option th:value="''" th:selected="${search_type == null}">선택</option>
 	          <option th:value="1" th:selected="${search_type == 1}">숙소명</option>
-	          <option th:value="2" th:selected="${search_type == 2}">예약현황</option>
+	          <option th:value="2" th:selected="${search_type == 2}">숙소타입</option>
 	        </select>
 	
 	        <div class="position-relative" style="max-width: 350px;">
@@ -37,7 +37,7 @@ layout:decorate="~{/include/layout}">
 	                 th:value="${keyword}"
 	                 class="form-control search-chat py-2 ps-5"
 	                 id="text-srh"
-	                 placeholder="Search Contact" />
+	                 placeholder="검색어를 입력해주세요." />
 	          <button type="submit"
 	                  class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
 	            <i class="ti ti-search fs-6 text-dark"></i>
@@ -50,13 +50,13 @@ layout:decorate="~{/include/layout}">
 		  <!-- 숙소등록 버튼 -->
 		  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/accommodation/create}">숙소등록</a>
 	      <!-- 오른쪽: 정렬 -->
-	      <form th:action="@{/notice}" method="get"> 
-	        <select name="sort"
+	      <form th:action="@{/accommodation/adminHome}" method="get"> 
+	        <select name="reg_date_sort"
 	                class="form-select w-auto bg-primary-subtle border-0"
 	                onchange="this.form.submit()"
-	                aria-label="정렬 선택">
-	          <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
-	          <option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+	                th:value="${searchDto.reg_date_sort}">
+	          <option th:value="desc" th:selected="${searchDto.reg_date_sort == 'desc'}">최신순</option>
+	          <option th:value="asc" th:selected="${searchDto.reg_date_sort == 'asc'}">오래된순</option>
 	        </select>
 	      </form>
 	      </div>

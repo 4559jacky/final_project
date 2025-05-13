@@ -1,6 +1,7 @@
 package com.mjc.groupware.accommodationReservation.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -148,6 +149,26 @@ public class AccommodationReservationService {
 	                return dto;
 	            })
 	            .orElse(null);
+	}
+
+	// 정렬된 사용자 예약 내역 조회
+	public List<AccommodationReservationDto> getReservationsByMemberSorted(Long memberNo, String regDateSort) {
+	    List<AccommodationReservation> list = reservationRepository.findByMember_MemberNo(memberNo);
+	    List<AccommodationReservationDto> dtoList = new ArrayList<>();
+
+	    for (AccommodationReservation reservation : list) {
+	        AccommodationReservationDto dto = new AccommodationReservationDto().toDto(reservation);
+	        dtoList.add(dto);
+	    }
+
+	    // 정렬
+	    if ("asc".equals(regDateSort)) {
+	        dtoList.sort(Comparator.comparing(AccommodationReservationDto::getReservation_date));
+	    } else if ("desc".equals(regDateSort)) {
+	        dtoList.sort(Comparator.comparing(AccommodationReservationDto::getReservation_date).reversed());
+	    }
+
+	    return dtoList;
 	}
 
 
