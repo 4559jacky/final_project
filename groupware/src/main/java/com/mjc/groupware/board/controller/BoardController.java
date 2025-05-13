@@ -114,7 +114,7 @@ public class BoardController {
 
         List<ReplyDto> allReplies = replyService.getHierarchicalRepliesByBoardNo(boardNo);
 
-        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5); // ✔ 실제 페이징 사용
+        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5); // 실제 페이징 사용
         model.addAttribute("replyList", initialReplies);
         model.addAttribute("hasMoreReplies", initialReplies.size() == 5);
 

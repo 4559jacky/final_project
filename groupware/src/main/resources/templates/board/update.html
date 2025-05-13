@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/include/layout}">
+      layout:decorate="~{include/layout :: layout}">
 
 <head>
     <meta charset="UTF-8">
@@ -71,22 +71,22 @@
                 <div id="editor" style="margin-top: 10px;"></div>
             </div>
 
-            <!-- 기존 첨부파일 -->
-            <div class="mb-3">
-                <label class="form-label fw-semibold">기존 첨부파일</label>
-                <div th:each="file : ${attachList}" class="file-item d-flex align-items-center gap-2 mb-1" th:attr="data-id=${file.attachNo}">
-                    <input type="hidden" name="deleteFiles" th:value="${file.attachNo}" disabled/>
-                    <input type="checkbox" class="form-check-input mt-0" checked onchange="toggleDeleteCheckbox(this)">
-                    <span class="file-name flex-grow-1 mb-0" th:text="${file.oriName}"></span>
-                </div>
-                <div th:if="${#lists.isEmpty(attachList)}">첨부파일이 없습니다.</div>
-            </div>
+		<!-- 🔽 수정 시 기존 첨부파일 표시 및 삭제 체크박스 -->
+			<div class="mb-3">
+  				<label class="form-label fw-semibold">기존 첨부파일</label>
+  				<div th:each="file : ${attachList}" class="file-item d-flex align-items-center gap-2 mb-1" th:attr="data-id=${file.attachNo}">
+    			<input type="hidden" name="deleteFiles" th:value="${file.attachNo}" disabled/>
+    			<input type="checkbox" class="form-check-input mt-0" checked onchange="toggleDeleteCheckbox(this)">
+    			<span class="file-name flex-grow-1 mb-0" th:text="${file.oriName}"></span>
+  			</div>
+  				<div th:if="${#lists.isEmpty(attachList)}">첨부파일이 없습니다.</div>
+			</div>
 
             <!-- 새 파일 첨부 -->
-            <div class="mb-3">
-                <label for="board_file" class="form-label fw-semibold">파일 추가</label>
-                <input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
-            </div>
+			<div class="mb-3">
+    			<label for="board_file" class="form-label fw-semibold">파일 추가</label>
+    			<input type="file" class="form-control bg-white text-dark" id="board_file" name="files" multiple>
+			</div>
 
             <!-- 버튼 -->
             <div class="d-flex justify-content-end mt-4">
