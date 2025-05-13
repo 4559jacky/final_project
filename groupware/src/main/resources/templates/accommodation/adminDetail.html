@@ -64,7 +64,7 @@ layout:decorate="~{/include/layout}">
               <label class="fs-4 mb-0 fw-semibold">방 갯수</label>
               <div class="input-group input-group-sm w-auto">
                 <button class="btn btn-outline-secondary" type="button">-</button>
-                <input type="text" class="form-control text-center" th:value="${accommodation.room_count}">
+                <input type="text" class="form-control text-center" th:value="${reservation != null ? reservation.room_count : 0}">
                 <button class="btn btn-outline-secondary" type="button">+</button>
               </div>
             </div>
