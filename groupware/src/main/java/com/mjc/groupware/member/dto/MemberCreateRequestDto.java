@@ -39,7 +39,7 @@ public class MemberCreateRequestDto {
 	private String pos_name;
 	private String role_name;
 	private LocalDate hire_date;
-	private LocalDateTime reg_date;
+	private LocalDate reg_date;
 	private LocalDateTime mod_date;
 	private LocalDateTime end_date;
 	private double annual_leave;

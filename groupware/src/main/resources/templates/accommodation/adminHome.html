@@ -48,7 +48,7 @@ layout:decorate="~{/include/layout}">
 	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
 		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
 		  <!-- 숙소등록 버튼 -->
-		  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/create}">숙소등록</a>
+		  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/accommodation/create}">숙소등록</a>
 	      <!-- 오른쪽: 정렬 -->
 	      <form th:action="@{/notice}" method="get"> 
 	        <select name="sort"
@@ -100,7 +100,7 @@ layout:decorate="~{/include/layout}">
 			      style="cursor: pointer;">
 		          <td th:text="${number.index+1}">번호</td>
 		          <td th:text="${accom.accommodation_name}">숙소명</td>
-		          <td th:text="${accom.accommodation_type == '1' ? '호텔' : (accom.accommodation_type == '2' ? '리조트' : '기타')}">숙소타입</td>
+		          <td th:text="${accom.accommodation_type_name}">숙소타입</td>
 		          <td th:text="${accom.reg_date != null ? #temporals.format(accom.reg_date, 'yyyy-MM-dd HH:mm') : ''}">등록일</td>
 		          <td th:text="${accom.mod_date != null ? #temporals.format(accom.mod_date, 'yyyy-MM-dd HH:mm') : ''}">수정일</td>
 		          <td th:text="${accom.room_price != null ? #numbers.formatInteger(accom.room_price, 3, 'COMMA') + '원' : '0원'}">가격</td>
