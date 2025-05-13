@@ -58,10 +58,7 @@ public class CompanyService {
 				String newName = UUID.randomUUID().toString().replaceAll("-", "") + fileExt;
 				dto.setNew_name(newName);
 				
-				// String downDir = fileDir+"/"+newName;
-				// dto.setAttach_path(downDir);
-				
-				String downDir = "/app/uploads/groupware/" + newName;
+				String downDir = fileDir+newName;
 				dto.setAttach_path(downDir);
 				
 				File saveFile = new File(downDir);

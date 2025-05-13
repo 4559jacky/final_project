@@ -1,5 +1,7 @@
 package com.mjc.groupware;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,9 +20,9 @@ public class GroupwareApplication implements WebMvcConfigurer {
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		if (!fileDir.endsWith("/")) {
-		    fileDir += "/";
-		}
+		if (!fileDir.endsWith(File.separator)) {
+	        fileDir += File.separator;
+	    }
 		registry.addResourceHandler("/uploads/**")
 				.addResourceLocations("file:" + fileDir);
 	}
