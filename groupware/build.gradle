@@ -47,3 +47,9 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.withType(ProcessResources).configureEach {
+    filesMatching("**/*.html") {
+        filteringCharset = 'UTF-8'
+    }
+}
