@@ -77,8 +77,8 @@ public class AccommodationInfoDto {
 	
 	public String getAccommodationTypeName() {
 	    return switch (this.accommodation_type) {
-	        case "1" -> "호텔";
-	        case "2" -> "리조트";
+	        case "1" -> "리조트";
+	        case "2" -> "호텔";
 	        default -> "기타";
 	    };
 	}

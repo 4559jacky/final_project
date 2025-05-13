@@ -100,7 +100,7 @@ layout:decorate="~{/include/layout}">
 			      style="cursor: pointer;">
 		          <td th:text="${number.index+1}">번호</td>
 		          <td th:text="${accom.accommodation_name}">숙소명</td>
-		          <td th:text="${accom.accommodation_type == '1' ? '호텔' : (accom.accommodation_type == '2' ? '리조트' : '기타')}">숙소타입</td>
+		          <td th:text="${accom.accommodation_type_name}">숙소타입</td>
 		          <td th:text="${accom.reg_date != null ? #temporals.format(accom.reg_date, 'yyyy-MM-dd HH:mm') : ''}">등록일</td>
 		          <td th:text="${accom.mod_date != null ? #temporals.format(accom.mod_date, 'yyyy-MM-dd HH:mm') : ''}">수정일</td>
 		          <td th:text="${accom.room_price != null ? #numbers.formatInteger(accom.room_price, 3, 'COMMA') + '원' : '0원'}">가격</td>
