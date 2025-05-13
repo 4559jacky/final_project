@@ -426,28 +426,47 @@
 	// 메인 진입 포인트
 
 	document.addEventListener("DOMContentLoaded", () => {
-	 const myMemberNo = document.getElementById("createMemberNo").value;
-
-	  // 채팅방 목록 순회하면서 각각 unread badge 표시
-	  document.querySelectorAll(".chat-user").forEach(el => {
-		  const roomNo = el.getAttribute("data-room-id");
-		
-		  if (!roomNo) return; // ❌ roomNo 없으면 건너뛰기!
-		
-		  showUnreadBadge(roomNo, myMemberNo);
-		});
-
+	  const myMemberNo = document.getElementById("createMemberNo").value;
 	
-		
-	  initModalEvents();       // 모달 show/reset
-	  initMemberSelection();   // 인원 선택/삭제
-	  initChatFormSubmit();    // 채팅방 생성
-	  initChatRoomClick();     // 채팅방 클릭 시 처리
-	  initSearchFilter();      // 검색 필터
-	  initSideMenu();          // 사이드 메뉴
-	  initChatInvite();        // 인원 초대 모달
-	  initExitRoom();          // 채팅방 나가기
+	  // ⚠️ 순서가 중요함!!
+	  initModalEvents();
+	  initMemberSelection();
+	  initChatFormSubmit();
+	  initChatRoomClick(); // ✅ 먼저 이벤트를 연결해줘야 클릭이 먹음
+	  initSearchFilter();
+	  initSideMenu();
+	  initChatInvite();
+	  initExitRoom();
+	
+	  // ✅ 클릭은 나중에
+	  const roomNo = sessionStorage.getItem("enterRoomNo");
+	  if (roomNo) {
+	    let retryCount = 0;
+	    const tryClick = () => {
+	      const target = document.querySelector(`.chat-user[data-room-id='${roomNo}']`);
+	      if (target) {
+	        console.log("🔥 알림 클릭 → 채팅방 자동 클릭 실행됨:", roomNo);
+	        target.click();
+	        sessionStorage.removeItem("enterRoomNo");
+	      } else {
+	        if (retryCount++ < 20) {
+	          setTimeout(tryClick, 200);
+	        } else {
+	          console.warn("❌ 자동 클릭 실패 - DOM을 끝내 못 찾음:", roomNo);
+	        }
+	      }
+	    };
+	    tryClick();
+	  }
+	
+	  // unread badge 처리
+	  document.querySelectorAll(".chat-user").forEach(el => {
+	    const roomNo = el.getAttribute("data-room-id");
+	    if (!roomNo) return;
+	    showUnreadBadge(roomNo, myMemberNo);
+	  });
 	});
+
 	
 	// 채팅방 읽음 처리 
 	function onChatReadUpdate(dto) {
@@ -884,8 +903,6 @@
 	    		})
 	    	  .catch(err => console.error("읽음 처리 실패:", err));
 
-          
-          
           
 	    });
 	  });
@@ -1350,6 +1367,127 @@
 	    modal.show();
 	  }
 	});
+	
+	
+	// 알림 클릭 이벤트 부여 
+	async function enterChatRoom(roomNo) {
+	  const chatRoomNoInput = document.getElementById("chatRoomNo");
+	  const msgInput = document.getElementById("msgContent");
+	  const myMemberNo = document.getElementById("createMemberNo").value;
+	
+	  msgInput.value = "";
+	  chatRoomNoInput.value = roomNo;
+	
+	  try {
+	    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+	    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+	    const headers = {
+	      'header': csrfHeader,
+	      'X-CSRF-Token': csrfToken
+	    };
+	
+	    // ✅ 채팅방 멤버 정보 조회
+	    const memberRes = await fetch(`/selectChatRoom/${roomNo}`, { method: "POST", headers });
+	    const memberData = await memberRes.json();
+	
+	    // ✅ 참여자 리스트 DOM에 반영
+	    document.getElementById("memberCount").textContent = `(${memberData.memberInfos.length})`;
+	    const memberInfoBox = document.getElementById("memberInfo");
+	    memberInfoBox.innerHTML = "";
+	
+	    memberData.memberInfos.forEach(m => {
+	      memberInfoBox.innerHTML += `
+	        <div class="d-flex align-items-center justify-content-between mb-3">
+	          <div class="d-flex align-items-center">
+	            <div class="ms-3">
+	              <h6 class="fw-semibold mb-2">${m.memberName} ${m.positionName || ''}</h6>
+	              <p class="mb-0 fs-2">${m.departmentName || ''}</p>
+	            </div>
+	          </div>
+	        </div>
+	        <input type="hidden" class="receiverNoInput" value="${m.memberNo}" />
+	      `;
+	    });
+	
+	    // ✅ 채팅 메시지 조회
+	    const msgRes = await fetch(`/selectChatMsg/${roomNo}`, { method: "POST", headers });
+	    const msgData = await msgRes.json();
+	
+	    // ✅ 채팅 메시지 출력
+	    const chatList = document.querySelector(".chat-box-inner .chat.active-chat");
+	    chatList.innerHTML = "";
+	
+	    // 사이드 패널 초기화
+	    document.getElementById("chat-image-list").innerHTML = "";
+	    document.getElementById("chat-file-list").innerHTML = "";
+	    document.querySelector("#chat-image-section h6 span").textContent = "(0)";
+	    document.querySelector("#chat-file-section h6 span").textContent = "(0)";
+	
+	    msgData.forEach(msg => {
+	      const isMine = msg.member_no == myMemberNo;
+	      const memberImage = ""; // 필요 시 넣기
+	
+	      if (msg.chat_msg_type === "FILE") {
+	        const ext = msg.ori_name?.split(".").pop().toLowerCase();
+	        const fileType = ["png", "jpg", "jpeg", "gif", "bmp", "webp"].includes(ext) ? "image" : "file";
+	
+	        chatList.appendChild(createFileBubble({
+	          file_type: fileType,
+	          file_url: msg.file_url || "/upload/groupware/chat/" + msg.new_name,
+	          file_name: msg.ori_name,
+	          file_size: msg.file_size_str,
+	          send_date: msg.send_date,
+	          member_name: msg.member_name,
+	          member_pos_name: msg.member_pos_name,
+	          member_dept_name: msg.member_dept_name
+	        }, isMine, memberImage));
+	
+	        appendFileBubbleToSidebar({
+	          file_url: msg.file_url,
+	          file_name: msg.ori_name,
+	          file_size: msg.file_size_str,
+	          send_date: msg.send_date
+	        }, isMine);
+	      } else {
+	        chatList.appendChild(createMessageBubble(msg, isMine, memberImage));
+	      }
+	    });
+	
+	    // 스크롤 내림
+	    chatList.scrollTop = chatList.scrollHeight;
+	
+	    // 채팅방 상단 정보 세팅
+	    const memberName = memberData.memberInfos.find(m => m.memberNo == myMemberNo)?.memberName || "";
+	    const nameDisplay = document.querySelector(".current-chat-user-name .name");
+	    const imgDisplay = document.querySelector(".current-chat-user-name img");
+	
+	    if (nameDisplay) nameDisplay.textContent = memberName;
+	    if (imgDisplay) imgDisplay.setAttribute("src", ""); // 필요 시 설정
+	
+	    // 화면 표시
+	    document.querySelector(".user-chat-box")?.classList.remove("user-list-box-show");
+	    document.querySelector(".chat-meta-user")?.classList.add("chat-active");
+	    document.querySelector(".chat-send-message-footer")?.classList.add("chat-active");
+	
+	    // WebSocket 연결
+	    connectStomp(roomNo, "", memberName);
+	
+	    // 읽음 처리
+	    await fetch("/chat/read/update", {
+	      method: "POST",
+	      headers: {
+	        "Content-Type": "application/json",
+	        "header": csrfHeader,
+	        "X-CSRF-Token": csrfToken
+	      },
+	      body: JSON.stringify({ chat_room_no: roomNo, member_no: myMemberNo })
+	    });
+	
+	  } catch (error) {
+	    console.error("알림 클릭 시 채팅방 진입 실패:", error);
+	  }
+	}
+
 
 	</script>
 	<script th:src="@{/assets/js/vendor.min.js}"></script>
