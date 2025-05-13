@@ -45,7 +45,7 @@ public class MeetingRoomController {
 		model.addAttribute("reservationList",resultList);
 		model.addAttribute("meetingRoomList",meetingRoomList);
 		
-		return "/meetingRoom/meetingRoomReservation";
+		return "meetingRoom/meetingRoomReservation";
 	}
 	
 	// 사용자 - 전체 회의실 예약 일정 캘린더에 조회
@@ -204,7 +204,7 @@ public class MeetingRoomController {
 		model.addAttribute("reservationList",resultList);
 		model.addAttribute("meetingRoomList",meetingRoomList);
 		 
-		return "/meetingRoom/AdminMeetingReservation";
+		return "meetingRoom/AdminMeetingReservation";
 	}
 	
 	// 관리자 - 회의실 전체 예약 내역 조회 필터

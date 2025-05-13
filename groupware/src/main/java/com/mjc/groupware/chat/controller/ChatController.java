@@ -56,7 +56,7 @@ public class ChatController {
 		List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
 		model.addAttribute("chatRoomList",resultList);
 		
-		return "/chat/chat";
+		return "chat/chat";
 	}
 	
 	// 채팅방 생성
@@ -231,15 +231,18 @@ public class ChatController {
 		int result = chatRoomService.updateStatus(dto);
 
 		if (result > 0) {
-	
-			chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
-			 messagingTemplate.convertAndSend(
-				        "/topic/chat/room/" + dto.getChat_room_no() + "/exit",
-				        dto
-				    );
-			
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
+		    // 💡 나가기 처리 성공 후, 채팅방 정보 조회
+		    ChatRoom chatRoom = chatRoomService.selectChatRoomOne(dto.getChat_room_no());
+		    ChatRoomDto roomDto = ChatRoomDto.toDto(chatRoom);
+
+		    // 시스템 메시지 보내기
+		    chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
+
+		    // 💣 전역 전송
+		    messagingTemplate.convertAndSend("/topic/chat/room/exit", roomDto);
+
+		    resultMap.put("res_code", "200");
+		    resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
 		}
 
 		return resultMap;

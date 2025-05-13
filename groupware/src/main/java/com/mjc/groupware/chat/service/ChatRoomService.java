@@ -65,14 +65,15 @@ public class ChatRoomService {
 		                Member member = mapping.getMemberNo();
 
 		                // ✅ 본인 제외 + 참여중인 멤버만
-		                if (!mapping.getMemberNo().getMemberNo().equals(md.getMember().getMemberNo())
-		                	    && "Y".equals(mapping.getMemberStatus())) {
+		                if (!member.getMemberNo().equals(md.getMember().getMemberNo())
+		                    && "Y".equals(mapping.getMemberStatus())) {
 		                    String pos = member.getPos() != null ? member.getPos().getPosName() : "";
 		                    nameList.add(member.getMemberName() + " " + pos);
 		                }
 		            }
 
-		            title = String.join(", ", nameList);
+		            // ✅ 본인만 존재하면 제목을 "알 수 없음"으로
+		            title = nameList.isEmpty() ? "(알 수 없음)" : String.join(", ", nameList);
 		        }
 
 		        ChatRoomDto dto = ChatRoomDto.builder()
