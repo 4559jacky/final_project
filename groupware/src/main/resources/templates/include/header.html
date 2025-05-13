@@ -256,7 +256,21 @@
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
                   <!-- ------------------------------- -->
-                  <!-- 풀화면 : 채팅 알림  -->
+                  <!-- 작은화면 : 다크모드 테마 반경 버튼 -->
+                  <!-- ------------------------------- -->
+				  <th:block>
+                  	<li class="nav-item nav-icon-hover-bg rounded-circle">
+                    	<a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
+                      		<i class="ti ti-moon moon"></i>
+                    	</a>
+                    	<a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
+                      		<i class="ti ti-sun sun"></i>
+                    	</a>
+                  	</li>
+                  </th:block>
+                  
+                  <!-- ------------------------------- -->
+                  <!-- 작은화면 : 채팅 알림  -->
                   <!-- ------------------------------- -->
                   <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
                     <a class="nav-link position-relative" href="javascript:void(0)" id="drop2" aria-expanded="false">
@@ -290,19 +304,7 @@
                       </div>
                     </div>
                   </li>
-                	<!-- ------------------------------- -->
-                  	<!-- 작은화면 : 다크모드 테마 반경 버튼 -->
-                  	<!-- ------------------------------- -->
-					<th:block>
-                  	<li class="nav-item nav-icon-hover-bg rounded-circle">
-                    	<a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
-                      		<i class="ti ti-moon moon"></i>
-                    	</a>
-                    	<a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
-                      		<i class="ti ti-sun sun"></i>
-                    	</a>
-                  	</li>
-                  </th:block>
+
 			      <!-- ------------------------------- -->
                   <!-- 작은화면 : 다크모드 테마 반경 버튼 끝 -->
                   <!-- ------------------------------- -->
@@ -524,7 +526,7 @@
 		  <!-- ------------------------------- -->
           <!-- 작은화면 : 내부 햄버거 버튼 눌렀을 때 나오는 오른쪽 나브바 -->
           <!-- ------------------------------- -->
-
+		  <!--
           <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="mobilenavbar" aria-labelledby="offcanvasWithBothOptionsLabel">
             <nav class="sidebar-nav scroll-sidebar">
               <div class="offcanvas-header justify-content-between">
@@ -686,6 +688,7 @@
               </div>
             </nav>
           </div>
+          -->
           
           <!-- ------------------------------- -->
           <!-- 작은화면 : 내부 햄버거 버튼 눌렀을 때 나오는 오른쪽 나브바 끝-->
@@ -697,11 +700,13 @@
           <nav class="navbar navbar-expand-xl container-fluid p-0">
             <ul class="navbar-nav align-items-center">
             <!-- 햄버거 메뉴 (동적) --> 
+              <!--
               <li class="nav-item nav-icon-hover-bg rounded-circle d-flex d-xl-none ms-n2">
                 <a class="nav-link sidebartoggler" id="sidebarCollapse" href="javascript:void(0)">
                   <i class="ti ti-menu-2"></i>
                 </a>
               </li>
+              -->
               
               <!-- ------------------------------- -->
               <!-- 풀화면 : 로고 이미지 시작 -->
@@ -933,6 +938,20 @@
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
                   <!-- ------------------------------- -->
+                  <!-- 풀화면 : 다크모드 테마 반경 버튼 -->
+                  <!-- ------------------------------- -->
+                  <th:block>
+                  	<li class="nav-item nav-icon-hover-bg rounded-circle">
+                    	<a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
+                      		<i class="ti ti-moon moon"></i>
+                    	</a>
+                    	<a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
+                      		<i class="ti ti-sun sun"></i>
+                    	</a>
+                  	</li>
+                  </th:block>
+                  
+                  <!-- ------------------------------- -->
                   <!-- 풀화면 : 채팅 알림  -->
                   <!-- ------------------------------- -->
                   <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
@@ -967,19 +986,6 @@
                       </div>
                     </div>
                   </li>
-                  <!-- ------------------------------- -->
-                  <!-- 풀화면 : 다크모드 테마 반경 버튼 -->
-                  <!-- ------------------------------- -->
-                  <th:block>
-                  	<li class="nav-item nav-icon-hover-bg rounded-circle">
-                    	<a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
-                      		<i class="ti ti-moon moon"></i>
-                    	</a>
-                    	<a class="nav-link sun light-layout" href="javascript:void(0)" onclick="changeToLight()">
-                      		<i class="ti ti-sun sun"></i>
-                    	</a>
-                  	</li>
-                  </th:block>
                   
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 다크모드 테마 반경 버튼 끝 -->
