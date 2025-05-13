@@ -78,12 +78,21 @@
 								<table class="table table-bordered align-middle">
 									<tbody>
 										<tr>
-											<th class="text-center bg-light" style="width: 15%;">기안자</th>
+											<!-- <th class="text-center bg-light" style="width: 15%;">기안자</th>
 											<td name="sender_name" style="width: 20%;"></td>
 											<th class="text-center bg-light" style="width: 15%;">부서</th>
 											<td name="dept_name" style="width: 20%;"></td>
 											<th class="text-center bg-light" style="width: 15%;">직급</th>
-											<td name="pos_name"></td>
+											<td name="pos_name"></td> -->
+											<th class="text-center bg-light" style="width: 15%;">기안자</th>
+											<td name="sender_name" style="width: 20%;" th:text="${member.memberName}"></td>
+											<th class="text-center bg-light" style="width: 15%;">부서</th>
+											<td name="dept_name" style="width: 20%;" th:if="${member.dept != null}"
+												th:text="${member.dept.deptName}"></td>
+											<td name="dept_name" style="width: 20%;" th:if="${member.dept == null}">(부서미배정)</td>
+											<th class="text-center bg-light" style="width: 15%;">직급</th>
+											<td name="pos_name" style="width: 20%;" th:if="${member.pos != null}" th:text="${member.pos.posName}"></td>
+											<td name="pos_name" style="width: 20%;" th:if="${member.pos == null}">(직급미배정)</td>
 										</tr>
 										<tr>
 											<th class="text-center bg-light">제목</th>
@@ -98,6 +107,7 @@
 										      <span> ~ </span>
 										      <input type="date" id="end_date" name="end_date" class="form-control" style="width: 150px; height: 36px;">
 										      &nbsp;
+										      <input type="hidden" id="annual_leave" th:value="${member.annualLeave}">
 										      <span id="annualInfoText" style="display: none;">남은 연차 : <span th:text="${member.annualLeave}">0</span>&nbsp;&nbsp;사용 연차 : <span id="use_annual_leave">0</span>
 										      &nbsp;<label><input class="form-check-input" type="checkbox" name="annual_leave_type" id="am" value="1" disabled>&nbsp;오전</label>
 										      &nbsp;&nbsp;<label><input class="form-check-input" type="checkbox" name="annual_leave_type" id="pm" value="2" disabled>&nbsp;오후</label></span>
@@ -398,6 +408,7 @@
 
 	        let form_no = document.createElement('input');
 	        form_no.setAttribute('type', 'hidden');
+	        form_no.setAttribute('id', 'approval_type_no');
 	        form_no.setAttribute('name', 'approval_type_no');
 	        form_no.setAttribute('value', `${approvalFormNo}`);
 	        form_div.appendChild(form_no);
@@ -407,11 +418,14 @@
 	        if (titleElement) {
 	          titleElement.innerText = approvalForm.approval_form_name;
 	        }
+	        
+	        // 작성 내용 초기화
+	        clearApprovalForm();
 
 	        // 기안자 정보 삽입
-	        document.querySelector("td[name='sender_name']").innerText = member.member_name;
+	        /* document.querySelector("td[name='sender_name']").innerText = member.member_name;
 	        document.querySelector("td[name='dept_name']").innerText = member.dept_name;
-	        document.querySelector("td[name='pos_name']").innerText = member.pos_name;
+	        document.querySelector("td[name='pos_name']").innerText = member.pos_name; */
 
 	        // 연차 사용 안내 텍스트
 	        if (approvalForm.approval_form_type === 1) {
@@ -450,6 +464,32 @@
 	  } else {
 	    alert('먼저 작성할 양식을 선택해주세요.');
 	  }
+	};
+	
+	// 작성 내용 초기화
+	const clearApprovalForm = () => {
+	  document.querySelector("input[name='appr_title']").value = "";
+	  document.getElementById("start_date").value = "";
+	  document.getElementById("end_date").value = "";
+	  document.getElementById("use_annual_leave").innerText = "0";
+	  document.getElementById("am").checked = false;
+	  document.getElementById("pm").checked = false;
+	  document.getElementById("am").disabled = true;
+	  document.getElementById("pm").disabled = true;
+	  document.getElementById("approval_file").value = "";
+
+	  const approverThList = document.querySelectorAll('#approver th');
+	  const approverTdList = document.querySelectorAll('#approver_signature td');
+	  approverThList.forEach(th => th.innerHTML = '');
+	  approverTdList.forEach(td => td.innerHTML = '');
+
+	  const agreementerThList = document.querySelectorAll('#agreementer th');
+	  const agreementerTdList = document.querySelectorAll('#agreementer_signature td');
+	  agreementerThList.forEach(th => th.innerHTML = '');
+	  agreementerTdList.forEach(td => td.innerHTML = '');
+
+	  const referencerDiv = document.getElementById('referencer');
+	  referencerDiv.innerHTML = '';
 	};
 
 	function createEditor(initialData) {
@@ -1070,18 +1110,25 @@
 			} else {
 				document.querySelector("input[name='appr_text']").value = editorInstance.getData();
 				let payload = new FormData(createApprovalForm);
+				let annual_leave = document.getElementById('annual_leave').value;
 				let use_annual_leave = document.getElementById('use_annual_leave').innerText;
-				let annual_leave_type = 0; // 기본값: 0 (선택 없음)
-		        if (document.getElementById('am').checked) {
-		            annual_leave_type = 1; // 오전
-		            payload.append('use_annual_leave', use_annual_leave);
-					payload.append('annual_leave_type', annual_leave_type);
-		        }
-		        if (document.getElementById('pm').checked) {
-		            annual_leave_type = 2; // 오후
-		            payload.append('use_annual_leave', use_annual_leave);
-					payload.append('annual_leave_type', annual_leave_type);
-		        }
+				console.log('사용연차 : '+use_annual_leave);
+				if(document.getElementById('approval_type_no').value == 1) {
+					if(parseFloat(document.getElementById('use_annual_leave').innerText) > parseFloat(document.getElementById('annual_leave').value)) {
+						alert('사용연차가 남은연차보다 많습니다.');
+						return;
+					}
+				}
+				let annual_leave_type = 0;
+				if (document.getElementById('am').checked) {
+				    annual_leave_type = 1;
+				}
+				if (document.getElementById('pm').checked) {
+				    annual_leave_type = 2;
+				}
+
+				payload.append('use_annual_leave', use_annual_leave);
+				payload.append('annual_leave_type', annual_leave_type);
 				
 				const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 				const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;

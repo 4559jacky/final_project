@@ -9,10 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
+import com.mjc.groupware.accommodationReservation.controller.AccommodationAdminController;
+import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
@@ -21,6 +29,7 @@ import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
+import com.mjc.groupware.attendance.specification.AttendanceSpecification;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
@@ -39,20 +48,24 @@ public class AttendanceService {
 	private final MemberRepository memberRepository;
 	private final AttendanceRepository attendanceRepository;
 
-	
+
 	// 근태 정책 변경
-	public int workTimeUpdateApi(WorkSchedulePolicyDto dto) {
-		int result = 0;
+	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
 		try {
 			WorkSchedulePolicy entity = dto.toEntity();
-			workSchedulePolicyRepository.save(entity);
-			
-			result = 1;
+			WorkSchedulePolicy saved = workSchedulePolicyRepository.save(entity);
+			resultMap.put("workPolicy", saved);
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "근태 정책이 변경되었습니다.");
+
 		} catch(Exception e) {
 			e.printStackTrace();
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "근태 정책 변경에 실패하였습니다.");
 		}
-		return result;
+		return resultMap;
 	}
 
 
@@ -142,73 +155,112 @@ public class AttendanceService {
 
 	// 근무 출근 저장
 	public Map<String, Object> saveStartTime(MemberDto member, AttendanceDto dto) {
-		Map<String,Object> resultMap = new HashMap<String,Object>();
-		try {
-			 // 정책 조회
-		    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
-		    LocalTime checkInTime = dto.getCheck_in();
-		    
-		    if (wsp != null && checkInTime != null) {
-		        if (checkInTime.isAfter(wsp.getStartTimeMax())) {
-		            dto.setLate_yn("Y"); // 지각여부
-		        } else {
-		            dto.setLate_yn("N"); // 정상 출근
-		        }
-		    }
+	    Map<String, Object> resultMap = new HashMap<>();
+	    try {
+	        WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	        LocalTime checkInTime = dto.getCheck_in();
+	        String planTitle = dto.getPlan_title(); // 프론트에서 넘긴 값
 
-		    // 사원 저장
-		    dto.setMember_no(member.getMember_no());
+	        if (wsp != null && checkInTime != null) {
+	            LocalTime startMax = wsp.getStartTimeMax();
 
-		    // DB 저장
-		    Attendance attendance = dto.toEntity();
-		    Attendance entity = attendanceRepository.save(attendance);
-		    
-		    resultMap.put("attendance", entity);
-		    resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "출근 정보 저장 성공");
-		} catch(Exception e) {
-			e.printStackTrace();
-			resultMap.put("res_code", "500");
-			resultMap.put("res_msg", "출근 정보 저장 실패");
-		}
-	   
+	            // 오전반차일 경우 출근 기준 시간을 4시간 늦춤
+	            if (planTitle != null && planTitle.contains("오전반차")) {
+	                startMax = startMax.plusHours(4);
+	            }
+
+	            if (checkInTime.isAfter(startMax)) {
+	                dto.setLate_yn("Y");
+	            } else {
+	                dto.setLate_yn("N");
+	            }
+	        }
+
+	        dto.setMember_no(member.getMember_no());
+
+	        Attendance attendance = dto.toEntity();
+	        Attendance entity = attendanceRepository.save(attendance);
+
+	        resultMap.put("attendance", entity);
+	        resultMap.put("res_code", "200");
+	        resultMap.put("res_msg", "출근 정보 저장 성공");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("res_code", "500");
+	        resultMap.put("res_msg", "출근 정보 저장 실패");
+	    }
+
 	    return resultMap;
 	}
 
 	// 퇴근 시간 저장
 	public Map<String, Object> saveEndTime(MemberDto member, AttendanceDto dto) {
-		Map<String,Object> resultMap = new HashMap<String,Object>();
-		System.out.println(">>> memberNo: " + member.getMember_no());
-		System.out.println(">>> attendDate: " + dto.getAttend_date());
-		try {
-			// 오늘의 근무 정보 가져오기
-			Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMember_no(), dto.getAttend_date());
-			AttendanceDto oldAttendanceDto = new AttendanceDto().toDto(attendance);
-			oldAttendanceDto.setCheck_out(dto.getCheck_out());
-			oldAttendanceDto.setEarly_leave_yn(dto.getEarly_leave_yn());
-			
-			// 하루 일한 시간 구하기
-			LocalTime checkIn = oldAttendanceDto.getCheck_in();
-			LocalTime checkOut = dto.getCheck_out();
-			Duration duration = Duration.between(checkIn, checkOut);
-			LocalTime workingTime = LocalTime.ofSecondOfDay(duration.getSeconds());
-			oldAttendanceDto.setWorking_time(workingTime);
-			
-			Attendance updated = oldAttendanceDto.toEntity();
+	    Map<String, Object> resultMap = new HashMap<>();
+	    System.out.println(">>> memberNo: " + member.getMember_no());
+	    System.out.println(">>> attendDate: " + dto.getAttend_date());
+	    try {
+	        Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(
+	            member.getMember_no(), dto.getAttend_date());
+	        AttendanceDto oldAttendanceDto = new AttendanceDto().toDto(attendance);
+
+	        oldAttendanceDto.setCheck_out(dto.getCheck_out());
+
+	        // 정책 조회
+	        WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	        double workDuration = wsp != null ? wsp.getWorkDuration() : 8.5;
+
+	        // 휴가 타입 가져오기
+	        String planTitle = dto.getPlan_title();
+	        boolean isMorningLeave = planTitle != null && planTitle.contains("오전반차");
+	        boolean isAfternoonLeave = planTitle != null && planTitle.contains("오후반차");
+
+	        // 출근 / 퇴근 시간
+	        LocalTime checkIn = oldAttendanceDto.getCheck_in();
+	        LocalTime checkOut = dto.getCheck_out();
+	        Duration duration = Duration.between(checkIn, checkOut);
+
+	        // 🔥 총 근무 시간 계산
+	        long totalSeconds = duration.getSeconds();
+
+	        // 🔥 9시간 이상이면 자동 휴게시간 1시간 감산
+	        if (totalSeconds >= 9 * 60 * 60) {
+	            totalSeconds -= 60 * 60;
+	        }
+
+	        // 🔥 실근무시간 저장
+	        LocalTime workingTime = LocalTime.ofSecondOfDay(totalSeconds);
+	        oldAttendanceDto.setWorking_time(workingTime);
+
+	        // 조퇴 여부 판단
+	        long workedMinutes = totalSeconds / 60;
+	        long requiredMinutes;
+
+	        if (isMorningLeave || isAfternoonLeave) {
+	            requiredMinutes = 4 * 60;
+	        } else {
+	            requiredMinutes = (long) (workDuration * 60);
+	        }
+
+	        if (workedMinutes < requiredMinutes) {
+	            oldAttendanceDto.setEarly_leave_yn("Y");
+	        } else {
+	            oldAttendanceDto.setEarly_leave_yn("N");
+	        }
+
+	        Attendance updated = oldAttendanceDto.toEntity();
 	        attendanceRepository.save(updated);
-	        
+
 	        resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "퇴근 시간이 저장되었습니다.");
 	        resultMap.put("attendance", oldAttendanceDto);
-	        
-		} catch(Exception e) {
-			e.printStackTrace();
-			resultMap.put("res_code", "500");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("res_code", "500");
 	        resultMap.put("res_msg", "퇴근 저장 실패");
-		}
-		
-		
-		return resultMap;
+	    }
+
+	    return resultMap;
 	}
 
 
@@ -253,6 +305,77 @@ public class AttendanceService {
 
 	    // 소수점 한자리로 반올림
 	    return Math.round(hours * 10) / 10.0;
+	}
+
+	// 사원 모든 근무이력 데이터 가져오기
+	public List<Attendance> selectAttendanceAll(Member member) {
+		List<Attendance> attendanceList = null;
+		attendanceList = attendanceRepository.findAll();
+		return attendanceList;
+	}
+
+	// 근무 이력 검색 필터 페이징
+	public Page<Attendance> selectAttendanceAllByFilter(Member member, SearchDto searchDto, AttendPageDto pageDto) {
+		Pageable pageable = PageRequest.of(pageDto.getNowPage() -1, pageDto.getNumPerPage(),
+				Sort.by("attendDate").descending());
+		if(searchDto.getOrder_type() == 2) {
+			pageable = PageRequest.of(pageDto.getNowPage() -1, pageDto.getNumPerPage(),
+					Sort.by("attendDate").ascending());
+		}
+		
+		Specification<Attendance> spec = (root, query, criteriaBuilder) -> null;
+		spec = spec.and(AttendanceSpecification.attendanceLateYnContains(searchDto.getCheck_in_status()))
+				.and(AttendanceSpecification.attendanceMemberContains(member.getMemberNo()))
+				.and(AttendanceSpecification.attendanceEarlyLeaveYnContains(searchDto.getCheck_out_status()))
+				.and(AttendanceSpecification.attendDateAfter(searchDto.getStart_date()))
+				.and(AttendanceSpecification.attendDateBefore(searchDto.getEnd_date()));
+		Page<Attendance> list = attendanceRepository.findAll(spec, pageable);
+		return list;
+	}
+
+	// 관리자 - 회원 근태 정보 수정
+	public int memberAttendStatusUpdateApi(Member member, AttendanceDto dto) {
+		
+		int result = 0;
+		
+		try {
+			System.out.println("test : "+dto.getAttend_date());
+			Attendance entity = attendanceRepository.findByMember_MemberNoAndAttendDate(
+		            member.getMemberNo(), dto.getAttend_date());
+			
+			AttendanceDto beforeDto = new AttendanceDto().toDto(entity);
+			beforeDto.setCheck_in(dto.getCheck_in());
+			beforeDto.setCheck_out(dto.getCheck_out());
+			beforeDto.setLate_yn(dto.getLate_yn());
+			beforeDto.setEarly_leave_yn(dto.getEarly_leave_yn());
+			
+			// 출근 / 퇴근 시간
+	        LocalTime checkIn = dto.getCheck_in();
+	        LocalTime checkOut = dto.getCheck_out();
+	        Duration duration = Duration.between(checkIn, checkOut);
+
+	        // 총 근무 시간 계산
+	        long totalSeconds = duration.getSeconds();
+
+	        // 9시간 이상이면 자동 휴게시간 1시간 감산
+	        if (totalSeconds >= 9 * 60 * 60) {
+	            totalSeconds -= 60 * 60;
+	        }
+
+	        // 실근무시간 저장
+	        LocalTime workingTime = LocalTime.ofSecondOfDay(totalSeconds);
+	        beforeDto.setWorking_time(workingTime);
+	        
+	        
+	        Attendance attendance = beforeDto.toEntity();
+	        attendanceRepository.save(attendance);
+	        
+	        result = 1;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 
 }

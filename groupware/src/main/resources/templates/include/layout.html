@@ -27,6 +27,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<!-- Custom Css Files -->
 	<link rel="stylesheet" th:href="@{/css/layout-common.css}" />
 	<link rel="stylesheet" th:href="@{/css/layout-media.css}" />
+	
+	<!-- alarm css file -->
+	<link  rel="stylesheet" th:href="@{/css/alarm.css}">
   	
 </head>
 <body>
@@ -145,7 +148,38 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     </div>
     <div class="dark-transparent sidebartoggler"></div>
 	
+	<!-- 현재 로그인한 사원 사번  -->
+	<input type="hidden" id="member_no" th:value="${#authentication.principal.member.memberNo}">
 	
+	<!-- 채팅 알림 모달 -->
+	<div id="chatAlertToast" class="position-fixed end-0 bottom-0 m-4 p-3 shadow-lg rounded-3 border bg-white text-dark d-none" style="width: 320px; z-index: 1080;">
+	  <div class="fw-bold text-primary mb-2">[채팅 알림] 새로운 메시지가 도착했습니다.</div>
+	  <div><strong>제목:</strong> <span id="toast-chat-title">-</span></div>
+	  <div><strong>보낸 사람:</strong> <span id="toast-sender-name">-</span></div>
+	  <div><strong>내용:</strong> <span id="toast-msg-content">-</span></div>
+	  <input type="hidden" id="toast-room-no" />
+	</div>
+
+
+	
+	<!-- 전자결재 알림 모달 -->
+	<div id="approval-alert-toast" class="d-none" style="
+	  position: fixed;
+	  bottom: 30px;
+	  right: 30px;
+	  background: white;
+	  border: 2px solid #0d6efd;
+	  padding: 20px;
+	  z-index: 99999;
+	  display: block;
+	  opacity: 1;
+	">
+	  <strong>[전자결재 도착]</strong><br>
+	  <span id="approval-toast-title">테스트 제목</span><br>
+	  <span id="approval-toast-sender">홍길동</span><br>
+	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
+	</div>
+
 	<!-- Common JS Files -->
   
     <!-- jsTree -->
@@ -163,48 +197,121 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		let stompClient = null;
 	
 		window.addEventListener("load", () => {
-			const socket = new SockJS("/ws-chat");
-			stompClient = Stomp.over(socket);
+		  const socket = new SockJS("/ws-chat");
+		  stompClient = Stomp.over(socket);
 	
-			stompClient.connect({}, () => {
-				console.log("📡 STOMP WebSocket 연결 성공");
-				
-				// 채팅방 생성 실시간 반영
-		      stompClient.subscribe("/topic/chat/room/new", (message) => {
-		        const newRoom = JSON.parse(message.body);
-		        // chat.html에서만 실행되도록 보호
-		        if (typeof appendNewChatRoom === "function") {
-		          appendNewChatRoom(newRoom);
-		        }
-		      });
-				
-			   // 마지막 메시지/시간 실시간 반영
-				stompClient.subscribe("/topic/chat/room/update", (message) => {
-					const update = JSON.parse(message.body);
-					if (typeof updateChatRoomList === "function") {
-						updateChatRoomList(update);
-					}
-				});
-			   
-			   // 안 읽은 메세지 수 실시간 반영 
-				stompClient.subscribe("/topic/chat/unread", (message) => {
-					  if (typeof onUnreadMessage === "function") {
-						  onUnreadMessage(JSON.parse(message.body));
-					  }
-					});
-				
-			 	stompClient.subscribe("/user/queue/chat/read", function (message) {
-					  const dto = JSON.parse(message.body);
-					  if (typeof onChatReadUpdate === "function") {
-					    onChatReadUpdate(dto); 
-					  }
-					}); 
+		  stompClient.connect({}, () => {
+		    console.log("📡 STOMP WebSocket 연결 성공");
 
-				
-			}, (error) => {
-				console.error("STOMP 연결 실패", error);
+		    const myNo = document.getElementById("member_no").value;
+		    
+		    stompClient.send("/app/chat/session-register", {}, JSON.stringify({
+		        memberNo: myNo
+		      }));
+	
+		    // 채팅방 생성 실시간 반영
+		    stompClient.subscribe("/topic/chat/room/new", (message) => {
+		      const newRoom = JSON.parse(message.body);
+		      if (typeof appendNewChatRoom === "function") {
+		        appendNewChatRoom(newRoom);
+		      }
+		    });
+	
+		    // 마지막 메시지/시간 실시간 반영
+		    stompClient.subscribe("/topic/chat/room/update", (message) => {
+		      const update = JSON.parse(message.body);
+		      if (typeof updateChatRoomList === "function") {
+		        updateChatRoomList(update);
+		      }
+		    });
+	
+		    // 안 읽은 메시지 수 → chat.html로 위임
+		    stompClient.subscribe("/topic/chat/unread", (message) => {
+		      const dto = JSON.parse(message.body);
+	
+		      if (typeof onUnreadMessage === "function") {
+		        onUnreadMessage(dto);
+		      }
+		    });
+
+		    // 나가기 실시간 반영 
+		    stompClient.subscribe("/topic/chat/room/exit", (msg) => {
+			  const dto = JSON.parse(msg.body);
+			
+			  if (typeof window.onChatMemberExit === "function") {
+			    window.onChatMemberExit(dto);  // ✅ dto.chat_room_no로 처리
+			  }
 			});
+		    
+		    // 채팅 알림 
+
+		    const path = window.location.pathname;
+		    if (!path.includes("/chat")) {
+		      stompClient.subscribe(`/topic/chat/alarm/${myNo}`, (msg) => {
+		        const dto = JSON.parse(msg.body);
+		        showChatAlertToast(dto);
+		      });
+		      
+		   	  // 전자결재 알림
+		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
+		    	    const dto = JSON.parse(msg.body);
+		    	    console.log("전자결재 알림 도착:", dto);
+		    	    showApprovalAlertToast(dto);
+		      });
+		      
+		    }
+
+		  }, (error) => {
+		    console.error("STOMP 연결 실패", error);
+		  });
 		});
+
+		
+		// 알림 토스트 모달 
+		function showChatAlertToast(dto) {
+		  console.log("🔥 모달 함수 진입", dto);
+		
+		  // 값 세팅
+		  document.getElementById("toast-room-no").value = dto.chat_room_no;
+		  document.getElementById("toast-sender-name").textContent = `${dto.member_name} ${dto.member_pos_name}`;
+		  document.getElementById("toast-msg-content").textContent = dto.chat_msg_content;
+		  document.getElementById("toast-chat-title").textContent = dto.chat_room_title || "제목 없음";
+		
+		  const toastEl = document.getElementById("chatAlertToast");
+		  toastEl.classList.remove("d-none");
+		
+		  // 5초 뒤 사라짐
+		  setTimeout(() => {
+		    toastEl.classList.add("d-none");
+		  }, 5000);
+		}
+
+		
+		// 전자결재 알림 토스트 모달
+		function showApprovalAlertToast(dto) {
+	
+		    const wrapper = document.getElementById("approval-alert-toast");
+		    if (!wrapper) return;
+		
+		    // 내용 세팅
+		    document.getElementById("approval-toast-title").textContent = dto.title || "전자결재";
+		    document.getElementById("approval-toast-sender").textContent = dto.senderName || "";
+		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
+		
+		    // 모달 표시
+		    wrapper.classList.remove("d-none");
+		
+		    // 자동 닫기 (5초 후)
+		    setTimeout(() => {
+		      wrapper.classList.add("d-none");
+		    }, 5000);
+		  }
+	
+	  function closeApprovalToast() {
+	    const wrapper = document.getElementById("approval-alert-toast");
+	    wrapper.classList.remove("active");
+	    wrapper.classList.add("d-none");
+	  }
 	</script>
 
 </body>

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
@@ -17,5 +19,7 @@ public interface ChatMsgRepository  extends JpaRepository<ChatMsg, Long>{
 	// ChatMsgRepository.java
 	int countByChatRoomNoAndSendDateAfterAndMemberNoNot(ChatRoom chatRoom, LocalDateTime sendDate, Member member);
 
+	@Query("SELECT m FROM ChatMsg m LEFT JOIN FETCH m.attachNo WHERE m.chatRoomNo.chatRoomNo = :roomNo ORDER BY m.sendDate ASC")
+	List<ChatMsg> findAllWithAttachByChatRoomNo(@Param("roomNo") Long roomNo);
 
 }

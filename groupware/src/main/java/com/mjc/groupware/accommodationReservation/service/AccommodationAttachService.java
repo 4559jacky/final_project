@@ -2,6 +2,7 @@ package com.mjc.groupware.accommodationReservation.service;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +34,7 @@ public class AccommodationAttachService {
 				throw new Exception("존재하지 않는 파일입니다.");
 			}
 			long fileSize = file.getSize();
-			if(fileSize >= 1048576) {
+			if(fileSize >= 5242880) { //5MB
 				throw new Exception("허용 용량을 초과한 파일입니다.");
 			}
 			// 파일 최초이름 읽어오기
@@ -78,6 +79,12 @@ public class AccommodationAttachService {
 
 	    accommodationAttachRepository.save(attach);
 	}
+
+	// 이미지 수정시 기존 파일 삭제
+	public void deleteAllByAccommodation(Long accommodationNo) {
+    	List<AccommodationAttach> attachList = accommodationAttachRepository.findByAccommodationInfo_AccommodationNo(accommodationNo);
+        accommodationAttachRepository.deleteAll(attachList);
+    }
 
 	
 }

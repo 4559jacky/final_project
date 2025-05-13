@@ -44,54 +44,51 @@ public class ChatRoomService {
 	private EntityManager entityManager;
 	
 	// 채팅 화면 전환
-	public List<ChatRoomDto> selectChatRoomAll(){
-		
-		// 현재 로그인한 사용자의 인증정보를 SecurityContextHolder에서 꺼내옴
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	 public List<ChatRoomDto> selectChatRoomAll() {
 
-		// 인증된 사용자의 상세 정보를 담아줌
-		MemberDetails md = (MemberDetails)authentication.getPrincipal();
+		    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		    MemberDetails md = (MemberDetails) authentication.getPrincipal();
 
-		// 참여 중인 채팅방만 필터링 (memberStatus = "Y")
-		Specification<ChatRoom> spec = ChatRoomSpecification.participatedBy(md.getMember());
-		
-		// 정렬 조건 - lastDate 내림차순
-	    Sort sort = Sort.by(Sort.Direction.DESC, "lastMsgDate");
+		    Specification<ChatRoom> spec = ChatRoomSpecification.participatedBy(md.getMember());
+		    Sort sort = Sort.by(Sort.Direction.DESC, "lastMsgDate");
 
-	    // 조회하고 조회결과 return 
-	    List<ChatRoom> list = chatRoomRepository.findAll(spec, sort);
-	    
-	    List<ChatRoomDto> result = new ArrayList<>();
-	    
-	    for(ChatRoom room :list) {
-	    	String title = room.getChatRoomTitle();
-	    	
-	    	if(title.trim().isEmpty() || title.equals("")) {
-	    		List<String> nameList = new ArrayList<String>();
-	    		
-	    		for(ChatMapping mapping : room.getMappings()) {
-	    			Member member = mapping.getMemberNo();
-	    			
-	    			 if (!member.getMemberNo().equals(md.getMember().memberNo)) {
-	                     String pos = member.getPos() != null ? member.getPos().getPosName() : "";
-	                     nameList.add(member.getMemberName() + " " + pos);
-	                 }
-        		}
-	    		title = String.join(", ", nameList);
-	    	}
-	    
-	    	ChatRoomDto dto = ChatRoomDto.builder()
-	                .chat_room_no(room.getChatRoomNo())
-	                .chat_room_title(title)
-	                .last_msg(room.getLastMsg())
-	                .last_msg_date(room.getLastMsgDate())
-	                .build();
+		    List<ChatRoom> list = chatRoomRepository.findAll(spec, sort);
+		    List<ChatRoomDto> result = new ArrayList<>();
 
-	        result.add(dto);
-	    }
-	   
-	    return result;
-	}
+		    for (ChatRoom room : list) {
+		        String title = room.getChatRoomTitle();
+
+		        if (title.trim().isEmpty()) {
+		            List<String> nameList = new ArrayList<>();
+
+		            for (ChatMapping mapping : room.getMappings()) {
+		                Member member = mapping.getMemberNo();
+
+		                // ✅ 본인 제외 + 참여중인 멤버만
+		                if (!member.getMemberNo().equals(md.getMember().getMemberNo())
+		                    && "Y".equals(mapping.getMemberStatus())) {
+		                    String pos = member.getPos() != null ? member.getPos().getPosName() : "";
+		                    nameList.add(member.getMemberName() + " " + pos);
+		                }
+		            }
+
+		            // ✅ 본인만 존재하면 제목을 "알 수 없음"으로
+		            title = nameList.isEmpty() ? "(알 수 없음)" : String.join(", ", nameList);
+		        }
+
+		        ChatRoomDto dto = ChatRoomDto.builder()
+		                .chat_room_no(room.getChatRoomNo())
+		                .chat_room_title(title)
+		                .last_msg(room.getLastMsg())
+		                .last_msg_date(room.getLastMsgDate())
+		                .build();
+
+		        result.add(dto);
+		    }
+
+		    return result;
+		}
+
 	
 	// 채팅방 생성
 	@Transactional
@@ -120,8 +117,24 @@ public class ChatRoomService {
 
 	// 채팅방 상세 조회
 	public ChatRoom selectChatRoomOne(Long chatRoomNo) {
-		return chatRoomRepository.findById(chatRoomNo).orElse(null);
+	    ChatRoom room = chatRoomRepository.findById(chatRoomNo).orElse(null);
+
+	    if (room != null) {
+	        List<ChatMapping> originList = room.getMappings(); // 원래 전체 맵핑 리스트
+	        List<ChatMapping> filteredList = new ArrayList<>();
+
+	        for (ChatMapping mapping : originList) {
+	            if ("Y".equals(mapping.getMemberStatus())) {
+	                filteredList.add(mapping);
+	            }
+	        }
+
+	        room.setMappings(filteredList); // ✅ 필터링된 리스트로 덮어쓰기
+	    }
+
+	    return room;
 	}
+
 	
 	// 읽음 시간 조회 
 	public int selectUnreadMsgCount(ChatRoomReadDto dto) {

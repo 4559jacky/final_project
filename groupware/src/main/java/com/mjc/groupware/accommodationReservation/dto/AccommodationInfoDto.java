@@ -25,44 +25,20 @@ import lombok.ToString;
 public class AccommodationInfoDto {
 	
 	private Long accommodation_no;
-	@JsonProperty("accommodationType")
 	private String accommodation_type;
-	@JsonProperty("accommodationName")
 	private String accommodation_name;
-	@JsonProperty("accommodationAddress")
 	private String accommodation_address;
-	@JsonProperty("accommodationPhone")
 	private String accommodation_phone;
-	@JsonProperty("accommodationEmail")
 	private String accommodation_email;
-	@JsonProperty("accommodationSite")
 	private String accommodation_site;
-	@JsonProperty("roomCount")
-	private Long room_count;
-	@JsonProperty("roomPrice")
-	private Long room_price;
-	@JsonProperty("accommodationLocation")
-	private String accommodation_location;
-	@JsonProperty("accommodationContent")
-	private String accommodation_content;
-	@JsonProperty("regDate")
-	private LocalDateTime reg_date;
-	@JsonProperty("modDate")
-	private LocalDateTime mod_date;
-//	private String accommodation_type;
-//	private String accommodation_name;
-//	private String accommodation_address;
-//	private String accommodation_phone;
-//	private String accommodation_email;
-//	private String accommodation_site;
 //	private Long room_count;
-//	private Long room_price;
-//	private String accommodation_location;
-//	private String accommodation_content;
-//	private LocalDateTime reg_date;
-//	private LocalDateTime mod_date;
+	private Long room_price;
+	private String accommodation_location;
+	private String accommodation_content;
+	private LocalDateTime reg_date;
+	private LocalDateTime mod_date;
 	
-	private List<AccommodationAttach> attachList;
+	private List<AccommodationAttachDto> attachList;
 	private List<MultipartFile> files;
 	
 	public AccommodationInfo toEntity() {
@@ -74,7 +50,6 @@ public class AccommodationInfoDto {
 				.accommodationPhone(accommodation_phone)
 				.accommodationEmail(accommodation_email)
 				.accommodationSite(accommodation_site)
-				.roomCount(room_count)
 				.roomPrice(room_price)
 				.accommodationLocation(accommodation_location)
 				.accommodationContent(accommodation_content)
@@ -92,7 +67,6 @@ public class AccommodationInfoDto {
 				.accommodation_phone(accommodationInfo.getAccommodationPhone())
 				.accommodation_email(accommodationInfo.getAccommodationEmail())
 				.accommodation_site(accommodationInfo.getAccommodationSite())
-				.room_count(accommodationInfo.getRoomCount())
 				.room_price(accommodationInfo.getRoomPrice())
 				.accommodation_location(accommodationInfo.getAccommodationLocation())
 				.accommodation_content(accommodationInfo.getAccommodationContent())
@@ -100,59 +74,6 @@ public class AccommodationInfoDto {
 				.mod_date(accommodationInfo.getModDate())
 				.build();
 	}
-	
-	// ✅ 명시적 Getter (Thymeleaf 접근용)
-//    public Long getAccommodationNo() {
-//        return accommodation_no;
-//    }
-//
-//    public String getAccommodationType() {
-//        return accommodation_type;
-//    }
-//
-//    public String getAccommodationName() {
-//        return accommodation_name;
-//    }
-//
-//    public String getAccommodationAddress() {
-//        return accommodation_address;
-//    }
-//
-//    public String getAccommodationPhone() {
-//        return accommodation_phone;
-//    }
-//
-//    public String getAccommodationEmail() {
-//        return accommodation_email;
-//    }
-//
-//    public String getAccommodationSite() {
-//        return accommodation_site;
-//    }
-//
-//    public Long getRoomCount() {
-//        return room_count;
-//    }
-//
-//    public Long getRoomPrice() {
-//        return room_price;
-//    }
-//
-//    public String getAccommodationLocation() {
-//        return accommodation_location;
-//    }
-//
-//    public String getAccommodationContent() {
-//        return accommodation_content;
-//    }
-//
-//    public LocalDateTime getRegDate() {
-//        return reg_date;
-//    }
-//
-//    public LocalDateTime getModDate() {
-//        return mod_date;
-//    }
 	
 	
 	

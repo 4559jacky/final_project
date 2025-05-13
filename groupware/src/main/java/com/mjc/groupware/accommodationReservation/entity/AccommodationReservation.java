@@ -29,7 +29,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class Accommodation {
+public class AccommodationReservation {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,7 +61,10 @@ public class Accommodation {
 	@JoinColumn(name = "accommodation_no")
 	private AccommodationInfo accommodationInfo;
 	
-
+	@Column(name = "reject_reason")
+	private String rejectReason;
 	
+	@Column(name = "room_count")
+	private Long roomCount;
 	
 }

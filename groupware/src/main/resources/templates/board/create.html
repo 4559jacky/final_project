@@ -20,10 +20,10 @@
               <i class="ti ti-home fs-5"></i>
             </a>
           </li>
-          <li class="breadcrumb-item" aria-current="page">자유게시판</li>
+          <li class="breadcrumb-item" aria-current="page">자유게시판 작성</li>
         </ol>
       </nav>
-      <h2 class="mb-0 fw-bolder fs-8 mt-3">자유 게시판 작성</h2>
+      <h2 class="mb-0 fw-bolder fs-8 mt-3">자유게시글 작성</h2>
     </div>
 
     <div class="mt-5"></div>
@@ -52,9 +52,7 @@
 
           <!-- 오른쪽 영역: 버튼 -->
           <div class="ms-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#voteModal">
-              투표 추가
-            </button>
+			<button type="button" class="btn btn-primary" onclick="addVote()">투표 추가</button>
           </div>
         </div>
 
@@ -79,10 +77,10 @@
           <label class="form-label">항목</label>
 		<div id="optionsContainer">
 		
-<div class="input-group mb-2 option-item">
-  <input type="text" class="form-control" placeholder="항목을 입력하세요.">
-  <button type="button" class="x-remove-btn" onclick="removeOption(this)">x</button>
-</div>
+		<div class="input-group mb-2 option-item">
+  			<input type="text" class="form-control" placeholder="항목을 입력하세요.">
+  			<button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
+		</div>
 		</div>
           <!-- 항목 추가/제거 버튼 -->
           <div class="d-flex gap-2 mt-2">
@@ -106,19 +104,24 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="saveVote()">투표 추가</button>
+        <button type="button" class="btn btn-primary" id="voteSubmitBtn" onclick="saveVote()">투표 추가</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
       </div>
     </div>
   </div>
 </div>
 
-
         <div class="mb-3">
           <label for="board_content" class="form-label"><strong>내용</strong></label>
           <div id="editor" style="margin-top: 10px;"></div>
           <textarea id="board_content" name="board_content" hidden></textarea>
         </div>
+
+<!-- 투표 JSON 전송용 hidden input -->
+<textarea id="vote_json" name="vote_json" hidden></textarea>
+
+<!-- 투표 미리보기 영역 (에디터 아래에 위치) -->
+<div id="vote-preview-container" class="mb-4"></div>
 
         <div class="mb-3">
           <label for="board_file" class="form-label"><strong>파일 첨부</strong></label>
@@ -133,16 +136,52 @@
     </div>
 
     <!-- Editor CSS & JS -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
-    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+   <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.css">
+   <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/theme/toastui-editor-dark.min.css">
+   <script src="https://uicdn.toast.com/editor/3.2.2/toastui-editor-all.min.js"></script>
 
     <script>
-      const editor = new toastui.Editor({
+    let editor;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+      // toastui-editor-defaultUI 요소에 클래스 토글
+      function applyThemeFromSystem(isDark) {
+        const editorWrapper = document.querySelector('.toastui-editor-defaultUI');
+
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+          if (editorWrapper) editorWrapper.classList.add('toastui-editor-dark');
+        } else {
+          document.body.classList.remove('dark-mode');
+          if (editorWrapper) editorWrapper.classList.remove('toastui-editor-dark');
+        }
+      }
+
+      // Toast UI Editor 초기화
+      editor = new toastui.Editor({
         el: document.querySelector('#editor'),
         height: '400px',
         initialEditType: 'wysiwyg',
         previewStyle: 'vertical'
       });
+
+      // Editor 렌더 완료 후 다크모드 적용
+      setTimeout(() => {
+        applyThemeFromSystem(darkQuery.matches);
+      }, 0);
+
+      // 시스템 테마 변경 감지
+      darkQuery.addEventListener('change', e => {
+        applyThemeFromSystem(e.matches);
+      });
+
+      // 헤더 아이콘에서 호출되는 함수 정의
+      window.changeToDark = () => applyThemeFromSystem(true);
+      window.changeToLight = () => applyThemeFromSystem(false);
+    });
+    	
 
       const form = document.create_board_form;
       const submitBtn = form.querySelector('button[type="submit"]');
@@ -204,80 +243,179 @@
 
       
       
-   // 항목 추가
-  function addOption() {
-  const optionsContainer = document.getElementById('optionsContainer');
+   	  // 항목 추가
+      function addOption() {
+        const optionsContainer = document.getElementById('optionsContainer');
 
-  const optionDiv = document.createElement('div');
-  optionDiv.className = 'input-group mb-2 option-item';
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'd-flex align-items-center mb-2 option-item';
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'form-control';
-  input.placeholder = '항목을 입력하세요.';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control';
+        input.placeholder = '항목을 입력하세요.';
+        input.maxLength = 7; // 최대 글자수 제한
 
-  const removeBtn = document.createElement('button');
-  removeBtn.type = 'button';
-  removeBtn.className = 'x-remove-btn';
-  removeBtn.textContent = 'x';
-  removeBtn.onclick = () => removeOption(removeBtn);
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.innerText = '-';
+        removeBtn.className = 'minus-btn-style';
+        removeBtn.onclick = () => removeOption(removeBtn);
 
-  optionDiv.appendChild(input);
-  optionDiv.appendChild(removeBtn);
-  optionsContainer.appendChild(optionDiv);
-}
+        optionDiv.appendChild(input);
+        optionDiv.appendChild(removeBtn);
+        optionsContainer.appendChild(optionDiv);
+      }
 
-      // 항목 제거 (X 버튼 클릭 시)
       function removeOption(button) {
+        const optionsContainer = document.getElementById('optionsContainer');
+        const optionItems = optionsContainer.querySelectorAll('.option-item');
+
+        if (optionItems.length <= 2) {
+          alert("항목은 최소 2개 이상이어야 합니다.");
+          return;
+        }
+
         const item = button.closest('.option-item');
         if (item) item.remove();
       }
-      
-function saveVote() {
-  const title = document.getElementById('voteTitle').value.trim();
-  const endDate = document.getElementById('voteEndDate').value;
-  const isAnonymous = document.getElementById('isAnonymous').checked ? 'Y' : 'N';
-  const isMultiple = document.getElementById('isMultipleChoice').checked ? 'Y' : 'N';
 
-  const options = Array.from(document.querySelectorAll('#optionsContainer input'))
-    .map((el, idx) => ({
-      option_text: el.value.trim(),
-      order_no: idx + 1
-    }))
-    .filter(opt => opt.option_text.length > 0);
+      function saveVote() {
+        const title = document.getElementById('voteTitle').value.trim();
+        const endDate = document.getElementById('voteEndDate').value;
+        const isAnonymous = document.getElementById('isAnonymous').checked ? 'Y' : 'N';
+        const isMultiple = document.getElementById('isMultipleChoice').checked ? 'Y' : 'N';
+        const formattedEndDate = endDate.replace('T', ' ');
+        const voteTypeText = (isAnonymous === 'Y' ? '익명' : '실명') + (isMultiple === 'Y' ? ', 중복 투표' : '');
 
-  if (!title || !endDate || options.length < 2) {
-    alert("투표 제목, 마감일시, 2개 이상의 항목을 입력해주세요.");
-    return;
-  }
+        const options = Array.from(document.querySelectorAll('#optionsContainer input'))
+          .map((el, idx) => ({
+            option_text: el.value.trim(),
+            order_no: idx + 1
+          }))
+          .filter(opt => opt.option_text.length > 0);
 
-  // 서버에서 기대하는 JSON 형식으로 맞춤
-  const votePayload = {
-    voteDto: {
-      vote_title: title,
-      end_date: endDate,
-      is_anonymous: isAnonymous,
-      is_multiple: isMultiple
-    },
-    options: options
-  };
+        if (!title || !endDate || options.length < 2) {
+          alert("투표 제목, 마감일시, 2개 이상의 항목을 입력해주세요.");
+          return;
+        }
 
-  // 숨겨진 input에 저장
-  document.getElementById('vote_json').value = JSON.stringify(votePayload);
+        // 글자 수 제한 검사
+        for (const opt of options) {
+          const len = opt.option_text.length;
+          if (len < 2 || len > 7) {
+            alert(`"${opt.option_text}"은(는) 2자 이상 7자 이하로 입력해주세요.`);
+            return;
+          }
+        }
 
-  // 모달 닫기
-  bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide();
-}
+        const votePayload = {
+          voteDto: {
+            vote_title: title,
+            end_date: endDate,
+            is_anonymous: isAnonymous,
+            is_multiple: isMultiple
+          },
+          options: options
+        };
 
-//페이지 로드시 현재 시각을 min 값으로 설정
-window.addEventListener('DOMContentLoaded', () => {
-  const voteEndDateInput = document.getElementById('voteEndDate');
-  const now = new Date();
+        document.getElementById('vote_json').value = JSON.stringify(votePayload);
 
-  // yyyy-MM-ddTHH:mm 형식으로 변환
-  const formatted = now.toISOString().slice(0, 16);
-  voteEndDateInput.min = formatted;
-});
+        const previewContainer = document.getElementById('vote-preview-container');
+        previewContainer.innerHTML = `
+          <div class="card border rounded p-3 mt-3">
+            <h5 class="fw-bold">
+              [투표] ${title}
+              <small class="text-muted ms-2" style="font-size: 0.9rem;">[${voteTypeText}]</small>
+            </h5>
+            <p class="mb-1">마감일시: ${endDate.replace('T', ' ')}</p>
+            <ul class="list-group mb-3">
+              ${options.map(opt => `<li class="list-group-item">${opt.option_text}</li>`).join('')}
+            </ul>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-primary btn-sm" onclick="editVote()">투표 수정</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="deleteVote()">투표 삭제</button>
+            </div>
+          </div>
+        `;
+
+        bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide();
+      }
+
+      function deleteVote() {
+        document.getElementById('vote_json').value = '';
+        document.getElementById('vote-preview-container').innerHTML = '';
+      }
+
+      function editVote() {
+        const voteJson = document.getElementById('vote_json').value;
+        if (!voteJson) return;
+
+        const data = JSON.parse(voteJson);
+        const vote = data.voteDto;
+        const options = data.options;
+
+        document.getElementById('voteTitle').value = vote.vote_title;
+        document.getElementById('voteEndDate').value = vote.end_date;
+        document.getElementById('isAnonymous').checked = vote.is_anonymous === 'Y';
+        document.getElementById('isMultipleChoice').checked = vote.is_multiple === 'Y';
+
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+        options.forEach(opt => {
+          const div = document.createElement('div');
+          div.className = 'input-group mb-2 option-item';
+          div.innerHTML = `
+            <input type="text" class="form-control" value="${opt.option_text}" maxlength="7">
+            <button type="button" class="x-remove-btn" onclick="removeOption(this)">-</button>
+          `;
+          optionsContainer.appendChild(div);
+        });
+
+        document.getElementById('voteSubmitBtn').textContent = '투표 수정';
+
+        const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+        modal.show();
+      }
+
+      function addVote() {
+        document.getElementById('voteTitle').value = '';
+        document.getElementById('voteEndDate').value = '';
+        document.getElementById('isAnonymous').checked = false;
+        document.getElementById('isMultipleChoice').checked = false;
+
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+
+        addOption();
+        addOption();
+
+        document.getElementById('vote_json').value = '';
+        document.getElementById('voteSubmitBtn').textContent = '투표 추가';
+
+        const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+        modal.show();
+      }
+
+      // 페이지 로드시 항목 초기화 + 마감일 최소값 설정
+      window.addEventListener('DOMContentLoaded', () => {
+        const voteEndDateInput = document.getElementById('voteEndDate');
+        const now = new Date();
+        const formatted = now.toISOString().slice(0, 16);
+        voteEndDateInput.min = formatted;
+
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+
+        addOption();
+        addOption();
+        
+        document.getElementById('voteModal').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          });
+        });
 
 
     </script>

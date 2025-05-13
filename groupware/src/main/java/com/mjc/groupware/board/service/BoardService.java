@@ -94,7 +94,6 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Optional<Board> selectBoardOne(Long boardNo) {
-        updateViews(boardNo);
         return repository.findById(boardNo);
     }
 

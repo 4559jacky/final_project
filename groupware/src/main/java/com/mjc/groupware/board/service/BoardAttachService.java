@@ -106,9 +106,11 @@ public class BoardAttachService {
         return savedAttachments;
     }
 
-    // 파일 형식 검증 (이미지 파일만 허용)
+    // 파일 형식 검증 (파일 형식 종류를 15개 이상 더 추가함) - 첨부파일 잘 됨(용량은 5MB)
     private boolean isValidFileType(String fileName) {
-        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "bmp", "txt" };
+        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "webp",
+        		"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "hwp",
+        		"csv", "json", "xml", "sql", "zip", "rar", "7z", "mp3", "wav", "mp4", "mov", "css", "jar" };
         String fileExtension = getFileExtension(fileName);
         
         for (String ext : validExtensions) {

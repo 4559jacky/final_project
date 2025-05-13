@@ -25,7 +25,7 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
 
     List<Board> findByBoardStatus(String boardStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true) // 영속성 컨텍스트 클리어 보장
     @Query(value = "UPDATE board SET views = views + 1 WHERE board_no = :boardNo", nativeQuery = true)
     void updateViews(@Param("boardNo") Long boardNo);
 

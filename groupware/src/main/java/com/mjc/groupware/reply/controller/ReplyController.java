@@ -4,13 +4,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.reply.dto.ReplyDto;
+import com.mjc.groupware.reply.entity.Reply;
 import com.mjc.groupware.reply.repository.ReplyRepository;
 import com.mjc.groupware.reply.service.ReplyService;
 
@@ -121,14 +131,38 @@ public class ReplyController {
         return result;  // JSON 형식으로 대댓글 수 반환
     }
     
-//    // 댓글에서 +더보기 버튼 추가 코드
-//    @GetMapping("/replies/{boardNo}")
-//    @ResponseBody
-//    public List<ReplyDto> getRepliesByBoardPaged(
-//            @PathVariable("boardNo") Long boardNo,
-//            @RequestParam(name = "page", defaultValue = "0") int page,
-//            @RequestParam(name = "size", defaultValue = "5") int size) {
-//        return replyService.getRepliesByBoardPaged(boardNo, page, size);
-//    }
-    
+    // 댓글에서 +더보기 버튼 추가 코드
+    @GetMapping("/replies/{boardNo}")
+    @ResponseBody
+    public Map<String, Object> getRepliesByBoardPaged(
+            @PathVariable("boardNo") Long boardNo,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size) {
+
+        // 부모 댓글만 페이징 조회 (상위 댓글)
+        Page<Reply> replyPage = replyRepository.findByBoard_BoardNoAndParentReplyIsNullAndReplyStatus(
+                boardNo, "N", PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate"))
+        );
+
+        // 각 댓글에 대해 대댓글 포함하는 DTO 리스트 생성
+        List<ReplyDto> result = replyPage.getContent().stream()
+                .map(reply -> {
+                    ReplyDto dto = ReplyDto.toDto(reply);
+
+                    // 대댓글 조회 및 DTO 변환
+                    List<Reply> children = replyRepository.findByParentReply_ReplyNoAndReplyStatus(reply.getReplyNo(), "N");
+                    dto.setSubReplies(children.stream().map(ReplyDto::toDto).toList());
+                    dto.setSubReplyCount(children.size());
+
+                    return dto;
+                }).toList();
+
+        // 응답 구성
+        Map<String, Object> map = new HashMap<>();
+        map.put("replies", result);
+        map.put("hasMore", replyPage.hasNext()); // 다음 페이지 존재 여부
+        map.put("currentPage", page); // (선택) 현재 페이지 디버깅용
+
+        return map;
+    }
 }

@@ -261,7 +261,7 @@ layout:decorate="~{/include/layout}">
 								            		style="cursor: pointer;"
 								                	th:value="${func.func_no}"
 								                	th:checked="${func.func_status == 1}"
-								                	th:disabled="${func.func_no == 1}"
+								                	th:disabled="${func.func_no == 1 || func.func_no == 2 || func.func_no == 3 || func.func_no == 4 || func.func_no == 5}"
 								                	class="form-check-input me-2"
 								                	onchange="changeFuncToggle(this)">
 								                	

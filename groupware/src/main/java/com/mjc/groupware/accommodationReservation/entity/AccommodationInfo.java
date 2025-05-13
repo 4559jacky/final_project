@@ -51,9 +51,6 @@ public class AccommodationInfo {
 	@Column(name = "accommodation_site")
 	private String accommodationSite;
 	
-	@Column(name = "room_count")
-	private Long roomCount;
-	
 	@Column(name = "room_price")
 	private Long roomPrice;
 	
@@ -70,4 +67,6 @@ public class AccommodationInfo {
 	@UpdateTimestamp
 	@Column(name ="mod_date")
 	private LocalDateTime modDate;
+	
+	
 }

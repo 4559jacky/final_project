@@ -156,8 +156,6 @@ public class ApprovalController {
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
 	    
-	    System.out.println(searchDto.getSearch_status());
-	    
 	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 	    Page<Approval> approvalList = service.selectApprovalAll(member, searchDto, pageDto);
 	    List<Approval> list = service.selectApprovalAllById(member);
@@ -305,6 +303,7 @@ public class ApprovalController {
 	
 	// Dept dept = deptService.selectDeptAll();
 	
+	// 사원 결재 요청(만들기)
 	@PostMapping("/approval/create")
 	@ResponseBody
 	public Map<String,String> createApprovalApi(ApprovalDto approvalDto,
@@ -424,13 +423,13 @@ public class ApprovalController {
 	    Member entity = memberService.selectMemberOne(memberDto);
 	    MemberDto member = new MemberDto().toDto(entity);
 	    
-	    System.out.println(member);
-	    
 	    int result = service.approvalRejectApi(id, reason, member);
 	    
-	    System.out.println(result);
 	    
-		if(result > 0) {
+	    if(result == 2) {
+	    	resultMap.put("res_code", "501");
+	    	resultMap.put("res_msg", "다른 합의자가 이미 거절하였습니다.");
+	    } else if(result > 0 && result < 2) {
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "결재가 거절되었습니다.");
 		}
