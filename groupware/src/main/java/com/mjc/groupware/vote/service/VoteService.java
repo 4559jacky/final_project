@@ -95,13 +95,30 @@ public class VoteService {
      * 투표 수정
      */
     @Transactional
-    public void updateVote(Long voteNo, VoteDto dto) {
-        voteRepo.findById(voteNo).ifPresent(v -> {
-            v.setVoteTitle(dto.getVote_title());
-            v.setIsMultiple(dto.getIs_multiple());
-            v.setIsAnonymous(dto.getIs_anonymous());
-            v.setEndDate(dto.getEnd_date());
-        });
+    public void updateVote(Long voteNo, VoteDto dto, List<VoteOptionDto> options) {
+        Vote vote = voteRepo.findById(voteNo)
+            .orElseThrow(() -> new RuntimeException("투표를 찾을 수 없습니다."));
+
+        // 🔥 기존 항목 삭제
+        optionRepo.deleteAllByVote_VoteNo(voteNo);
+
+        // 🔥 새 항목 추가
+        List<VoteOption> newOptions = options.stream()
+            .map(opt -> VoteOption.builder()
+                .vote(vote)
+                .optionText(opt.getOption_text())
+                .orderNo(opt.getOrder_no())
+                .build())
+            .collect(Collectors.toList());
+
+        vote.getVoteOptions().clear();
+        vote.getVoteOptions().addAll(newOptions);
+
+        // 기타 정보 수정
+        vote.setVoteTitle(dto.getVote_title());
+        vote.setIsMultiple(dto.getIs_multiple());
+        vote.setIsAnonymous(dto.getIs_anonymous());
+        vote.setEndDate(dto.getEnd_date());
     }
 
     /**
