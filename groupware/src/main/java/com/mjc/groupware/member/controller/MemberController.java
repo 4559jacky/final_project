@@ -358,8 +358,8 @@ public class MemberController {
 		
 		try {
 			LocalDate regDate = dto.getHire_date();
-			LocalDateTime regDateTime = regDate.atStartOfDay();
-			dto.setReg_date(regDateTime);
+//			LocalDateTime regDateTime = regDate.atStartOfDay();
+			dto.setReg_date(regDate);
 			
 			Member member = service.createMember(dto);
 			

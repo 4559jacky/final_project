@@ -56,5 +56,6 @@ public class ChatAlarm {
 	@JoinColumn(name="chat_msg_no")
     private ChatMsg chatMsgNo; 
 
-	
+	@Column(name="chat_alarm_content")
+	private String chatAlarmContent;
 }

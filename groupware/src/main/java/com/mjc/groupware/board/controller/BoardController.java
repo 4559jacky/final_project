@@ -39,6 +39,7 @@ import com.mjc.groupware.vote.repository.VoteRepository;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Controller
 @RequiredArgsConstructor
 public class BoardController {
@@ -134,6 +135,7 @@ public class BoardController {
             model.addAttribute("vote", board.getVote());
             model.addAttribute("voteOptions", board.getVote().getVoteOptions());
             boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
+            // (ZoneId.of("Asia/Seoul") - 추가해줘야함
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
