@@ -127,6 +127,21 @@ public class VoteController {
         boolean closed = voteService.isVoteClosed(voteNo);
         return ResponseEntity.ok(Map.of("closed", closed));
     }
+ // STOMP 연결 이후 클라이언트가 요청할 때 마감 알림 처리
+    @GetMapping("/vote/{voteNo}/should-alert")
+    @ResponseBody
+    public ResponseEntity<Void> alertIfVoteClosed(@PathVariable("voteNo") Long voteNo, 
+    											  @RequestParam("memberNo") Long memberNo) {
+        try {
+            if (voteService.isVoteClosed(voteNo)) {
+                voteService.closeVoteAndNotify(voteNo);
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace(); // 콘솔에 예외 메시지 출력
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     
 }

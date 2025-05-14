@@ -36,6 +36,8 @@ import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
+import com.mjc.groupware.vote.service.VoteService;
+
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,6 +51,9 @@ public class BoardController {
     private final BoardAttachService boardAttachService;
     private final ReplyService replyService;
     private final VoteRepository voteRepository;
+    
+    // 알람 2025-05-14(수요일)
+    private final VoteService voteService;
 
     @GetMapping("/board/create")
     public String createBoardView(Model model) {
@@ -131,11 +136,21 @@ public class BoardController {
         model.addAttribute("replyList", initialReplies);
         model.addAttribute("hasMoreReplies", initialReplies.size() == 5);
 
+        // ✅ 투표가 있을 경우 마감 체크 + 알림 전송 2025-05-14(수요일)
         if (board.getVote() != null) {
+            Long voteNo = board.getVote().getVoteNo();
+
+            // 마감되었으면 알림 전송
+            if (voteService.isVoteClosed(voteNo)) {
+                voteService.closeVoteAndNotify(voteNo);
+            }
+
             model.addAttribute("vote", board.getVote());
             model.addAttribute("voteOptions", board.getVote().getVoteOptions());
-            boolean isVoteClosed = board.getVote().getEndDate().isBefore(java.time.LocalDateTime.now());
-            // (ZoneId.of("Asia/Seoul") - 추가해줘야함
+
+            // ✅ 마감 여부 - Asia/Seoul 시간 기준
+            boolean isVoteClosed = board.getVote().getEndDate()
+                .isBefore(java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Seoul")));
             model.addAttribute("isVoteClosed", isVoteClosed);
         }
 
