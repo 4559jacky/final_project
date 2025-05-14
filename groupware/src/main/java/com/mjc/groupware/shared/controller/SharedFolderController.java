@@ -34,31 +34,50 @@ public class SharedFolderController {
 	
 	@GetMapping("/shared/main/tree")
 	@ResponseBody
-	public List<Map<String, Object>> getFolderTree(Authentication auth) {
-	    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal(); // (1) 로그인한 사용자 정보 (MemberDetails)
-	    Member member = memberDetails.getMember(); // 진짜 Member 꺼내기
-
-	    Long deptNo = (member.getDept() != null) ? member.getDept().getDeptNo() : null;
+	public List<Map<String, Object>> getFolderTree(@RequestParam("type") String type, Authentication auth) {
+	    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
+	    Member member = memberDetails.getMember();
 
 	    List<SharedFolder> folders;
-	    if (deptNo == null) {
-	        folders = folderRepository.findSharedFolders();
-	    } else {
-	        folders = folderRepository.findByAccessControl(member.getMemberNo(), deptNo);
+
+	    switch (type) {
+	        case "personal":
+	            // ✅ 내 개인 폴더만 (내가 만든, folder_type = 1)
+	            folders = folderRepository.findAll().stream()
+	                .filter(f -> f.getFolderType() == 1
+	                          && f.getMember().getMemberNo().equals(member.getMemberNo())
+	                          && "N".equals(f.getFolderStatus()))
+	                .toList();
+	            break;
+	        case "department":
+	            // ✅ 모든 부서 폴더 (folder_type = 2)
+	            folders = folderRepository.findAll().stream()
+	                .filter(f -> f.getFolderType() == 2
+	                          && "N".equals(f.getFolderStatus()))
+	                .toList();
+	            break;
+	        case "public":
+	            // ✅ 모든 공유 폴더 (folder_type = 3)
+	            folders = folderRepository.findAll().stream()
+	                .filter(f -> f.getFolderType() == 3
+	                          && "N".equals(f.getFolderStatus()))
+	                .toList();
+	            break;
+	        default:
+	            throw new IllegalArgumentException("잘못된 type 값: " + type);
 	    }
 
 	    List<Map<String, Object>> result = new ArrayList<>();
 
 	    for (SharedFolder folder : folders) {
-	        // ✅ 폴더 노드 추가 (기존 코드 그대로)
 	        Map<String, Object> node = new HashMap<>();
 	        node.put("id", folder.getFolderNo());
 	        node.put("parent", folder.getParentFolder() == null ? "#" : folder.getParentFolder().getFolderNo());
 	        node.put("text", folder.getFolderName());
 	        node.put("icon", "jstree-folder");
+	        node.put("folder_type", folder.getFolderType()); // ✅ JS에서 사용할 수 있게
 	        result.add(node);
 
-	        // ✅ 파일 노드 추가 (여기만 추가된 부분)
 	        List<SharedFile> files = fileRepository.findByFolderFolderNo(folder.getFolderNo()).stream()
 	            .filter(file -> "N".equals(file.getFileStatus()))
 	            .toList();

@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
        <div class="container-fluid">
           <div class="page-titles mb-7 mb-md-5">
@@ -53,33 +53,8 @@ layout:decorate="~{/include/layout}">
             </p>
             <hr class="my-3" />
 
-            <form class="d-flex align-items-center gap-3 flex-wrap mt-3">
-              <label class="mb-0 fs-4 fw-semibold">체크인</label>
-              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
-              <label class="mb-0 fs-4 ms-3 fw-semibold">체크아웃</label>
-              <input type="date" class="form-control py-1 px-2" style="width: 150px;">
-            </form>
-
-            <div class="d-flex align-items-center gap-3 mt-4 mb-4">
-              <label class="fs-4 mb-0 fw-semibold">방 갯수</label>
-              <div class="input-group input-group-sm w-auto">
-                <button class="btn btn-outline-secondary" type="button">-</button>
-                <input type="text" class="form-control text-center" th:value="${accommodation.room_count}">
-                <button class="btn btn-outline-secondary" type="button">+</button>
-              </div>
-            </div>
-
-			<!-- 관리자와 사용자에따라 검색버튼 분리(검색,숙소관리) -->
+			<!-- 관리자만 수정,삭제버튼 보임 -->
 				<div class="d-flex align-items-center flex-nowrap gap-2 mt-3">
-					<th:block th:each="funcNo : ${accessibleFuncNoList}">
-						<th:block th:if="${funcNo != 30 && funcNo == 31}">
-							<a href="javascript:void(0)"
-					                   class="btn btn-primary d-flex align-items-center justify-content-center" style="width: 150px;">
-					                   	<i class="ti me-1"></i>
-					               		예약하기
-					                </a>
-						</th:block>
-					</th:block>
 					<th:block th:each="funcNo : ${accessibleFuncNoList}">
 						<th:block th:if="${funcNo == 30}">
 							<a th:href="@{/accommodation/update/{id}(id=${accommodation.accommodation_no})}" 

@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<div class="container-fluid px-4">
@@ -49,13 +49,13 @@ layout:decorate="~{/include/layout}">
 	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
 		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
 	      <!-- 오른쪽: 정렬 -->
-	      <form th:action="@{/notice}" method="get"> 
-	        <select name="sort"
+	      <form th:action="@{/user/accommodation/reservation/list}" method="get"> 
+	        <select name="reg_date_sort"
 	                class="form-select w-auto bg-primary-subtle border-0"
 	                onchange="this.form.submit()"
-	                aria-label="정렬 선택">
-	          <option th:value="desc" th:selected="${sort == 'desc'}">최신순</option>
-	          <option th:value="asc" th:selected="${sort == 'asc'}">오래된순</option>
+	                th:value="${searchDto.reg_date_sort}">
+	          <option th:value="desc" th:selected="${searchDto.reg_date_sort == 'desc'}">최신순</option>
+	          <option th:value="asc" th:selected="${searchDto.reg_date_sort == 'asc'}">오래된순</option>
 	        </select>
 	      </form>
 	      </div>

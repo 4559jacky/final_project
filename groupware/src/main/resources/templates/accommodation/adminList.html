@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<div class="container-fluid px-4">
@@ -50,8 +50,8 @@ layout:decorate="~{/include/layout}">
 	      
 	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
 		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
-			  <!-- 삭제 버튼 -->
-			  <a href="javascript:void(0)" class="btn btn-primary">삭제</a>
+		  <!-- 삭제 버튼 -->
+		  <!-- <a href="javascript:void(0)" class="btn btn-primary">삭제</a> -->
 	      <!-- 오른쪽: 정렬 -->
 	      <form th:action="@{/notice}" method="get"> 
 	        <select name="sort"
@@ -72,9 +72,7 @@ layout:decorate="~{/include/layout}">
 	          <thead class="bg-light align-middle">
 	            <tr>
 	              <!-- 전체 선택 체크박스 -->
-	              <th style="width: 50px;">
-	              	<input type="checkbox" id="checkAll">
-	              </th>
+	              <th>번호</th>
 	              <th>사원명</th>
 	              <th>사번</th>
 	              <th>예약신청일</th>
@@ -86,10 +84,9 @@ layout:decorate="~{/include/layout}">
 	            </tr>
 	          </thead>
 	         	<tbody>
-	         		<tr th:each="reservation : ${reservationList}">
-				      <td>
-	  					<input type="checkbox" name="listIds" class="checkItem" th:value="${reservation.reservation_no}">
-	  				  </td>
+	         		<tr th:each="reservation, number : ${reservationList}">
+	         		<!-- 뭐지? -->
+				      <td th:text="${number.index+1}">번호</td>
 	  				  <td th:text="${reservation.member_name}">사원명</td>
 	  				  <td th:text="${reservation.member_no}">사번</td>
 				      <td th:text="${#temporals.format(reservation.reservation_date, 'yyyy-MM-dd HH:mm')}">예약신청일</td>

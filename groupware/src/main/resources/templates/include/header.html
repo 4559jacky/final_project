@@ -250,6 +250,7 @@
                   <i class="ti ti-align-justified fs-7"></i>
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
+                  
                 	<!-- ------------------------------- -->
                   	<!-- 작은화면 : 다크모드 테마 반경 버튼 -->
                   	<!-- ------------------------------- -->
@@ -263,22 +264,30 @@
                     	</a>
                   	</li>
                   </th:block>
-				
 			      <!-- ------------------------------- -->
                   <!-- 작은화면 : 다크모드 테마 반경 버튼 끝 -->
                   <!-- ------------------------------- -->
 
                   <!-- ------------------------------- -->
-                  <!-- 작은화면 : 쇼핑카트 사이드 드롭버튼 -->
+                  <!-- 풀화면 : 채팅 알림  -->
                   <!-- ------------------------------- -->
-                  <li class="nav-item nav-icon-hover-bg rounded-circle">
-                    <a class="nav-link position-relative" href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                      <i class="ti ti-basket"></i>
-                      <span class="popup-badge rounded-pill bg-danger text-white fs-2">2</span>
+                  <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
+                    <a class="nav-link position-relative" href="javascript:void(0)" id="chatAlarmBtn" aria-expanded="false">
+                      <i class="ti ti-brand-telegram"></i>
+                      <!-- <span class="popup-badge rounded-pill bg-danger text-white fs-2"></span> -->
                     </a>
+                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                      <div class="d-flex align-items-center justify-content-between py-3 px-7">
+                        <h5 class="mb-0 fs-5 fw-semibold">채팅 알림</h5>
+                        <span class="badge text-bg-primary rounded-2 px-3 py-1 lh-sm">new</span>
+                      </div>
+                      <div class="chat-message-body" data-simplebar>
+                        
+                      </div>
+                    </div>
                   </li>
-                  <!-- ------------------------------- -->
-                  <!-- 작은화면 : 쇼핑카트 사이드 드롭버튼 끝 -->
+				  <!-- ------------------------------- -->
+                  <!-- 풀화면 : 채팅 알림 드롭다운 끝  -->
                   <!-- ------------------------------- -->
 
                   <!-- ------------------------------- -->
@@ -291,69 +300,35 @@
                     </a>
                     <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                       <div class="d-flex align-items-center justify-content-between py-3 px-7">
-                        <h5 class="mb-0 fs-5 fw-semibold">Notifications</h5>
+                        <h5 class="mb-0 fs-5 fw-semibold">알림</h5>
                         <span class="badge text-bg-primary rounded-2 px-3 py-1 lh-sm">5 new</span>
                       </div>
                       <div class="message-body" data-simplebar>
                         <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                           <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-2.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">Roman Joined the Team!</h6>
-                            <span class="fs-3 d-block text-body-secondary">Congratulate him</span>
-                          </div>
-                        </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-3.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">New message</h6>
-                            <span class="fs-3 d-block text-body-secondary">Salma sent you new message</span>
-                          </div>
-                        </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-4.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">Bianca sent payment</h6>
-                            <span class="fs-3 d-block text-body-secondary">Check your earnings</span>
-                          </div>
-                        </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-5.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
                           </span>
                           <div class="w-100">
                             <h6 class="mb-0 fs-4 lh-base">Jolly completed tasks</h6>
                             <span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
                           </div>
                         </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
+                         <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                           <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-6.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
                           </span>
                           <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">John received payment</h6>
-                            <span class="fs-3 d-block text-body-secondary">$230 deducted from account</span>
+                            <h6 class="mb-0 fs-4 lh-base">Jolly completed tasks</h6>
+                            <span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
                           </div>
                         </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
+                         <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                           <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-7.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
                           </span>
                           <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">Roman Joined the Team!</h6>
-                            <span class="fs-3 d-block text-body-secondary">Congratulate him</span>
+                            <h6 class="mb-0 fs-4 lh-base">여기다가 알림 하시면 되는데 스크롤 처리용 </h6>
+                            <span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
                           </div>
                         </a>
                       </div>
-                      <div class="py-6 px-7 mb-1">
-                        <button class="btn btn-outline-primary w-100">See All Notifications</button>
-                      </div>
-                    </div>
                   </li>
                   <!-- ------------------------------- -->
                   <!-- 작은화면 : 알림 버튼 드롭다운 끝 -->
@@ -883,7 +858,6 @@
                   <i class="ti ti-align-justified fs-7"></i>
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
-                
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 다크모드 테마 반경 버튼 -->
                   <!-- ------------------------------- -->
@@ -903,16 +877,24 @@
                   <!-- ------------------------------- -->
 
                   <!-- ------------------------------- -->
-                  <!-- 풀화면 : 쇼핑카트 아이콘 사이드 드롭다운 -->
+                  <!-- 풀화면 : 채팅 알림  -->
                   <!-- ------------------------------- -->
-                  <li class="nav-item nav-icon-hover-bg rounded-circle">
-                    <a class="nav-link position-relative" href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                      <i class="ti ti-basket"></i>
-                      <span class="popup-badge rounded-pill bg-danger text-white fs-2">2</span>
+                  <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
+                    <a class="nav-link position-relative" href="javascript:void(0)" id="chatAlarmBtn" aria-expanded="false">
+                      <i class="ti ti-brand-telegram"></i>
                     </a>
+                    <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                      <div class="d-flex align-items-center justify-content-between py-3 px-7">
+                        <h5 class="mb-0 fs-5 fw-semibold">채팅 알림</h5>
+                        <span class="badge text-bg-primary rounded-2 px-3 py-1 lh-sm">new</span>
+                      </div>
+                      <div class="chat-message-body" data-simplebar>
+                        
+                      </div>
+                    </div>
                   </li>
-                  <!-- ------------------------------- -->
-                  <!-- 풀화면 : 쇼핑카트 아이콘 사이드 드롭다운 끝 -->
+				  <!-- ------------------------------- -->
+                  <!-- 풀화면 : 채팅 알림 드롭다운 끝  -->
                   <!-- ------------------------------- -->
 
                   <!-- ------------------------------- -->
@@ -925,69 +907,35 @@
                     </a>
                     <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                       <div class="d-flex align-items-center justify-content-between py-3 px-7">
-                        <h5 class="mb-0 fs-5 fw-semibold">Notifications</h5>
+                        <h5 class="mb-0 fs-5 fw-semibold">알림</h5>
                         <span class="badge text-bg-primary rounded-2 px-3 py-1 lh-sm">5 new</span>
                       </div>
                       <div class="message-body" data-simplebar>
                         <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                           <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-2.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">Roman Joined the Team!</h6>
-                            <span class="fs-3 d-block text-body-secondary">Congratulate him</span>
-                          </div>
-                        </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-3.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">New message</h6>
-                            <span class="fs-3 d-block text-body-secondary">Salma sent you new message</span>
-                          </div>
-                        </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-4.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
-                          </span>
-                          <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">Bianca sent payment</h6>
-                            <span class="fs-3 d-block text-body-secondary">Check your earnings</span>
-                          </div>
-                        </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
-                          <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-5.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
                           </span>
                           <div class="w-100">
                             <h6 class="mb-0 fs-4 lh-base">Jolly completed tasks</h6>
                             <span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
                           </div>
                         </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
+                         <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                           <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-6.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
                           </span>
                           <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">John received payment</h6>
-                            <span class="fs-3 d-block text-body-secondary">$230 deducted from account</span>
+                            <h6 class="mb-0 fs-4 lh-base">Jolly completed tasks</h6>
+                            <span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
                           </div>
                         </a>
-                        <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
+                         <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                           <span class="me-3">
-                            <img th:src="@{/assets/images/profile/user-7.jpg}" alt="user" class="rounded-circle" width="48" height="48" />
                           </span>
                           <div class="w-100">
-                            <h6 class="mb-0 fs-4 lh-base">Roman Joined the Team!</h6>
-                            <span class="fs-3 d-block text-body-secondary">Congratulate him</span>
+                            <h6 class="mb-0 fs-4 lh-base">여기다가 알림 하시면 되는데 스크롤 처리용 </h6>
+                            <span class="fs-3 d-block text-body-secondary">Assign her new tasks</span>
                           </div>
                         </a>
                       </div>
-                      <div class="py-6 px-7 mb-1">
-                        <button class="btn btn-outline-primary w-100">See All Notifications</button>
-                      </div>
-                    </div>
                   </li>
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 알림 아이콘 드롭다운 끝 -->
