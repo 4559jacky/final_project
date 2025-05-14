@@ -141,4 +141,8 @@ public class Member {
 		this.annualLeave = this.annualLeave+leave;
 	}
 	
+	public void createAndUpdateSignature(String signature) {
+		this.signature = signature;
+	}
+	
 }
