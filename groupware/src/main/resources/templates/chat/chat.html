@@ -74,8 +74,8 @@
 									
 									<div class="d-flex align-items-center">
 										<span class="position-relative">
-											<img src="../assets/images/profile/user-8.jpg" alt="user-8"
-												width="48" height="48" class="rounded-circle" />
+											<img th:src="@{${chatRoom.profile_img_path}}" alt="profile"
+    												 width="48" height="48" class="rounded-circle" />
 										</span>
 										<div class="ms-3 d-inline-block w-75">
 											<h6 th:text="${chatRoom.chat_room_title}" class="mb-1 fw-semibold chat-title">채팅방 이름</h6>
@@ -124,116 +124,121 @@
 					</div>
 					<!-- 채팅 박스  -->
 					 <!-- 상단 채팅방 정보 출력  -->
-					<div class="chatting-box d-block">
-						<div
-							class="p-9 border-bottom chat-meta-user d-flex align-items-center justify-content-between">
-							<div class="hstack gap-3 current-chat-user-name">
-								<div class="position-relative">
-								</div>
-								<div>
-									<h6 class="mb-1 name fw-semibold" id="chatTitle"></h6>
-								</div>
-							</div>
-							<ul class="list-unstyled mb-0 d-flex align-items-center">
-								<li><a
-									class="chat-menu text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
-									href="javascript:void(0)"> <i class="ti ti-menu-2"></i>
-								</a></li>
-							</ul>
-						</div>
-						<div class="d-flex parent-chat-box">
-						<!-- 채팅 내용 출려 -->
-							<div class="chat-box w-xs-100">
-								<div class="chat-box-inner p-9" data-simplebar>
-									<div class="chat-list chat active-chat" data-user-id="0">
-										
-									</div>
-									<div class="chat-list chat" data-user-id="3">
-									</div>
-								</div>
-								<div class="px-9 py-6 border-top chat-send-message-footer">
-									<div class="d-flex align-items-center justify-content-between">
-										<div class="d-flex align-items-center gap-2 w-85">
-											<input type="text"
-												class="form-control message-type-box text-muted border-0 p-0 ms-2"
-												placeholder="메세지를 입력해주세요." fdprocessedid="0p3op" id="msgContent"/>
-										</div>
-										<input type= hidden id="chatRoomNo">
-										<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
-										<input type= hidden id="sendMemberName" th:value="${#authentication.principal.member.memberName}">
-										<input type= hidden id="sendMemberPos" th:value="${#authentication.principal.member.pos.posName}">
-										<input type= hidden id="sendMemberDept" th:value="${#authentication.principal.member.dept.deptName}">
-										<ul class="list-unstyledn mb-0 d-flex align-items-center">
-											<li><a
-												class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
-												href="javascript:void(0)"> <i class="ti ti-paperclip"></i>
-											</a></li>
-											<li>
-												<a
-												  class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
-												  href="javascript:void(0)"
-												  id="send_btn">
-												  <i class="ti ti-brand-telegram"></i>
-												</a>
-											</li>
-										</ul>
-										<input type="file" id="chatFileInput" style="display: none;" multiple>
-									</div>
-								</div>
-							</div>
-							<div class="app-chat-offcanvas border-start d-flex flex-column" >
-    
-						    <!-- 스크롤되는 영역 -->
-						    <div class="flex-grow-1 overflow-auto" data-simplebar>
-							  <div class="p-3 d-flex align-items-center justify-content-end">
-							    <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
-							       href="javascript:void(0)">
-							      <i class="ti ti-x"></i>
-							    </a>
-							  </div>
-							
-							  <div class="offcanvas-body px-4 pt-0">
-							    <!-- 참여자 -->
-							    <div class="section-block mb-5">
-							      <h6 class="fw-semibold mb-3 text-nowrap d-flex align-items-center gap-2">
-							        참여자 <span class="text-muted" id="memberCount">(0)</span>
-							        <button class="btn btn-rounded btn-light" id="add_btn" type="button" style="font-size: 14px; padding: 1px 6px;">+</button>
-							      </h6>
-							      <div class="d-flex flex-wrap gap-2" id="memberInfo"></div>
-							    </div>
-							
-							    <!-- 이미지 -->
-							    <div class="section-block mb-5" id="chat-image-section">
-							      <h6 class="fw-semibold mb-3 text-nowrap">
-							        이미지 <span class="text-muted">(0)</span>
-							      </h6>
-							      <div class="row g-2" id="chat-image-list">
-							        <!-- JS로 col-4 이미지 append됨 -->
-							      </div>
-							    </div>
-							
-							    <!-- 파일 -->
-							    <div class="section-block mb-5" id="chat-file-section">
-							      <h6 class="fw-semibold mb-3 text-nowrap">
-							        Files <span class="text-muted">(0)</span>
-							      </h6>
-							      <div class="row g-2 flex-column" id="chat-file-list">
-							        <!-- JS로 파일 카드 append됨 -->
-							      </div>
-							    </div>
-							  </div>
-							</div>
-				
-										
-						    <!-- 항상 아래 고정되는 버튼 -->
-						    <div class="border-top px-4 py-3">
-						        <div class="d-flex justify-content-end">
-						            <button class="btn btn-danger px-4" id="out_btn" type="button">나가기</button>
-						        </div>
-						    </div>
+					<div class="chatting-box d-block" id="chatBoxWrapper">
+					    <div id="chatPlaceholder" class="position-relative" style="min-height: 400px;">
+						  <div class="position-absolute top-50 start-50 translate-middle text-center">
+						    <i class="ti ti-message-dots fs-10 text-primary"></i>
+						    <h6 class="mt-2">채팅방을 선택해주세요.</h6>
+						  </div>
 						</div>
 
-						</div>
+						 <div id="chatRealContent" style="display: none;">
+							<div
+								class="p-9 border-bottom chat-meta-user d-flex align-items-center justify-content-between">
+								<div class="hstack gap-3 current-chat-user-name">
+									<div class="position-relative">
+									</div>
+									<div>
+										<h6 class="mb-1 name fw-semibold" id="chatTitle"></h6>
+									</div>
+								</div>
+								<ul class="list-unstyled mb-0 d-flex align-items-center">
+									<li><a
+										class="chat-menu text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
+										href="javascript:void(0)"> <i class="ti ti-menu-2"></i>
+									</a></li>
+								</ul>
+							</div>
+							<div class="d-flex parent-chat-box">
+							<!-- 채팅 내용 출려 -->
+								<div class="chat-box w-xs-100">
+									<div class="chat-box-inner p-9" data-simplebar>
+										<div class="chat-list chat active-chat" data-user-id="0">
+											
+										</div>
+										<div class="chat-list chat" data-user-id="3">
+										</div>
+									</div>
+									<div class="px-9 py-6 border-top chat-send-message-footer">
+										<div class="d-flex align-items-center justify-content-between">
+											<div class="d-flex align-items-center gap-2 w-85">
+												<input type="text"
+													class="form-control message-type-box text-muted border-0 p-0 ms-2"
+													placeholder="메세지를 입력해주세요." fdprocessedid="0p3op" id="msgContent"/>
+											</div>
+											<input type= hidden id="chatRoomNo">
+											<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
+											<input type= hidden id="sendMemberName" th:value="${#authentication.principal.member.memberName}">
+											<input type= hidden id="sendMemberPos" th:value="${#authentication.principal.member.pos.posName}">
+											<input type= hidden id="sendMemberDept" th:value="${#authentication.principal.member.dept.deptName}">
+											<ul class="list-unstyledn mb-0 d-flex align-items-center">
+												<li><a
+													class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
+													href="javascript:void(0)"> <i class="ti ti-paperclip"></i>
+												</a></li>
+												<li>
+													<a
+													  class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
+													  href="javascript:void(0)"
+													  id="send_btn">
+													  <i class="ti ti-brand-telegram"></i>
+													</a>
+												</li>
+											</ul>
+											<input type="file" id="chatFileInput" style="display: none;" multiple>
+										</div>
+									</div>
+								</div>
+								<div class="app-chat-offcanvas border-start d-flex flex-column" >
+	    
+								    <!-- 스크롤되는 영역 -->
+								    <div class="flex-grow-1 overflow-auto" data-simplebar>
+									  <div class="p-3 d-flex align-items-center justify-content-end">
+									    <a class="chat-menu d-lg-none d-block text-dark fs-6 bg-hover-primary nav-icon-hover position-relative z-index-5"
+									       href="javascript:void(0)">
+									      <i class="ti ti-x"></i>
+									    </a>
+									  </div>
+									
+									  <div class="offcanvas-body px-4 pt-0">
+									    <!-- 참여자 -->
+									    <div class="section-block mb-5">
+									      <h6 class="fw-semibold mb-3 text-nowrap d-flex align-items-center gap-2">
+									        참여자 <span class="text-muted" id="memberCount">(0)</span>
+									        <button class="btn btn-rounded btn-light" id="add_btn" type="button" style="font-size: 14px; padding: 1px 6px;">+</button>
+									      </h6>
+									      <div class="d-flex flex-wrap gap-2" id="memberInfo"></div>
+									    </div>
+									
+									    <!-- 이미지 -->
+									    <div class="section-block mb-5" id="chat-image-section">
+									      <h6 class="fw-semibold mb-3 text-nowrap">
+									        이미지 <span class="text-muted">(0)</span>
+									      </h6>
+									      <div class="row g-2" id="chat-image-list">
+									        <!-- JS로 col-4 이미지 append됨 -->
+									      </div>
+									    </div>
+									
+									    <!-- 파일 -->
+									    <div class="section-block mb-5" id="chat-file-section">
+									      <h6 class="fw-semibold mb-3 text-nowrap">
+									        Files <span class="text-muted">(0)</span>
+									      </h6>
+									      <div class="row g-2 flex-column" id="chat-file-list">
+									        <!-- JS로 파일 카드 append됨 -->
+									      </div>
+									    </div>
+									  </div>
+									  
+									</div>
+									<div class="border-top px-4 py-3 bg-white">
+									    <div class="d-flex justify-content-end">
+									      <button class="btn btn-danger px-4" id="out_btn" type="button">나가기</button>
+									    </div>
+									  </div>
+								</div>
+						 </div>
 					</div>
 				</div>
 			</div>
@@ -339,10 +344,10 @@
 					</div><br><br>
 		
 					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
+					<input type="hidden" id="createMemberNo" name="create_member_no"
+                            th:value="${#authentication.principal.member.memberNo}">
 					<form name="chatRoom_create_form">
 						<input type="hidden" id="chatRoomTitle" name="chat_room_title">
-						<input type="hidden" id="createMemberNo" name="create_member_no"
-                            th:value="${#authentication.principal.member.memberNo}">
 						<br><br>
 						<div id="selectedUsersInputs">
 							<input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}"  th:attr="data-id=${#authentication.principal.member.memberNo}" >
@@ -527,7 +532,11 @@
 	  const senderNo = parseInt(dto.member_no);
 	
 	  const currentRoom = document.getElementById("chatRoomNo")?.value;
-	
+	  
+	  if (!currentRoom || parseInt(currentRoom) !== parseInt(roomNo)) {
+		  showUnreadBadge(roomNo, myNo);
+		}
+
 	  if (senderNo === myNo) return;
 	
 	  let receiverNos = dto.member_no_list;
@@ -625,50 +634,63 @@
 	// 3. 채팅방 생성
 	function initChatFormSubmit() {
 	  const form = document.forms["chatRoom_create_form"];
-	  form?.addEventListener("submit", async (e) => {
-	    e.preventDefault();
-
-	    const selectedInputs = document.querySelectorAll("#selectedUsersInputs input[name='member_no']");
-	    const createMemberNo = document.getElementById("createMemberNo").value;
-	    const chatRoomTitle = document.getElementById("title").value;
-	    const chatRoomTitleInput = document.getElementById("chatRoomTitle");
-
-	    const validMembers = [...selectedInputs].filter(input => input.value !== createMemberNo);
-	    if (validMembers.length === 0) {
-	      alert("채팅에 추가할 인원을 1명 이상 선택해주세요.");
-	      return;
-	    }
-
-	    chatRoomTitleInput.value = chatRoomTitle;
-	    const payload = new FormData(form);
-
-	    try {
-	      const res = await fetch("/create", {
-	        method: "POST",
-	        headers: {
-	          'header': document.querySelector('meta[name="_csrf_header"]').content,
-	          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-	        },
-	        body: payload
-	      });
-
-	      const data = await res.json();
-	      alert(data.res_msg);
-	      if (data.res_code === "200") {
-	    	  
-	    	  // 모달 닫기
-	    	  bootstrap.Modal.getInstance(document.getElementById("selectMemberModal")).hide();
-
-	    	  // 👉 Form 초기화 (선택)
-	    	  form.reset();
-	    	  document.getElementById("selectedUsersInputs").innerHTML = "";
-	    	  document.getElementById("selectMemberList").innerHTML = "";
-	      }
-	    } catch (err) {
-	      console.error("채팅방 생성 실패:", err);
-	    }
-	  });
+	
+	  // ❗ 중복 이벤트 제거
+	  form.removeEventListener("submit", chatFormSubmitHandler);
+	  form.addEventListener("submit", chatFormSubmitHandler);
 	}
+	
+	async function chatFormSubmitHandler(e) {
+	  e.preventDefault();
+	
+	  const form = e.target;
+	  const selectedInputs = document.querySelectorAll("#selectedUsersInputs input[name='member_no']");
+	  const createMemberNo = document.getElementById("createMemberNo").value;
+	  const chatRoomTitle = document.getElementById("title").value;
+	  const chatRoomTitleInput = document.getElementById("chatRoomTitle");
+	
+	  chatRoomTitleInput.value = chatRoomTitle;
+	
+	  const allMembers = [...selectedInputs].map(input => input.value);
+	  allMembers.push(createMemberNo);
+	  const uniqueMembers = [...new Set(allMembers)];
+	
+	  const payload = new FormData();
+	  payload.append("chat_room_title", chatRoomTitle);
+	  payload.append("create_member_no", createMemberNo);
+	  uniqueMembers.forEach(no => payload.append("member_no", no));
+	
+	  try {
+	    const res = await fetch("/chat/create", {
+	      method: "POST",
+	      headers: {
+	        'header': document.querySelector('meta[name="_csrf_header"]').content,
+	        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	      },
+	      body: payload
+	    });
+	
+	    const data = await res.json();
+	    
+	    if (data.res_code === "409") {
+	    	  alert(data.res_msg); // 이미 존재하는 채팅방
+	    	  return;
+	    }
+	    
+	    alert(data.res_msg);
+	
+	    if (data.res_code === "200") {
+	      form.reset();
+	      document.getElementById("selectedUsersInputs").innerHTML = "";
+	      document.getElementById("selectMemberList").innerHTML = "";
+	      bootstrap.Modal.getInstance(document.getElementById("selectMemberModal")).hide();
+	    }
+	    
+	  } catch (err) {
+	    console.error("채팅방 생성 실패:", err);
+	  }
+	}
+
 	
 	function formatTime(dateStr) {
 		  if (!dateStr) return "";
@@ -715,6 +737,20 @@
 	    title = others.map(m => `${m.memberName} ${m.positionName || ''}`).join(", ");
 	  }
 	
+	  const others = room.memberInfos.filter(m => m.memberNo !== myNo);
+	  let profileImg;
+
+	  // 👥 단체방은 무조건 단체 이미지
+	  if (others.length > 1) {
+	    profileImg = "/img/people-circle.png";
+	  } else if (others.length === 1) {
+	    const other = others[0];
+	    profileImg = other.profile_img_path || "/img/one-people-circle.png";
+	  } else {
+	    profileImg = "/img/one-people-circle.png"; // 안전 fallback
+	  }
+
+
 	  li.innerHTML = `
 	    <a href="javascript:void(0)"
 	      class="px-4 py-3 bg-hover-light-black d-flex align-items-start justify-content-between chat-user"
@@ -722,7 +758,7 @@
 	      
 	      <div class="d-flex align-items-center">
 	        <span class="position-relative">
-	          <img src="../assets/images/profile/user-8.jpg" alt="user-8"
+	          <img src="${profileImg}" alt="chat-profile"
 	          width="48" height="48" class="rounded-circle" />
 	        </span>
 	        <div class="ms-3 d-inline-block w-75">
@@ -757,6 +793,22 @@
 	
 	  chatUsers.forEach(user => {
 	    user.addEventListener("click", () => {
+	    	
+    	// ✅ 전체 래퍼 보여주기
+    	  document.getElementById("chatBoxWrapper")?.classList.remove("d-none");
+
+    	  // ✅ 안내 문구 강력하게 숨기기
+    	  const placeholder = document.getElementById("chatPlaceholder");
+    	  if (placeholder) {
+    	    placeholder.style.setProperty("display", "none", "important");
+    	  }
+
+    	  // ✅ 채팅 본문 보이게
+    	  const realContent = document.getElementById("chatRealContent");
+    	  if (realContent) {
+    	    realContent.style.display = "block";
+    	  }
+    	
 	      if (user.classList.contains("active")) return;
 	      msgInput.value = "";
 	
@@ -817,6 +869,11 @@
 	          msgData.forEach(msg => {
 	        	  const isMine = msg.member_no == myMemberNo;
 
+	        	  // ✅ 메시지 개별 프로필 이미지
+	        	  const profileUrl = msg.profile_path && msg.profile_path.trim() !== ""
+	        	    ? msg.profile_path
+	        	    : "/img/default-profile.png";
+
 	        	  if (msg.chat_msg_type === "FILE") {
 	        	    const oriName = msg.ori_name || "";
 	        	    const hasDot = oriName.includes(".");
@@ -834,19 +891,19 @@
 	        	      member_name: msg.member_name,
 	        	      member_pos_name: msg.member_pos_name,
 	        	      member_dept_name: msg.member_dept_name
-	        	    }, isMine, memberImage);
+	        	    }, isMine, profileUrl); // ✅ 개별 프로필 이미지 넣기
 
 	        	    chatList.appendChild(fileBubble);
 
-	        	    // ✅ 사이드바에도 append
 	        	    appendFileBubbleToSidebar({
 	        	      file_url: msg.file_url,
 	        	      file_name: msg.ori_name,
 	        	      file_size: msg.file_size_str,
 	        	      send_date: msg.send_date
 	        	    }, isMine);
+
 	        	  } else {
-	        	    chatList.appendChild(createMessageBubble(msg, isMine, memberImage));
+	        	    chatList.appendChild(createMessageBubble(msg, isMine, profileUrl)); // ✅ 여기도!
 	        	  }
 	        	});
 
@@ -979,8 +1036,13 @@
 	    	  const myNo = document.getElementById("createMemberNo")?.value;
 	    	  const isMine = data.member_no == myNo;
 
+	    	  // ✅ 각 메시지 전송자에 맞는 프로필 이미지
+	    	  const profileUrl = data.profile_path && data.profile_path.trim() !== ""
+	    	    ? data.profile_path
+	    	    : "/img/default-profile.png";
+
 	    	  if (data.msg_type === "FILE") {
-	    	    const fileBubble = createFileBubble(data, isMine, memberImage);
+	    	    const fileBubble = createFileBubble(data, isMine, profileUrl); // ✅ 수정
 	    	    chatList.appendChild(fileBubble);
 	    	    appendFileBubbleToSidebar(data, isMine);
 	    	  } else if (data.chat_msg_type === "Y") {
@@ -990,14 +1052,12 @@
 	    	    chatList.appendChild(systemMsgWrapper);
 	    	    window.onChatMemberExit(data);
 	    	  } else {
-	    	    // 일반 메시지
 	    	    chatList.appendChild(createMessageBubble({
 	    	      ...data,
 	    	      send_date: new Date().toISOString()
-	    	    }, isMine, memberImage));
+	    	    }, isMine, profileUrl)); // ✅ 수정
 	    	  }
 
-	    	  // ✅ 파일이든 텍스트든 공통 읽음 처리
 	    	  fetch("/chat/read/update", {
 	    	    method: "POST",
 	    	    headers: {
@@ -1013,6 +1073,7 @@
 
 	    	  chatList.scrollTop = chatList.scrollHeight;
 	    	});
+
 
 
 	      setupSendEvents(roomNo);
@@ -1073,7 +1134,6 @@
 	        member_no: senderNo,
 	        member_no_list: receiverNos,
 	        chat_msg_content: content,
-	        chat_room_title: chatTitle
 	      }));
 	      msgInput.value = "";
 	    } else {
@@ -1116,7 +1176,7 @@
 	
 	window.onChatMemberExit = function (dto) {
 		  const roomNo = dto.chat_room_no;
-		  const myNo = parseInt(document.getElementById("createMemberNo")?.value);
+		  const userNo = parseInt(document.getElementById("createMemberNo")?.value);
 
 		  // ✅ 타이틀이 비어 있으면 직접 계산
 		  let title = dto.chat_room_title?.trim();

@@ -3,6 +3,7 @@ package com.mjc.groupware.chat.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,6 +26,8 @@ import com.mjc.groupware.chat.specification.ChatMappingSpecification;
 import com.mjc.groupware.chat.specification.ChatRoomReadSpecification;
 import com.mjc.groupware.chat.specification.ChatRoomSpecification;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.MemberAttach;
+import com.mjc.groupware.member.repository.MemberAttachRepository;
 import com.mjc.groupware.member.security.MemberDetails;
 
 import jakarta.persistence.EntityManager;
@@ -39,6 +42,7 @@ public class ChatRoomService {
 	private final ChatMappingrepository mappingRepository;
 	private final ChatMsgRepository msgRepository;
 	private final ChatRoomReadRepository readRepository;
+	private final MemberAttachRepository attachRepository;
 	
 	 @PersistenceContext
 	private EntityManager entityManager;
@@ -57,34 +61,65 @@ public class ChatRoomService {
 
 		    for (ChatRoom room : list) {
 		        String title = room.getChatRoomTitle();
+		        List<Member> activeMembers = room.getMappings().stream()
+		            .filter(m -> "Y".equals(m.getMemberStatus()))
+		            .map(ChatMapping::getMemberNo)
+		            .collect(Collectors.toList());
 
-		        if (title.trim().isEmpty()) {
-		            List<String> nameList = new ArrayList<>();
+		        // 본인 제외
+		        List<Member> others = activeMembers.stream()
+		            .filter(m -> !m.getMemberNo().equals(md.getMember().getMemberNo()))
+		            .collect(Collectors.toList());
 
-		            for (ChatMapping mapping : room.getMappings()) {
-		                Member member = mapping.getMemberNo();
+		        
+		     // ✅ 프로필 이미지 처리
+		        String profileImgPath;
 
-		                // ✅ 본인 제외 + 참여중인 멤버만
-		                if (!member.getMemberNo().equals(md.getMember().getMemberNo())
-		                    && "Y".equals(mapping.getMemberStatus())) {
-		                    String pos = member.getPos() != null ? member.getPos().getPosName() : "";
-		                    nameList.add(member.getMemberName() + " " + pos);
+		        if (others.size() == 1) {
+		            // 🔸 1:1 채팅
+		            Member other = others.get(0);
+		            MemberAttach attach = attachRepository.findTop1ByMemberOrderByRegDateDesc(other);
+
+		            if (attach != null && attach.getAttachPath() != null && !attach.getAttachPath().isBlank()) {
+		                String rawPath = attach.getAttachPath(); // ex: C:/upload/groupware/db3c0cfc1f59...png
+
+		                // ✅ Windows 경로 → 웹 접근 경로로 변환
+		                if (rawPath.contains("/upload/groupware/")) {
+		                    profileImgPath = rawPath.substring(rawPath.indexOf("/upload/groupware/"));
+		                } else {
+		                    profileImgPath = rawPath.replace("C:\\upload\\groupware", "/upload/groupware")
+		                                            .replace("C:/upload/groupware", "/upload/groupware")
+		                                            .replace("\\", "/");
 		                }
+
+		            } else {
+		                profileImgPath = "/img/one-people-circle.png";
 		            }
 
-		            // ✅ 본인만 존재하면 제목을 "알 수 없음"으로
+		        } else {
+		            // 🔸 단체방 or 혼자 있는 경우
+		            profileImgPath = "/img/people-circle.png"; // ✅ 단체방 기본 이미지
+		        }
+
+		        // 제목 설정
+		        if (title.trim().isEmpty()) {
+		            List<String> nameList = others.stream()
+		                .map(m -> m.getMemberName() + " " + (m.getPos() != null ? m.getPos().getPosName() : ""))
+		                .collect(Collectors.toList());
 		            title = nameList.isEmpty() ? "(알 수 없음)" : String.join(", ", nameList);
 		        }
 
 		        ChatRoomDto dto = ChatRoomDto.builder()
-		                .chat_room_no(room.getChatRoomNo())
-		                .chat_room_title(title)
-		                .last_msg(room.getLastMsg())
-		                .last_msg_date(room.getLastMsgDate())
-		                .build();
+		            .chat_room_no(room.getChatRoomNo())
+		            .chat_room_title(title)
+		            .last_msg(room.getLastMsg())
+		            .last_msg_date(room.getLastMsgDate())
+		            .profile_img_path(profileImgPath) // ✅ 넣기
+		            .build();
 
 		        result.add(dto);
 		    }
+
 
 		    return result;
 		}
@@ -115,17 +150,52 @@ public class ChatRoomService {
 	    return saved;
 	}
 
+	// 1:1 채팅 중복 검사 
+	public boolean isDuplicateOneToOneRoom(List<Long> memberNos) {
+	    if (memberNos.size() != 2) return false;
+
+	    List<ChatRoom> allRooms = chatRoomRepository.findAll(); // ✅ 모든 채팅방 가져옴
+
+	    for (ChatRoom room : allRooms) {
+	        List<ChatMapping> mappings = room.getMappings();
+	        
+	        // 멤버가 2명이고 둘 다 Y 상태인지 확인
+	        if (mappings.size() == 2 &&
+	            mappings.stream().allMatch(m -> "Y".equals(m.getMemberStatus()))) {
+	            
+	            List<Long> mappedNos = mappings.stream()
+	                .map(m -> m.getMemberNo().getMemberNo())
+	                .sorted()
+	                .toList();
+
+	            List<Long> targetNos = memberNos.stream().sorted().toList();
+
+	            if (mappedNos.equals(targetNos)) {
+	                return true;
+	            }
+	        }
+	    }
+
+	    return false;
+	}
+	
 	// 채팅방 상세 조회
+	@Transactional(readOnly = true)
 	public ChatRoom selectChatRoomOne(Long chatRoomNo) {
 	    ChatRoom room = chatRoomRepository.findById(chatRoomNo).orElse(null);
 
 	    if (room != null) {
-	        List<ChatMapping> originList = room.getMappings(); // 원래 전체 맵핑 리스트
+	        // ✅ 여기서 Lazy 강제 초기화 (세션 살아있으니 터지지 않음)
+	        room.getMappings().size();
+
+	        List<ChatMapping> originList = room.getMappings();
 	        List<ChatMapping> filteredList = new ArrayList<>();
 
 	        for (ChatMapping mapping : originList) {
 	            if ("Y".equals(mapping.getMemberStatus())) {
 	                filteredList.add(mapping);
+	                // ✅ 추가로 Member도 로딩 (알림 이름 때문에)
+	                mapping.getMemberNo().getMemberName(); // lazy 강제 초기화
 	            }
 	        }
 
@@ -204,5 +274,29 @@ public class ChatRoomService {
 
 	    return result;
 	}
+	
+	//채팅방 이름 조회 
+	public String getChatRoomDisplayTitle(ChatRoom chatRoom, Long currentMemberNo) {
+	    if (chatRoom.getChatRoomTitle() != null && !chatRoom.getChatRoomTitle().trim().isEmpty()) {
+	        return chatRoom.getChatRoomTitle().trim();
+	    }
+
+	    StringBuilder sb = new StringBuilder();
+	    for (ChatMapping m : chatRoom.getMappings()) {
+	        if ("Y".equals(m.getMemberStatus())) {
+	            Long memberNo = m.getMemberNo().getMemberNo();
+	            if (memberNo.equals(currentMemberNo)) continue; // 🔥 본인 제외
+
+	            sb.append(m.getMemberNo().getMemberName())
+	              .append(" ")
+	              .append(m.getMemberNo().getPos().getPosName())
+	              .append(", ");
+	        }
+	    }
+
+	    if (sb.length() > 0) sb.setLength(sb.length() - 2);
+	    return sb.length() > 0 ? sb.toString() : "이름 없는 채팅방";
+	}
+
 
 }
