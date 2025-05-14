@@ -85,7 +85,6 @@ layout:decorate="~{include/layout :: layout}">
 	          </thead>
 	         	<tbody>
 	         		<tr th:each="reservation, number : ${reservationList}">
-	         		<!-- 뭐지? -->
 				      <td th:text="${number.index+1}">번호</td>
 	  				  <td th:text="${reservation.member_name}">사원명</td>
 	  				  <td th:text="${reservation.member_no}">사번</td>
@@ -95,7 +94,6 @@ layout:decorate="~{include/layout :: layout}">
 				      <td th:text="${reservation.room_count}">방갯수</td>
 				      <td class="text-start">
 				         <select name="type" class="form-select w-75">
-				           <!-- <option th:value="0" th:selected="${reservation.reservation_status == null or reservation.reservation_status == '선택'}">선택</option> -->
 				            <option th:value="1" th:selected="${reservation.reservation_status == '대기'}">대기</option>
 		                    <option th:value="2" th:selected="${reservation.reservation_status == '승인'}">승인</option>
 		                    <option th:value="3" th:selected="${reservation.reservation_status == '반려'}">반려</option>
