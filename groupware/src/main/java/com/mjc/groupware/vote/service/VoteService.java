@@ -34,9 +34,9 @@ public class VoteService {
     private final VoteResultRepository resultRepo;
     private final MemberRepository memberRepo;
     
-    // 알림
+    // 알림 2025-05-14(수요일)
     private final VoteAlarmService voteAlarmService;
-    // 마감 알람
+    // 마감 알람 2025-05-14(수요일)
     @Transactional
     public void closeVoteAndNotify(Long voteNo) {
         Vote vote = voteRepo.findById(voteNo)

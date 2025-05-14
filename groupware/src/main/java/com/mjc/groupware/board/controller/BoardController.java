@@ -41,7 +41,7 @@ public class BoardController {
     private final ReplyService replyService;
     private final VoteRepository voteRepository;
     
-    // 알람
+    // 알람 2025-05-14(수요일)
     private final VoteService voteService;
 
     @GetMapping("/board/create")
@@ -125,7 +125,7 @@ public class BoardController {
         model.addAttribute("replyList", initialReplies);
         model.addAttribute("hasMoreReplies", initialReplies.size() == 5);
 
-        // ✅ 투표가 있을 경우 마감 체크 + 알림 전송
+        // ✅ 투표가 있을 경우 마감 체크 + 알림 전송 2025-05-14(수요일)
         if (board.getVote() != null) {
             Long voteNo = board.getVote().getVoteNo();
 

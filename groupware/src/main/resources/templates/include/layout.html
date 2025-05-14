@@ -187,7 +187,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 	
 	
-	<!-- 🗳️ 투표 마감 알림 토스트 -->
+	<!-- 🗳️ 투표 마감 알림 토스트 2025-05-14(수요일)-->
 	<div id="vote-alert-toast" class="d-none" style="
   		position: fixed;
   		bottom: 30px;
@@ -238,7 +238,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		        memberNo: myNo
 		      }));
 		    
-		    // 투표 마감 알림
+		    // 투표 마감 알림 2025-05-14(수요일)
 		    const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
 		    if (voteNo && myNo) {
 		      fetch(`/vote/${voteNo}/should-alert?memberNo=${myNo}`);
@@ -286,7 +286,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    	    showApprovalAlertToast(dto);
 		      });
 		   	  
-		   	  // 투표 마감 알림
+		   	  // 투표 마감 알림 2025-05-14(수요일)
 		      stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
 		        const dto = JSON.parse(msg.body);
 		        console.log("🗳️ 투표 마감 알림 도착:", dto);
@@ -346,7 +346,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      wrapper.classList.add("d-none");
 		    }, 5000);
 		  }
-		// 투표 마감
+		
+		// 투표 마감 2025-05-14(수요일)
 		function showVoteAlertToast(title, senderName, msg) {
 			  const wrapper = document.getElementById("vote-alert-toast");
 			  if (!wrapper) return;

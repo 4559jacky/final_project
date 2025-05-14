@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class VoteAlarmService {
-    private final SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate; // 2025-05-14(수요일)
 
     public void sendAlarmVoteMembers(List<Long> memberNos, Vote vote, String message) {
         Member writer = vote.getBoard().getMember();

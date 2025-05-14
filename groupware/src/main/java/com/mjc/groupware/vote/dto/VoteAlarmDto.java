@@ -19,4 +19,5 @@ public class VoteAlarmDto {
     private String title;
     private String message;
     private String senderName;
+    // 2025-05-14(수요일)
 }
