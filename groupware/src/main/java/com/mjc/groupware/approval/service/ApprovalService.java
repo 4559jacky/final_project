@@ -131,6 +131,10 @@ public class ApprovalService {
 				approvalDto.setAppr_order_status(1);
 			}
 			
+			if(approvalDto.getApproval_type_no() != 1) {
+				approvalDto.setUse_annual_leave(0);
+			}
+			
 			Approval saved = approvalRepository.save(approvalDto.toEntity());
 			
 			Long apprNo = saved.getApprNo();
@@ -142,9 +146,8 @@ public class ApprovalService {
 			// 결재자
 			approverDto.setAppr_no(apprNo);
 			approverDto.setApprovers(approvalDto.getApprover_no());
-			if(approvalDto.getApprover_no().size() < 1) {
-				// 예외처리 발생
-				
+			if(approvalDto.getApprover_no() == null || approvalDto.getApprover_no().isEmpty()) {
+				throw new IllegalArgumentException("결재자는 최소 한 명 이상 등록되어야 합니다.");
 			}
 			List<ApprApprover> approverList = approverDto.toEntityList();
 			for(ApprApprover entity : approverList) {
