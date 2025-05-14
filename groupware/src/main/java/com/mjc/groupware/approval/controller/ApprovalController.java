@@ -65,7 +65,7 @@ public class ApprovalController {
 	// 결재 양식 생성 페이지로 이동
 	@GetMapping("/admin/approvalForm/create")
 	public String createApprovalAdminView() {
-		return "/approval/admin/createApprovalForm";
+		return "approval/admin/createApprovalForm";
 	}
 	
 	// 결재 양식 생성
@@ -101,7 +101,7 @@ public class ApprovalController {
 	public String updateApprovalFormView(@PathVariable("id") Long id, Model model) {
 	    ApprovalFormDto dto = service.selectApprovalFormById(id);
 	    model.addAttribute("form", dto);
-	    return "/approval/admin/updateApprovalForm";
+	    return "approval/admin/updateApprovalForm";
 	}
 	
 	
@@ -182,7 +182,7 @@ public class ApprovalController {
 	    model.addAttribute("searchDto", searchDto);
 	    model.addAttribute("approvalStatusTypeDto", astd);
 		
-		return "/approval/user/sendApproval";
+		return "approval/user/sendApproval";
 	}
 	
 	@GetMapping("/approval/send/detail/{id}")
@@ -203,7 +203,7 @@ public class ApprovalController {
 	    model.addAttribute("attachList", attachList);
 	    model.addAttribute("return_result", return_result);
 		
-		return "/approval/user/sendApprovalDetail";
+		return "approval/user/sendApprovalDetail";
 	}
 	
 	@GetMapping("/approval/receive")
@@ -236,7 +236,7 @@ public class ApprovalController {
 	    model.addAttribute("searchDto", searchDto);
 	    model.addAttribute("statusCnt", statusCnt);
 	    
-		return "/approval/user/receiveApproval";
+		return "approval/user/receiveApproval";
 	}
 	
 	@GetMapping("/approval/receive/detail/{id}")
@@ -255,7 +255,7 @@ public class ApprovalController {
 	    model.addAttribute("agreementerList", agreementerList);
 	    model.addAttribute("referencerList", referencerList);
 		
-		return "/approval/user/receiveApprovalDetail";
+		return "approval/user/receiveApprovalDetail";
 	}
 	
 	@GetMapping("/approval/create")
@@ -270,7 +270,7 @@ public class ApprovalController {
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
 		model.addAttribute("formList", resultList);
 		model.addAttribute("member", member);
-		return "/approval/user/createApproval";
+		return "approval/user/createApproval";
 	}
 	
 	// 결재 양식 선택
