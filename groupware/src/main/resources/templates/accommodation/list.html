@@ -5,6 +5,8 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<div class="container-fluid px-4">
 		<!-- 제목 & 경로 -->
@@ -21,45 +23,26 @@ layout:decorate="~{include/layout :: layout}">
 	      </nav><br>
 	      <h2 class="mb-0 fw-bolder fs-8">예약 내용 조회</h2>
 	    </div><br>
-    	<!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
-	    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-	      <!-- 왼쪽: 검색 조건 + 검색창 -->
-	      <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
-	        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
-	          <option th:value="''" th:selected="${search_type == null}">선택</option>
-	          <option th:value="1" th:selected="${search_type == 1}">숙소명</option>
-	          <option th:value="2" th:selected="${search_type == 2}">예약신청일</option>
-	        </select>
-	
-	        <div class="position-relative" style="max-width: 350px;">
-	          <input type="text"
-	                 name="keyword"
-	                 th:value="${keyword}"
-	                 class="form-control search-chat py-2 ps-5"
-	                 id="text-srh"
-	                 placeholder="Search Contact" />
-	          <button type="submit"
-	                  class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
-	            <i class="ti ti-search fs-6 text-dark"></i>
-	          </button>
-	        </div>
-	      </form>
-	      
-	      
-	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
-		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
-	      <!-- 오른쪽: 정렬 -->
-	      <form th:action="@{/user/accommodation/reservation/list}" method="get"> 
-	        <select name="reg_date_sort"
-	                class="form-select w-auto bg-primary-subtle border-0"
-	                onchange="this.form.submit()"
-	                th:value="${searchDto.reg_date_sort}">
-	          <option th:value="desc" th:selected="${searchDto.reg_date_sort == 'desc'}">최신순</option>
-	          <option th:value="asc" th:selected="${searchDto.reg_date_sort == 'asc'}">오래된순</option>
-	        </select>
-	      </form>
+	      <!-- 정렬 + 주의사항 -->
+		  <div class="d-flex justify-content-between align-items-center pt-4 pe-4 pb-4">
+		      <!-- 왼쪽: 정렬 -->
+		      <form th:action="@{/user/accommodation/reservation/list}" method="get"> 
+		        <select name="reg_date_sort"
+		                class="form-select w-auto bg-primary-subtle border-0"
+		                onchange="this.form.submit()"
+		                th:value="${searchDto.reg_date_sort}">
+		          <option th:value="desc" th:selected="${searchDto.reg_date_sort == 'desc'}">최신순</option>
+		          <option th:value="asc" th:selected="${searchDto.reg_date_sort == 'asc'}">오래된순</option>
+		        </select>
+		      </form>
+		      <!-- 오른쪽: 주의사항 문구 -->
+			  <div class="text-danger d-flex align-items-center gap-1" style="font-size: 0.9rem;">
+			    <i class="bi bi-exclamation-triangle-fill"></i>
+			    <!-- <span style="color: red;">⚠️</span> -->
+			    <span>예약취소는 체크인 날짜 기준 일주일 전까지만 가능합니다.</span>
+			  </div>
 	      </div>
-	    </div>
+	
 	
 	    <!-- 테이블 -->
 	    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
