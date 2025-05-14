@@ -5,7 +5,10 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
-	
+	<!-- FullCalendar 부트스트랩5 테마 CSS 추가 -->
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/bootstrap5.min.css" rel="stylesheet">
+			
 	<!-- Preloader Start -->
 	<div class="toast toast-onload align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
     	<div class="toast-body hstack align-items-start gap-6">
@@ -220,19 +223,52 @@ layout:decorate="~{include/layout :: layout}">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-calendar"></i>
 			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-secondary">일정</a>
+			                        <a href="javascript:void(0)" class="text-dark link-secondary">오늘일정</a>
 			                    </div>
-			                    <div>오늘의 할 일 목록</div>
+			                    <div id="today-todo-list" class="small">
+								  <div class="text-muted">오늘 등록된 일정이 없습니다.</div>
+								</div>
 			                </div>
 			            </div>
 			        </div>
 			    </div>
 				
+				<style>
+				  /* 캘린더 툴바 줄이기 */
+				  .fc-toolbar {
+				    font-size: 0.85rem;
+				    padding: 4px 0;
+				  }
+				  .fc .fc-button {
+				    padding: 2px 8px;
+				    font-size: 0.75rem;
+				    height: 28px;
+				    line-height: 1;
+				    border-radius: 4px;
+				  }
+				  .fc .fc-toolbar-title {
+				    font-size: 1rem;
+				  }
+				  /* 날짜 숫자 크기 줄이기 */
+				  .fc .fc-daygrid-day-number {
+				    font-size: 0.75rem !important;
+				    padding: 2px;
+				  }
+				  .fc .fc-daygrid-day {
+				    padding: 4px 0;
+				  }
+				  /* 요일 헤더도 작게 */
+				  .fc .fc-col-header-cell-cushion {
+				    font-size: 0.75rem;
+				    padding: 2px;
+				  }
+				</style>
 			    <div class="row">
 			        <!-- 세 번째 박스 (캘린더) -->
 			        <div class="col-md-8">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;">
+			                <!-- <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;"> -->
+			                <div class="card-body" style="height: 600px; overflow:hidden;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-calendar"></i>
@@ -240,7 +276,11 @@ layout:decorate="~{include/layout :: layout}">
 			                        <a href="javascript:void(0)" class="text-dark link-secondary">일정</a>
 			                    </div>
 			                    <div>
-			                    	캘린더<br>
+			                    	<div id="calendar"
+									     th:data-member-no="${#authentication.principal.member.memberNo}"
+									     th:data-dept-no="${#authentication.principal.member.dept != null ? #authentication.principal.member.dept.deptNo : 0}">
+									</div>
+			                    	<!-- 캘린더<br> -->
 			                    </div>
 			                </div>
 			            </div>
@@ -478,7 +518,91 @@ layout:decorate="~{include/layout :: layout}">
 				});
 		};
 	</script>
+	<script>
+	 // 캘린더 표시용 JS
+	  document.addEventListener('DOMContentLoaded', function () {
+	    const calendarEl = document.getElementById('calendar');
+	    const memberNo = calendarEl.dataset.memberNo;
+	    const deptNo = calendarEl.dataset.deptNo;
 	
+	    const calendar = new FullCalendar.Calendar(calendarEl, {
+	      themeSystem: 'bootstrap5',
+	      locale: 'ko',
+	      height: 500,
+	      initialView: 'dayGridMonth',
+	      headerToolbar: {
+	        left: 'prev,next today',
+	        center: 'title',
+	        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+	      },
+	      buttonText: {
+	        today: '오늘',
+	        month: '월',
+	        week: '주',
+	        day: '일'
+	      },
+	      events: function (fetchInfo, successCallback, failureCallback) {
+	        fetch(`/calendar/events?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}&type=all`)
+	          .then(response => response.json())
+	          .then(data => successCallback(data))
+	          .catch(error => failureCallback(error));
+	      },
+	      eventContent: function (arg) {
+	        const deptName = arg.event.extendedProps.deptName || "미배정";
+	        const planType = arg.event.extendedProps.planType;
+	        const title = arg.event.title;
+	        return {
+	          html: `<div>${(planType === '부서' || planType === '휴가') ? `[${deptName}] ` : ''}${title}</div>`
+	        };
+	      }
+	    });
+	
+	    calendar.render();
+	  });
+	</script>
+	<script>
+	 // 오늘일정
+	  document.addEventListener('DOMContentLoaded', function () {
+	    const todayListEl = document.getElementById("today-todo-list");
+	
+	    const today = new Date();
+	    const yyyy = today.getFullYear();
+	    const mm = String(today.getMonth() + 1).padStart(2, '0');
+	    const dd = String(today.getDate()).padStart(2, '0');
+	    const todayStr = `${yyyy}-${mm}-${dd}`;
+	
+	    fetch(`/calendar/events?start=${todayStr}&end=${todayStr}&type=all`)
+	      .then(res => res.json())
+	      .then(data => {
+	        const filtered = data.filter(e => {
+	          const eventDate = e.start?.split('T')[0];
+	          return eventDate === todayStr;
+	        });
+	
+	        if (filtered.length === 0) {
+	          todayListEl.innerHTML = `<div class="text-muted">오늘 등록된 일정이 없습니다.</div>`;
+	        } else {
+	          const html = filtered.map(e => {
+	            const dept = e.extendedProps?.deptName || "미배정";
+	            const timeStr = e.start.includes('T') ? e.start.split('T')[1].slice(0, 5) : 'all-day';
+	            return `
+	              <div class="mb-2">
+	                <span class="badge bg-danger-subtle text-danger align-middle me-1">●</span>
+	                <span class="fw-semibold text-dark">[${dept}]</span>
+	                <span class="text-muted ms-1">${timeStr}</span><br>
+	                <span>${e.title}</span>
+	              </div>
+	            `;
+	          }).join('');
+	          todayListEl.innerHTML = html;
+	        }
+	      })
+	      .catch(err => {
+	        console.error("오늘 일정 로딩 실패", err);
+	        todayListEl.innerHTML = `<div class="text-danger">일정 불러오기 실패</div>`;
+	      });
+	  });
+	</script>
 	<!-- Bootstrap Common JS Files Start -->
 	
 	<!-- Import vendorJs Files -->
@@ -497,6 +621,9 @@ layout:decorate="~{include/layout :: layout}">
   	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
   	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
   	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- FullCalendar JS -->
+	<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
   	
   	<!-- Bootstrap Common JS Files End -->
 	

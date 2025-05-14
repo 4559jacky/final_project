@@ -593,23 +593,23 @@ document.getElementById('load-more-btn')?.addEventListener('click', loadMoreRepl
 	      }
 	    });
 
-	  // 3. 실시간 마감 체크
-	  const checkClosed = () => {
-	    const now = new Date();
-	    if (endTime && now >= endTime) {
-	      if (form) form.style.display = 'none';
-	      if (voteBtn) voteBtn.remove();
-	      if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+	  // 3. 실시간 마감 체크 -> 새로고침으로 바꾸기
+document.addEventListener("DOMContentLoaded", function () {
+  const now = new Date();
+  if (endTime && now >= endTime) {
+    if (form) form.style.display = 'none';
+    if (voteBtn) voteBtn.remove();
+    if (voteClosedMsg) voteClosedMsg.style.display = 'block';
 
-	      fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-	        .then(res => res.json())
-	        .then(data => {
-	          if (data.voted) {
-	            chartBtn.style.display = 'inline-block';
-	          }
-	        });
-	    }
-	  };
+    fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.voted) {
+          chartBtn.style.display = 'inline-block';
+        }
+      });
+  }
+});
 
 	  if (endTime) {
 	    checkClosed();

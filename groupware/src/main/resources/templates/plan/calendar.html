@@ -128,8 +128,13 @@ layout:decorate="~{include/layout :: layout}">
             <div class="card-body calender-sidebar app-calendar">
               <div id="calendar" 
 	              th:data-member-no="${#authentication.principal.member.memberNo}"
-	     		  th:data-dept-no="${#authentication.principal.member.dept.deptNo}"></div>
+	     		  th:data-dept-no="${#authentication.principal.member.dept != null ? #authentication.principal.member.dept.deptNo : '부서 미배정'}"></div>
             </div>
+<!--             <div class="card-body calender-sidebar app-calendar">
+              <div id="calendar" 
+	              th:data-member-no="${#authentication.principal.member.memberNo}"
+	     		  th:data-dept-no="${#authentication.principal.member.dept.deptNo}"></div>
+            </div> -->
           </div>
           
           <!-- 일정추가 MODAL -->
@@ -340,20 +345,24 @@ layout:decorate="~{include/layout :: layout}">
 			            <input type="datetime-local" class="form-control" id="detail-event-end-date" name="end_date"/>
 			          </div>
 			        </div>
+			          <div class="modal-footer">
+				        <button type="button" class="btn btn-outline-danger" id="btn-delete-event">삭제</button>
+				        <button type="button" class="btn btn-primary btn-update-event" id="btn-update-event"
+				        data-id="plan_no">수정</button>
+				      </div>
 			          <div class="col">
-			            <label class="form-label">수정기록</label>
-			            <div class="form-control" id="detail-event-modified-date" name="updatedAt" readonly style="height:150px; overflow-y:auto; background-color:#f8f9fa;"/>
-			            </div>
+			            <!-- <label class="form-label">수정기록</label> -->
+			            <input type="hidden" class="form-control" id="detail-event-modified-date" name="updatedAt" readonly style="height:150px; overflow-y:auto; background-color:#f8f9fa;"/>
+			           </div>
 			          </div>
 			      </div>
-			      <div class="modal-footer">
+			      <!-- <div class="modal-footer">
 			        <button type="button" class="btn btn-outline-danger" id="btn-delete-event">삭제</button>
 			        <button type="button" class="btn btn-primary btn-update-event" id="btn-update-event"
 			        data-id="plan_no">수정</button>
-			      </div>
+			      </div> -->
 			    </div>
 			  </div>
-			</div>
 		</form>
 		
 	<script>

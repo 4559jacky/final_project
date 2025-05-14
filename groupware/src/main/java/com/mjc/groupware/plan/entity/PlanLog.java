@@ -36,12 +36,12 @@ public class PlanLog {
 	
 	// planNo2는 Plan 엔티티의 외래키로 변경
     @ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY로 설정하여 실제 조회가 필요할 때 로드
-    @JoinColumn(name = "plan_no2", referencedColumnName = "plan_no", insertable = false, updatable = false) // 외래키 설정
+    @JoinColumn(name = "plan_no2", referencedColumnName = "plan_no") // 외래키 설정
     private Plan plan; // Plan 객체로 변경
 
     // memberNo2는 Member 엔티티의 외래키로 변경
     @ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY로 설정하여 실제 조회가 필요할 때 로드
-    @JoinColumn(name = "member_no2", referencedColumnName = "member_no", insertable = false, updatable = false) // 외래키 설정
+    @JoinColumn(name = "member_no2", referencedColumnName = "member_no") // 외래키 설정
     private Member member; // Member 객체로 변경
 
     @Column(name = "action_type")

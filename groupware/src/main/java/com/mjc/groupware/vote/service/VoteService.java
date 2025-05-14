@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.vote.dto.VoteAlarmDto;
 import com.mjc.groupware.vote.dto.VoteDto;
 import com.mjc.groupware.vote.dto.VoteOptionDto;
 import com.mjc.groupware.vote.entity.Vote;
@@ -32,6 +33,34 @@ public class VoteService {
     private final VoteOptionRepository optionRepo;
     private final VoteResultRepository resultRepo;
     private final MemberRepository memberRepo;
+    
+    // 알림 2025-05-14(수요일)
+    private final VoteAlarmService voteAlarmService;
+    // 마감 알람 2025-05-14(수요일)
+    @Transactional
+    public void closeVoteAndNotify(Long voteNo) {
+        Vote vote = voteRepo.findById(voteNo)
+            .orElseThrow(() -> new IllegalArgumentException("투표가 존재하지 않습니다."));
+
+        if (vote.getBoard() == null || vote.getBoard().getMember() == null) {
+            throw new IllegalStateException("투표에 연결된 게시글 또는 작성자가 없습니다.");
+        }
+
+        if (!isVoteClosed(voteNo)) return;
+
+        List<Long> memberNos = resultRepo.findByVote_VoteNo(voteNo).stream()
+            .filter(result -> result.getMember() != null)
+            .map(vr -> vr.getMember().getMemberNo())
+            .distinct()
+            .toList();
+
+        if (memberNos.isEmpty()) {
+            System.out.println("참여자가 없어 알림을 전송하지 않음.");
+            return;
+        }
+
+        voteAlarmService.sendAlarmVoteMembers(memberNos, vote, "투표가 마감되었습니다.");
+    }
 
     /**
      * 투표 생성

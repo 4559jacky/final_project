@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mjc.groupware.board.entity.Board;
@@ -34,36 +35,47 @@ public class BoardAttachService {
         return attachRepository.findById(id).orElse(null);
     }
 
-    // 게시글에 속한 첨부파일 목록 조회
+    // 게시글에 속한 첨부파일 목록 조회 (status = 'N'인 파일만)
     public List<BoardAttach> selectAttachList(Long boardNo) {
         Board board = boardRepository.findById(boardNo).orElse(null);
-        Specification<BoardAttach> spec = (root, query, criteriaBuilder) -> null;
-        spec = spec.and(BoardAttachSpecification.boardEquals(board));
+        if (board == null) return List.of();
+
+        Specification<BoardAttach> statusSpec = (root, query, cb) -> cb.equal(root.get("boardAttachStatus"), "N");
+        Specification<BoardAttach> spec = Specification.where(statusSpec)
+            .and(BoardAttachSpecification.boardEquals(board));
+
         return attachRepository.findAll(spec);
     }
 
-    // 파일 메타데이터 및 실제 파일 삭제
+    // 단일 파일 soft delete (물리 삭제 + 상태 'Y')
+    @Transactional
     public boolean deleteFile(Long attachNo) {
         try {
             BoardAttach boardAttach = attachRepository.findById(attachNo).orElse(null);
-            if (boardAttach != null) {
-                // 파일 삭제
-                File file = new File(boardAttach.getAttachPath());
+            if (boardAttach != null && "N".equals(boardAttach.getBoardAttachStatus())) {
+                File file = new File(fileDir + boardAttach.getAttachPath());
                 if (file.exists()) {
-                    boolean deleted = file.delete();
-                    if (!deleted) {
-                        return false;  // 파일 삭제 실패
-                    }
+                    file.delete(); // 실제 파일 삭제
                 }
 
-                // 메타데이터 삭제
-                attachRepository.delete(boardAttach);
+                boardAttach.setBoardAttachStatus("Y"); // DB 상태 변경
+                boardAttach.setModDate(LocalDateTime.now());
+                attachRepository.save(boardAttach);
+
                 return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // 여러 파일 soft delete 처리
+    @Transactional
+    public void deleteFiles(List<Long> fileIds) {
+        for (Long fileId : fileIds) {
+            deleteFile(fileId); // 내부적으로 soft delete
+        }
     }
 
     // 파일 업로드 처리
@@ -94,10 +106,11 @@ public class BoardAttachService {
             BoardAttach boardAttach = BoardAttach.builder()
                 .oriName(oriName)
                 .newName(newName)
-                .attachPath(relativePath)  // ✅ 상대경로로 저장
+                .attachPath(relativePath)
                 .regDate(LocalDateTime.now())
                 .modDate(LocalDateTime.now())
                 .board(Board.builder().boardNo(boardNo).build())
+                .boardAttachStatus("N")
                 .build();
 
             savedAttachments.add(attachRepository.save(boardAttach));
@@ -106,13 +119,14 @@ public class BoardAttachService {
         return savedAttachments;
     }
 
-    // 파일 형식 검증 (파일 형식 종류를 15개 이상 더 추가함) - 첨부파일 잘 됨(용량은 5MB)
+    // 파일 형식 검증
     private boolean isValidFileType(String fileName) {
-        String[] validExtensions = { "jpg", "jpeg", "png", "gif", "webp",
-        		"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "hwp",
-        		"csv", "json", "xml", "sql", "zip", "rar", "7z", "mp3", "wav", "mp4", "mov", "css", "jar" };
+        String[] validExtensions = {
+            "jpg", "jpeg", "png", "gif", "webp",
+            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "hwp",
+            "csv", "json", "xml", "sql", "zip", "rar", "7z", "mp3", "wav", "mp4", "mov", "css", "jar"
+        };
         String fileExtension = getFileExtension(fileName);
-        
         for (String ext : validExtensions) {
             if (fileExtension.equals(ext)) {
                 return true;
@@ -121,18 +135,11 @@ public class BoardAttachService {
         return false;
     }
 
-    // 파일 확장자 추출 (안전하게 처리)
+    // 파일 확장자 추출
     private String getFileExtension(String fileName) {
         if (fileName != null && fileName.lastIndexOf(".") > 0) {
             return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         }
         return "";
-    }
-
-    // 파일 삭제 (여러 개의 파일을 처리)
-    public void deleteFiles(List<Long> fileIds) {
-        for (Long fileId : fileIds) {
-            deleteFile(fileId);
-        }
     }
 }

@@ -43,8 +43,8 @@ public class PlanLogDto {
  	public PlanLogDto toDto(PlanLog planLog) {
  		return PlanLogDto.builder()
  				.log_no(planLog.getLogNo())
- 				.plan_no2(planLog.getPlan().getPlanNo())
- 				.member_no2(planLog.getMember().getMemberNo())
+ 				.plan_no2(planLog.getPlan() != null ? planLog.getPlan().getPlanNo() : null)
+                .member_no2(planLog.getMember() != null ? planLog.getMember().getMemberNo() : null)
  				.action_type(planLog.getActionType())
  				.action_date(planLog.getActionDate())
  				.build();
