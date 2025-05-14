@@ -2,6 +2,7 @@
 
 window.currentType = 'personal';
 window.initialFolderId = null;
+window.currentUserDeptNo = parseInt(document.getElementById("current-user-dept").value);
 let selectedParentNo = null;
 
 const folderTypeMap = {
@@ -35,54 +36,138 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  function loadTree(type,callback) {
-  
-	$('#shared-tree')
-	   .off('ready.jstree') // 이전 이벤트 제거
-	   .on('ready.jstree', function () {
-	     console.log("✅ 트리 로드 완료됨");
-	     if (typeof callback === 'function') callback();
-	   });
-	
-	
-	  $('#shared-tree').jstree(true).settings.core.data.url = function () {
-      return `/shared/main/tree?type=${type}`;
-    };
-    $('#shared-tree').jstree(true).settings.core.data.dataFilter = function (data) {
-      const parsed = JSON.parse(data);
-      const targetType = folderTypeMap[currentType] ?? 1;
-      const filtered = parsed.filter(item => item.folder_type === targetType);
-      window.rootNodeList = filtered
-        .filter(item => !item.id.toString().startsWith("file-") && item.parent === "#")
-        .map(item => item.id);
-      return JSON.stringify(filtered);
-    };
-    $('#shared-tree').jstree(true).refresh();
-  }
+  function loadTree(type, callback) {
+    // ✅ 기존 트리 제거 후 초기화
+    $('#shared-tree').jstree('destroy').empty();
 
+    // ✅ 트리 생성
+    $('#shared-tree').jstree({
+      core: {
+        check_callback: function (operation, node, parent, position, more) {
+          if (operation === "move_node") {
+            const isFile = node.id.startsWith("file-");
+            if (isFile && parent.id === "#") return false;
+            if (parent.id.startsWith("file-")) return false;
+
+            if (type === "department") {
+              const nodeDeptNo = parseInt(node.original?.dept_no ?? -1);
+              const parentDeptNo = parseInt(parent.original?.dept_no ?? -1);
+              if (nodeDeptNo !== currentUserDeptNo || parentDeptNo !== currentUserDeptNo) {
+                console.warn(`🚫 부서 이동 차단: nodeDeptNo=${nodeDeptNo}, parentDeptNo=${parentDeptNo}, current=${currentUserDeptNo}`);
+                return false;
+              }
+            }
+          }
+          return true;
+        },
+        data: {
+          url: `/shared/main/tree?type=${type}`,
+          dataType: 'json',
+          dataFilter: function (data) {
+            const parsed = JSON.parse(data);
+            const targetType = folderTypeMap[type] ?? 1;
+            const filtered = parsed.filter(item => {
+              if (item.id.toString().startsWith("file-")) return true;
+              return parseInt(item.folder_type) === targetType;
+            });
+            window.rootNodeList = filtered
+              .filter(item => !item.id.toString().startsWith("file-") && item.parent === "#")
+              .map(item => item.id);
+            return JSON.stringify(filtered);
+          }
+        },
+        themes: { dots: true, icons: true }
+      },
+      plugins: ['dnd'],
+      dnd: {
+        is_draggable: function (node) {
+          if (type === "department") {
+            const deptNo = parseInt(node[0]?.original?.dept_no ?? -1);
+            return deptNo === currentUserDeptNo;
+          }
+          return true;
+        }
+      }
+    })
+
+    // ✅ 트리 로딩 완료
+    .on('ready.jstree', function () {
+      console.log("✅ 트리 로드 완료됨");
+      if (typeof callback === 'function') callback();
+    })
+
+    // ✅ 폴더 클릭 시 리스트 변경
+    .on('changed.jstree', function (e, data) {
+      console.log("✅ changed 이벤트 발생", data.selected);
+      if (suppressChangeEvent) return;
+      const folderId = data.selected[0];
+      if (typeof folderId === 'string' && folderId.startsWith("file-")) {
+        $('#shared-tree').jstree('deselect_node', folderId);
+        return;
+      }
+      loadFolderList(folderId ?? null);
+    })
+
+    // ✅ 다른 부서 폴더 펼침 차단
+    .on('before_open.jstree', function (e, data) {
+      if (type === "department") {
+        const deptNo = parseInt(data.node.original?.dept_no ?? -1);
+        if (deptNo !== currentUserDeptNo) {
+          console.warn("🚫 다른 부서 폴더 펼치기 차단됨:", data.node.text);
+          e.preventDefault(); // 열기 차단
+        }
+      }
+    });
+  }
+ 
   $('#shared-tree').jstree({
     core: {
-      check_callback: function (operation, node, parent, position, more) {
-        if (operation === "move_node") {
-          if (node.id.startsWith("file-") && parent.id === "#") return false;
-          if (parent.id.startsWith("file-")) return false;
-        }
-        return true;
-      },
+		check_callback: function (operation, node, parent, position, more) {
+		  if (operation === "move_node") {
+		    const isFile = node.id.startsWith("file-");
+
+		    // 🔒 파일을 루트로 이동 금지
+		    if (isFile && parent.id === "#") return false;
+
+		    // 🔒 파일을 파일에 넣는 건 금지
+		    if (parent.id.startsWith("file-")) return false;
+
+		    // 🔒 부서 간 이동 차단
+		    if (currentType === "department") {
+		      const nodeDeptNo = parseInt(node.original && node.original.dept_no != null ? node.original.dept_no : -1);
+		      const parentDeptNo = parseInt(parent.original && parent.original.dept_no != null ? parent.original.dept_no : -1);
+
+		      if (nodeDeptNo !== currentUserDeptNo || parentDeptNo !== currentUserDeptNo) {
+		        console.warn(`🚫 이동 차단됨 - nodeDeptNo: ${nodeDeptNo}, parentDeptNo: ${parentDeptNo}, 내 부서: ${currentUserDeptNo}`);
+		        return false;
+		      }
+		    }
+		  }
+
+		  return true;
+		},
       data: {
         url: function () {
           return `/shared/main/tree?type=${currentType}`;
         },
         dataType: 'json',
         dataFilter: function (data) {
-          const parsed = JSON.parse(data);
-          const targetType = folderTypeMap[currentType] ?? 1;
-          const filtered = parsed.filter(item => item.folder_type === targetType);
-          window.rootNodeList = filtered
-            .filter(item => !item.id.toString().startsWith("file-") && item.parent === "#")
-            .map(item => item.id);
-          return JSON.stringify(filtered);
-        },
+			 const parsed = JSON.parse(data);
+			  const targetType = folderTypeMap[currentType] ?? 1;
+
+			  const filtered = parsed.filter(item => {
+			    // 폴더만 필터링, 파일은 그대로 통과
+			    if (item.id.toString().startsWith("file-")) return true;
+				return parseInt(item.folder_type) === targetType;
+			  });
+
+			  // 루트 노드 업데이트
+			  window.rootNodeList = filtered
+			    .filter(item => !item.id.toString().startsWith("file-") && item.parent === "#")
+			    .map(item => item.id);
+
+			  return JSON.stringify(filtered);
+			},
         error: function (xhr, status, error) {
           console.error('jsTree 데이터 로드 실패:', status, error);
         }
@@ -170,6 +255,11 @@ function createNewFolder() {
     alert("폴더 이름을 입력해주세요.");
     return;
   }
+  
+  if (selectedParentNo == null) {
+    alert("상위 폴더를 선택해주세요.");
+    return;
+  }
 
   const payload = {
     folder_name: folderName,
@@ -225,7 +315,6 @@ function initModalTree() {
     plugins: ['radio']
   });
 
-  //  클릭 -> 선택, 다시 클릭 -> 선택 해제
   $('#modal-folder-tree').on('changed.jstree', function (e, data) {
     if (data.selected.length === 0) {
       selectedParentNo = null;
@@ -234,9 +323,24 @@ function initModalTree() {
     }
 
     const clickedId = data.selected[0];
+    const tree = $(this).jstree(true);
+    const node = tree.get_node(clickedId);
 
+    // 🔥 다른 부서 폴더는 선택 불가
+    if (currentType === "department") {
+      const folderDeptNo = node.original.dept_no ?? null;
+      if (folderDeptNo !== currentUserDeptNo) {
+        alert("🚫 다른 부서의 폴더는 선택할 수 없습니다.");
+        tree.deselect_node(clickedId);
+        selectedParentNo = null;
+        lastSelectedId = null;
+        return;
+      }
+    }
+
+    // ✅ 같은 폴더 다시 클릭하면 해제
     if (lastSelectedId === clickedId) {
-      $(this).jstree(true).deselect_node(clickedId);
+      tree.deselect_node(clickedId);
       selectedParentNo = null;
       lastSelectedId = null;
     } else {
@@ -352,7 +456,7 @@ function loadFolderList(folderId) {
 
 	  suppressChangeEvent = true; // 이벤트 무시 시작
 	  $('#shared-tree').jstree('deselect_all');
-	  setTimeout(() => suppressChangeEvent = false, 100); // 잠깐 후 다시 허용
+	  setTimeout(() => suppressChangeEvent = false, 100); 
 	});
 }
 
@@ -406,14 +510,28 @@ function renderFolderTable(data, parentFolderNo, currentFolderId){
 		  e.stopPropagation(); // ✅ 체크박스 클릭 시 tr 이벤트 막기
 		});
 		
-		// 클릭 이벤트 분기
-		tr.addEventListener("click", function(){
-			if(item.type === "folder"){
-				onFolderClick(item.id); // 폴더 클릭 시 폴더 이동
-			}else{
-				onFileClick(item.id); // 파일 클릭 시 다운로드
+		// ✅ 여기가 핵심 조건 분기
+			if (currentType === "department" && 
+		  item.type === "folder" &&
+		  item.deptNo !== undefined &&
+		  item.deptNo !== currentUserDeptNo) {
+			
+				tr.style.opacity = 0.5;
+				tr.style.cursor = "not-allowed";
+				tr.title = "다른 부서의 폴더입니다.";
+				tr.addEventListener("click", function(e) {
+					alert("🚫 다른 부서의 폴더에는 접근할 수 없습니다.");
+					e.stopPropagation();
+				});
+			} else {
+				tr.addEventListener("click", function(){
+					if(item.type === "folder"){
+						onFolderClick(item.id);
+					}else{
+						onFileClick(item.id);
+					}
+				});
 			}
-		});
 		
 		tbody.appendChild(tr);
 	});
@@ -437,6 +555,7 @@ function onFolderClick(folderId){
 	suppressChangeEvent = true;
 	$('#shared-tree').jstree('deselect_all');
 	$('#shared-tree').jstree('select_node', folderId); // ✅ 이러면 changed.jstree가 호출됨
+	loadFolderList(folderId);
 	setTimeout(() => suppressChangeEvent = false, 100);
 }
 
