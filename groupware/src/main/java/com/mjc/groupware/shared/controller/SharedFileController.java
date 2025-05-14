@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,23 +38,32 @@ public class SharedFileController {
 	@PostMapping("/shared/files/upload")
 	@ResponseBody
 	public Map<String, String> uploadFiles(@RequestParam("files") List<MultipartFile> files,
-										   @RequestParam("folderId") Long folderId){
-		sharedFileService.saveFiles(files,folderId);
+										   @RequestParam("folderId") Long folderId,
+										   @AuthenticationPrincipal MemberDetails memberDetails	){
+		
+	    Member member = memberDetails.getMember();
+		sharedFileService.saveFiles(files,folderId,member);
 		
 		return Map.of("message","파일이 성공적으로 업로드 되었습니다.");
 	}
 	
-	// 파일/목록 리스트
 	@GetMapping("/shared/files/list")
 	@ResponseBody
-	public Map<String, Object> getFolderContent(
-			@RequestParam(value = "folderId", required = false) Long folderId,
-			Authentication auth){
-		MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
-		Member member = memberDetails.getMember();
-		
-		
-		return sharedFileService.getFolderContent(folderId, member);
+	public  ResponseEntity<Map<String, Object>> getFolderContent(
+	        @RequestParam(value = "folderId", required = false) Long folderId,
+	        @RequestParam(value = "folderIds", required = false) List<Long> folderIds,
+	        @RequestParam("type") String type,
+	        Authentication auth) {
+
+	    MemberDetails memberDetails = (MemberDetails) auth.getPrincipal();
+	    Member member = memberDetails.getMember();
+
+	    try {
+	        Map<String, Object> result = sharedFileService.getFolderContent(folderId, folderIds, member, type);
+	        return ResponseEntity.ok(result);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(403).body(Map.of("error", "접근 권한이 없습니다."));
+	    }
 	}
 	
 	// 파일 다운로드

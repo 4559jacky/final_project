@@ -33,6 +33,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   	
 </head>
 <body>
+	<!-- 현재 로그인한 사원 사번  -->
+	<input type="hidden" id="member_no" th:value="${#authentication.principal.member.memberNo}">
 	
 	<!-- Preloader Start -->
   	<div class="preloader">
@@ -55,117 +57,19 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		</div>
 	</div>
 	
-    <!--  Shopping Cart -->
-    <div class="offcanvas offcanvas-end shopping-cart" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-      <div class="offcanvas-header justify-content-between py-4">
-        <h5 class="offcanvas-title fs-5 fw-semibold" id="offcanvasRightLabel">
-          Shopping Cart
-        </h5>
-        <span class="badge bg-primary rounded-2 px-3 py-1 lh-sm">5 new</span>
-      </div>
-      <div class="offcanvas-body h-100 px-4 pt-0" data-simplebar>
-        <ul class="mb-0">
-          <li class="pb-7">
-            <div class="d-flex align-items-center">
-              <img th:src="@{/assets/images/products/product-1.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
-              <div>
-                <h6 class="mb-1">Supreme toys cooker</h6>
-                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
-                  <div class="input-group input-group-sm w-50">
-                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add1">
-                      -
-                    </button>
-                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add1" value="1" />
-                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addo2">
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="pb-7">
-            <div class="d-flex align-items-center">
-              <img th:src="@{/assets/images/products/product-2.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
-              <div>
-                <h6 class="mb-1">Supreme toys cooker</h6>
-                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
-                  <div class="input-group input-group-sm w-50">
-                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add2">
-                     -
-                    </button>
-                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add2" value="1" />
-                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addon34">
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="pb-7">
-            <div class="d-flex align-items-center">
-              <img th:src="@{/assets/images/products/product-3.jpg}" width="95" height="75" class="rounded-1 me-9 flex-shrink-0" alt="flexy-img" />
-              <div>
-                <h6 class="mb-1">Supreme toys cooker</h6>
-                <p class="mb-0 text-muted fs-2">Kitchenware Item</p>
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                  <h6 class="fs-2 fw-semibold mb-0 text-muted">$250</h6>
-                  <div class="input-group input-group-sm w-50">
-                    <button class="btn border-0 round-20 minus p-0 bg-success-subtle text-success" type="button" id="add3">
-                      -
-                    </button>
-                    <input type="text" class="form-control round-20 bg-transparent text-muted fs-2 border-0 text-center qty" placeholder="" aria-label="Example text with button addon" aria-describedby="add3" value="1" />
-                    <button class="btn text-success bg-success-subtle p-0 round-20 border-0 add" type="button" id="addon3">
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-        </ul>
-        <div class="align-bottom">
-          <div class="d-flex align-items-center pb-7">
-            <span class="text-dark fs-3">Sub Total</span>
-            <div class="ms-auto">
-              <span class="text-dark fw-semibold fs-3">$2530</span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center pb-7">
-            <span class="text-dark fs-3">Total</span>
-            <div class="ms-auto">
-              <span class="text-dark fw-semibold fs-3">$6830</span>
-            </div>
-          </div>
-          <a href="./main/eco-checkout.html" class="btn btn-outline-primary w-100">Go to shopping cart</a>
-        </div>
-      </div>
-    </div>
+    
     <div class="dark-transparent sidebartoggler"></div>
 	
-	<!-- 현재 로그인한 사원 사번  -->
-	<input type="hidden" id="member_no" th:value="${#authentication.principal.member.memberNo}">
-	
 	<!-- 채팅 알림 모달 -->
-	<div id="chat-alert-toast" class="position-fixed end-0 bottom-0 p-3 d-none" style="z-index: 1080;">
-	  <div class="toast align-items-start text-dark shadow" role="alert" style="border: none; border-radius: 0.5rem;">
-	    <div class="toast-header bg-primary text-white">
-	      <strong class="me-auto">새로운 메세지가 도착했습니다.</strong>
-	      <button type="button" class="btn-close btn-close-white ms-2 mb-1" onclick="closeChatToast()"></button>
-	    </div>
-	    <div class="toast-body">
-	      <div><strong>[</strong> <span id="toast-chat-title">알림</span><strong>]</strong></div>
-	      <div><strong id="toast-sender-name"></strong></div>
-	      <div><span id="toast-msg-content"></span></div> 
-	    </div>
-	    <input type="hidden" id="toast-room-no" />
-	  </div>
+	<div id="chatAlertToast" class="position-fixed end-0 bottom-0 m-4 p-3 shadow-lg rounded-3 border bg-white text-dark d-none" style="width: 320px; z-index: 1080;">
+	  <div class="fw-bold text-primary mb-2">[채팅 알림] 새로운 메시지가 도착했습니다.</div>
+	  <div><strong>제목:</strong> <span id="toast-chat-title">-</span></div>
+	  <div><strong>보낸 사람:</strong> <span id="toast-sender-name">-</span></div>
+	  <div><strong>내용:</strong> <span id="toast-msg-content">-</span></div>
+	  <input type="hidden" id="toast-room-no" />
 	</div>
+
+
 	
 	<!-- 전자결재 알림 모달 -->
 	<div id="approval-alert-toast" class="d-none" style="
@@ -224,6 +128,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 	<script>
 		let stompClient = null;
+		const myNo = document.getElementById("member_no").value;
 	
 		window.addEventListener("load", () => {
 		  const socket = new SockJS("/ws-chat");
@@ -232,9 +137,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		  stompClient.connect({}, () => {
 		    console.log("📡 STOMP WebSocket 연결 성공");
 
-		    const myNo = document.getElementById("member_no")?.value;
-		    if (!myNo) return;
 		    
+		    
+		////////////////////////////////////////////////////// 채팅 웹소캣 //////////////////////////////////////////////////////////////////////////////
+		    // 로그인한 사용자 등록
 		    stompClient.send("/app/chat/session-register", {}, JSON.stringify({
 		        memberNo: myNo
 		      }));
@@ -267,15 +173,24 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      }
 		    });
 
+		    // 나가기 실시간 반영 
+		    stompClient.subscribe("/topic/chat/room/exit", (msg) => {
+			  const dto = JSON.parse(msg.body);
+			
+			  if (typeof window.onChatMemberExit === "function") {
+			    window.onChatMemberExit(dto);  // ✅ dto.chat_room_no로 처리
+			  }
+			});
 		    
 		    // 채팅 알림 
-
 		    const path = window.location.pathname;
 		    if (!path.includes("/chat")) {
 		      stompClient.subscribe(`/topic/chat/alarm/${myNo}`, (msg) => {
 		        const dto = JSON.parse(msg.body);
 		        showChatAlertToast(dto);
 		      });
+		      
+		////////////////////////////////////////////////////// 전자 결재  웹소캣 //////////////////////////////////////////////////////////////////////////////
 		      
 		   	  // 전자결재 알림
 		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
@@ -298,34 +213,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    console.error("STOMP 연결 실패", error);
 		  });
 		});
+		
 
-		
-		// 알림 토스트 모달 
-		function showChatAlertToast(dto) {
-		  console.log("🔥 모달 함수 진입", dto);
-		
-		  const wrapper = document.getElementById("chat-alert-toast");
-		  if (!wrapper) return;
-		
-		  // 값 세팅
-		  document.getElementById("toast-room-no").value = dto.chat_room_no;
-		  document.getElementById("toast-sender-name").textContent = `${dto.member_name} ${dto.member_pos_name}`;
-		  document.getElementById("toast-msg-content").textContent = dto.chat_msg_content;
-		
-		  // ✅ 무조건 초기화
-		  wrapper.classList.remove("d-none");     // display: none 제거
-		  wrapper.classList.remove("active");     // 이전 active 제거
-		  void wrapper.offsetWidth;               // 강제 reflow
-		  wrapper.classList.add("active");        // 다시 active 추가
-		
-		  // ✅ 5초 후 숨김 처리
-		  setTimeout(() => {
-		    wrapper.classList.remove("active");
-		    wrapper.classList.add("d-none");      // 다시 숨김
-		  }, 5000);
-		}
-		
-		
+		//////////////////////////////////////////////////////전자 결재  알림 모달  //////////////////////////////////////////////////////////////////////////////
+		 
 		// 전자결재 알림 토스트 모달
 		function showApprovalAlertToast(dto) {
 	
@@ -394,6 +285,169 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	    	}
 	  
 	  
+
+	  
+		////////////////////////////////////////////////////// 채팅 알림 -> 채팅방 진입  //////////////////////////////////////////////////////////////////////////////
+	  
+		
+		// 채팅 헤더 알림 실시간 반영 
+		function increaseAlarmBadge() {
+		  const btns = document.querySelectorAll("#chatAlarmBtn"); // ✅ 모든 화면에 대응
+		
+		  btns.forEach(btn => {
+		    let badge = btn.querySelector(".chat-popup-badge");
+		
+		    if (!badge) {
+		      badge = document.createElement("span");
+		      badge.className = "popup-badge rounded-pill bg-danger text-white fs-2";
+		      badge.textContent = "1";
+		      btn.appendChild(badge);
+		    } else {
+		      let count = parseInt(badge.textContent.trim() || "0", 10);
+		      badge.textContent = ++count;
+		    }
+		  });
+		}
+
+		function prependAlarmToDropdown(dto) {
+			  const dropdowns = document.querySelectorAll(".chat-message-body");
+			  if (!dropdowns.length) return;
+
+			  dropdowns.forEach(dropdown => {
+			    dropdown.style.display = "block";
+
+			    const link = document.createElement("a");
+			    link.href = "javascript:void(0)";
+			    link.classList.add("dropdown-item", "py-6", "px-7", "d-flex", "align-items-center");
+			    link.setAttribute("data-room-no", dto.chat_room_no);
+
+			    link.innerHTML = `
+			      <div class="w-100">
+			        <h6 class="mb-0 fs-4 lh-base">${dto.chat_room_title || "채팅방"}</h6>
+			        <span class="fs-3 d-block text-body-secondary">${dto.member_name} : ${dto.chat_msg_content || "새로운 메시지"}</span>
+			      </div>
+			    `;
+
+			    dropdown.prepend(link);
+			  });
+			}
+
+		// 알림 토스트 모달 
+		function showChatAlertToast(dto) {
+		  console.log("🔥 모달 함수 진입", dto);
+		
+		  // 값 세팅
+		  document.getElementById("toast-room-no").value = dto.chat_room_no;
+		  document.getElementById("toast-sender-name").textContent = `${dto.member_name} ${dto.member_pos_name}`;
+		  document.getElementById("toast-msg-content").textContent = dto.chat_msg_content;
+		  document.getElementById("toast-chat-title").textContent = dto.chat_room_title || "제목 없음";
+		
+		  const toastEl = document.getElementById("chatAlertToast");
+		  toastEl.classList.remove("d-none");
+		  
+		
+		  setTimeout(() => {
+			    increaseAlarmBadge();
+			    prependAlarmToDropdown(dto);
+			  }, 100);
+
+			  setTimeout(() => {
+			    toastEl.classList.add("d-none");
+			  }, 5000);
+		
+		  // 5초 뒤 사라짐
+		  setTimeout(() => {
+		    toastEl.classList.add("d-none");
+		  }, 5000);
+		}
+		
+		
+		document.addEventListener("DOMContentLoaded", () => {
+			// 알림 클릭 시 채팅방 이동 
+			document.addEventListener("click", function (e) {
+			  const item = e.target.closest(".dropdown-item");
+			  if (!item) return;
+			
+			  const roomNo = item.dataset.roomNo;
+			  if (roomNo) {
+			    console.log("🔥 알림 클릭됨! → 이동: ", roomNo);
+			    sessionStorage.setItem("enterRoomNo", roomNo); // ✅ 저장
+			    window.location.href = `/chat`;
+			  }
+			});
+			
+			// 헤더 알림 조회
+			if (!myNo) return;
+
+			  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+			  const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+
+			  fetch(`/chat/alarm/list/${myNo}`, {
+			    method: "POST",
+			    headers: {
+			      "Content-Type": "application/json",
+			      [csrfHeader]: csrfToken
+			    }
+			  })
+			  .then(res => res.json())
+			  .then(data => {
+			     renderChatAlarms(data); 
+
+			  })
+			  .catch(err => {
+			    console.error("알림 불러오기 실패:", err);
+			  });
+			  
+			  function renderChatAlarms(list) {
+				  const dropdowns = document.querySelectorAll(".chat-message-body");
+				  const btns = document.querySelectorAll("#chatAlarmBtn");
+
+				  btns.forEach(btn => {
+				    let badge = btn.querySelector(".chat-popup-badge");
+				    if (!badge) {
+				      badge = document.createElement("span");
+				      badge.className = "chat-popup-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white";
+				      btn.appendChild(badge);
+				    }
+				    badge.textContent = list.length;
+				    badge.style.display = list.length > 0 ? "inline-block" : "none";
+				  });
+
+				  // dropdown에 알림 목록 표시
+				  dropdowns.forEach(dropdown => {
+				    dropdown.innerHTML = "";
+				    dropdown.style.display = "block";
+
+				    if (list.length === 0) {
+				      dropdown.innerHTML = `<div class="px-3 py-2 text-muted">알림이 없습니다.</div>`;
+				      return;
+				    }
+
+				    list.forEach(alarm => {
+				      const chatRoomName = alarm.chat_room_name || "채팅방";
+				      const sender = `${alarm.sender_name || ''} ${alarm.sender_pos_name || ''}`;
+				      const content = alarm.chat_msg_content || "새로운 메시지가 도착했습니다.";
+
+				      const link = document.createElement("a");
+				      link.href = "javascript:void(0)";
+				      link.className = "py-6 px-7 d-flex align-items-center dropdown-item";
+				      link.setAttribute("data-room-no", alarm.chat_room_no);
+
+				      link.innerHTML = `
+				        <div class="w-100">
+				          <h6 class="mb-0 fs-4 lh-base">${chatRoomName}</h6>
+				          <span class="fs-3 d-block text-body-secondary">${sender} : ${content}</span>
+				        </div>
+				      `;
+
+				      dropdown.appendChild(link);
+				    });
+				  });
+				}
+
+		  });
+
+
 	</script>
 
 </body>

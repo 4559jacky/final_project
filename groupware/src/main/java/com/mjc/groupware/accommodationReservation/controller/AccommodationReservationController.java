@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mjc.groupware.accommodationReservation.dto.AccommodationInfoDto;
 import com.mjc.groupware.accommodationReservation.dto.AccommodationReservationDto;
+import com.mjc.groupware.accommodationReservation.dto.SearchDto;
 import com.mjc.groupware.accommodationReservation.service.AccommodationReservationService;
 import com.mjc.groupware.accommodationReservation.service.AccommodationService;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -55,12 +56,16 @@ public class AccommodationReservationController {
 
     // 사용자 예약 내역
 	@GetMapping("/user/accommodation/reservation/list")
-	public String userReservationList(Model model,
-	                                  @AuthenticationPrincipal MemberDetails memberDetails) {
-	    Long memberId = memberDetails.getMember().getMemberNo();
-	    List<AccommodationReservationDto> list = reservationService.getReservationsByMember(memberId);
-	    model.addAttribute("reservationList", list);
-	    return "accommodation/list";
+	public String userReservationList(@ModelAttribute SearchDto searchDto,
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            Model model) {
+		Long memberId = memberDetails.getMember().getMemberNo();
+		List<AccommodationReservationDto> list = reservationService.getReservationsByMemberSorted(memberId, searchDto.getReg_date_sort());
+		
+		model.addAttribute("reservationList", list);
+		model.addAttribute("searchDto", searchDto); // 정렬값 유지
+		
+		return "accommodation/list";
 	}
 
     // 관리자 예약 현황

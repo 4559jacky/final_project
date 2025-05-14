@@ -1,6 +1,7 @@
 package com.mjc.groupware.accommodationReservation.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,5 +14,7 @@ public interface AccommodationReservationRepository extends JpaRepository<Accomm
 
 	// 관리자 
 	List<AccommodationReservation> findByAccommodationInfo_AccommodationNo(Long accommodationNo);
+
+	Optional<AccommodationReservation> findTopByAccommodationInfo_AccommodationNoOrderByReservationDateDesc(Long accommodationNo);
 
 }

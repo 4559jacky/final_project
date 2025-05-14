@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.mjc.groupware.chat.dto.ChatAlarmDto;
 import com.mjc.groupware.chat.dto.ChatMappingDto;
 import com.mjc.groupware.chat.dto.ChatMsgDto;
 import com.mjc.groupware.chat.dto.ChatRoomDto;
@@ -33,7 +32,6 @@ import com.mjc.groupware.chat.service.ChatMsgService;
 import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.chat.session.ChatSessionTracker;
 import com.mjc.groupware.chat.session.SessionRegistry;
-import com.mjc.groupware.notice.dto.AttachDto;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +54,7 @@ public class ChatController {
 		List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
 		model.addAttribute("chatRoomList",resultList);
 		
-		return "/chat/chat";
+		return "chat/chat";
 	}
 	
 	// 채팅방 생성
@@ -171,8 +169,7 @@ public class ChatController {
 
 	        }
 	    }
-	}
-
+	} 
 
 
 	
@@ -231,20 +228,31 @@ public class ChatController {
 		int result = chatRoomService.updateStatus(dto);
 
 		if (result > 0) {
-	
-			chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
-			 messagingTemplate.convertAndSend(
-				        "/topic/chat/room/" + dto.getChat_room_no() + "/exit",
-				        dto
-				    );
-			
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
+		    // 나가기 처리 성공 후, 채팅방 정보 조회
+		    ChatRoom chatRoom = chatRoomService.selectChatRoomOne(dto.getChat_room_no());
+		    ChatRoomDto roomDto = ChatRoomDto.toDto(chatRoom);
+
+		    // 시스템 메시지 보내기
+		    chatMsgService.sendOutSystemMsg(dto.getChat_room_no(), dto.getMember_no());
+
+		    // 전역 전송
+		    messagingTemplate.convertAndSend("/topic/chat/room/exit", roomDto);
+
+		    resultMap.put("res_code", "200");
+		    resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
 		}
 
 		return resultMap;
 	}
 	
+	
+	// 채팅방 알림 목록 조회
+	@PostMapping("/chat/alarm/list/{id}")
+	@ResponseBody
+	public List<ChatAlarmDto> selectChatAlarmAll(@PathVariable("id") Long memberNo) {
+		
+		return chatAlarmService.selectChatAlarmAll(memberNo);
+	}
 	
 	
 }
