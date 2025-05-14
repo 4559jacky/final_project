@@ -39,27 +39,19 @@ public class VoteService {
     // 마감 알람 2025-05-14(수요일)
     @Transactional
     public void closeVoteAndNotify(Long voteNo) {
-        Vote vote = voteRepo.findById(voteNo)
-            .orElseThrow(() -> new IllegalArgumentException("투표가 존재하지 않습니다."));
+        Vote vote = voteRepo.findById(voteNo).orElseThrow();
 
-        if (vote.getBoard() == null || vote.getBoard().getMember() == null) {
-            throw new IllegalStateException("투표에 연결된 게시글 또는 작성자가 없습니다.");
-        }
+        // 마감 시간 갱신 등 처리
+        voteRepo.save(vote);
 
-        if (!isVoteClosed(voteNo)) return;
+        // 참여한 사용자만 조회
+        List<Long> participantMemberNos = resultRepo.findParticipantMemberNos(voteNo);
 
-        List<Long> memberNos = resultRepo.findByVote_VoteNo(voteNo).stream()
-            .filter(result -> result.getMember() != null)
-            .map(vr -> vr.getMember().getMemberNo())
-            .distinct()
-            .toList();
+        // 알림 메시지 구성
+        String message = vote.getBoard().getMember().getMemberName() + "님의 투표가 마감되었습니다.";
 
-        if (memberNos.isEmpty()) {
-            System.out.println("참여자가 없어 알림을 전송하지 않음.");
-            return;
-        }
-
-        voteAlarmService.sendAlarmVoteMembers(memberNos, vote, "투표가 마감되었습니다.");
+        // ✅ WebSocket으로 참여자에게만 알림 전송
+        voteAlarmService.sendAlarmVoteMembers(participantMemberNos, vote, message);
     }
 
     /**

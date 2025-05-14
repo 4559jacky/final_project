@@ -232,17 +232,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		  stompClient.connect({}, () => {
 		    console.log("📡 STOMP WebSocket 연결 성공");
 
-		    const myNo = document.getElementById("member_no").value;
+		    const myNo = document.getElementById("member_no")?.value;
+		    if (!myNo) return;
 		    
 		    stompClient.send("/app/chat/session-register", {}, JSON.stringify({
 		        memberNo: myNo
 		      }));
+		    // ✅ 모든 페이지에서 마감 투표 알림 요청
+		    stompClient.send("/app/vote/register", {}, JSON.stringify({ memberNo: myNo }));
 		    
-		    // 투표 마감 알림 2025-05-14(수요일)
-		    const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
-		    if (voteNo && myNo) {
-		      fetch(`/vote/${voteNo}/should-alert?memberNo=${myNo}`);
-		    }
 	
 		    // 채팅방 생성 실시간 반영
 		    stompClient.subscribe("/topic/chat/room/new", (message) => {
@@ -286,15 +284,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    	    showApprovalAlertToast(dto);
 		      });
 		   	  
-		   	  // 투표 마감 알림 2025-05-14(수요일)
-		      stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
-		        const dto = JSON.parse(msg.body);
-		        console.log("🗳️ 투표 마감 알림 도착:", dto);
-		        showVoteAlertToast(dto.title, dto.senderName, dto.message);
-		      });
-		      
-		    }
-
+		      // ✅ 투표 마감 알림은 무조건 구독 (모든 페이지)
+		      if (myNo) {
+		        stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
+		          const dto = JSON.parse(msg.body);
+		          console.log("📢 투표 마감 알림 수신:", dto);
+		          showVoteAlertToast(dto.title, dto.senderName, dto.message);
+		        });
+		      }
+  		
+			}
 		  }, (error) => {
 		    console.error("STOMP 연결 실패", error);
 		  });
@@ -346,31 +345,54 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      wrapper.classList.add("d-none");
 		    }, 5000);
 		  }
-		
-		// 투표 마감 2025-05-14(수요일)
-		function showVoteAlertToast(title, senderName, msg) {
-			  const wrapper = document.getElementById("vote-alert-toast");
-			  if (!wrapper) return;
 
-			  document.getElementById("vote-toast-title").textContent = title || "투표";
-			  document.getElementById("vote-toast-sender").textContent = senderName || "";
-			  document.getElementById("vote-toast-msg").textContent = msg || "투표가 마감되었습니다.";
-
-			  wrapper.classList.remove("d-none");
-			  wrapper.classList.remove("active");
-			  void wrapper.offsetWidth;
-			  wrapper.classList.add("active");
-
-			  setTimeout(() => {
-			    wrapper.classList.add("d-none");
-			  }, 5000);
-			}
-	
 	  function closeApprovalToast() {
 	    const wrapper = document.getElementById("approval-alert-toast");
 	    wrapper.classList.remove("active");
 	    wrapper.classList.add("d-none");
 	  }
+
+		// ✅ 토스트 알림 표시 함수
+	    function showVoteAlertToast(title, senderName, msg) {
+	      const wrapper = document.getElementById("vote-alert-toast");
+	      if (!wrapper) return;
+
+	      document.getElementById("vote-toast-title").textContent = title || "투표 마감";
+	      document.getElementById("vote-toast-sender").textContent = senderName || "";
+	      document.getElementById("vote-toast-msg").textContent = msg || "투표가 마감되었습니다.";
+
+	      wrapper.classList.remove("d-none");
+	      wrapper.classList.remove("active");
+	      void wrapper.offsetWidth;
+	      wrapper.classList.add("active");
+
+	      setTimeout(() => {
+	        wrapper.classList.add("d-none");
+	      }, 5000);
+	      
+	    }
+		
+	    function checkClosed() {
+	    	  const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
+	    	  const memberNo = document.getElementById("member_no")?.value;
+
+	    	  if (voteNo && memberNo) {
+	    	    fetch(`/vote/${voteNo}/should-alert?memberNo=${memberNo}`)
+	    	      .then(res => {
+	    	        if (!res.ok) throw new Error("알림 확인 실패");
+	    	        return res.json();
+	    	      })
+	    	      .then(data => {
+	    	        if (data && data.shouldAlert) {
+	    	          showVoteAlertToast(data.title, data.senderName, data.message);
+	    	        }
+	    	      })
+	    	      .catch(err => {
+	    	        console.error("❌ checkClosed 실행 중 오류:", err);
+	    	      });
+	    	  }
+	    	}
+	  
 	  
 	</script>
 
