@@ -321,36 +321,18 @@ public class MemberService {
 	
 	
 	// 전자서명 저장
+	@Transactional(rollbackFor=Exception.class)
 	public int createSignatureApi(Long member_no, String signature) {
 		
 		int result = 0;
 		
 		try {
 			Member entity = repository.findById(member_no).orElse(null);
-			MemberDto memberDto = new MemberDto().toDto(entity);
-			memberDto.setSignature(signature);
-			
-			Member member = Member.builder()
-								.memberNo(memberDto.getMember_no())
-								.memberId(memberDto.getMember_id())
-								.memberPw(memberDto.getMember_pw())
-								.memberName(memberDto.getMember_name())
-								.memberBirth(memberDto.getMember_birth())
-								.memberGender(memberDto.getMember_gender())
-								.memberAddr1(memberDto.getMember_addr1())
-								.memberAddr2(memberDto.getMember_addr2())
-								.memberAddr3(memberDto.getMember_addr3())
-								.pos(Pos.builder().posNo(memberDto.getPos_no()).build())
-								.dept(Dept.builder().deptNo(memberDto.getDept_no()).build())
-								.role(Role.builder().roleNo(memberDto.getRole_no()).build())
-								.annualLeave(memberDto.getAnnual_leave())
-								.status(memberDto.getStatus())
-								.signature(signature)
-								.build();
-			
-			Member saved = repository.save(member);
-			
-			System.out.println(memberDto);
+			Member saved = null;
+			if(entity != null) {
+				entity.createAndUpdateSignature(signature);
+				saved = repository.save(entity);
+			}
 			
 			if(saved != null) {
 				result = 1;

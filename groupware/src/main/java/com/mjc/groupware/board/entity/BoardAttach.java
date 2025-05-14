@@ -37,8 +37,19 @@ public class BoardAttach {
 
     @Column(name = "mod_date")
     private LocalDateTime modDate;
+    
+    @Column(name = "board_attach_status")
+    private String boardAttachStatus; // 서버에서 사진 삭제
 
 	public URI getFile_path() {
 		return null;
+	}
+
+	public void setModDate(LocalDateTime now) {
+		
+	}
+
+	public void setBoardAttachStatus(String string) {
+		
 	}
 }

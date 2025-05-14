@@ -67,7 +67,10 @@
 				  <div class="row text-center small g-3 mb-3">
 				    <div class="col">
 				      <div class="border rounded p-2 bg-light-subtle">
-				        <div class="text-muted">출근</div>
+				        <div class="text-muted" id="work_in">
+							<span th:if="${todayAttendance != null}">출근</span>
+						    <span th:if="${todayAttendance == null}"></span>
+						</div>
 				        <th:block th:if="${todayAttendance == null}">
 				          <div id="checkInWrap">
 				            <button class="btn btn-sm btn-primary rounded-pill" onclick="startTime();">출근</button>
@@ -83,7 +86,10 @@
 				
 				    <div class="col">
 				      <div class="border rounded p-2 bg-light-subtle">
-				        <div class="text-muted">퇴근</div>
+				        <div id="work_out" class="text-muted">
+						  <span th:if="${todayAttendance != null and todayAttendance.check_out != null}">퇴근</span>
+						  <span th:if="${todayAttendance == null or todayAttendance.check_out == null}"></span>
+						</div>
 				        <th:block th:if="${todayAttendance == null}">
 				          <div id="checkOutWrap">
 				            <button id="end_time_btn" class="btn btn-sm btn-primary rounded-pill"
@@ -212,6 +218,7 @@
 						alert(data.res_msg);
 		
 						if (data.res_code === "200") {
+							document.getElementById('work_in').textContent = '출근';
 							document.getElementById("checkInWrap").innerHTML =
 								`<span id="start_time" class="fw-bold text-success">${data.attendance.checkIn}</span>`;
 		
@@ -336,6 +343,9 @@
 						alert(data.res_msg);
 
 						if (data.res_code === "200") {
+							
+							document.getElementById('work_out').textContent = '퇴근';
+							
 							document.getElementById("checkOutWrap").innerHTML =
 								`<span class="fw-bold text-success">${data.attendance.check_out}</span>`;
 
@@ -482,7 +492,7 @@
 	
 	<script>
 		// 출퇴근 조작 방지를 위해 한국 표준시간을 가져와서 사용
-	  /* document.addEventListener("DOMContentLoaded", function () {
+	  document.addEventListener("DOMContentLoaded", function () {
 	    async function fetchKoreanTimeAndRunClock() {
 	      try {
 	        const res = await fetch("https://timeapi.io/api/Time/current/zone?timeZone=Asia/Seoul");
@@ -515,12 +525,12 @@
 	    }
 	
 	    fetchKoreanTimeAndRunClock();
-	  }); */
+	  });
 	</script>
 
 	<script>
   		// 시간 임의로 변경하여 출퇴근 테스트 할 때 사용
-		  function updateTime() {
+		  /* function updateTime() {
 			    const now = new Date();
 			    const hours = String(now.getHours()).padStart(2, '0');
 			    const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -532,7 +542,7 @@
 			  document.addEventListener("DOMContentLoaded", function () {
 			    updateTime(); // 초기 실행
 			    setInterval(updateTime, 1000); // 1초마다 업데이트
-			  });
+			  }); */
 		  
 		  
 		  function getWeekRange(date) {

@@ -149,7 +149,11 @@ public class BoardService {
 
         List<Long> deleteFiles = boardDto.getDelete_files();
         if (deleteFiles != null && !deleteFiles.isEmpty()) {
+            // ✅ soft delete 처리
             boardAttachService.deleteFiles(deleteFiles);
+
+            // ✅ 엔티티 내부에서도 삭제된 첨부파일을 제거해줘야 반영됨 (메모리 반영)
+            board.getAttachList().removeIf(attach -> deleteFiles.contains(attach.getAttachNo()));
         }
 
         if (files != null && !files.isEmpty()) {
@@ -159,7 +163,7 @@ public class BoardService {
 
         return repository.save(board);
     }
-
+    
     @Transactional(rollbackFor = Exception.class)
     public void deleteBoard(Long boardNo) {
         Board board = repository.findById(boardNo)

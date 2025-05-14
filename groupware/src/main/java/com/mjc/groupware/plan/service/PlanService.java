@@ -3,13 +3,17 @@ package com.mjc.groupware.plan.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.plan.dto.PlanDto;
+import com.mjc.groupware.plan.dto.PlanLogDto;
 import com.mjc.groupware.plan.entity.Plan;
+import com.mjc.groupware.plan.entity.PlanLog;
+import com.mjc.groupware.plan.repository.PlanLogRepository;
 import com.mjc.groupware.plan.repository.PlanRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,19 +23,19 @@ import lombok.RequiredArgsConstructor;
 public class PlanService {
 
 	private final PlanRepository planRepository;
+	private final PlanLogRepository planLogRepository;
 //	private final MemberRepository memberRepository;
 
-	// 데이터베이스에 저장
+	// 일정 데이터베이스에 저장
 	public Plan savePlan(PlanDto dto) {
 		return planRepository.save(dto.toEntity());
 	}
 
-	// HTML리턴(페이지 이동용)- 목록뿌려주기
+	// 일정 전체 조회
 	public List<Plan> selectPlanAll() {
 		return planRepository.findAll();
 	}
 
-	// 달력에 db일정 뿌려주는 코드 - 목록뿌려주기
 	public List<Plan> selectAllPlans() {
 	    return planRepository.findAll();
 	}
@@ -51,6 +55,7 @@ public class PlanService {
 	}
 
 	// 상세모달창 수정
+	@Transactional
 	public Plan updatePlanOne(Long id, PlanDto dto) {
 	    Plan plan = planRepository.findById(id).orElse(null);
 	    if (plan == null) return null;
@@ -60,7 +65,7 @@ public class PlanService {
 	    plan.setPlanType(dto.getPlan_type());
 	    plan.setModDate(LocalDateTime.now()); // 수정일은 현재 시간으로 설정
 	    plan.setLastUpdateMember(dto.getLast_update_member());
-	    plan.setDelYn(dto.getDel_yn());
+	    plan.setDelYn("N");
 
 	    // 파싱 없이 바로 세팅
 	    if (dto.getStart_date() != null) {
@@ -71,7 +76,31 @@ public class PlanService {
 	        plan.setEndDate(dto.getEnd_date());
 	    }
 
-	    return planRepository.save(plan);
+	    Plan updated = planRepository.save(plan);
+	    savePlanLog(id,dto.getLast_update_member(),"수정");
+	    
+	    return updated;
+	}
+
+	@Transactional
+	public void savePlanLog(Long planId, Long memberNo, String actionType) {
+		if (planId == null || memberNo == null) {
+	        System.err.println("PlanLog 저장 실패: planId 또는 memberNo가 null입니다.");
+	        return;
+	    }
+	    PlanLog log = PlanLog.builder()
+	            .plan(Plan.builder().planNo(planId).build())
+	            .member(Member.builder().memberNo(memberNo).build())
+	            .actionType(actionType)
+	            .build();
+
+	    planLogRepository.save(log);
+	}
+	
+	public List<PlanLogDto> getLogsByPlanId(Long planId) {
+	    return planLogRepository.findByPlan_PlanNo(planId).stream()
+	            .map(log -> new PlanLogDto().toDto(log))
+	            .collect(Collectors.toList());
 	}
 
 	// 상세모달 수정 권한체크
@@ -92,12 +121,13 @@ public class PlanService {
 	    	Plan target = planRepository.findById(id).orElse(null);
 	    	target.setLastUpdateMember(memberId);
 	    	planRepository.save(target);
-	    	
-	    	target = planRepository.findById(id).orElse(null);
-	    	
+
 	        if (target != null) {
-	            target.setDelYn("Y"); // del_yn 값을 'Y'로 변경
-	            planRepository.save(target); // 수정된 내용 저장
+	            target.setDelYn("Y");
+	            planRepository.save(target);
+
+	            // 삭제 로그 저장
+	            savePlanLog(id, memberId, "삭제");
 	            result = 1;
 	        }
 	    } catch (Exception e) {

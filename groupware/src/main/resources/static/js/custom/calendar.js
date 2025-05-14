@@ -191,12 +191,48 @@ document.addEventListener("DOMContentLoaded", function () {
 	// 달력에 있는 일정클릭시 상세모달창open 및 db데이터 화면에 출력
 	eventClick:function(info){
 		// 본인일정과 본인이 속한 부서의 일정만 수정,삭제 가능하게
+		
 		const calendarEl = document.getElementById("calendar");
+		const currentMemberNo = parseInt(calendarEl.dataset.memberNo);
+		const currentDeptNoRaw = calendarEl.dataset.deptNo;
+		const currentDeptNo = isNaN(parseInt(currentDeptNoRaw)) ? null : parseInt(currentDeptNoRaw);
+
+		// 🔥 안전하게 regMemberNo, eventDeptNo 파싱
+		const rawRegMemberNo = info.event.extendedProps.regMemberNo;
+		const regMemberNo = isNaN(parseInt(rawRegMemberNo)) ? null : parseInt(rawRegMemberNo);
+
+		const eventDeptNoRaw = info.event.extendedProps.deptNo;
+		const eventDeptNo = isNaN(parseInt(eventDeptNoRaw)) ? null : parseInt(eventDeptNoRaw);
+
+		console.log("currentMemberNo:", currentMemberNo);
+		console.log("regMemberNo:", regMemberNo);
+		console.log("currentDeptNo:", currentDeptNo);
+		console.log("eventDeptNo:", eventDeptNo);
+
+		// 버튼
+		const btnDeleteEvent = document.getElementById('btn-delete-event');
+		const btnUpdateEvent = document.getElementById('btn-update-event');
+
+		if (btnDeleteEvent && btnUpdateEvent) {
+		  const isSameMember = currentMemberNo !== null && regMemberNo !== null && currentMemberNo === regMemberNo;
+		  const isSameDept = currentDeptNo !== null && eventDeptNo !== null && currentDeptNo === eventDeptNo;
+
+		  if (isSameMember || isSameDept) {
+		    btnDeleteEvent.style.display = 'inline-block';
+		    btnUpdateEvent.style.display = 'inline-block';
+		  } else {
+		    btnDeleteEvent.style.display = 'none';
+		    btnUpdateEvent.style.display = 'none';
+		  }
+		}
+
+		
+		/*const calendarEl = document.getElementById("calendar");
 		if (!calendarEl) {
 		        console.error("#calendar 요소를 찾을 수 없습니다.");
 		        return;
 		    }
-			const currentMemberNo = parseInt(calendarEl.dataset.memberNo);  // 로그인한 사용자의 memberNo
+				const currentMemberNo = parseInt(calendarEl.dataset.memberNo);  // 로그인한 사용자의 memberNo
 			    const currentDeptNo = parseInt(calendarEl.dataset.deptNo);  // 로그인한 사용자의 deptNo
 
 			    const regMemberNo = info.event.extendedProps.regMemberNo;  // 일정 등록자 (작성자) memberNo
@@ -215,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			            btnDeleteEvent.style.display = 'none'; // 숨기기
 			            btnUpdateEvent.style.display = 'none';
 			        }
-			    }
+			    }*/
 		//
 		const eventId = info.event.id;
 		getEvent = info.event;
@@ -235,7 +271,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			
 			// 고정값
 			document.getElementById("detail-event-id").value = data.plan_id;
-			document.getElementById("detail-event-writer").value = `${data.member_name} (${data.dept_name})`;
+			const deptName = data.dept_name ? data.dept_name : "미배정";
+			document.getElementById("detail-event-writer").value = `${data.member_name} (${deptName})`;
 			document.getElementById("detail-event-created-date").value = data.reg_date;
 			/*document.getElementById("detail-event-modified-date").value = data.mod_date;*/
 			// 수정가능값
@@ -262,45 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				`;*/
 		  })
 		  .catch(err => console.error("디테일 로딩 실패", err));
-	},
-	// 이미 추가된 일정을 다른날로 드래그해서 이동
-	/*eventDrop: function(info) {
-	  const movedEvent = info.event;
-
-	  const planId = movedEvent.id;
-	  const newStartDate = movedEvent.start.toISOString().slice(0, 10);
-	  const newEndDate = movedEvent.end
-	    ? movedEvent.end.toISOString().slice(0, 10)
-	    : newStartDate;
-
-	  fetch("/plan/" + planId + "/update", {
-	    method: "POST",
-	    headers: {
-	      "Content-Type": "application/json",
-	      "header": document.querySelector('meta[name="_csrf_header"]').content,
-	      "X-CSRF-Token": document.querySelector('meta[name="_csrf"]').content,
-	    },
-	    body: JSON.stringify({
-	      id: planId,
-	      startDate: newStartDate,
-	      endDate: newEndDate
-	    }),
-	  })
-	    .then((res) => res.json())
-	    .then((data) => {
-	      if (data.res_code === "200") {
-	        alert("일정 날짜가 수정되었습니다.");
-	      } else {
-	        alert("일정 수정 실패: " + data.res_msg);
-	        info.revert(); // 서버 저장 실패 시 되돌리기
-	      }
-	    })
-	    .catch((err) => {
-	      console.error("드래그 날짜 이동 실패", err);
-	      alert("서버 오류 발생. 다시 시도해 주세요.");
-	      info.revert(); // 에러 발생 시 되돌리기
-	    });
-	},*/
+	  },
     select: calendarSelect,
     unselect: function () {
       console.log("unselected");
@@ -322,10 +321,15 @@ document.addEventListener("DOMContentLoaded", function () {
 	// 일정바앞 부서명 넣어주는 코드
 	eventContent: function(arg) {
 	   const planType = arg.event.extendedProps.planType;
-	   const department = arg.event.extendedProps.deptName || "";
+	   let department = arg.event.extendedProps.deptName || "";
 	   const title = arg.event.title;
 		console.log("부서 확인 : ", arg.event.extendedProps.deptName);
 	   
+		// department가 null, undefined, 빈 문자열일 경우 "미배정"으로 대체
+		if(!department || department.trim() === ""){
+			department ="미배정";
+		}
+		
 		// 부서 일정일 때만 부서명을 앞에 붙임
 		   const displayTitle = (planType === "부서" || planType ==='휴가')
 		     ? `<strong>[${department}]</strong> ${title}`

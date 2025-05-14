@@ -15,4 +15,7 @@ public interface BoardAttachRepository extends JpaRepository<BoardAttach, Long> 
 
 	List<BoardAttach> findByBoard(Board board);
 	
+    // ✅ 유효한 첨부파일만 조회 (Soft Delete 제외)
+    List<BoardAttach> findByBoardAndBoardAttachStatus(Board board, String boardAttachStatus);
+	
 }
