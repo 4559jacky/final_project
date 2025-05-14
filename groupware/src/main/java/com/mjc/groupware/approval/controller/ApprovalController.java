@@ -59,7 +59,7 @@ public class ApprovalController {
 		
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
 		model.addAttribute("formList", resultList);
-		return "/approval/admin/approvalManagement";
+		return "approval/admin/approvalManagement";
 	}
 	
 	// 결재 양식 생성 페이지로 이동
