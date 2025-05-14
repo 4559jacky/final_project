@@ -119,25 +119,15 @@ public class BoardController {
         model.addAttribute("board", board);
         model.addAttribute("attachList", boardAttachService.selectAttachList(boardNo));
 
-        List<ReplyDto> allReplies = replyService.getHierarchicalRepliesByBoardNo(boardNo);
-
-        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5); // 실제 페이징 사용
+        List<ReplyDto> initialReplies = replyService.getRepliesByBoardPaged(boardNo, 0, 5);
         model.addAttribute("replyList", initialReplies);
         model.addAttribute("hasMoreReplies", initialReplies.size() == 5);
 
-        // ✅ 투표가 있을 경우 마감 체크 + 알림 전송 2025-05-14(수요일)
+        // ✅ 투표가 있을 경우 마감 여부만 체크 (알림 전송은 제외)
         if (board.getVote() != null) {
-            Long voteNo = board.getVote().getVoteNo();
-
-            // 마감되었으면 알림 전송
-            if (voteService.isVoteClosed(voteNo)) {
-                voteService.closeVoteAndNotify(voteNo);
-            }
-
             model.addAttribute("vote", board.getVote());
             model.addAttribute("voteOptions", board.getVote().getVoteOptions());
 
-            // ✅ 마감 여부 - Asia/Seoul 시간 기준
             boolean isVoteClosed = board.getVote().getEndDate()
                 .isBefore(java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Seoul")));
             model.addAttribute("isVoteClosed", isVoteClosed);
