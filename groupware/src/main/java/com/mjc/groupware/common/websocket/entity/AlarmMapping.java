@@ -1,6 +1,5 @@
 package com.mjc.groupware.common.websocket.entity;
 
-import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.member.entity.Member;
 
 import groovy.transform.ToString;
@@ -42,7 +41,11 @@ public class AlarmMapping {
 	@Column(name="read_yn")
 	private String readYn;
 	
-	@Column(name="delete_yn")
-	private String deleteYn;
+//	@Column(name="delete_yn")
+//	private String deleteYn;
+	
+	public void updateReadYn(String status) {
+		this.readYn = status;
+	}
 	
 }
