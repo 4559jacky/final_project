@@ -345,6 +345,7 @@ public class MemberService {
 								.role(Role.builder().roleNo(memberDto.getRole_no()).build())
 								.annualLeave(memberDto.getAnnual_leave())
 								.status(memberDto.getStatus())
+								.regDate(memberDto.getReg_date())
 								.signature(signature)
 								.build();
 			
