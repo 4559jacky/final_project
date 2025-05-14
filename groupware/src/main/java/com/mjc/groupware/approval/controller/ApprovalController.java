@@ -240,7 +240,7 @@ public class ApprovalController {
 	}
 	
 	@GetMapping("/approval/receive/detail/{id}")
-	public String receiveApprovalDetailView(@PathVariable("id") Long id, Model model) {
+	public String receiveApprovalDetailView(@PathVariable("id") Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
 		
 	    Approval approval = service.selectApprovalOneByApprovalNo(id);
 	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
@@ -248,6 +248,12 @@ public class ApprovalController {
 	    List<ApprReferencer> referencerList = service.selectApprReferencerAllByApprovalNo(id);
 	    
 	    List<ApprovalAttach> attachList= approvalAttachService.findByApproval(approval);
+	    
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+	    model.addAttribute("member", member);
 	    
 	    model.addAttribute("approval", approval);
 	    model.addAttribute("attachList", attachList);

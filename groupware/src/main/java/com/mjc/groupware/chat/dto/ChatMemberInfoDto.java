@@ -20,4 +20,5 @@ public class ChatMemberInfoDto {
     private String positionName;
     private String departmentName;
     private String memberStatus;
+    private String profile_img_path;
 }

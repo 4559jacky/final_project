@@ -61,7 +61,7 @@
 		<div class="container-fluid px-4">
 			<div class="card p-4 shadow-sm border-0 rounded-4 mb-4">
 				<input type="hidden" name="memberNo" id="memberNo"
-					th:value="${#authentication.principal.member.memberNo}"> <input
+					th:value="${member.memberNo}"> <input
 					type="hidden" name="approvalNo" id="approvalNo"
 					th:value="${approval.apprNo}">
 				<h4 id="approval_form_name" class="fw-bold text-center mb-4"
@@ -247,7 +247,7 @@
 					<!-- 결재자 - 결재를 안했을 때 -->
 					<th:block th:each="approver : ${approverList}">
 						<th:block
-							th:if="${approver.member.memberNo == #authentication.principal.member.memberNo}">
+							th:if="${approver.member.memberNo == member.memberNo}">
 							<th:block th:if="${approver.approverDecisionStatus == 'W'}">
 								<div class="d-flex justify-content-end gap-2">
 									<button class="btn btn-primary px-4" onclick="approval();">승인</button>
@@ -261,7 +261,7 @@
 					<!-- 합의자 - 합의를 안했을 때 -->
 					<th:block th:each="agreementer : ${agreementerList}">
 						<th:block
-									th:if="${agreementer.member.memberNo == #authentication.principal.member.memberNo}">
+									th:if="${agreementer.member.memberNo == member.memberNo}">
 						<th:block th:if="${agreementer.agreementerAgreeStatus == 'W'}">
 								<div class="d-flex justify-content-end gap-2">
 									<button class="btn btn-primary px-4" onclick="agree();">수락</button>

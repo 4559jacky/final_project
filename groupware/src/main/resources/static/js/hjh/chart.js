@@ -1,6 +1,16 @@
+let usageChart = null; // 전역에 저장해서 destroy 가능하게
+
 function loadUsageChart() {
   const chartArea = document.querySelector("#chart-pie-simple");
   if (!chartArea) return;
+
+  // ✅ 기존 차트 제거
+  if (usageChart) {
+    usageChart.destroy();
+    usageChart = null;
+  }
+
+  // 🔄 chartArea 초기화
   chartArea.innerHTML = "";
 
   fetch(`/shared/trash/usage?type=${window.currentType || 'personal'}`)
@@ -32,23 +42,23 @@ function loadUsageChart() {
         ],
         stroke: {
           show: true,
-          colors: ["rgb(255, 255, 255)"], // ✅ 조각 경계선 흰색
+          colors: [isDark ? "#1e1e1e" : "#ffffff"],  // 테마별 조각 경계선
           width: 2
         },
-		dataLabels: {
-		  enabled: true,
-		  style: {
-		    fontSize: "13px",
-		    fontWeight: "bold",
-		    colors: ["#fff"]  // 밝은 색으로 덮기
-		  },
-		  dropShadow: {
-		    enabled: false
-		  },
-		  background: {
-		    enabled: false
-		  }
-		},
+        dataLabels: {
+          enabled: true,
+          style: {
+            fontSize: "13px",
+            fontWeight: "bold",
+            colors: [isDark ? "#fff" : "#000"]
+          },
+          dropShadow: {
+            enabled: false
+          },
+          background: {
+            enabled: false
+          }
+        },
         legend: {
           position: "bottom",
           horizontalAlign: "center",
@@ -56,23 +66,19 @@ function loadUsageChart() {
           labels: {
             useSeriesColors: true
           }
-        },
-        tooltip: {
-          
         }
-      
       };
 
-      const chart = new ApexCharts(chartArea, chartOptions);
-      chart.render();
+      // ✅ 전역에 저장해서 destroy 가능하도록
+      usageChart = new ApexCharts(chartArea, chartOptions);
+      usageChart.render();
 
-	  const toMB = (val) => (val / 1048576).toFixed(2);
+      const toMB = (val) => (val / 1048576).toFixed(2);
 
-	  document.getElementById("total-size").textContent = `${toMB(active + trash + remain)}MB`;
-	  document.getElementById("active-size").textContent = `${toMB(active)}MB`;
-	  document.getElementById("trash-size").textContent = `${toMB(trash)}MB`;
-	  document.getElementById("remain-size").textContent = `${toMB(remain)}MB`;
-
+      document.getElementById("total-size").textContent = `${toMB(active + trash + remain)}MB`;
+      document.getElementById("active-size").textContent = `${toMB(active)}MB`;
+      document.getElementById("trash-size").textContent = `${toMB(trash)}MB`;
+      document.getElementById("remain-size").textContent = `${toMB(remain)}MB`;
     })
     .catch(err => {
       console.error("📉 차트 로딩 실패:", err);

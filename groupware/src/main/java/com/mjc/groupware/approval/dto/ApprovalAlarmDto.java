@@ -14,10 +14,13 @@ import lombok.ToString;
 @ToString
 @Builder
 public class ApprovalAlarmDto {
-	private Long approvalNo;
+	private Long alarmNo;
     private String title;
     private String message;
     private Long receiverNo;
     private Long senderNo;
     private String senderName;
+    private String alarmType;
+    private Long otherPkNo;
+    private Long approvalMemberNo;
 }
