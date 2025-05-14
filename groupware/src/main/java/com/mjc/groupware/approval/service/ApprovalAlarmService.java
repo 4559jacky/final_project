@@ -28,10 +28,12 @@ public class ApprovalAlarmService {
 	@Transactional(rollbackFor=Exception.class)
 	public void sendAlarmToMembers(List<Long> memberNos, Approval approval, String message) {
         ApprovalAlarmDto dto = ApprovalAlarmDto.builder()
-                .approvalNo(approval.getApprNo())
                 .title("전자결재 알람")
                 .message(message)
                 .senderName(approval.getMember().getMemberName())
+                .alarmType("approval")
+                .alarmPkNo(approval.getApprNo())
+                .approvalMemberNo(approval.getMember().getMemberNo())
                 .build();
         
         Alarm alarm = Alarm.builder()
