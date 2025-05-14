@@ -142,6 +142,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    stompClient.subscribe("/topic/chat/unread", (message) => {
 		      const dto = JSON.parse(message.body);
 	
+		    	 
 		      if (typeof onUnreadMessage === "function") {
 		        onUnreadMessage(dto);
 		      }
@@ -248,7 +249,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			    link.innerHTML = `
 			      <div class="w-100">
 			        <h6 class="mb-0 fs-4 lh-base">${dto.chat_room_title || "채팅방"}</h6>
-			        <span class="fs-3 d-block text-body-secondary">${dto.member_name} : ${dto.chat_msg_content || "새로운 메시지"}</span>
+			        <span class="fs-3 d-block text-body-secondary">${dto.member_name} : ${dto.chat_alarm_content || "새로운 메시지"}</span>
 			      </div>
 			    `;
 
@@ -350,7 +351,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				    list.forEach(alarm => {
 				      const chatRoomName = alarm.chat_room_name || "채팅방";
 				      const sender = `${alarm.sender_name || ''} ${alarm.sender_pos_name || ''}`;
-				      const content = alarm.chat_msg_content || "새로운 메시지가 도착했습니다.";
+				      const content = alarm.chat_alarm_content || "새로운 메시지가 도착했습니다.";
 
 				      const link = document.createElement("a");
 				      link.href = "javascript:void(0)";
