@@ -17,5 +17,7 @@ public class ApprovalAlarmDto {
 	private Long approvalNo;
     private String title;
     private String message;
+    private Long receiverNo;
+    private Long senderNo;
     private String senderName;
 }

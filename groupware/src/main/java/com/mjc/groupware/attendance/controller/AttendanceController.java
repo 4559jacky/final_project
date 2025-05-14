@@ -23,17 +23,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.HolidayDto;
 import com.mjc.groupware.attendance.dto.MemberAttendanceDto;
 import com.mjc.groupware.attendance.dto.SearchDto;
 import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
 import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
 import com.mjc.groupware.attendance.entity.Attendance;
+import com.mjc.groupware.attendance.entity.Holiday;
 import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
+import com.mjc.groupware.attendance.repository.HolidayRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
 import com.mjc.groupware.attendance.service.AttendanceService;
+import com.mjc.groupware.attendance.service.HolidayService;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.MemberDto;
@@ -65,6 +69,8 @@ public class AttendanceController {
 	private final MemberRepository memberRepository;
 	private final AttendanceRepository attendanceRepository;
 	private final PlanService planService;
+	private final HolidayRepository holidayRepository;
+	private final HolidayService holidayService;
 	
 	@GetMapping("/attendance/management")
 	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
@@ -147,10 +153,11 @@ public class AttendanceController {
 		List<Dept> deptList = deptService.selectDeptAll();
 		List<Pos> posList = posService.selectPosAll();
 		List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+//		List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
 		
 		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 	    model.addAttribute("today", today);
-		
+//		model.addAttribute("holidayList", holidayList);
 		model.addAttribute("memberList", memberList);
 		model.addAttribute("deptList", deptList);
 		model.addAttribute("posList", posList);
@@ -159,6 +166,34 @@ public class AttendanceController {
 		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
 		
 		return "attendance/admin/annualLeaveManagement";
+	}
+	
+	@GetMapping("/holiday")
+	@ResponseBody
+	public List<Holiday> holidayPolicyViewApi() {
+		List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+		return holidayList;
+	}
+	
+	@PostMapping("/holiday/create")
+	@ResponseBody
+	public Map<String,Object> holidayCreateApi(HolidayDto holidayDto) {
+		Map<String,Object> resultMap = holidayService.holidayCreateApi(holidayDto);
+		return resultMap;
+	}
+	
+	@PostMapping("/holiday/update")
+	@ResponseBody
+	public Map<String,Object> holidayUpdateApi(HolidayDto holidayDto) {
+		Map<String,Object> resultMap = holidayService.holidayUpdateApi(holidayDto);
+		return resultMap;
+	}
+	
+	@DeleteMapping("/holiday/delete/{id}")
+	@ResponseBody
+	public Map<String,Object> holidayDeleteApi(@PathVariable("id") Long id) {
+		Map<String,Object> resultMap = holidayService.holidayDeleteApi(id);
+		return resultMap;
 	}
 	
 	

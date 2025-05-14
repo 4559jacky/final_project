@@ -217,7 +217,7 @@ layout:decorate="~{include/layout :: layout}">
 			    const priceInput = document.getElementById("price");
 			    const price = priceInput.value.replace(/,/g, '').trim(); // 쉼표 제거 후 값 추출
 
-			    // ✅ 유효성 검사
+			    // 유효성 검사
 			    if (!name || content === '<p><br></p>') {
 			        alert("숙소명과 내용을 모두 입력하세요.");
 			        return;

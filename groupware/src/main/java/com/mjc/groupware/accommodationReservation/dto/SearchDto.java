@@ -19,4 +19,7 @@ public class SearchDto {
 	private String accommodation_address;
 	private String room_price_sort;
 	private String accommodation_type;
+	private String search_type;
+	private String search_text;
+	private String reg_date_sort;
 }

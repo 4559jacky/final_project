@@ -10,5 +10,9 @@ import com.mjc.groupware.attendance.entity.Holiday;
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
     boolean existsByDate(LocalDate date);
     
+    boolean existsByNameAndDate(String name, LocalDate date);
+    
     List<Holiday> findByDateBetween(LocalDate start, LocalDate end);
+    
+    List<Holiday> findAllByOrderByDateAsc();
 }
