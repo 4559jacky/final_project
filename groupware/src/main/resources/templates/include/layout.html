@@ -199,7 +199,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
 		    	    const dto = JSON.parse(msg.body);
 		    	    console.log("전자결재 알림 도착:", dto);
-		    	    showApprovalAlertToast(dto);
+		    	    showApprovalAlertToast(myNo, dto);
 		      });
 		   	  
 		   	  // 투표 마감 알림 2025-05-14(수요일)
@@ -220,7 +220,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		//////////////////////////////////////////////////////전자 결재  알림 모달  //////////////////////////////////////////////////////////////////////////////
 		 
 		// 전자결재 알림 토스트 모달
-		function showApprovalAlertToast(dto) {
+		function showApprovalAlertToast(myNo, dto) {
 	
 		    const wrapper = document.getElementById("approval-alert-toast");
 		    if (!wrapper) return;
@@ -232,6 +232,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		    // 모달 표시
 		    wrapper.classList.remove("d-none");
+		    
+		    setTimeout(() => {
+			    prependOtherAlarmToDropdown(myNo, dto);
+			}, 100);
 		
 		    // 자동 닫기 (5초 후)
 		    setTimeout(() => {
@@ -425,7 +429,93 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				}
 
 		  });
+		//////////////////////////////////// 다른 알람 헤더에 적용 /////////////////////////////////////////
+		
+		// 채팅 헤더 알림 실시간 반영 
+		function prependOtherAlarmToDropdown(myNo, dto) {
+			  const dropdowns = document.querySelectorAll(".alarm-message-body");
+			  if (!dropdowns.length) return;
 
+			  dropdowns.forEach(dropdown => {
+			    dropdown.style.display = "block";
+
+			    const link = document.createElement("a");
+			    link.href = "javascript:void(0)";
+			    link.classList.add("dropdown-alarm", "py-6", "px-7", "d-flex", "align-items-center");
+			    link.setAttribute("data-type", dto.alarmType);
+			    link.setAttribute("data-no", dto.alarmPkNo);
+			    link.setAttribute("data-memberNo", dto.approvalMemberNo);
+			    
+			    let nowMemberNo = document.getElementById('member_no').value;
+			    let approvalMemberNo = dto.approvalMemberNo;
+			    console.log("🔍 현재 유저:", nowMemberNo, "결재올린 유저:", approvalMemberNo);
+				console.log("=== 결과:", parseInt(nowMemberNo) === parseInt(approvalMemberNo));
+
+			    link.innerHTML = `
+			      <div class="w-100">
+			        <h6 class="mb-0 fs-4 lh-base">${dto.title || "전자결재"}</h6>
+			        <span class="fs-3 d-block text-body-secondary">${dto.message || "새로운 메시지"}</span>
+			      </div>
+			    `;
+
+			    dropdown.prepend(link);
+			  });
+			}
+		
+		document.addEventListener("DOMContentLoaded", () => {
+			// 알림 클릭 시 채팅방 이동 
+			document.addEventListener("click", function (e) {
+				let alarm = e.target;
+
+			  while (alarm && !alarm.classList.contains("dropdown-alarm")) {
+			    alarm = alarm.parentElement;
+			  }
+
+			  if (!alarm) return;
+
+			  const type = alarm.dataset.type;
+			  const no = alarm.dataset.no;
+			  const memberNo = parseInt(alarm.dataset.memberno, 10);
+			  const nowMemberNo = parseInt(document.getElementById('member_no').value, 10);
+			  
+			  if(memberNo === nowMemberNo) {
+				  if (type && no) {
+					    switch (type) {
+					      case "approval":
+					        window.location.href = `/approval/send/detail/${no}`;
+					        break;
+					      case "notice":
+					        window.location.href = `/notice/detail/${no}`;
+					        break;
+					      case "board":
+					        window.location.href = `/board/detail/${no}`;
+					        break;
+					      default:
+					        console.warn("알 수 없는 알림 타입:", type);
+					    }
+				  }
+			  } else {
+				  if (type && no) {
+					    switch (type) {
+					      case "approval":
+					        window.location.href = `/approval/receive/detail/${no}`;
+					        break;
+					      case "notice":
+					        window.location.href = `/notice/detail/${no}`;
+					        break;
+					      case "board":
+					        window.location.href = `/board/detail/${no}`;
+					        break;
+					      default:
+					        console.warn("알 수 없는 알림 타입:", type);
+					    }
+				  }
+			  }
+			
+			  
+			});
+
+		  });
 
 	</script>
 
