@@ -103,6 +103,7 @@ public class SharedFileService {
 	            map.put("id", folder.getFolderNo());
 	            map.put("name", folder.getFolderName());
 	            map.put("regDate", folder.getRegDate());
+	            map.put("deptNo", folder.getDept() != null ? folder.getDept().getDeptNo() : null); // ✅ 추가
 	            list.add(map);
 	        }
 
@@ -166,6 +167,7 @@ public class SharedFileService {
 	            map.put("id", folder.getFolderNo());
 	            map.put("name", folder.getFolderName());
 	            map.put("regDate", folder.getRegDate());
+	            map.put("deptNo", folder.getDept() != null ? folder.getDept().getDeptNo() : null); // ✅ 추가
 	            list.add(map);
 	        }
 

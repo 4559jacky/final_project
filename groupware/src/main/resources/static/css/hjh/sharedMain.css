@@ -54,4 +54,10 @@
   display: table-cell;
 }
 
+#shared-tree {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: nowrap;
+} 
 
