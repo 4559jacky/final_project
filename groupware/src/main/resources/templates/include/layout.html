@@ -589,20 +589,25 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 		  });
 		// --------------------------------투표 마감 알림--------------------------------------------------------
-		// ✅ 모든 페이지에서 마감 투표 알림 요청
-		stompClient.send("/app/vote/register", {}, JSON.stringify({ memberNo: myNo }));
+        // ✅ 모든 페이지에서 마감 투표 알림 등록 요청
+    stompClient.send("/app/vote/register", {}, JSON.stringify({ memberNo: myNo }));
 
-		// ✅ 투표 마감 알림은 무조건 구독 (모든 페이지)
-		if (myNo) {
-  			stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
-    		const dto = JSON.parse(msg.body);
-    		console.log("📢 투표 마감 알림 수신:", dto);
-    		showVoteAlertToast(dto.title, dto.senderName, dto.message, dto.voteNo); // ✅ voteNo도 전달
-  		});
-	}
+    // ✅ 마감 투표 알림 수신 구독
+    if (myNo) {
+      stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
+        const dto = JSON.parse(msg.body);
+        console.log("📢 투표 마감 알림 수신:", dto);
+        showVoteAlertToast(dto.title, dto.senderName, dto.message, dto.boardNo); // ✅ boardNo 사용
+      });
+    }
 
-// ✅ 토스트 알림 + 드롭다운 표시 함수
-function showVoteAlertToast(title, senderName, msg, voteNo) {
+    // ✅ 새로고침 시 마감 투표 알림 확인
+    checkClosed();
+
+/**
+ * 🟡 투표 마감 토스트 알림 + 헤더 드롭다운 추가
+ */
+function showVoteAlertToast(title, senderName, msg, boardNo) {
   const wrapper = document.getElementById("vote-alert-toast");
   if (!wrapper) return;
 
@@ -615,22 +620,25 @@ function showVoteAlertToast(title, senderName, msg, voteNo) {
   void wrapper.offsetWidth;
   wrapper.classList.add("active");
 
-  // ✅ 헤더 드롭다운에도 추가
-  if (voteNo) {
+  // 🧩 헤더 종 모양 드롭다운 알림 추가
+  if (boardNo) {
     prependOtherAlarmToDropdown({
-      voteNo,
+      boardNo,
       title,
       senderName,
       message: msg
     });
   }
 
+  // 🕐 자동 숨김
   setTimeout(() => {
     wrapper.classList.add("d-none");
   }, 5000);
 }
 
-// ✅ 헤더 종 모양 알림에 추가
+/**
+ * 🛎️ 헤더 드롭다운에 투표 마감 알림 추가
+ */
 function prependOtherAlarmToDropdown(dto) {
   const dropdowns = document.querySelectorAll(".other-message-body");
   if (!dropdowns.length) return;
@@ -639,7 +647,7 @@ function prependOtherAlarmToDropdown(dto) {
     dropdown.style.display = "block";
 
     const link = document.createElement("a");
-    link.href = `/board/detail/${dto.voteNo}`;
+    link.href = `/board/detail/${dto.boardNo}`; // ✅ 게시글 상세 링크 - 수정해야함
     link.classList.add("dropdown-item", "py-6", "px-7", "d-flex", "align-items-center");
 
     link.innerHTML = `
@@ -653,7 +661,9 @@ function prependOtherAlarmToDropdown(dto) {
   });
 }
 
-// ✅ 새로고침 시 마감 투표 알림 확인
+/**
+ * 🔁 새로고침 시 마감 투표 알림 표시 여부 확인
+ */
 function checkClosed() {
   const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
   const memberNo = document.getElementById("member_no")?.value;
@@ -666,7 +676,7 @@ function checkClosed() {
       })
       .then(data => {
         if (data && data.shouldAlert) {
-          showVoteAlertToast(data.title, data.senderName, data.message, voteNo); // ✅ voteNo도 전달
+          showVoteAlertToast(data.title, data.senderName, data.message, data.boardNo); // ✅ boardNo 사용
         }
       })
       .catch(err => {
@@ -674,7 +684,6 @@ function checkClosed() {
       });
   }
 }
-
 	</script>
 
 </body>
