@@ -90,26 +90,26 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 	
 	
-	<!-- 🗳️ 투표 마감 알림 토스트 2025-05-14(수요일)-->
-	<div id="vote-alert-toast" class="d-none" style="
-  		position: fixed;
-  		bottom: 30px;
-  		right: 30px;
-  		background: #fffbe6;
-  		border: 2px solid #ffc107;
-  		padding: 24px 28px;
-  		z-index: 99999;
-  		border-radius: 14px;
-  		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  		font-size: 1.1rem;
-  		line-height: 1.6rem;
-  		width: 340px;
-  		max-width: 90%;">
-  	<strong style="font-size: 1.2rem;">[투표 마감]</strong><br>
-  	<span id="vote-toast-title" style="font-weight: bold; font-size: 1.15rem;">투표 제목</span><br>
-  	<span id="vote-toast-sender" style="color: #333;">작성자</span><br>
-  	<span id="vote-toast-msg">마감 메시지</span>
-	</div>
+<!-- 🗳️ 투표 마감 알림 토스트 -->
+<div id="vote-alert-toast" class="d-none" style="
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #fffbe6;
+  border: 2px solid #ffc107;
+  padding: 24px 28px;
+  z-index: 99999;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 1.1rem;
+  line-height: 1.6rem;
+  width: 340px;
+  max-width: 90%;">
+  <strong style="font-size: 1.2rem;">[투표 마감]</strong><br>
+  <span id="vote-toast-title" style="font-weight: bold; font-size: 1.15rem;">투표 제목</span><br>
+  <span id="vote-toast-sender" style="color: #333;">작성자</span><br>
+  <span id="vote-toast-msg">마감 메시지</span>
+</div>
 	
 
 	<!-- Common JS Files -->
@@ -591,102 +591,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				}
 
 		  });
-		// --------------------------------투표 마감 알림--------------------------------------------------------
-        // ✅ 모든 페이지에서 마감 투표 알림 등록 요청
-    stompClient.send("/app/vote/register", {}, JSON.stringify({ memberNo: myNo }));
 
-    // ✅ 마감 투표 알림 수신 구독
-    if (myNo) {
-      stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
-        const dto = JSON.parse(msg.body);
-        console.log("📢 투표 마감 알림 수신:", dto);
-        showVoteAlertToast(dto.title, dto.senderName, dto.message, dto.boardNo); // ✅ boardNo 사용
-      });
-    }
-
-    // ✅ 새로고침 시 마감 투표 알림 확인
-    checkClosed();
-
-/**
- * 🟡 투표 마감 토스트 알림 + 헤더 드롭다운 추가
- */
-function showVoteAlertToast(title, senderName, msg, boardNo) {
-  const wrapper = document.getElementById("vote-alert-toast");
-  if (!wrapper) return;
-
-  document.getElementById("vote-toast-title").textContent = title || "투표 마감";
-  document.getElementById("vote-toast-sender").textContent = senderName || "";
-  document.getElementById("vote-toast-msg").textContent = msg || "투표가 마감되었습니다.";
-
-  wrapper.classList.remove("d-none");
-  wrapper.classList.remove("active");
-  void wrapper.offsetWidth;
-  wrapper.classList.add("active");
-
-  // 🧩 헤더 종 모양 드롭다운 알림 추가
-  if (boardNo) {
-    prependOtherAlarmToDropdown({
-      boardNo,
-      title,
-      senderName,
-      message: msg
-    });
-  }
-
-  // 🕐 자동 숨김
-  setTimeout(() => {
-    wrapper.classList.add("d-none");
-  }, 5000);
-}
-
-/**
- * 🛎️ 헤더 드롭다운에 투표 마감 알림 추가
- */
-function prependOtherAlarmToDropdown(dto) {
-  const dropdowns = document.querySelectorAll(".other-message-body");
-  if (!dropdowns.length) return;
-
-  dropdowns.forEach(dropdown => {
-    dropdown.style.display = "block";
-
-    const link = document.createElement("a");
-    link.href = `/board/detail/${dto.boardNo}`; // ✅ 게시글 상세 링크 - 수정해야함
-    link.classList.add("dropdown-item", "py-6", "px-7", "d-flex", "align-items-center");
-
-    link.innerHTML = `
-      <div class="w-100">
-        <h6 class="mb-0 fs-4 lh-base">[투표 마감]</h6>
-        <span class="fs-3 d-block text-body-secondary">${dto.senderName} : ${dto.message}</span>
-      </div>
-    `;
-
-    dropdown.prepend(link);
-  });
-}
-
-/**
- * 🔁 새로고침 시 마감 투표 알림 표시 여부 확인
- */
-function checkClosed() {
-  const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
-  const memberNo = document.getElementById("member_no")?.value;
-
-  if (voteNo && memberNo) {
-    fetch(`/vote/${voteNo}/should-alert?memberNo=${memberNo}`)
-      .then(res => {
-        if (!res.ok) throw new Error("알림 확인 실패");
-        return res.json();
-      })
-      .then(data => {
-        if (data && data.shouldAlert) {
-          showVoteAlertToast(data.title, data.senderName, data.message, data.boardNo); // ✅ boardNo 사용
-        }
-      })
-      .catch(err => {
-        console.error("❌ checkClosed 실행 중 오류:", err);
-      });
-  }
-}
 	</script>
 
 </body>
