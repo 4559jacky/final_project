@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<th:block th:fragment="navLayout">
-
+		  
           <!-- Sidebar navigation-->
           <nav id="sidebarnavh" class="sidebar-nav scroll-sidebar container-fluid">
             <ul id="sidebarnav" style="display: flex; justify-content: center;">
@@ -290,10 +290,29 @@
               	</li>
               </th:block>
               
+                <li class="sidebar-item">
+				    <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+				      <span class="rounded-3">
+				        <i class="ti ti-settings"></i>
+				      </span>
+				      <span class="hide-menu">설정</span>
+				    </a>
+				    <ul class="first-level">
+				      <li class="sidebar-item">
+				        <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">1차 메뉴</a>
+				        <ul class="second-level">
+				          <li class="sidebar-item">
+				            <a class="sidebar-link" href="#">test</a>
+				          </li>
+				        </ul>
+				      </li>
+				    </ul>
+				  </li>
+              
  
             </ul>
           </nav>
           <!-- End Sidebar navigation -->
-
+		  
 	</th:block>
 </html>
