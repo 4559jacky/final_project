@@ -83,9 +83,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  display: block;
 	  opacity: 1;
 	">
-	  <strong>[전자결재 도착]</strong><br>
+	  <strong>[알림]</strong><br>
 	  <span id="approval-toast-title">테스트 제목</span><br>
-	  <span id="approval-toast-sender">홍길동</span><br>
 	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
 	</div>
 	
@@ -165,6 +164,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      if (typeof updateChatRoomList === "function") {
 		        updateChatRoomList(update);
 		      }
+		      if (typeof updateHomeChatPreview === "function") {
+	    	    updateHomeChatPreview(update); // home.html 전용
+	    	  }
 		    });
 	
 		    // 안 읽은 메시지 수 → chat.html로 위임
@@ -228,7 +230,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		    // 내용 세팅
 		    document.getElementById("approval-toast-title").textContent = dto.title || "전자결재";
-		    document.getElementById("approval-toast-sender").textContent = dto.senderName || "";
 		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
 		
 		    // 모달 표시
@@ -438,7 +439,11 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			  if (!dropdowns.length) return;
 
 			  dropdowns.forEach(dropdown => {
+				
 			    dropdown.style.display = "block";
+			    
+			    const emptyMsg = dropdown.querySelector(".no-alarm-msg");
+			    if (emptyMsg) emptyMsg.remove();
 
 			    const link = document.createElement("a");
 			    link.href = "javascript:void(0)";
@@ -461,6 +466,18 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			    `;
 
 			    dropdown.prepend(link);
+			    
+			    const otherAlarmBtnSmall = document.getElementById('otherAlarmBtnSmall');
+			      otherAlarmBtnSmall.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+			      const otherAlarmBtnBig = document.getElementById('otherAlarmBtnBig');
+			      otherAlarmBtnBig.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+			      
+			      
+			      const alarmCntBig = document.getElementById('alarmCountBig');
+			      const alarmCntSmall = document.getElementById('alarmCountSmall');
+
+			      alarmCntBig.textContent = 'NEW';
+			      alarmCntSmall.textContent = 'NEW';
 			  });
 			}
 		
@@ -569,9 +586,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				    dropdown.style.display = "block";
 
 				    if (list.length === 0) {
-				      dropdown.innerHTML = `<div class="px-3 py-2 text-muted">알림이 없습니다.</div>`;
+				    	dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-msg">새로운 알림이 없습니다.</div>`;
 				      return;
 				    }
+				    
+				    let alarmCntBig = document.getElementById('alarmCountBig');
+				    let alarmCntSmall = document.getElementById('alarmCountSmall');
+				    
+				    alarmCntBig.textContent = 'NEW';
+				    alarmCntSmall.textContent = 'NEW';
 
 				    list.forEach(alarm => {
 				    	const link = document.createElement("a");
@@ -590,6 +613,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					      </div>
 					    `;
 				      dropdown.appendChild(link);
+				      
+				      const otherAlarmBtnSmall = document.getElementById('otherAlarmBtnSmall');
+				      otherAlarmBtnSmall.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+				      const otherAlarmBtnBig = document.getElementById('otherAlarmBtnBig');
+				      otherAlarmBtnBig.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+				      
 				    });
 				  });
 				}

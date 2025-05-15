@@ -63,7 +63,6 @@ public class ChatMsgService {
 
 	        dtoList.add(dto);
 	    }
-
 	    return dtoList;
 	}
 
