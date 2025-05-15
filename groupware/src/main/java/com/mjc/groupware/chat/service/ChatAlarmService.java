@@ -13,10 +13,12 @@ import com.mjc.groupware.chat.entity.ChatMapping;
 import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.repository.ChatAlarmRepository;
+import com.mjc.groupware.chat.repository.ChatRoomRepository;
 import com.mjc.groupware.chat.specification.ChatAlarmSpecification;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class ChatAlarmService {
 
     private final ChatAlarmRepository chatAlarmRepository;
     private final MemberRepository memberRepository;
+    private final ChatRoomRepository chatRoomRepository;
     
     
     public void createChatAlarm(Long chatRoomNo, Long receiverNo, ChatMsg chatMsg) {
@@ -47,12 +50,17 @@ public class ChatAlarmService {
             alarmContent = chatMsg.getChatMsgContent();
         }
 
-        ChatAlarm alarm = ChatAlarm.builder()
-            .memberNo(receiver)
-            .chatMsgNo(chatMsg)
-            .readStatus("N")
-            .chatAlarmContent(alarmContent)
-            .build();
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomNo)
+        	    .orElseThrow(() -> new RuntimeException("❌ ChatRoom 없음"));
+
+        	ChatAlarm alarm = ChatAlarm.builder()
+        	    .memberNo(receiver)
+        	    .chatMsgNo(chatMsg)
+        	    .readStatus("N")
+        	    .chatAlarmContent(alarmContent)
+        	    .chatRoomNo(chatRoom) // ✅ 객체로 넘겨줘야 함
+        	    .build();
+
 
         chatAlarmRepository.save(alarm);
     }
@@ -112,6 +120,20 @@ public class ChatAlarmService {
 
 		    return result;
 	}
-    
+	
+	// 헤더 알림 삭제 
+	@Transactional
+	public int markAlarmsAsRead(Long chatRoomNo, Long memberNo) {
+	    List<ChatAlarm> alarms = chatAlarmRepository
+	        .findByChatRoomNo_ChatRoomNoAndMemberNo_MemberNoAndReadStatus(chatRoomNo, memberNo, "N");
+
+	    for (ChatAlarm alarm : alarms) {
+	        alarm.setReadStatus("Y");
+	        chatAlarmRepository.save(alarm); // ✅ 저장
+	    }
+
+	    return alarms.size(); // ✅ 프론트로 개수 반환
+	}
+
 
 }

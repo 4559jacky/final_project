@@ -42,6 +42,9 @@ public class ChatMsgDto {
 	 
 	 private List<Long> member_no_list;
 	 
+	 private List<ChatMemberInfoDto> memberInfos;
+
+	 
 	 private String chat_msg_type;
 	 
 	 private Long attach_no;
