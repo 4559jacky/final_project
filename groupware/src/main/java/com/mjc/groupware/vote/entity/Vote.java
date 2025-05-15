@@ -46,5 +46,10 @@ public class Vote {
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteOption> voteOptions = new ArrayList<>();
-    
+
+	public void setIsClosed(String string) {
+		
 	}
+
+    
+}

@@ -31,7 +31,7 @@
     <div class="p-5 bg-white rounded-4 shadow-sm mb-5">
       <form id="create_board_form" name="create_board_form" class="mt-4" th:action="@{/board}" th:method="post" enctype="multipart/form-data">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <!-- <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}"> -->
+        <input type="hidden" name="member_no" th:value="${#authentication.principal.member.memberNo}">
 
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="is_fixed" name="is_fixed" value="true"
@@ -49,15 +49,15 @@
             </span>
             <input type="text" class="form-control bg-white text-dark" id="board_title" name="board_title" maxlength="100" placeholder="제목을 입력하세요" required>
           </div>
-
+		<textarea id="vote_json" name="vote_json" hidden></textarea>
           <!-- 오른쪽 영역: 버튼 -->
           <div class="ms-3">
 			<button type="button" class="btn btn-primary" onclick="addVote()">투표 추가</button>
           </div>
         </div>
 
-<!-- 투표 정보를 담을 hidden input -->
-<textarea id="vote_json" name="vote_json" hidden></textarea>
+		<!-- 투표 정보를 담을 hidden input -->
+		<textarea id="vote_json" name="vote_json" hidden></textarea>
 
 <!-- 투표 모달 -->
 <div class="modal fade" id="voteModal" tabindex="-1" aria-labelledby="voteModalLabel" aria-hidden="true">
@@ -119,8 +119,6 @@
           <textarea id="board_content" name="board_content" hidden></textarea>
         </div>
 
-<!-- 투표 JSON 전송용 hidden input -->
-<textarea id="vote_json" name="vote_json" hidden></textarea>
 
 <!-- 투표 미리보기 영역 (에디터 아래에 위치) -->
 <div id="vote-preview-container" class="mb-4"></div>
@@ -414,7 +412,6 @@
         const optionsContainer = document.getElementById('optionsContainer');
         optionsContainer.innerHTML = '';
 
-        addOption();
         addOption();
         
         document.getElementById('voteModal').addEventListener('keydown', function (e) {
