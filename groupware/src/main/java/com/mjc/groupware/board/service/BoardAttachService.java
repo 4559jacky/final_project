@@ -58,7 +58,7 @@ public class BoardAttachService {
                     file.delete(); // 실제 파일 삭제
                 }
 
-                boardAttach.setBoardAttachStatus("Y"); // DB 상태 변경
+                boardAttach.setBoardAttachStatus("Y"); // DB에 남기고 상태만 변경
                 boardAttach.setModDate(LocalDateTime.now());
                 attachRepository.save(boardAttach);
 
