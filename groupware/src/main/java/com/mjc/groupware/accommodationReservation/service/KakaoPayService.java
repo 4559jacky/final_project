@@ -44,7 +44,8 @@ public class KakaoPayService {
         String url = "https://open-api.kakaopay.com/online/v1/payment/ready";
         // RestTemplate의 postForEntity : POST 요청을 보내고 ResponseEntity로 결과를 반환받는 메소드
         ResponseEntity<ReadyResponse> responseEntity = template.postForEntity(url, requestEntity, ReadyResponse.class);
-
+//        log.info("결제준비 응답객체: " + responseEntity.getBody());
+        
         return responseEntity.getBody();
     }
 
@@ -65,6 +66,7 @@ public class KakaoPayService {
         RestTemplate template = new RestTemplate();
         String url = "https://open-api.kakaopay.com/online/v1/payment/approve";
         ApproveResponse approveResponse = template.postForObject(url, requestEntity, ApproveResponse.class);
+//        log.info("결제승인 응답객체: " + approveResponse);
 
         return approveResponse;
     }
