@@ -19,4 +19,5 @@ public class VoteAlarmDto {
     private String title;
     private String message;
     private String senderName;
+    private Long boardNo;
 }

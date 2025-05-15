@@ -63,7 +63,7 @@ public class HomeController {
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
-		// ✅ 자유게시판 최근 게시글 5개 가져오기
+		
 	    List<Board> recentAllBoards = boardService.selectRecentAllBoards(5); // 총 5개 가져오기
 	    model.addAttribute("recentBoards", recentAllBoards);
 	    
