@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.service.SharedFileService;
@@ -29,12 +30,14 @@ public class SharedFileController {
 	private final SharedFileService sharedFileService;
 	
 	// 공유문서함 메인화면 view
+	@CheckPermission("SHARED_USER")
 	@GetMapping("/shared")
 	public String mainView() {
 		return "shared/main";
 	}
 	
 	// 파일 업로드
+	@CheckPermission("SHARED_USER")
 	@PostMapping("/shared/files/upload")
 	@ResponseBody
 	public Map<String, String> uploadFiles(@RequestParam("files") List<MultipartFile> files,
@@ -47,6 +50,7 @@ public class SharedFileController {
 		return Map.of("message","파일이 성공적으로 업로드 되었습니다.");
 	}
 	
+	@CheckPermission("SHARED_USER")
 	@GetMapping("/shared/files/list")
 	@ResponseBody
 	public  ResponseEntity<Map<String, Object>> getFolderContent(
@@ -67,11 +71,13 @@ public class SharedFileController {
 	}
 	
 	// 파일 다운로드
+	@CheckPermission("SHARED_USER")
 	@GetMapping("/shared/files/download/{fileId}")
 	public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId){
 		return sharedFileService.downloadFile(fileId);
 	}
 	
+	@CheckPermission("SHARED_USER")
 	@PostMapping("/shared/file/move")
 	@ResponseBody
 	public Map<String, String> moveFile(@RequestBody Map<String, Long> payload) {
@@ -81,6 +87,7 @@ public class SharedFileController {
 	    return Map.of("message", "파일 위치가 변경되었습니다.");
 	}
 	
+	@CheckPermission("SHARED_USER")
 	@PostMapping("/shared/file/delete")
 	@ResponseBody
 	public Map<String, Object> deleteFile(@RequestBody Map<String, Long> payload, Authentication auth) {
