@@ -2,6 +2,7 @@ package com.mjc.groupware.home.comtroller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -63,8 +64,8 @@ public class HomeController {
 	    model.addAttribute("workPolicy", wsp);
 	    
 		// ✅ 자유게시판 최근 게시글 5개 가져오기
-		List<Board> recentFreeBoards = boardService.selectRecentFreeBoards(5);
-		model.addAttribute("recentFreeBoards", recentFreeBoards);
+	    List<Board> recentAllBoards = boardService.selectRecentAllBoards(5); // 총 5개 가져오기
+	    model.addAttribute("recentBoards", recentAllBoards);
 	    
 		return "home";
 	}
