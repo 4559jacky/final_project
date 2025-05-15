@@ -262,6 +262,24 @@ layout:decorate="~{/include/layout}">
 				    font-size: 0.75rem;
 				    padding: 2px;
 				  }
+				  .dot {
+				    display: inline-block;
+				    width: 10px;
+				    height: 10px;
+				    border-radius: 50%;
+				    margin-right: 6px;
+				  }
+				  .dot-company {
+				    background-color: rgba(92, 100, 242, 1.0); /* 보라 */
+				  }
+				  .dot-department {
+				    background-color: rgba(242, 75, 120, 1.0); /* 분홍 */
+				  }
+				  .dot-personal {
+				    background-color: rgba(63, 191, 155, 1.0); /* 연두 */
+				  }
+				  .dot-vacation {
+				    background-color: rgba(242, 146, 29, 1.0); /* 노랑 */
 				</style>
 			    <div class="row">
 			        <!-- 세 번째 박스 (캘린더) -->
@@ -554,54 +572,87 @@ layout:decorate="~{/include/layout}">
 	        return {
 	          html: `<div>${(planType === '부서' || planType === '휴가') ? `[${deptName}] ` : ''}${title}</div>`
 	        };
-	      }
-	    });
-	
+	      },
+	      eventDidMount: function(info) {
+	    	    const planType = info.event.extendedProps.planType;
+	    	    let backgroundColor = '';
+	    	    switch (planType) {
+	    	      case '회사': backgroundColor = 'rgba(92, 100, 242, 1.0)'; break;
+	    	      case '부서': backgroundColor = 'rgba(242, 75, 120, 1.0)'; break;
+	    	      case '개인': backgroundColor = 'rgba(63, 191, 155, 1.0)'; break;
+	    	      case '휴가': backgroundColor = 'rgba(242, 146, 29, 1.0)'; break;
+	    	    }
+	    	    if (backgroundColor) {
+	    	      info.el.style.backgroundColor = backgroundColor;
+	    	      info.el.style.border = 'none';
+	    	      info.el.style.color = 'white';
+	    	    }
+	    	  }
+	       });
 	    calendar.render();
 	  });
 	</script>
 	<script>
 	 // 오늘일정
-	  document.addEventListener('DOMContentLoaded', function () {
-	    const todayListEl = document.getElementById("today-todo-list");
-	
-	    const today = new Date();
-	    const yyyy = today.getFullYear();
-	    const mm = String(today.getMonth() + 1).padStart(2, '0');
-	    const dd = String(today.getDate()).padStart(2, '0');
-	    const todayStr = `${yyyy}-${mm}-${dd}`;
-	
-	    fetch(`/calendar/events?start=${todayStr}&end=${todayStr}&type=all`)
-	      .then(res => res.json())
-	      .then(data => {
-	        const filtered = data.filter(e => {
-	          const eventDate = e.start?.split('T')[0];
-	          return eventDate === todayStr;
-	        });
-	
-	        if (filtered.length === 0) {
-	          todayListEl.innerHTML = `<div class="text-muted">오늘 등록된 일정이 없습니다.</div>`;
-	        } else {
-	          const html = filtered.map(e => {
-	            const dept = e.extendedProps?.deptName || "미배정";
-	            const timeStr = e.start.includes('T') ? e.start.split('T')[1].slice(0, 5) : 'all-day';
-	            return `
-	              <div class="mb-2">
-	                <span class="badge bg-danger-subtle text-danger align-middle me-1">●</span>
-	                <span class="fw-semibold text-dark">[${dept}]</span>
-	                <span class="text-muted ms-1">${timeStr}</span><br>
-	                <span>${e.title}</span>
-	              </div>
-	            `;
-	          }).join('');
-	          todayListEl.innerHTML = html;
-	        }
-	      })
-	      .catch(err => {
-	        console.error("오늘 일정 로딩 실패", err);
-	        todayListEl.innerHTML = `<div class="text-danger">일정 불러오기 실패</div>`;
-	      });
-	  });
+		document.addEventListener('DOMContentLoaded', function () {
+		  const todayListEl = document.getElementById("today-todo-list");
+		
+		  const today = new Date();
+		  const yyyy = today.getFullYear();
+		  const mm = String(today.getMonth() + 1).padStart(2, '0');
+		  const dd = String(today.getDate()).padStart(2, '0');
+		  const todayStr = `${yyyy}-${mm}-${dd}`;
+		
+		  fetch(`/calendar/events?start=${todayStr}&end=${todayStr}&type=all`)
+		    .then(res => res.json())
+		    .then(data => {
+		      const filtered = data.filter(e => {
+		        const eventDate = e.start?.split('T')[0];
+		        return eventDate === todayStr;
+		      });
+		
+		      if (filtered.length === 0) {
+		        todayListEl.innerHTML = `<div class="text-muted">오늘 등록된 일정이 없습니다.</div>`;
+		      } else {
+		    	  const sorted = filtered.sort((a, b) => {
+		              const timeA = a.start.includes('T') ? a.start.split('T')[1] : '00:00';
+		              const timeB = b.start.includes('T') ? b.start.split('T')[1] : '00:00';
+		              return timeA.localeCompare(timeB);
+		            });
+
+		            const html = sorted.map(e => {
+		              const type = e.extendedProps?.planType || "";
+		              const content = e.extendedProps?.planContent || "";
+		              const timeStr = e.start.includes('T') ? e.start.split('T')[1].slice(0, 5) : '종일';
+		              const title = e.title || "";
+		
+		          // 색상 클래스
+		          let dotClass = '';
+		          switch (type) {
+		            case "회사": dotClass = "dot-company"; break;
+		            case "부서": dotClass = "dot-department"; break;
+		            case "개인": dotClass = "dot-personal"; break;
+		            case "휴가": dotClass = "dot-vacation"; break;
+		            default: dotClass = "dot-default";
+		          }
+		
+		          return `
+		            <div class="mb-3">
+		              <span class="dot ${dotClass}"></span>
+		              <strong>[${type}]</strong> ${title} <span class="text-muted ms-1">${timeStr}</span><br>
+		              <span class="text-muted small">${content}</span>
+		            </div>
+		          `;
+		        }).join('');
+		        todayListEl.innerHTML = html;
+		      }
+		    })
+		    .catch(err => {
+		      console.error("오늘 일정 로딩 실패", err);
+		      todayListEl.innerHTML = `<div class="text-danger">일정 불러오기 실패</div>`;
+		    });
+		});
+
 	</script>
 	<!-- Bootstrap Common JS Files Start -->
 	
