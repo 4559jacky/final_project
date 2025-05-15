@@ -4,7 +4,7 @@
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{/include/layout}">
+	layout:decorate="~{include/layout :: layout}">
 
 <th:block layout:fragment="content">
 	<!-- jQuery -->
@@ -433,6 +433,8 @@
 					$("#signature").jSignature({
 						height : 300,
 						width : 600,
+						"decor-color": "transparent", // 중앙선 색상 설정
+						"decor-weight": 0             // 두께를 없앰
 					});
 					// 캔버스 내부 선 초기화
 					var $canvas = $("#signature").find("canvas")[0];
@@ -451,10 +453,12 @@
 				if (!isSignatureInitialized) {
 					$("#updateSignature").jSignature({
 						height : 300,
-						width : 600
+						width : 600,
+						"decor-color": "transparent", // 중앙선 색상 설정
+						"decor-weight": 0             // 두께를 없앰
 					});
 					// 캔버스 내부 선 초기화
-					var $canvas = $("#signature").find("canvas")[0];
+					var $canvas = $("#updateSignature").find("canvas")[0];
 					var ctx = $canvas.getContext("2d");
 					ctx.clearRect(0, 0, $canvas.width, $canvas.height); // 캔버스 전체 지우기
 					isSignatureInitialized = true;

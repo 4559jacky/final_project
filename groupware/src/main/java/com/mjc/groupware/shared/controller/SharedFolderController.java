@@ -76,8 +76,9 @@ public class SharedFolderController {
 	        node.put("text", folder.getFolderName());
 	        node.put("icon", "jstree-folder");
 	        node.put("folder_type", folder.getFolderType()); // ✅ JS에서 사용할 수 있게
+	        node.put("dept_no", folder.getDept() != null ? folder.getDept().getDeptNo() : null);
 	        result.add(node);
-
+	        
 	        List<SharedFile> files = fileRepository.findByFolderFolderNo(folder.getFolderNo()).stream()
 	            .filter(file -> "N".equals(file.getFileStatus()))
 	            .toList();
@@ -88,6 +89,7 @@ public class SharedFolderController {
 	            fileNode.put("parent", folder.getFolderNo());
 	            fileNode.put("text", file.getFileName());
 	            fileNode.put("icon", "jstree-file");
+	            fileNode.put("dept_no", folder.getDept() != null ? folder.getDept().getDeptNo() : null); // ✅ 추가
 	            result.add(fileNode);
 	        }
 	    }

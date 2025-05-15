@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 <style>
   #member-tbody tr {
@@ -560,8 +560,8 @@ layout:decorate="~{/include/layout}">
 			      data.forEach(item => {
 			        const row = document.createElement("tr");
 			        row.innerHTML = `
-			          <td><input type="text" id="name${item.id}" value="${item.name}"></td>
-			          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+			          <td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+			          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
 			          <td>
 			            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
 			              수정
@@ -605,8 +605,8 @@ layout:decorate="~{/include/layout}">
 				      data.holidayList.forEach(item => {
 				        const row = document.createElement("tr");
 				        row.innerHTML = `
-				        	 <td><input type="text" id="name${item.id}" value="${item.name}"></td>
-					          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+				        	 <td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+					          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
 					          <td>
 					            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
 					              수정
@@ -644,8 +644,8 @@ layout:decorate="~{/include/layout}">
 					      data.holidayList.forEach(item => {
 					        const row = document.createElement("tr");
 					        row.innerHTML = `
-					        	<td><input type="text" id="name${item.id}" value="${item.name}"></td>
-						          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+					        	<td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+						          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
 						          <td>
 						            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
 						              수정

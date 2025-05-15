@@ -42,3 +42,10 @@
   opacity: 1 !important;
 }
 
+.dropdown-alarm {
+    pointer-events: auto !important;
+    cursor: pointer;
+    background-color: white !important;
+    position: relative !important;
+    z-index: 9999 !important;
+  }

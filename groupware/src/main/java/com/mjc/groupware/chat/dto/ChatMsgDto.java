@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.mjc.groupware.chat.entity.ChatAttach;
 import com.mjc.groupware.chat.entity.ChatMsg;
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.MemberAttach;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +22,8 @@ import lombok.ToString;
 @Builder
 @ToString
 public class ChatMsgDto {
-
+	
+	
 	 private Long chat_msg_no;
 	 
 	 private String chat_msg_content;
@@ -44,6 +47,9 @@ public class ChatMsgDto {
 	 private Long attach_no;
 	 
 	 private String chat_alarm_content;
+	 private String chat_room_title;
+	 
+	 private String profile_path;
 	 
 	 private String ori_name;
 	 private String new_name;
@@ -56,27 +62,27 @@ public class ChatMsgDto {
 	 // 변환 메서드 (Entity → DTO)
 	 public ChatMsgDto toDto(ChatMsg msg) {
 		    ChatAttach attach = msg.getAttachNo();
-		    
-		    return ChatMsgDto.builder()
-		            .chat_msg_no(msg.getChatMsgNo())
-		            .chat_msg_content(msg.getChatMsgContent())
-		            .send_date(msg.getSendDate())
-		            .chat_room_no(msg.getChatRoomNo().getChatRoomNo())
-		            .member_no(msg.getMemberNo().getMemberNo())
-		            .member_name(msg.getMemberNo().getMemberName())
-		            .member_pos_name(msg.getMemberNo().getPos() != null ? msg.getMemberNo().getPos().getPosName() : null)
-		            .member_dept_name(msg.getMemberNo().getDept() != null ? msg.getMemberNo().getDept().getDeptName() : null)
-		            .chat_msg_type(msg.getChatMsgType())
-		            .attach_no(attach != null ? attach.getAttachNo() : null)
-		            .ori_name(attach != null ? attach.getOriName() : null)
-		            .new_name(attach != null ? attach.getNewName() : null)
-		            .attach_path(attach != null ? attach.getAttachPath() : null)
-		            .file_size(attach != null ? attach.getFileSize() : null)
-		            .file_size_str(attach != null ? formatFileSize(attach.getFileSize()) : null)
-		            .file_url(attach != null ? "/upload/groupware/chat/" + attach.getNewName() : null)
-		            .build();
-		}
 
+		    return ChatMsgDto.builder()
+		        .chat_msg_no(msg.getChatMsgNo())
+		        .chat_msg_content(msg.getChatMsgContent())
+		        .send_date(msg.getSendDate())
+		        .chat_room_no(msg.getChatRoomNo().getChatRoomNo())
+		        .member_no(msg.getMemberNo().getMemberNo())
+		        .member_name(msg.getMemberNo().getMemberName())
+		        .member_pos_name(msg.getMemberNo().getPos() != null ? msg.getMemberNo().getPos().getPosName() : null)
+		        .member_dept_name(msg.getMemberNo().getDept() != null ? msg.getMemberNo().getDept().getDeptName() : null)
+		        .chat_msg_type(msg.getChatMsgType())
+		        .attach_no(attach != null ? attach.getAttachNo() : null)
+		        .ori_name(attach != null ? attach.getOriName() : null)
+		        .new_name(attach != null ? attach.getNewName() : null)
+		        .attach_path(attach != null ? attach.getAttachPath() : null)
+		        .file_size(attach != null ? attach.getFileSize() : null)
+		        .file_size_str(attach != null ? formatFileSize(attach.getFileSize()) : null)
+		        .file_url(attach != null ? "/upload/groupware/chat/" + attach.getNewName() : null)
+		        // 💡 profile_path는 외부에서 set
+		        .build();
+		}
 	 
 	 private String formatFileSize(Long bytes) {
 		    if (bytes == null) return "";
@@ -86,6 +92,7 @@ public class ChatMsgDto {
 		    String pre = "KMGTPE".charAt(exp - 1) + "";
 		    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 		}
+
 
 
 

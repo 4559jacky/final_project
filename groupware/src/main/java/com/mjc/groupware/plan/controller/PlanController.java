@@ -153,6 +153,8 @@ public class PlanController {
 		    boolean canEdit = planService.canEditPlan(plan, loginMember);
 		    if (!canEdit) return resultMap;
 
+		    dto.setLast_update_member(loginMember.getMemberNo());
+		    
 	    //수정처리
 	    Plan result = planService.updatePlanOne(id, dto);
 	    if (result != null) {
