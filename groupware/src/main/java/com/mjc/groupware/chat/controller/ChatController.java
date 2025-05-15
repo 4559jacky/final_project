@@ -34,6 +34,7 @@ import com.mjc.groupware.chat.service.ChatMsgService;
 import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.chat.session.ChatSessionTracker;
 import com.mjc.groupware.chat.session.SessionRegistry;
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.member.entity.MemberAttach;
 import com.mjc.groupware.member.repository.MemberAttachRepository;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -54,6 +55,7 @@ public class ChatController {
     private final MemberAttachRepository attachRepository;
     
 	// 채팅방 페이지 전환
+    @CheckPermission("CHAT_USER")
 	@GetMapping("/chat")
 	public String meetingRoomView(HttpSession session,Model model) {
 		
@@ -64,6 +66,7 @@ public class ChatController {
 	}
 	
 	// 채팅방 생성
+    @CheckPermission("CHAT_USER")
 	@PostMapping("/chat/create") 
 	@ResponseBody
 	public Map<String, String> createChatRoom(ChatRoomDto dto) {
@@ -100,6 +103,7 @@ public class ChatController {
 
 	
 	// 채팅방 정보 조회
+    @CheckPermission("CHAT_USER")
 	@PostMapping("/selectChatRoom/{id}")
 	@ResponseBody
 	public ChatRoomDto selectChatRoomOne(@PathVariable("id") Long chatRoomNo) {
@@ -115,6 +119,7 @@ public class ChatController {
 
 	
 	// 채팅 메세지 조회
+    @CheckPermission("CHAT_USER")
 	@PostMapping("/selectChatMsg/{id}")
 	@ResponseBody
 	public List<ChatMsgDto> selectChatMsgList(@PathVariable("id") Long chatRoomNo) {
@@ -228,6 +233,7 @@ public class ChatController {
 
 	
 	// 읽음 시간 조회
+	@CheckPermission("CHAT_USER")
 	@PostMapping("/chat/unread/count")
 	@ResponseBody
 	public int getUnreadCount(@RequestBody ChatRoomReadDto dto) {
@@ -236,6 +242,7 @@ public class ChatController {
 	
 	
 	// 읽음 시간 기록
+	@CheckPermission("CHAT_USER")
 	@PostMapping("/chat/read/update")
 	@ResponseBody
 	public String updateReadTime(@RequestBody ChatRoomReadDto dto) {
@@ -272,6 +279,7 @@ public class ChatController {
 
 
 	// 채팅방 나가기
+	@CheckPermission("CHAT_USER")
 	@PostMapping("/updateStatus")
 	@ResponseBody
 	public Map<String, String> updateStatus(@RequestBody ChatMappingDto dto) {
@@ -301,12 +309,13 @@ public class ChatController {
 	        resultMap.put("res_code", "200");
 	        resultMap.put("res_msg", "채팅방 나가기가 완료되었습니다.");
 	    }
-
+	    
 	    return resultMap;
 	}
-
+	
 	
 	// 채팅방 알림 목록 조회
+	@CheckPermission("CHAT_USER")
 	@PostMapping("/chat/alarm/list/{id}")
 	@ResponseBody
 	public List<ChatAlarmDto> selectChatAlarmAll(@PathVariable("id") Long memberNo) {
