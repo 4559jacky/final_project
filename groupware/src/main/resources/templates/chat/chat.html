@@ -798,7 +798,7 @@
 	    user.addEventListener("click", () => {
 	     const roomNo = user.dataset.roomId;
 	    	
-	     // ✅ 읽음 처리 요청
+	  // ✅ 읽음 처리 요청
 	     fetch(`/chat/alarm/read/${roomNo}`, {
 	       method: "POST",
 	       headers: {
@@ -811,35 +811,37 @@
 	     .then(data => {
 	       console.log(`✅ ${data.removedCount}개의 알림 읽음 처리 완료`);
 
-	       // ✅ 해당 채팅방 알림 DOM 삭제
-	       document.querySelectorAll(`.chat-message-body .dropdown-item[data-room-no="${roomNo}"]`)
-	         .forEach(el => el.remove());
+	       // ✅ 해당 채팅방 알림 DOM 삭제 (모든 화면에 반영)
+	       document.querySelectorAll(".chat-message-body").forEach(dropdown => {
+	         dropdown.querySelectorAll(`.dropdown-item[data-room-no="${roomNo}"]`)
+	           .forEach(el => el.remove());
 
-	       // ✅ 뱃지 숫자 갱신
-	       const badge = document.querySelector("#chatAlarmBtn .chat-popup-badge");
-			if (badge) {
-			  let count = parseInt(badge.textContent || "0", 10);
-			  let removed = parseInt(data.removedCount || "0", 10);
-			  let newCount = Math.max(0, count - removed);
-			
-			  if (newCount === 0) {
-			    badge.remove(); // ✅ 아예 제거
-			  } else {
-			    badge.textContent = newCount;
-			  }
-			}
+	         // ✅ 알림 비었으면 문구 삽입
+	         setTimeout(() => {
+	           const remainingItems = dropdown.querySelectorAll(".dropdown-item").length;
+	           if (remainingItems === 0 && !dropdown.querySelector(".no-alarm-message")) {
+	             dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-message">알림이 없습니다.</div>`;
+	           }
+	         }, 100);
+	       });
 
-	       // ✅ 알림 비었으면 문구 삽입
-			setTimeout(() => {
-				  const dropdown = document.querySelector(".chat-message-body");
-				  const remainingItems = dropdown?.querySelectorAll(".dropdown-item").length || 0;
+	       // ✅ 뱃지 숫자 갱신 (모든 뱃지 처리)
+	       document.querySelectorAll("#chatAlarmBtn .chat-popup-badge").forEach(badge => {
+	         let count = parseInt(badge.textContent || "0", 10);
+	         let removed = parseInt(data.removedCount || "0", 10);
+	         let newCount = Math.max(0, count - removed);
 
-				  if (remainingItems === 0 && !dropdown.querySelector(".no-alarm-message")) {
-				    dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-message">알림이 없습니다.</div>`;
-				  }
-				}, 100); // ✅ 살짝 지연주고 체크
+	         if (newCount === 0) {
+	           badge.remove(); // ✅ 아예 제거
+	         } else {
+	           badge.textContent = newCount;
+	         }
+	       });
+	     })
+	     .catch(err => {
+	       console.error("❌ 알림 읽음 처리 실패:", err);
 	     });
-  	
+
     	
     	 // ✅ 전체 래퍼 보여주기
     	  document.getElementById("chatBoxWrapper")?.classList.remove("d-none");
@@ -1357,15 +1359,19 @@
 	function initSearchFilter() {
 	  const searchInput = document.querySelector(".search-chat");
 	  const chatItems = document.querySelectorAll(".chat-users li");
-
+	
 	  searchInput?.addEventListener("keyup", () => {
 	    const value = searchInput.value.toLowerCase();
+	
 	    chatItems.forEach(item => {
-	      const text = item.textContent.toLowerCase();
-	      item.style.display = text.includes(value) ? "" : "none";
+	      const titleEl = item.querySelector(".chat-title");
+	      const title = titleEl ? titleEl.textContent.toLowerCase() : "";
+	
+	      item.style.display = title.includes(value) ? "" : "none";
 	    });
 	  });
 	}
+
 
 	// 10. 사이드 메뉴 토글 (오프캔버스)
 	function initSideMenu() {
