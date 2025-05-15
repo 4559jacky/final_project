@@ -29,7 +29,7 @@ public class ApprovalAlarmService {
 	public void sendAlarmToMembers(List<Long> memberNos, Approval approval, String message) {
 		
 		Alarm alarm = Alarm.builder()
-        		.alarmTitle("전자결재 알람")
+        		.alarmTitle("전자결재")
         		.alarmMessage(message)
         		.approval(approval)
         		.build();
@@ -38,7 +38,7 @@ public class ApprovalAlarmService {
 		
 		ApprovalAlarmDto dto = ApprovalAlarmDto.builder()
 				.alarmNo(saved.getAlarmNo())
-                .title("전자결재 알람")
+                .title("전자결재")
                 .message(message)
                 .senderName(approval.getMember().getMemberName())
                 .alarmType("approval")

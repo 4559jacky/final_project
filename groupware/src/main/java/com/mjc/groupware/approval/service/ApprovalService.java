@@ -40,6 +40,7 @@ import com.mjc.groupware.approval.repository.ApprovalFormRepository;
 import com.mjc.groupware.approval.repository.ApprovalRepository;
 import com.mjc.groupware.approval.specification.ApprovalSpecification;
 import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.plan.repository.PlanRepository;
 
@@ -119,7 +120,7 @@ public class ApprovalService {
 	
 	// 결재 승인 요청
 	@Transactional(rollbackFor = Exception.class)
-	public int createApprovalApi(ApprovalDto approvalDto , List<MultipartFile> files) {
+	public int createApprovalApi(ApprovalDto approvalDto , List<MultipartFile> files, Member member) {
 		int result = 0;
 		
 		try {
@@ -232,7 +233,7 @@ public class ApprovalService {
 			approvalAlarmService.sendAlarmToMembers(
 			    targetMemberNos,
 			    saved,
-			    "새로운 결재가 도착하였습니다."
+			    member.getMemberName() + "님이 새로운 결재를 요청하였습니다."
 			);
 
 			result = 1;
@@ -396,7 +397,7 @@ public class ApprovalService {
 	                approvalAlarmService.sendAlarmToMembers(
 	                    targetMemberNos,
 	                    saved,
-	                    "결재가 최종 승인되었습니다."
+	                    member.getMember_name() + "님이 결재를 최종 승인하였습니다."
 	                );
 	            } else {
 	            	int nextOrder = approvalEntity.getApprOrderStatus(); // 현재는 ++된 상태임
@@ -408,7 +409,7 @@ public class ApprovalService {
 	                        approvalAlarmService.sendAlarmToMembers(
 	                            targetMemberNos,
 	                            approvalEntity,
-	                            "새로운 결재가 도착하였습니다."
+	                            approval.getMember().getMemberName() + "님이 새로운 결재를 요청하였습니다."
 	                        );
 	                        break;
 	                    }
@@ -467,7 +468,7 @@ public class ApprovalService {
             approvalAlarmService.sendAlarmToMembers(
                 targetMemberNos,
                 saved,
-                "결재가 반려 되었습니다."
+                member.getMember_name() + "님이 결재를 반려하였습니다."
             );
 			
 			result = 1;
@@ -535,7 +536,7 @@ public class ApprovalService {
 				    approvalAlarmService.sendAlarmToMembers(
 				        targetMemberNos,
 				        saved,
-				        "모든 합의가 완료되어 결재가 시작되었습니다."
+				        approval.getMember().getMemberName() + "님이 새로운 결재를 요청하였습니다."
 				    );
 					
 				}
@@ -591,7 +592,7 @@ public class ApprovalService {
             approvalAlarmService.sendAlarmToMembers(
                 targetMemberNos,
                 saved,
-                "결재가 반려 되었습니다."
+                member.getMember_name() + "님이 결재를 반려하였습니다."
             );
 			
 			result = 1;
@@ -667,7 +668,7 @@ public class ApprovalService {
 			approvalAlarmService.sendAlarmToMembers(
 			    targetMemberNos,
 			    entity,
-			    "결재가 회수되어 다시 결재가 요청되었습니다."
+			    approvalParam.getMember().getMemberName() + "님이 결재 회수를 요청하였습니다."
 			);
 			
 			result = 1;
@@ -800,7 +801,7 @@ public class ApprovalService {
 			approvalAlarmService.sendAlarmToMembers(
 			    targetMemberNos,
 			    saved,
-			    "재기안된 결재 문서가 도착하였습니다."
+			    saved.getMember().getMemberName() + "님이 새로운 결재를 요청하였습니다."
 			);
 			
 			result = 1;
