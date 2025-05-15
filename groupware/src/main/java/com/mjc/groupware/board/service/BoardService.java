@@ -187,6 +187,6 @@ public class BoardService {
  // 자유게시판 최신글 N개 조회 (삭제된 글, 고정글 제외)
     @Transactional(readOnly = true)
     public List<Board> selectRecentAllBoards(int limit) {
-        return repository.findByBoardStatusOrderByRegDateDesc("N", PageRequest.of(0, limit)).getContent();
+        return repository.findByBoardStatusAndIsFixedFalseOrderByRegDateDesc("N", PageRequest.of(0, limit)).getContent();
     }
 }
