@@ -278,9 +278,11 @@
                   <i class="ti ti-align-justified fs-7"></i>
                 </a>
                 <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-center">
+                
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 다크모드 테마 반경 버튼 -->
                   <!-- ------------------------------- -->
+                  
                   <th:block>
                   	<li class="nav-item nav-icon-hover-bg rounded-circle">
                     	<a class="nav-link moon dark-layout" href="javascript:void(0)" onclick="changeToDark()">
@@ -322,6 +324,7 @@
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 알림 아이콘 드롭다운 -->
                   <!-- ------------------------------- -->
+                  
                   <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
                     <a class="nav-link position-relative" href="javascript:void(0)" id="otherAlarmBtnBig" aria-expanded="false">
                       <i class="ti ti-bell-ringing"></i>
@@ -336,6 +339,7 @@
                       </div>
                      </div>
                   </li>
+                  
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 알림 아이콘 드롭다운 끝 -->
                   <!-- ------------------------------- -->
@@ -343,6 +347,7 @@
                   <!-- ------------------------------- -->
                   <!-- 풀화면 : 프로필 사진 드롭다운 -->
                   <!-- ------------------------------- -->
+                  
                   <th:block th:if="${#authentication.principal.member}">
 	                  <li class="nav-item dropdown">
 		                  <th:block th:if="${latestMyProfile != null}">
@@ -411,28 +416,9 @@
 	                              <span class="fs-3 d-block text-body-secondary">Account Settings</span>
 	                            </div>
 	                          </a>
-	                          <!--
-	                          <a href="./main/app-email.html" class="py-8 px-7 d-flex align-items-center">
-	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-	                              <img th:src="@{/assets/images/svgs/icon-inbox.svg}" alt="flexy-img" width="24" height="24" />
-	                            </span>
-	                            <div class="w-100 ps-3">
-	                              <h6 class="mb-0 fs-4 lh-base">My Inbox</h6>
-	                              <span class="fs-3 d-block text-body-secondary">Messages & Emails</span>
-	                            </div>
-	                          </a>
-	                          <a href="./main/app-notes.html" class="py-8 px-7 d-flex align-items-center">
-	                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
-	                              <img th:src="@{/assets/images/svgs/icon-tasks.svg}" alt="flexy-img" width="24" height="24" />
-	                            </span>
-	                            <div class="w-100 ps-3">
-	                              <h6 class="mb-0 fs-4 lh-base">My Task</h6>
-	                              <span class="fs-3 d-block text-body-secondary">To-do and Daily Tasks</span>
-	                            </div>
-	                          </a>
-	                          -->
 	                          
 	                          <!-- 풀화면 : 로그아웃 버튼 -->
+	                          
 	                          <form th:action="@{/logout}" method="post">
 	  						  	<button type="submit" class="logout-button py-8 px-7 d-flex align-items-center bg-transparent border-0 w-100 text-start">
 									<span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
@@ -444,7 +430,9 @@
 									</div>
 								</button>
 							  </form>
+							  
 							  <!-- 풀화면 : 로그아웃 버튼 끝-->
+							  
 	                        </div>
 	                      </div>
 	                    </div>
