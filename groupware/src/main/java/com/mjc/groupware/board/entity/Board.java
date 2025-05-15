@@ -69,7 +69,7 @@ public class Board {
     @JoinColumn(name = "member_no")
     private Member member;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<BoardAttach> attachList = new ArrayList<>();
 
     @Column(name = "is_fixed", nullable = false)

@@ -152,8 +152,6 @@ public class BoardService {
             // ✅ soft delete 처리
             boardAttachService.deleteFiles(deleteFiles);
 
-            // ✅ 엔티티 내부에서도 삭제된 첨부파일을 제거해줘야 반영됨 (메모리 반영)
-            board.getAttachList().removeIf(attach -> deleteFiles.contains(attach.getAttachNo()));
         }
 
         if (files != null && !files.isEmpty()) {
@@ -184,5 +182,11 @@ public class BoardService {
 
     public List<Board> selectFixedBoardList() {
         return repository.findByIsFixedTrueAndBoardStatusNot("Y", Sort.by(Sort.Order.desc("regDate")));
+    }
+    
+ // 자유게시판 최신글 N개 조회 (삭제된 글, 고정글 제외)
+    @Transactional(readOnly = true)
+    public List<Board> selectRecentAllBoards(int limit) {
+        return repository.findByBoardStatusAndIsFixedFalseOrderByRegDateDesc("N", PageRequest.of(0, limit)).getContent();
     }
 }

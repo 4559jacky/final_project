@@ -56,4 +56,10 @@ public class Attendance {
 	@JoinColumn(name="member_no")
 	private Member member;
 	
+	
+	public void annualMemberAttendance(LocalDate date, Member member) {
+		this.attendDate = date;
+		this.member = member;
+	}
+	
 }

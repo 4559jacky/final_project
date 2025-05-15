@@ -15,4 +15,7 @@ public interface VoteResultRepository extends JpaRepository<VoteResult, Long> {
 
 	List<VoteResult> findByVote_VoteNo(Long voteNo);
 
+	@Query("SELECT DISTINCT vr.member.memberNo FROM VoteResult vr WHERE vr.vote.voteNo = :voteNo AND vr.member IS NOT NULL")
+	List<Long> findParticipantMemberNos(@Param("voteNo") Long voteNo);
+
 }

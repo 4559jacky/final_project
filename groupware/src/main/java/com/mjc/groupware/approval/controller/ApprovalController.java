@@ -313,14 +313,20 @@ public class ApprovalController {
 	@PostMapping("/approval/create")
 	@ResponseBody
 	public Map<String,String> createApprovalApi(ApprovalDto approvalDto,
-												@RequestParam("files") List<MultipartFile> files) {
+												@RequestParam("files") List<MultipartFile> files,
+												@AuthenticationPrincipal UserDetails userDetails) {
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "결재 요청에 실패하였습니다.");
 		
+		String userId = userDetails.getUsername();
+		MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+		
 		System.out.println("결재자 : "+approvalDto.getApprover_no().get(0));
 		
-		int result = service.createApprovalApi(approvalDto, files);
+		int result = service.createApprovalApi(approvalDto, files, entity);
 		
 		if(result > 0) {
 			resultMap.put("res_code", "200");

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mjc.groupware.attendance.dto.LeaveGrantHistory;
 import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
+import com.mjc.groupware.attendance.entity.Attendance;
 import com.mjc.groupware.attendance.entity.Holiday;
 import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
@@ -23,6 +24,8 @@ import com.mjc.groupware.attendance.repository.LeaveGrantHistoryRepository;
 import com.mjc.groupware.attendance.service.HolidayService;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.plan.entity.Plan;
+import com.mjc.groupware.plan.repository.PlanRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +38,7 @@ public class RegularEventScheduler {
 	private final HolidayRepository holidayRepository;
 	private final AttendanceRepository attendanceRepository;
 	private final LeaveGrantHistoryRepository leaveGrantHistoryRepository;
+	private final PlanRepository planRepository;
 	
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional(rollbackFor = Exception.class)
@@ -77,6 +81,24 @@ public class RegularEventScheduler {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
+	}
+	
+	// 매일 연차인 사원 근태 이력 저장(날짜만)
+	@Scheduled(cron = "0 0 8 * * ?")
+	public void annualMemberAttendAdd() {
+		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+		
+		List<Plan> planList = planRepository.findAllByStartDateAndPlanType(today, "휴가");
+		for(Plan p : planList) {
+			if(p.getPlanTitle().contains("[연차]")) {
+				Member member = memberRepository.findById(p.getMember().getMemberNo()).orElse(null);
+				
+				Attendance attendance = new Attendance();
+				attendance.annualMemberAttendance(today, member);
+				attendanceRepository.save(attendance);
+			}
+		}
+		
 	}
 	
 	@Scheduled(cron = "0 0 1 * * ?")

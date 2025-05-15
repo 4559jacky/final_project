@@ -202,6 +202,10 @@ public class NoticeService {
 	public Page<Notice> getNormalNotices(Pageable pageable) {
 	    return repository.findByNoticeFix("N", pageable);
 	}
-
+	
+	public List<Notice> getLatestNotices(int count){
+		Pageable pageable = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "regDate"));
+		return repository.findAll(pageable).getContent();
+	}
 
 }

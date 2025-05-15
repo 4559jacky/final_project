@@ -2,6 +2,7 @@ package com.mjc.groupware.home.comtroller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,11 +16,18 @@ import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
 import com.mjc.groupware.attendance.service.AttendanceService;
+
+import com.mjc.groupware.board.entity.Board;
+import com.mjc.groupware.board.service.BoardService;
+
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.service.ChatRoomService;
+
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
+import com.mjc.groupware.notice.entity.Notice;
+import com.mjc.groupware.notice.service.NoticeService;
 import com.mjc.groupware.plan.entity.Plan;
 import com.mjc.groupware.plan.service.PlanService;
 
@@ -34,7 +42,11 @@ public class HomeController {
 	private final AttendanceRepository attendanceRepository;
 	private final PlanService planService;
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
+	private final NoticeService noticeService;
     private final ChatRoomService chatRoomService;
+
+	
+	private final BoardService boardService; // 게시글 추가
 	
 	@GetMapping({"", "/", "/home"})
 	public String homeView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
@@ -61,10 +73,21 @@ public class HomeController {
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
+	
+	    List<Board> recentAllBoards = boardService.selectRecentAllBoards(3); // 총 5개 가져오기
+	    model.addAttribute("recentBoards", recentAllBoards);
+
+
+		// ✅ 공지사항 최신 3건 추가
+		List<Notice> latestNoticeList = noticeService.getLatestNotices(3);
+		model.addAttribute("latestNotices", latestNoticeList);
+		
+
 	    
 	    /////// 채팅 //////
 	    List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
 		model.addAttribute("chatRoomList",resultList);
+
 	    
 		return "home";
 	}
@@ -78,5 +101,4 @@ public class HomeController {
 	public String sampleView() {
 		return "sample";
 	}
-
 }

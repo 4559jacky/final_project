@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.board.entity.Board;
+import com.mjc.groupware.board.repository.BoardRepository;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.vote.dto.VoteAlarmDto;
@@ -33,33 +35,24 @@ public class VoteService {
     private final VoteOptionRepository optionRepo;
     private final VoteResultRepository resultRepo;
     private final MemberRepository memberRepo;
+    private final BoardRepository boardRepo;
     
     // 알림 2025-05-14(수요일)
     private final VoteAlarmService voteAlarmService;
     // 마감 알람 2025-05-14(수요일)
     @Transactional
     public void closeVoteAndNotify(Long voteNo) {
-        Vote vote = voteRepo.findById(voteNo)
-            .orElseThrow(() -> new IllegalArgumentException("투표가 존재하지 않습니다."));
+        Vote vote = voteRepo.findById(voteNo).orElseThrow();
 
-        if (vote.getBoard() == null || vote.getBoard().getMember() == null) {
-            throw new IllegalStateException("투표에 연결된 게시글 또는 작성자가 없습니다.");
-        }
+        // ✅ 마감 처리 추가
+        vote.setIsClosed("Y");
 
-        if (!isVoteClosed(voteNo)) return;
+        voteRepo.save(vote);
 
-        List<Long> memberNos = resultRepo.findByVote_VoteNo(voteNo).stream()
-            .filter(result -> result.getMember() != null)
-            .map(vr -> vr.getMember().getMemberNo())
-            .distinct()
-            .toList();
+        List<Long> participantMemberNos = resultRepo.findParticipantMemberNos(voteNo);
+        String message = vote.getBoard().getMember().getMemberName() + "님의 투표가 마감되었습니다.";
 
-        if (memberNos.isEmpty()) {
-            System.out.println("참여자가 없어 알림을 전송하지 않음.");
-            return;
-        }
-
-        voteAlarmService.sendAlarmVoteMembers(memberNos, vote, "투표가 마감되었습니다.");
+        voteAlarmService.sendAlarmVoteMembers(participantMemberNos, vote, message);
     }
 
     /**
@@ -67,27 +60,55 @@ public class VoteService {
      */
     @Transactional
     public Long createVote(VoteDto dto, List<VoteOptionDto> options) {
+        Long boardNo = dto.getBoard_no();
+
+        // 기존 투표 삭제 (옵션 + 투표 + 관계 해제 포함)
+        if (boardNo != null) {
+            voteRepo.findByBoard_BoardNo(boardNo).ifPresent(existingVote -> {
+                // 1. 옵션 먼저 삭제
+                optionRepo.deleteAllByVote_VoteNo(existingVote.getVoteNo());
+
+                // 2. 게시글과의 관계 끊기
+                Board board = existingVote.getBoard();
+                if (board != null) {
+                    board.setVote(null);
+                }
+
+                // 3. 기존 투표 삭제
+                voteRepo.delete(existingVote);
+            });
+        }
+
+        // 새 투표 생성
         Vote vote = new Vote();
         vote.setVoteTitle(dto.getVote_title());
         vote.setIsMultiple(dto.getIs_multiple());
         vote.setIsAnonymous(dto.getIs_anonymous());
         vote.setEndDate(dto.getEnd_date());
         vote.setRegDate(LocalDateTime.now());
+        vote.setIsClosed("N"); // 초기값
 
+        // 게시글 연동
+        if (boardNo != null) {
+            Board board = boardRepo.findById(boardNo).orElseThrow();
+            vote.setBoard(board);
+            board.setVote(vote); // 🔁 양방향 연관관계 설정 (필수)
+        }
+
+        // 투표 저장
         vote = voteRepo.save(vote);
 
+        // 옵션 저장
         for (VoteOptionDto opt : options) {
             VoteOption option = new VoteOption();
-            option.setVote(vote);
+            option.setVote(vote); // vote FK 설정
             option.setOptionText(opt.getOption_text());
             option.setOrderNo(opt.getOrder_no());
-
             optionRepo.save(option);
         }
 
         return vote.getVoteNo();
     }
-
     /**
      * 단일 투표 조회
      */

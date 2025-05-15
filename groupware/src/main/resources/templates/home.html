@@ -186,37 +186,97 @@ layout:decorate="~{/include/layout}">
 	        
 	        <div class="col-lg-9">
 			    <div class="row">
-			        <!-- 첫 번째 박스 (공지사항 및 자유게시판) -->
+     				<!-- 첫 번째 박스 (공지사항 및 자유게시판) -->
 			        <div class="col-md-8">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;">
+			                <div class="card-body" style="height: 360px;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-alert-circle"></i>
 			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-primary">공지사항</a>
+			                        <a href="/notice" class="text-dark link-primary">공지사항</a>
 			                    </div>
-		                        <div>
-		                        	공지사항 th<br>
-		                        	최신 공지 1<br>
-		                        	최신 공지 2<br>
-		                        	최신 공지 3
-		                        </div>
-		                        <div class="hstack gap-6 mt-3 mb-3">
-			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
-			                            <i class="ti ti-clipboard-text"></i>
-			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-primary">자유게시판</a>
-			                    </div>
-			                    <div>
-			                    	자유게시판 th<br>
-			                    	최신글 1<br>
-		                        	최신글 2<br>
-		                        	최신글 3
-			                    </div>
-			                </div>
-			            </div>
-			        </div>
+		                       <div class="table-wrapper bg-white rounded-3 shadow-sm" style="max-height: 190px; overflow-y: auto;">
+ 							<table class="table table-sm align-middle text-center mb-0">
+   								 <thead class="bg-light" style="font-size: 13px;">
+    								  <tr>
+      								 	 <th style="width: 12%">번호</th>
+       									 <th class="text-start">제목</th>
+       									 <th style="width: 30%">등록일</th>
+      								  </tr>
+    							 </thead>
+    						<tbody>
+     				 <!-- 고정글 -->
+   							   <tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix == 'Y'}"
+          						   class="fixed-row" style="background-color: #fce4ec; font-size: 13px; cursor: pointer;"
+          						   th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
+        					      <td>📌</td>
+        						  <td class="text-start fw-semibold text-truncate" th:text="${notice.noticeTitle}">제목</td>
+        						  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
+      						   </tr>
+
+      				<!-- 일반글 -->
+      							<tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix != 'Y'}"
+          							style="font-size: 13px; cursor: pointer;"
+          							th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
+        						  <td th:text="${notice.noticeNo}">1</td>
+                                  <td class="text-start text-truncate" th:text="${notice.noticeTitle}">제목</td>
+                                  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
+      							</tr>
+    						</tbody>
+  						</table>
+					 </div>
+					 <br>
+
+<!-- 자유게시판 제목 -->
+<div class="hstack gap-6 mb-3">
+  <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="/board/list">
+    <i class="ti ti-clipboard-text"></i>
+  </a>
+  <a href="/board/list" class="text-dark link-primary">자유게시판</a>
+</div>
+
+<!-- 자유게시판 테이블 -->
+<div class="table-wrapper bg-white rounded-3 shadow-sm" style="max-height: 190px; overflow-y: auto;">
+  <table class="table table-sm align-middle text-center mb-0">
+    <thead class="bg-light" style="font-size: 13px;">
+      <tr>
+        <th style="width: 12%">번호</th>
+        <th class="text-start">제목</th>
+        <th style="width: 30%">등록일</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 고정글 먼저 출력 -->
+      <tr th:each="board : ${recentBoards}" th:if="${board.isFixed}"
+          style="background-color: #e8f5e9; font-size: 13px; cursor: pointer;"
+          th:onclick="|location.href='/board/detail/${board.boardNo}'|">
+        <td>📌</td>
+        <td class="text-start fw-semibold text-truncate">
+          <span th:if="${board.vote != null}">🗳️ </span>
+          <span th:text="${board.boardTitle}">제목</span>
+        </td>
+        <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">날짜</td>
+      </tr>
+
+<!-- 일반글 출력 (번호 역순) -->
+<tr th:with="total=${recentBoards.size()}"
+    th:each="board, stat : ${recentBoards}"
+    style="font-size: 13px; cursor: pointer;"
+    th:onclick="|location.href='/board/detail/${board.boardNo}'|">
+  <td th:text="${total - stat.index}">5</td> <!-- ← 역순 번호 -->
+  <td class="text-start text-truncate">
+    <span th:if="${board.vote != null}">🗳️ </span>
+    <span th:text="${board.boardTitle}">제목</span>
+  </td>
+  <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">날짜</td>
+</tr>
+    </tbody>
+  </table>
+</div>
+    </div>
+  </div>
+</div>
 			
 			        <!-- 두 번째 박스 (오늘의 할 일) -->
 			        <div class="col-md-4">
@@ -265,6 +325,26 @@ layout:decorate="~{/include/layout}">
 				    font-size: 0.75rem;
 				    padding: 2px;
 				  }
+				  .dot {
+				    display: inline-block;
+				    width: 10px;
+				    height: 10px;
+				    border-radius: 50%;
+				    margin-right: 6px;
+				  }
+				  .dot-company {
+				    background-color: rgba(92, 100, 242, 1.0); /* 보라 */
+				  }
+				  .dot-department {
+				    background-color: rgba(242, 75, 120, 1.0); /* 분홍 */
+				  }
+				  .dot-personal {
+				    background-color: rgba(63, 191, 155, 1.0); /* 연두 */
+				  }
+				  .dot-vacation {
+				    background-color: rgba(242, 146, 29, 1.0); /* 노랑 */
+				    }
+
 				</style>
 			    <div class="row">
 			        <!-- 세 번째 박스 (캘린더) -->
@@ -721,54 +801,88 @@ layout:decorate="~{/include/layout}">
 	        return {
 	          html: `<div>${(planType === '부서' || planType === '휴가') ? `[${deptName}] ` : ''}${title}</div>`
 	        };
-	      }
-	    });
-	
+	      },
+	      eventDidMount: function(info) {
+	    	    const planType = info.event.extendedProps.planType;
+	    	    let backgroundColor = '';
+	    	    switch (planType) {
+	    	      case '회사': backgroundColor = 'rgba(92, 100, 242, 1.0)'; break;
+	    	      case '부서': backgroundColor = 'rgba(242, 75, 120, 1.0)'; break;
+	    	      case '개인': backgroundColor = 'rgba(63, 191, 155, 1.0)'; break;
+	    	      case '휴가': backgroundColor = 'rgba(242, 146, 29, 1.0)'; break;
+	    	    }
+	    	    if (backgroundColor) {
+	    	      info.el.style.backgroundColor = backgroundColor;
+	    	      info.el.style.border = 'none';
+	    	      info.el.style.color = 'white';
+	    	    }
+	    	  }
+	       });
 	    calendar.render();
 	  });
 	</script>
 	<script>
 	 // 오늘일정
-	  document.addEventListener('DOMContentLoaded', function () {
-	    const todayListEl = document.getElementById("today-todo-list");
-	
-	    const today = new Date();
-	    const yyyy = today.getFullYear();
-	    const mm = String(today.getMonth() + 1).padStart(2, '0');
-	    const dd = String(today.getDate()).padStart(2, '0');
-	    const todayStr = `${yyyy}-${mm}-${dd}`;
-	
-	    fetch(`/calendar/events?start=${todayStr}&end=${todayStr}&type=all`)
-	      .then(res => res.json())
-	      .then(data => {
-	        const filtered = data.filter(e => {
-	          const eventDate = e.start?.split('T')[0];
-	          return eventDate === todayStr;
-	        });
-	
-	        if (filtered.length === 0) {
-	          todayListEl.innerHTML = `<div class="text-muted">오늘 등록된 일정이 없습니다.</div>`;
-	        } else {
-	          const html = filtered.map(e => {
-	            const dept = e.extendedProps?.deptName || "미배정";
-	            const timeStr = e.start.includes('T') ? e.start.split('T')[1].slice(0, 5) : 'all-day';
-	            return `
-	              <div class="mb-2">
-	                <span class="badge bg-danger-subtle text-danger align-middle me-1">●</span>
-	                <span class="fw-semibold text-dark">[${dept}]</span>
-	                <span class="text-muted ms-1">${timeStr}</span><br>
-	                <span>${e.title}</span>
-	              </div>
-	            `;
-	          }).join('');
-	          todayListEl.innerHTML = html;
-	        }
-	      })
-	      .catch(err => {
-	        console.error("오늘 일정 로딩 실패", err);
-	        todayListEl.innerHTML = `<div class="text-danger">일정 불러오기 실패</div>`;
-	      });
-	  });
+		document.addEventListener('DOMContentLoaded', function () {
+		  const todayListEl = document.getElementById("today-todo-list");
+		
+		  const today = new Date();
+		  const yyyy = today.getFullYear();
+		  const mm = String(today.getMonth() + 1).padStart(2, '0');
+		  const dd = String(today.getDate()).padStart(2, '0');
+		  const todayStr = `${yyyy}-${mm}-${dd}`;
+		
+		  fetch(`/calendar/events?start=${todayStr}&end=${todayStr}&type=all`)
+		    .then(res => res.json())
+		    .then(data => {
+		      const filtered = data.filter(e => {
+		        const eventDate = e.start?.split('T')[0];
+		        return eventDate === todayStr;
+		      });
+		
+		      if (filtered.length === 0) {
+		        todayListEl.innerHTML = `<div class="text-muted">오늘 등록된 일정이 없습니다.</div>`;
+		      } else {
+		    	  const sorted = filtered.sort((a, b) => {
+		              const timeA = a.start.includes('T') ? a.start.split('T')[1] : '00:00';
+		              const timeB = b.start.includes('T') ? b.start.split('T')[1] : '00:00';
+		              return timeA.localeCompare(timeB);
+		            });
+
+		            const html = sorted.map(e => {
+		              const type = e.extendedProps?.planType || "";
+		              const content = e.extendedProps?.planContent || "";
+		              const timeStr = e.start.includes('T') ? e.start.split('T')[1].slice(0, 5) : '종일';
+		              const title = e.title || "";
+		
+		          // 색상 클래스
+		          let dotClass = '';
+		          switch (type) {
+		            case "회사": dotClass = "dot-company"; break;
+		            case "부서": dotClass = "dot-department"; break;
+		            case "개인": dotClass = "dot-personal"; break;
+		            case "휴가": dotClass = "dot-vacation"; break;
+		            default: dotClass = "dot-default";
+		          }
+		
+		          return `
+		            <div class="mb-3">
+		              <span class="dot ${dotClass}"></span>
+		              <strong>[${type}]</strong> ${title} <span class="text-muted ms-1">${timeStr}</span><br>
+		              <span class="text-muted small">${content}</span>
+		            </div>
+		          `;
+		        }).join('');
+		        todayListEl.innerHTML = html;
+		      }
+		    })
+		    .catch(err => {
+		      console.error("오늘 일정 로딩 실패", err);
+		      todayListEl.innerHTML = `<div class="text-danger">일정 불러오기 실패</div>`;
+		    });
+		});
+		
+
 	</script>
 	<!-- Bootstrap Common JS Files Start -->
 	
