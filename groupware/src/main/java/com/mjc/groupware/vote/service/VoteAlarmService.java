@@ -4,7 +4,12 @@ import java.util.List;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.mjc.groupware.common.websocket.entity.Alarm;
+import com.mjc.groupware.common.websocket.entity.AlarmMapping;
+import com.mjc.groupware.common.websocket.repository.AlarmMappingRepository;
+import com.mjc.groupware.common.websocket.repository.AlarmRepository;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.MemberRepository;
 import com.mjc.groupware.vote.dto.VoteAlarmDto;
@@ -17,36 +22,36 @@ import lombok.RequiredArgsConstructor;
 public class VoteAlarmService {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final AlarmRepository alarmRepository;
+    private final AlarmMappingRepository alarmMappingRepository;
     private final MemberRepository memberRepository;
 
-    public void sendAlarmToAllMembers(Vote vote, String message) {
-        List<Long> allMemberNos = memberRepository.findAll()
-                .stream()
-                .map(Member::getMemberNo)
-                .toList();
-
-        sendAlarmVoteMembers(allMemberNos, vote, message); // 참여자 대신 전체 전송
-    }
-
+    @Transactional(rollbackFor = Exception.class)
     public void sendAlarmVoteMembers(List<Long> memberNos, Vote vote, String message) {
-        boolean isAnonymous = "Y".equalsIgnoreCase(vote.getIsAnonymous());
 
+        // 1. Alarm 엔티티 저장
+        Alarm alarm = Alarm.builder()
+            .alarmTitle("투표 마감 알림")
+            .alarmMessage(message)
+            .board(vote.getBoard()) // 📌 Board 연관관계 사용
+            .build();
+
+        Alarm saved = alarmRepository.save(alarm);
+
+        // 2. WebSocket 전송 및 AlarmMapping 저장
         for (Long memberNo : memberNos) {
-            String senderName;
 
-            if (isAnonymous) {
-                senderName = "익명";
-            } else {
-                Member member = memberRepository.findById(memberNo).orElse(null);
-                if (member != null) {
-                    String deptName = member.getDept() != null ? member.getDept().getDeptName() : "부서없음";
-                    String memberName = member.getMemberName() != null ? member.getMemberName() : "익명";
-                    senderName = "[" + deptName + "]" + memberName;
-                } else {
-                    senderName = "알 수 없음";
-                }
+            Member member = memberRepository.findById(memberNo).orElse(null);
+            if (member == null) continue;
+
+            // 보낸 사람 이름 구성
+            String senderName = "익명";
+            if (!"Y".equalsIgnoreCase(vote.getIsAnonymous())) {
+                String dept = member.getDept() != null ? member.getDept().getDeptName() : "부서없음";
+                senderName = "[" + dept + "]" + member.getMemberName();
             }
 
+            // 3. VoteAlarmDto 생성
             VoteAlarmDto dto = VoteAlarmDto.builder()
                 .voteNo(vote.getVoteNo())
                 .title("투표 마감 알림")
@@ -54,7 +59,17 @@ public class VoteAlarmService {
                 .senderName(senderName)
                 .build();
 
+            // 4. STOMP WebSocket 전송
             messagingTemplate.convertAndSend("/topic/vote/alarm/" + memberNo, dto);
+
+            // 5. AlarmMapping 저장 (안 읽은 상태로)
+            AlarmMapping alarmMapping = AlarmMapping.builder()
+                .alarm(saved)
+                .member(member)
+                .readYn("N")
+                .build();
+
+            alarmMappingRepository.save(alarmMapping);
         }
     }
 }

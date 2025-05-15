@@ -15,6 +15,8 @@ import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
 import com.mjc.groupware.attendance.service.AttendanceService;
+import com.mjc.groupware.board.entity.Board;
+import com.mjc.groupware.board.service.BoardService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
@@ -32,6 +34,8 @@ public class HomeController {
 	private final AttendanceRepository attendanceRepository;
 	private final PlanService planService;
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
+	
+	private final BoardService boardService; // 게시글 추가
 	
 	@GetMapping({"", "/", "/home"})
 	public String homeView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
@@ -57,6 +61,10 @@ public class HomeController {
 	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
+	    
+		// ✅ 자유게시판 최근 게시글 5개 가져오기
+		List<Board> recentFreeBoards = boardService.selectRecentFreeBoards(5);
+		model.addAttribute("recentFreeBoards", recentFreeBoards);
 	    
 		return "home";
 	}
