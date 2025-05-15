@@ -15,6 +15,8 @@ import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
 import com.mjc.groupware.attendance.service.AttendanceService;
+import com.mjc.groupware.chat.dto.ChatRoomDto;
+import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
@@ -32,6 +34,7 @@ public class HomeController {
 	private final AttendanceRepository attendanceRepository;
 	private final PlanService planService;
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
+    private final ChatRoomService chatRoomService;
 	
 	@GetMapping({"", "/", "/home"})
 	public String homeView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
@@ -57,6 +60,11 @@ public class HomeController {
 	    
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
+	    
+	    
+	    /////// 채팅 //////
+	    List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
+		model.addAttribute("chatRoomList",resultList);
 	    
 		return "home";
 	}

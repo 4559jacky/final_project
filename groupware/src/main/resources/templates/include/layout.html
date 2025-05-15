@@ -165,6 +165,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      if (typeof updateChatRoomList === "function") {
 		        updateChatRoomList(update);
 		      }
+		      if (typeof updateHomeChatPreview === "function") {
+	    	    updateHomeChatPreview(update); // home.html 전용
+	    	  }
 		    });
 	
 		    // 안 읽은 메시지 수 → chat.html로 위임
