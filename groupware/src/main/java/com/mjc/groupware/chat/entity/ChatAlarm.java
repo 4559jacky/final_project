@@ -58,4 +58,8 @@ public class ChatAlarm {
 
 	@Column(name="chat_alarm_content")
 	private String chatAlarmContent;
+	
+	@ManyToOne
+	@JoinColumn(name="chat_room_no")
+    private ChatRoom chatRoomNo;
 }

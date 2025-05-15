@@ -297,6 +297,7 @@ public class ChatRoomService {
 	    if (sb.length() > 0) sb.setLength(sb.length() - 2);
 	    return sb.length() > 0 ? sb.toString() : "이름 없는 채팅방";
 	}
+	
 
 
 }

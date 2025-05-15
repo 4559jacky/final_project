@@ -62,10 +62,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 	<!-- 채팅 알림 모달 -->
 	<div id="chatAlertToast" class="position-fixed end-0 bottom-0 m-4 p-3 shadow-lg rounded-3 border bg-white text-dark d-none" style="width: 320px; z-index: 1080;">
-	  <div class="fw-bold text-primary mb-2">[채팅 알림] 새로운 메시지가 도착했습니다.</div>
-	  <div><strong>제목:</strong> <span id="toast-chat-title">-</span></div>
-	  <div><strong>보낸 사람:</strong> <span id="toast-sender-name">-</span></div>
-	  <div><strong>내용:</strong> <span id="toast-msg-content">-</span></div>
+	  <div class="fw-bold text-primary mb-2">[알림] 채팅 </div>
+	  <div><strong><span id="toast-chat-title">-</span></strong></div>
+	  <div> <span id="toast-sender-name">-</span> : <span id="toast-msg-content">-</span></div>
 	  <input type="hidden" id="toast-room-no" />
 	</div>
 
@@ -112,6 +111,39 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   	<span id="vote-toast-msg">마감 메시지</span>
 	</div>
 	
+	
+	<!-- ✅ 커스텀 alert 모달 -->
+	<div class="modal fade" id="customAlertModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered">
+	    <div class="modal-content border-0 shadow-sm rounded-4 px-4 py-3" style="max-width: 400px;">
+	      <div class="d-flex justify-content-end">
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	      <div class="modal-body text-center text-body">
+	        <p id="customAlertMsg" class="fs-5 mb-4">알림 내용</p>
+	        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">확인</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<!-- ✅ 커스텀 confirm 모달 -->
+	<div class="modal fade" id="customConfirmModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered">
+	    <div class="modal-content border-0 shadow-sm rounded-4 px-4 py-3" style="max-width: 400px;">
+	      <div class="d-flex justify-content-end">
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	      <div class="modal-body text-center text-body">
+	        <p id="customConfirmMsg" class="fs-5 mb-4">정말 진행하시겠습니까?</p>
+	        <div class="d-flex justify-content-center gap-3">
+	          <button type="button" id="confirmYesBtn" class="btn btn-primary px-4">확인</button>
+	          <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">취소</button>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 
 	<!-- Common JS Files -->
   
@@ -279,22 +311,25 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		// 채팅 헤더 알림 실시간 반영 
 		function increaseAlarmBadge() {
-		  const btns = document.querySelectorAll("#chatAlarmBtn"); // ✅ 모든 화면에 대응
+		  const btns = document.querySelectorAll("#chatAlarmBtn");
 		
 		  btns.forEach(btn => {
 		    let badge = btn.querySelector(".chat-popup-badge");
 		
 		    if (!badge) {
+		      // ✅ 새로운 뱃지 생성 시 위치 및 스타일 확실하게 세팅
 		      badge = document.createElement("span");
-		      badge.className = "popup-badge rounded-pill bg-danger text-white fs-2";
+		      badge.className = "chat-popup-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white";
 		      badge.textContent = "1";
 		      btn.appendChild(badge);
 		    } else {
 		      let count = parseInt(badge.textContent.trim() || "0", 10);
 		      badge.textContent = ++count;
+		      badge.style.display = "inline-block"; // 혹시 숨겨져 있었으면 보여줌
 		    }
 		  });
 		}
+
 
 		function prependAlarmToDropdown(dto) {
 			  const dropdowns = document.querySelectorAll(".chat-message-body");
@@ -302,6 +337,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 			  dropdowns.forEach(dropdown => {
 			    dropdown.style.display = "block";
+
+			    // ✅ 기존 "알림이 없습니다." 문구 제거
+			    const noAlarmMsg = dropdown.querySelector(".no-alarm-message");
+			    if (noAlarmMsg) noAlarmMsg.remove();
 
 			    const link = document.createElement("a");
 			    link.href = "javascript:void(0)";
@@ -350,6 +389,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		
 		document.addEventListener("DOMContentLoaded", () => {
+			
 			// 알림 클릭 시 채팅방 이동 
 			document.addEventListener("click", function (e) {
 			  const item = e.target.closest(".dropdown-item");
@@ -358,6 +398,47 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			  const roomNo = item.dataset.roomNo;
 			  if (roomNo) {
 			    console.log("🔥 알림 클릭됨! → 이동: ", roomNo);
+				// 알림 클릭 시 삭제 
+				if (roomNo) {
+				  console.log("🔥 알림 클릭됨! → 이동: ", roomNo);
+				  sessionStorage.setItem("enterRoomNo", roomNo); // ✅ 저장
+				
+				  // ✅ 알림 읽음 처리 요청
+				  fetch(`/chat/alarm/read/${roomNo}`, {
+				    method: "POST",
+				    headers: {
+				      "Content-Type": "application/json",
+				      [csrfHeader]: csrfToken
+				    },
+				    body: JSON.stringify({ memberNo: myNo })
+				  })
+				  .then(res => res.json())
+				  .then(data => {
+				    // ✅ 해당 채팅방 알림 DOM 삭제
+				    document.querySelectorAll(`.chat-message-body .dropdown-item[data-room-no="${roomNo}"]`).forEach(el => el.remove());
+				
+				    // ✅ 뱃지 숫자 갱신
+				    const badge = document.querySelector("#chatAlarmBtn .chat-popup-badge");
+				    if (badge) {
+				      let count = parseInt(badge.textContent || "0", 10);
+				      let removed = data.removedCount || 0;
+				      count = Math.max(0, count - removed);
+				      badge.textContent = count;
+				      if (count === 0) badge.style.display = "none";
+				    }
+				
+				    // ✅ 알림 비었으면 문구 삽입
+				    const dropdown = document.querySelector(".chat-message-body");
+				    if (dropdown && dropdown.querySelectorAll(".dropdown-item").length === 0) {
+				      dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-message">알림이 없습니다.</div>`;
+				    }
+				  });
+				
+				  // ✅ 마지막에 이동
+				  window.location.href = `/chat`;
+				}
+
+			    
 			    sessionStorage.setItem("enterRoomNo", roomNo); // ✅ 저장
 			    window.location.href = `/chat`;
 			  }
@@ -406,9 +487,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				    dropdown.style.display = "block";
 
 				    if (list.length === 0) {
-				      dropdown.innerHTML = `<div class="px-3 py-2 text-muted">알림이 없습니다.</div>`;
-				      return;
-				    }
+				    	  dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-message">알림이 없습니다.</div>`;
+				    	  return;
+				    	} else {
+				    	  // 혹시 "알림 없음" 메시지가 남아있으면 제거
+				    	  const noAlarm = dropdown.querySelector(".no-alarm-message");
+				    	  if (noAlarm) noAlarm.remove();
+				    	}
+
 
 				    list.forEach(alarm => {
 				      const chatRoomName = alarm.chat_room_name || "채팅방";
@@ -433,9 +519,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				}
 
 		  });
-		//////////////////////////////////// 다른 알람 헤더에 적용 /////////////////////////////////////////
 		
-		// 채팅 헤더 알림 실시간 반영 
+		
+		
+		////////////////////////////////////전자결재  알람 헤더에 적용 /////////////////////////////////////////
+		
+		//  헤더 알림 실시간 반영 
 		function prependOtherAlarmToDropdown(dto) {
 			  const dropdowns = document.querySelectorAll(".alarm-message-body");
 			  if (!dropdowns.length) return;
@@ -599,6 +688,49 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 		  });
 
+		
+		
+		//////////////////////alrt, confirm 완전 대체 /////////////////////////////////////////
+		
+		// 💥 alert 완전 대체
+		window.alert = function(message) {
+		  const msgEl = document.getElementById("customAlertMsg");
+		  msgEl.textContent = message;
+
+		  const modal = new bootstrap.Modal(document.getElementById("customAlertModal"));
+		  modal.show();
+		};
+
+		// 💥 confirm 완전 대체 (비동기 Promise 버전)
+		window.confirm = function(message) {
+		  return new Promise((resolve) => {
+		    const msgEl = document.getElementById("customConfirmMsg");
+		    msgEl.textContent = message;
+
+		    const modalEl = document.getElementById("customConfirmModal");
+		    const modal = new bootstrap.Modal(modalEl);
+		    modal.show();
+
+		    // 버튼 초기화 (이벤트 중복 방지)
+		    const yesBtnOld = document.getElementById("confirmYesBtn");
+		    const yesBtnNew = yesBtnOld.cloneNode(true);
+		    yesBtnOld.parentNode.replaceChild(yesBtnNew, yesBtnOld);
+
+		    yesBtnNew.addEventListener("click", () => {
+		      modal.hide();
+		      resolve(true);
+		    });
+
+		    // "취소" 누르거나 닫으면 false
+		    modalEl.addEventListener("hidden.bs.modal", () => {
+		      resolve(false);
+		    }, { once: true });
+		  });
+		};
+
+		
+		
+		
 	</script>
 
 </body>

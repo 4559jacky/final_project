@@ -161,46 +161,58 @@ layout:decorate="~{include/layout :: layout}">
 				}
 			})
 			
-			// 회의실 삭제
-			const deleteMeetingRoom = function (meetingRoomNo) {
-				if (confirm("회의실을 삭제하시겠습니까?")) {
-					fetch('/admin/delete/'+meetingRoomNo, { 
-						method: 'delete',
-						headers : {
-							'header': document.querySelector('meta[name="_csrf_header"]').content,
-			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
-						if (data.res_code == 200) {
-							location.reload();
-						}
-					});
-				}
+			// ✅ 회의실 삭제 (기존 deleteMeetingRoom 그대로)
+			function deleteMeetingRoom(meetingRoomNo) {
+			  (async () => {
+			    const confirmed = await confirm("회의실을 삭제하시겠습니까?");
+			    if (!confirmed) return;
+			
+			    try {
+			      const response = await fetch('/admin/delete/' + meetingRoomNo, {
+			        method: 'DELETE',
+			        headers: {
+			          'header': document.querySelector('meta[name="_csrf_header"]').content,
+			          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			        },
+			      });
+			
+			      const data = await response.json();
+			      alert(data.res_msg);
+			      if (data.res_code == 200) {
+			        location.reload();
+			      }
+			    } catch (error) {
+			      console.error("❌ 회의실 삭제 실패:", error);
+			    }
+			  })();
 			}
 			
-			// 회의실 상태 변경
-			const updateMeetingRoomStatus = function (meetingRoomNo) {
-				if (confirm("회의실의 상태를 변경하시겠습니까?")) {
-					fetch('/admin/updateStatus/'+meetingRoomNo, { 
-						method: 'post',
-						headers : {
-							'header': document.querySelector('meta[name="_csrf_header"]').content,
-			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
-						if (data.res_code == 200) {
-							location.reload();
-						}
-					});
-				}
-			}
+			// ✅ 회의실 상태 변경 (기존 updateMeetingRoomStatus 그대로)
+			function updateMeetingRoomStatus(meetingRoomNo) {
+			  (async () => {
+			    const confirmed = await confirm("회의실의 상태를 변경하시겠습니까?");
+			    if (!confirmed) return;
 			
+			    try {
+			      const response = await fetch('/admin/updateStatus/' + meetingRoomNo, {
+			        method: 'POST',
+			        headers: {
+			          'header': document.querySelector('meta[name="_csrf_header"]').content,
+			          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			        },
+			      });
+			
+			      const data = await response.json();
+			      alert(data.res_msg);
+			      if (data.res_code == 200) {
+			        location.reload();
+			      }
+			    } catch (error) {
+			      console.error("❌ 상태 변경 실패:", error);
+			    }
+			  })();
+			}
+
 			// 수정 모달창에 정보 셋팅
 			function openUpdateModal(btn) {
 				const id = btn.getAttribute("data-id");
