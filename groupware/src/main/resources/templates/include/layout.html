@@ -77,13 +77,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  bottom: 30px;
 	  right: 30px;
 	  background: white;
-	  border: 2px solid #0d6efd;
+	  border-radius: 12px;
 	  padding: 20px;
 	  z-index: 99999;
 	  display: block;
+	  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1) important!;
 	  opacity: 1;
 	">
-	  <strong>[알림]</strong><br>
+	  <strong class="text-primary">[알림]</strong>&nbsp;
 	  <span id="approval-toast-title">테스트 제목</span><br>
 	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
 	</div>
@@ -229,7 +230,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    if (!wrapper) return;
 		
 		    // 내용 세팅
-		    document.getElementById("approval-toast-title").textContent = dto.title || "전자결재";
+		    document.getElementById("approval-toast-title").innerHTML = `<strong>${dto.title}</strong>` || "전자결재";
 		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
 		
 		    // 모달 표시
