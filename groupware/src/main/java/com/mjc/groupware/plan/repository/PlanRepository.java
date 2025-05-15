@@ -27,6 +27,9 @@ public interface PlanRepository extends JpaRepository<Plan, Long>{
 	    @Param("end") LocalDateTime end,
 	    @Param("type") String type
 	);
+	
+	@Query("SELECT p FROM Plan p WHERE FUNCTION('DATE', p.startDate) = :today AND p.planType = :planType")
+	List<Plan> findAllByStartDateAndPlanType(@Param("today") LocalDate today, @Param("planType") String planType);
 
 	
 }
