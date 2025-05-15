@@ -683,48 +683,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		// --------------------------------투표 마감 알림--------------------------------------------------------
         // ✅ 모든 페이지에서 마감 투표 알림 등록 요청
     stompClient.send("/app/vote/register", {}, JSON.stringify({ memberNo: myNo }));
-
-
-		
-		
-		//////////////////////alrt, confirm 완전 대체 /////////////////////////////////////////
-		
-		// 💥 alert 완전 대체
-		window.alert = function(message) {
-		  const msgEl = document.getElementById("customAlertMsg");
-		  msgEl.textContent = message;
-
-		  const modal = new bootstrap.Modal(document.getElementById("customAlertModal"));
-		  modal.show();
-		};
-
-		// 💥 confirm 완전 대체 (비동기 Promise 버전)
-		window.confirm = function(message) {
-		  return new Promise((resolve) => {
-		    const msgEl = document.getElementById("customConfirmMsg");
-		    msgEl.textContent = message;
-
-		    const modalEl = document.getElementById("customConfirmModal");
-		    const modal = new bootstrap.Modal(modalEl);
-		    modal.show();
-
-		    // 버튼 초기화 (이벤트 중복 방지)
-		    const yesBtnOld = document.getElementById("confirmYesBtn");
-		    const yesBtnNew = yesBtnOld.cloneNode(true);
-		    yesBtnOld.parentNode.replaceChild(yesBtnNew, yesBtnOld);
-
-		    yesBtnNew.addEventListener("click", () => {
-		      modal.hide();
-		      resolve(true);
-		    });
-
-		    // "취소" 누르거나 닫으면 false
-		    modalEl.addEventListener("hidden.bs.modal", () => {
-		      resolve(false);
-		    }, { once: true });
-		  });
-		};
-
 		
 	
     // ✅ 마감 투표 알림 수신 구독
@@ -820,6 +778,50 @@ function checkClosed() {
   }
 }
 
+
+
+
+
+
+
+		//////////////////////alrt, confirm 완전 대체 /////////////////////////////////////////
+		
+		// 💥 alert 완전 대체
+		window.alert = function(message) {
+		  const msgEl = document.getElementById("customAlertMsg");
+		  msgEl.textContent = message;
+		
+		  const modal = new bootstrap.Modal(document.getElementById("customAlertModal"));
+		  modal.show();
+		};
+		
+		// 💥 confirm 완전 대체 (비동기 Promise 버전)
+		window.confirm = function(message) {
+		  return new Promise((resolve) => {
+		    const msgEl = document.getElementById("customConfirmMsg");
+		    msgEl.textContent = message;
+		
+		    const modalEl = document.getElementById("customConfirmModal");
+		    const modal = new bootstrap.Modal(modalEl);
+		    modal.show();
+		
+		    // 버튼 초기화 (이벤트 중복 방지)
+		    const yesBtnOld = document.getElementById("confirmYesBtn");
+		    const yesBtnNew = yesBtnOld.cloneNode(true);
+		    yesBtnOld.parentNode.replaceChild(yesBtnNew, yesBtnOld);
+		
+		    yesBtnNew.addEventListener("click", () => {
+		      modal.hide();
+		      resolve(true);
+		    });
+		
+		    // "취소" 누르거나 닫으면 false
+		    modalEl.addEventListener("hidden.bs.modal", () => {
+		      resolve(false);
+		    }, { once: true });
+		  });
+		};
+		
 	</script>
 
 </body>
