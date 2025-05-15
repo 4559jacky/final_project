@@ -140,41 +140,44 @@
               <!-- 접근 :: 일반사원, 회의실담당자, 최고관리자 -->
               <!-- ============================= -->
               
-              <li class="sidebar-item">
-	          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-	            	<span class="rounded-3">
-	                	<i class="ti ti-apps"></i>
-	                </span>
-	                <span class="hide-menu">부가기능</span>
-	           	</a>
-	            <ul aria-expanded="false" class="collapse first-level">
-		            <th:block th:each="funcNo : ${accessibleFuncNoList}">
-			      		<th:block th:if="${funcNo == 29}">
-				      		<li class="sidebar-item">
-			                    <a th:href="@{/meetingRoom}" class="sidebar-link inner-sidebar-item">
-			                    	<i class="ti ti-calendar-event"></i>
-			                    	<span class="hide-menu">회의실예약</span>
-			                    </a>
-		                  	</li>
-			      		</th:block>
-			      	</th:block>
-			      	<th:block th:each="funcNo : ${accessibleFuncNoList}">
-			      		<th:block th:if="${funcNo == 31}">
-		                  	<li class="sidebar-item">
-			                	<a th:href="@{/accommodation}" class="sidebar-link inner-sidebar-item">
-			                    	<i class="fas fa-hands-helping"></i>
-			                    	<span class="hide-menu">사내복지</span>
-			                    </a>
-			            	</li>
-			      		</th:block>
-			      	</th:block>
-	    		</ul>
-	   		  </li>
+              <th:block th:if="${additionalMenu}">
+	              <li class="sidebar-item">
+		          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+		            	<span class="rounded-3">
+		                	<i class="ti ti-apps"></i>
+		                </span>
+		                <span class="hide-menu">부가기능</span>
+		           	</a>
+		            <ul aria-expanded="false" class="collapse first-level">
+			            <th:block th:each="funcNo : ${accessibleFuncNoList}">
+				      		<th:block th:if="${funcNo == 29}">
+					      		<li class="sidebar-item">
+				                    <a th:href="@{/meetingRoom}" class="sidebar-link inner-sidebar-item">
+				                    	<i class="ti ti-calendar-event"></i>
+				                    	<span class="hide-menu">회의실예약</span>
+				                    </a>
+			                  	</li>
+				      		</th:block>
+				      	</th:block>
+				      	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+				      		<th:block th:if="${funcNo == 31}">
+			                  	<li class="sidebar-item">
+				                	<a th:href="@{/accommodation}" class="sidebar-link inner-sidebar-item">
+				                    	<i class="fas fa-hands-helping"></i>
+				                    	<span class="hide-menu">사내복지</span>
+				                    </a>
+				            	</li>
+				      		</th:block>
+				      	</th:block>
+		    		</ul>
+		   		  </li>
+              </th:block>
  				
-				<!-- =================== -->
-		        <!-- 설정 메뉴 :: 특정 권한이 있어야만 접근할 수 있음 -->
-		        <!-- =================== -->
- 				
+			  <!-- =================== -->
+		      <!-- 설정 메뉴 :: 특정 권한이 있어야만 접근할 수 있음 -->
+		      <!-- =================== -->
+		      
+ 			  <th:block th:if="${#authentication.principal.member.role.roleNo == 1 or showSettingMenu}">	
  				<li class="sidebar-item">
  					<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
  						<span class="rounded-3">
@@ -370,6 +373,7 @@
               		  
 	                </ul>
  				</li>
+ 			  </th:block>
 
             </ul>
           </nav>

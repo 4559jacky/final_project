@@ -83,7 +83,7 @@ layout:decorate="~{include/layout :: layout}">
 					      <div class="text-center">
 					        <!-- 업로드 이미지 (클릭 이벤트용) -->
 					        <img id="preview_image"
-					        	th:src="${companyDto != null && companyDto.profile_image_path != null ? '/uploads/' + companyDto.new_name : '/assets/images/big/img3.jpg'}"
+					        	th:src="${companyDto != null && companyDto.profile_image_path != null ? '/uploads/' + companyDto.new_name : '/img/mjc_profile_logo.png'}"
 					        	alt="profile-img"
 					            class="img-fluid rounded"
 					            style="width: 120px; height: 120px; object-fit: cover; cursor: pointer; transition: 0.2s;"
