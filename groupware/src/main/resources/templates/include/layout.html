@@ -437,7 +437,11 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			  if (!dropdowns.length) return;
 
 			  dropdowns.forEach(dropdown => {
+				
 			    dropdown.style.display = "block";
+			    
+			    const emptyMsg = dropdown.querySelector(".no-alarm-msg");
+			    if (emptyMsg) emptyMsg.remove();
 
 			    const link = document.createElement("a");
 			    link.href = "javascript:void(0)";
@@ -460,6 +464,18 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			    `;
 
 			    dropdown.prepend(link);
+			    
+			    const otherAlarmBtnSmall = document.getElementById('otherAlarmBtnSmall');
+			      otherAlarmBtnSmall.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+			      const otherAlarmBtnBig = document.getElementById('otherAlarmBtnBig');
+			      otherAlarmBtnBig.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+			      
+			      
+			      const alarmCntBig = document.getElementById('alarmCountBig');
+			      const alarmCntSmall = document.getElementById('alarmCountSmall');
+
+			      alarmCntBig.textContent = 'NEW';
+			      alarmCntSmall.textContent = 'NEW';
 			  });
 			}
 		
@@ -568,9 +584,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				    dropdown.style.display = "block";
 
 				    if (list.length === 0) {
-				      dropdown.innerHTML = `<div class="px-3 py-2 text-muted">알림이 없습니다.</div>`;
+				    	dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-msg">새로운 알림이 없습니다.</div>`;
 				      return;
 				    }
+				    
+				    let alarmCntBig = document.getElementById('alarmCountBig');
+				    let alarmCntSmall = document.getElementById('alarmCountSmall');
+				    
+				    alarmCntBig.textContent = 'NEW';
+				    alarmCntSmall.textContent = 'NEW';
 
 				    list.forEach(alarm => {
 				    	const link = document.createElement("a");
@@ -589,6 +611,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					      </div>
 					    `;
 				      dropdown.appendChild(link);
+				      
+				      const otherAlarmBtnSmall = document.getElementById('otherAlarmBtnSmall');
+				      otherAlarmBtnSmall.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+				      const otherAlarmBtnBig = document.getElementById('otherAlarmBtnBig');
+				      otherAlarmBtnBig.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+				      
 				    });
 				  });
 				}
