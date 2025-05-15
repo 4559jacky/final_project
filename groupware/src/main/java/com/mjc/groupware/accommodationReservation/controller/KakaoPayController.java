@@ -35,7 +35,7 @@ public class KakaoPayController {
         ReadyResponse readyResponse = kakaoPayService.payReady(name, totalPrice);
         // 세션에 결제 고유번호(tid) 저장
         SessionUtils.addAttribute("tid", readyResponse.getTid());
-
+        System.out.println("결제 고유번호: " + readyResponse.getTid());
         return readyResponse;
     }
 
@@ -43,7 +43,9 @@ public class KakaoPayController {
     public String payCompleted(@RequestParam("pg_token") String pgToken) {
     
         String tid = SessionUtils.getStringAttributeValue("tid");
-
+//        log.info("결제승인 요청을 인증하는 토큰: " + pgToken);
+//        log.info("결제 고유번호: " + tid);
+        
         // 카카오 결제 요청하기
         ApproveResponse approveResponse = kakaoPayService.payApprove(tid, pgToken);
 
