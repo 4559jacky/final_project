@@ -93,6 +93,13 @@ public class GlobalModelAttribute {
 	    
 	    model.addAttribute("accessibleFuncNoList", accessibleFuncNoList);
 	    
+	    // 게시판 메뉴가 보여야할 지 판단하여 플래그를 뿌려줌
+	    boolean boardMenu = accessibleFuncNoList.stream()
+	    	    .anyMatch(no -> no == 24 || no == 26);
+	    
+	    model.addAttribute("boardMenu", boardMenu);
+	    
+	    
 	    // 부가기능 메뉴가 보여야할 지 판단하여 플래그를 뿌려줌
 	    boolean additionalMenu = accessibleFuncNoList.stream()
 	    	    .anyMatch(no -> no == 29 || no == 31);

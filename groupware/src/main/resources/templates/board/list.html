@@ -127,9 +127,13 @@
     <br>
 	
 	<!-- 게시글 작성 버튼은 오른쪽에 고정 -->
-		<div class="d-flex justify-content-end mb-3">
-    		<a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
-		</div><br>
+	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+		<th:block th:if="${funcNo == 25}">
+			<div class="d-flex justify-content-end mb-3">
+	    		<a class="btn btn-primary" th:href="@{/board/create}">게시글 작성</a>
+			</div><br>
+		</th:block>
+	</th:block>
 		
 <!--게시글이 없을 경우에는 페이징이 생성되지 않게 만듦 -->
 <div class="d-flex flex-column align-items-center mt-4">
