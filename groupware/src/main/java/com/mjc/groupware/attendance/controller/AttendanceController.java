@@ -103,7 +103,7 @@ public class AttendanceController {
 	    model.addAttribute("posList", posService.selectPosAll());
 	    model.addAttribute("annualLeavePolicyList", annualLeavePolicyRepository.findAllByOrderByYearAsc());
 
-	    return "/attendance/admin/attendanceManagement";
+	    return "attendance/admin/attendanceManagement";
 	}
 	
 	// 근태 정책 업데이트
@@ -165,7 +165,7 @@ public class AttendanceController {
 		model.addAttribute("pageDto", pageDto);
 		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
 		
-		return "/attendance/admin/annualLeaveManagement";
+		return "attendance/admin/annualLeaveManagement";
 	}
 	
 	@GetMapping("/holiday")
@@ -278,7 +278,7 @@ public class AttendanceController {
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
-	    return "/attendance/user/attendanceInfo";
+	    return "attendance/user/attendanceInfo";
 	}
 	
 	@GetMapping("/attendance/log")
@@ -299,7 +299,7 @@ public class AttendanceController {
 	    model.addAttribute("searchDto", searchDto);
 	    model.addAttribute("member", member);
 		
-		return "/attendance/user/attendanceLog";
+		return "attendance/user/attendanceLog";
 	}
 	
 	// 출근 시간 저장

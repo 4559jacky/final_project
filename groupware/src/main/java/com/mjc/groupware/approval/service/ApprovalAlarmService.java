@@ -27,20 +27,25 @@ public class ApprovalAlarmService {
 	
 	@Transactional(rollbackFor=Exception.class)
 	public void sendAlarmToMembers(List<Long> memberNos, Approval approval, String message) {
-        ApprovalAlarmDto dto = ApprovalAlarmDto.builder()
-                .approvalNo(approval.getApprNo())
-                .title("전자결재 알람")
-                .message(message)
-                .senderName(approval.getMember().getMemberName())
-                .build();
-        
-        Alarm alarm = Alarm.builder()
-        		.alarmTitle("전자결재 알람")
+		
+		Alarm alarm = Alarm.builder()
+        		.alarmTitle("전자결재")
         		.alarmMessage(message)
         		.approval(approval)
         		.build();
         
         Alarm saved = alarmRepository.save(alarm);
+		
+		ApprovalAlarmDto dto = ApprovalAlarmDto.builder()
+				.alarmNo(saved.getAlarmNo())
+                .title("전자결재")
+                .message(message)
+                .senderName(approval.getMember().getMemberName())
+                .alarmType("approval")
+                .otherPkNo(approval.getApprNo())
+                .approvalMemberNo(approval.getMember().getMemberNo())
+                .build();
+        
 
         for (Long memberNo : memberNos) {
         	
@@ -54,7 +59,6 @@ public class ApprovalAlarmService {
                 		.alarm(saved)
                 		.member(member)
                 		.readYn("N")
-                		.deleteYn("N")
                 		.build();
             	
             	alarmMappingRepository.save(alarmMapping);

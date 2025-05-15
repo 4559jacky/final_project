@@ -59,13 +59,13 @@ public class ApprovalController {
 		
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
 		model.addAttribute("formList", resultList);
-		return "/approval/admin/approvalManagement";
+		return "approval/admin/approvalManagement";
 	}
 	
 	// 결재 양식 생성 페이지로 이동
 	@GetMapping("/admin/approvalForm/create")
 	public String createApprovalAdminView() {
-		return "/approval/admin/createApprovalForm";
+		return "approval/admin/createApprovalForm";
 	}
 	
 	// 결재 양식 생성
@@ -101,7 +101,7 @@ public class ApprovalController {
 	public String updateApprovalFormView(@PathVariable("id") Long id, Model model) {
 	    ApprovalFormDto dto = service.selectApprovalFormById(id);
 	    model.addAttribute("form", dto);
-	    return "/approval/admin/updateApprovalForm";
+	    return "approval/admin/updateApprovalForm";
 	}
 	
 	
@@ -182,7 +182,7 @@ public class ApprovalController {
 	    model.addAttribute("searchDto", searchDto);
 	    model.addAttribute("approvalStatusTypeDto", astd);
 		
-		return "/approval/user/sendApproval";
+		return "approval/user/sendApproval";
 	}
 	
 	@GetMapping("/approval/send/detail/{id}")
@@ -203,7 +203,7 @@ public class ApprovalController {
 	    model.addAttribute("attachList", attachList);
 	    model.addAttribute("return_result", return_result);
 		
-		return "/approval/user/sendApprovalDetail";
+		return "approval/user/sendApprovalDetail";
 	}
 	
 	@GetMapping("/approval/receive")
@@ -236,11 +236,11 @@ public class ApprovalController {
 	    model.addAttribute("searchDto", searchDto);
 	    model.addAttribute("statusCnt", statusCnt);
 	    
-		return "/approval/user/receiveApproval";
+		return "approval/user/receiveApproval";
 	}
 	
 	@GetMapping("/approval/receive/detail/{id}")
-	public String receiveApprovalDetailView(@PathVariable("id") Long id, Model model) {
+	public String receiveApprovalDetailView(@PathVariable("id") Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
 		
 	    Approval approval = service.selectApprovalOneByApprovalNo(id);
 	    List<ApprApprover> approverList = service.selectApprApproverAllByApprovalNo(id);
@@ -249,13 +249,19 @@ public class ApprovalController {
 	    
 	    List<ApprovalAttach> attachList= approvalAttachService.findByApproval(approval);
 	    
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+	    model.addAttribute("member", member);
+	    
 	    model.addAttribute("approval", approval);
 	    model.addAttribute("attachList", attachList);
 	    model.addAttribute("approverList", approverList);
 	    model.addAttribute("agreementerList", agreementerList);
 	    model.addAttribute("referencerList", referencerList);
 		
-		return "/approval/user/receiveApprovalDetail";
+		return "approval/user/receiveApprovalDetail";
 	}
 	
 	@GetMapping("/approval/create")
@@ -270,7 +276,7 @@ public class ApprovalController {
 		List<ApprovalForm> resultList = service.selectApprovalFormAll();
 		model.addAttribute("formList", resultList);
 		model.addAttribute("member", member);
-		return "/approval/user/createApproval";
+		return "approval/user/createApproval";
 	}
 	
 	// 결재 양식 선택
@@ -307,14 +313,20 @@ public class ApprovalController {
 	@PostMapping("/approval/create")
 	@ResponseBody
 	public Map<String,String> createApprovalApi(ApprovalDto approvalDto,
-												@RequestParam("files") List<MultipartFile> files) {
+												@RequestParam("files") List<MultipartFile> files,
+												@AuthenticationPrincipal UserDetails userDetails) {
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "500");
 		resultMap.put("res_msg", "결재 요청에 실패하였습니다.");
 		
+		String userId = userDetails.getUsername();
+		MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+		
 		System.out.println("결재자 : "+approvalDto.getApprover_no().get(0));
 		
-		int result = service.createApprovalApi(approvalDto, files);
+		int result = service.createApprovalApi(approvalDto, files, entity);
 		
 		if(result > 0) {
 			resultMap.put("res_code", "200");

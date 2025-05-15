@@ -42,3 +42,15 @@
   opacity: 1 !important;
 }
 
+.dropdown-alarm {
+    pointer-events: auto !important;
+    cursor: pointer;
+    background-color: white !important;
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+  
+.alarm-message-body {
+  max-height: 300px; /* 적당히 5개 높이 정도로 제한 */
+  overflow-y: auto;
+}

@@ -166,14 +166,26 @@ public class ChatAttachController {
                         if (!isInRoom) {
                             chatAlarmService.createChatAlarm(roomNo, receiverNo, savedMsg);
 
+                         // ✅ 알림 내용
+                            String alarmContent = mimeType != null && mimeType.startsWith("image/")
+                                    ? sender.getMemberName() + "님이 이미지를 전송했습니다."
+                                    : sender.getMemberName() + "님이 파일을 전송했습니다.";
+
+                            // ✅ 방 이름 구성
+                            String displayTitle = chatRoomService.getChatRoomDisplayTitle(chatRoom,memberNo);
+
+                            // ✅ 실시간 알림 DTO 구성
                             ChatMsgDto alarmDto = new ChatMsgDto();
                             alarmDto.setMember_no(receiverNo);
                             alarmDto.setMember_name(sender.getMemberName());
                             alarmDto.setMember_pos_name(sender.getPos().getPosName());
                             alarmDto.setChat_msg_content(content);
                             alarmDto.setChat_room_no(roomNo);
+                            alarmDto.setChat_alarm_content(alarmContent); // 알림 메시지
+                            alarmDto.setChat_room_title(displayTitle);  // 알림에 쓸 방 이름
 
                             messagingTemplate.convertAndSend("/topic/chat/alarm/" + receiverNo, alarmDto);
+
                         }
                     }
                 }

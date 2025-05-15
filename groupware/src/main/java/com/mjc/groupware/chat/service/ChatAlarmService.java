@@ -100,6 +100,7 @@ public class ChatAlarmService {
 		            .chat_room_name(title)
 		            .chat_msg_no(msg.getChatMsgNo())
 		            .chat_msg_content(msg.getChatMsgContent())
+		            .chat_alarm_content(alarm.getChatAlarmContent())
 		            .member_no(sender.getMemberNo())
 		            .sender_name(sender.getMemberName())
 		            .sender_pos_name(sender.getPos() != null ? sender.getPos().getPosName() : "")

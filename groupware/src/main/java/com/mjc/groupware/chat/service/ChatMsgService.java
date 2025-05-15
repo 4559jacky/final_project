@@ -1,9 +1,9 @@
 package com.mjc.groupware.chat.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,8 +13,9 @@ import com.mjc.groupware.chat.entity.ChatMsg;
 import com.mjc.groupware.chat.entity.ChatRoom;
 import com.mjc.groupware.chat.repository.ChatMsgRepository;
 import com.mjc.groupware.chat.repository.ChatRoomRepository;
-import com.mjc.groupware.chat.specification.ChatMsgSpecification;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.entity.MemberAttach;
+import com.mjc.groupware.member.repository.MemberAttachRepository;
 import com.mjc.groupware.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,41 @@ public class ChatMsgService {
 	private final ChatMsgRepository chatMsgRepository;
 	private final ChatRoomRepository chatRoomRepository;
 	private final MemberRepository memberRepository;
+	private final MemberAttachRepository attachRepository;
 
 	
 	// 채팅 메세지 조회 selectChatMsg
-	public List<ChatMsg> selectChatMsgList(Long chatRoomNo) {
-	    return chatMsgRepository.findAllWithAttachByChatRoomNo(chatRoomNo);
+	public List<ChatMsgDto> selectChatMsgList(Long chatRoomNo) {
+	    List<ChatMsg> resultlist = chatMsgRepository.findAllWithAttachByChatRoomNo(chatRoomNo);
+	    List<ChatMsgDto> dtoList = new ArrayList<>();
+
+	    for (ChatMsg msg : resultlist) {
+	        ChatMsgDto dto = new ChatMsgDto().toDto(msg);
+
+	        // ✅ 프로필 경로 직접 생성
+	        Member sender = msg.getMemberNo();
+	        String profilePath = "/img/one-people-circle.png";
+	        MemberAttach profileAttach = attachRepository.findTop1ByMemberOrderByRegDateDesc(sender);
+
+	        if (profileAttach != null && profileAttach.getAttachPath() != null && !profileAttach.getAttachPath().isBlank()) {
+	            String rawPath = profileAttach.getAttachPath();
+
+	            if (rawPath.contains("/upload/groupware/")) {
+	                profilePath = rawPath.substring(rawPath.indexOf("/upload/groupware/"));
+	            } else {
+	                profilePath = rawPath.replace("C:\\upload\\groupware", "/upload/groupware")
+	                                     .replace("C:/upload/groupware", "/upload/groupware")
+	                                     .replace("\\", "/");
+	            }
+	        }
+
+	        // ✅ DTO에 직접 주입
+	        dto.setProfile_path(profilePath);
+
+	        dtoList.add(dto);
+	    }
+
+	    return dtoList;
 	}
 
 	

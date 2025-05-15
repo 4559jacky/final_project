@@ -83,9 +83,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  display: block;
 	  opacity: 1;
 	">
-	  <strong>[전자결재 도착]</strong><br>
+	  <strong>[알림]</strong><br>
 	  <span id="approval-toast-title">테스트 제목</span><br>
-	  <span id="approval-toast-sender">홍길동</span><br>
 	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
 	</div>
 	
@@ -171,6 +170,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    stompClient.subscribe("/topic/chat/unread", (message) => {
 		      const dto = JSON.parse(message.body);
 	
+		    	 
 		      if (typeof onUnreadMessage === "function") {
 		        onUnreadMessage(dto);
 		      }
@@ -227,11 +227,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		    // 내용 세팅
 		    document.getElementById("approval-toast-title").textContent = dto.title || "전자결재";
-		    document.getElementById("approval-toast-sender").textContent = dto.senderName || "";
 		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
 		
 		    // 모달 표시
 		    wrapper.classList.remove("d-none");
+		    
+		    setTimeout(() => {
+			    prependOtherAlarmToDropdown(dto);
+			}, 100);
 		
 		    // 자동 닫기 (5초 후)
 		    setTimeout(() => {
@@ -303,7 +306,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			    link.innerHTML = `
 			      <div class="w-100">
 			        <h6 class="mb-0 fs-4 lh-base">${dto.chat_room_title || "채팅방"}</h6>
-			        <span class="fs-3 d-block text-body-secondary">${dto.member_name} : ${dto.chat_msg_content || "새로운 메시지"}</span>
+			        <span class="fs-3 d-block text-body-secondary">${dto.member_name} : ${dto.chat_alarm_content || "새로운 메시지"}</span>
 			      </div>
 			    `;
 
@@ -405,7 +408,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				    list.forEach(alarm => {
 				      const chatRoomName = alarm.chat_room_name || "채팅방";
 				      const sender = `${alarm.sender_name || ''} ${alarm.sender_pos_name || ''}`;
-				      const content = alarm.chat_msg_content || "새로운 메시지가 도착했습니다.";
+				      const content = alarm.chat_alarm_content || "새로운 메시지가 도착했습니다.";
 
 				      const link = document.createElement("a");
 				      link.href = "javascript:void(0)";
@@ -425,7 +428,199 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				}
 
 		  });
+		//////////////////////////////////// 다른 알람 헤더에 적용 /////////////////////////////////////////
+		
+		// 채팅 헤더 알림 실시간 반영 
+		function prependOtherAlarmToDropdown(dto) {
+			  const dropdowns = document.querySelectorAll(".alarm-message-body");
+			  if (!dropdowns.length) return;
 
+			  dropdowns.forEach(dropdown => {
+				
+			    dropdown.style.display = "block";
+			    
+			    const emptyMsg = dropdown.querySelector(".no-alarm-msg");
+			    if (emptyMsg) emptyMsg.remove();
+
+			    const link = document.createElement("a");
+			    link.href = "javascript:void(0)";
+			    link.classList.add("dropdown-alarm", "py-6", "px-7", "d-flex", "align-items-center");
+			    link.setAttribute("data-type", dto.alarmType);
+			    link.setAttribute("data-alarm-no", dto.alarmNo);
+			    link.setAttribute("data-no", dto.otherPkNo);
+			    link.setAttribute("data-member-no", dto.approvalMemberNo);
+			    console.log(dto);
+			    let nowMemberNo = document.getElementById('member_no').value;
+			    let approvalMemberNo = dto.approvalMemberNo;
+			    console.log("🔍 현재 유저:", nowMemberNo, "결재올린 유저:", approvalMemberNo);
+				console.log("=== 결과:", parseInt(nowMemberNo) === parseInt(approvalMemberNo));
+
+			    link.innerHTML = `
+			      <div class="w-100">
+			        <h6 class="mb-0 fs-4 lh-base">${dto.title || "전자결재"}</h6>
+			        <span class="fs-3 d-block text-body-secondary">${dto.message || "새로운 메시지"}</span>
+			      </div>
+			    `;
+
+			    dropdown.prepend(link);
+			    
+			    const otherAlarmBtnSmall = document.getElementById('otherAlarmBtnSmall');
+			      otherAlarmBtnSmall.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+			      const otherAlarmBtnBig = document.getElementById('otherAlarmBtnBig');
+			      otherAlarmBtnBig.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+			      
+			      
+			      const alarmCntBig = document.getElementById('alarmCountBig');
+			      const alarmCntSmall = document.getElementById('alarmCountSmall');
+
+			      alarmCntBig.textContent = 'NEW';
+			      alarmCntSmall.textContent = 'NEW';
+			  });
+			}
+		
+		document.addEventListener("DOMContentLoaded", () => {
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+			const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+			// 알림 클릭 시 채팅방 이동 
+			document.addEventListener("click", function (e) {
+				let alarm = e.target;
+
+			  while (alarm && !alarm.classList.contains("dropdown-alarm")) {
+			    alarm = alarm.parentElement;
+			  }
+
+			  if (!alarm) return;
+
+			  const type = alarm.dataset.type;
+			  const alarmNo = alarm.dataset.alarmNo; // 알람 PK
+			  const no = alarm.dataset.no; // 결재,공지사항,자유게시판 PK
+			  const memberNo = parseInt(alarm.dataset.memberNo, 10); // 결재 기안자 PK
+			  const nowMemberNo = parseInt(document.getElementById('member_no').value, 10); // 현재 접속자 PK
+			  
+			  if(memberNo === nowMemberNo) {
+				  if (type && no) {
+					    switch (type) {
+					      case "approval":
+					        window.location.href = `/approval/send/detail/${no}`;
+					        break;
+					      case "notice":
+					        window.location.href = `/notice/detail/${no}`;
+					        break;
+					      case "board":
+					        window.location.href = `/board/detail/${no}`;
+					        break;
+					      default:
+					        console.warn("알 수 없는 알림 타입:", type);
+					    }
+				  }
+			  } else {
+				  if (type && no) {
+					    switch (type) {
+					      case "approval":
+					        window.location.href = `/approval/receive/detail/${no}`;
+					        break;
+					      case "notice":
+					        window.location.href = `/notice/detail/${no}`;
+					        break;
+					      case "board":
+					        window.location.href = `/board/detail/${no}`;
+					        break;
+					      default:
+					        console.warn("알 수 없는 알림 타입:", type);
+					    }
+				  }
+			  }
+			  
+			  fetch(`/alarm/read/${alarmNo}`, {
+				  method: "GET",
+				    headers: {
+				      [csrfHeader]: csrfToken
+				    }
+				  })
+				  .catch(err => {
+				    console.error("알림 상태 변환 실패:", err);
+			  	});
+			
+			  
+			});
+			
+			if (!myNo) return;
+
+			  
+			  fetch('/alarm/list', {
+			    method: "POST",
+			    headers: {
+			      "Content-Type": "application/json",
+			      [csrfHeader]: csrfToken
+			    }
+			  })
+			  .then(res => res.json())
+			  .then(data => {
+			     renderAlarms(data); 
+			  })
+			  .catch(err => {
+			    console.error("알림 불러오기 실패:", err);
+			  });
+			  
+			  function renderAlarms(list) {
+				  const dropdowns = document.querySelectorAll(".alarm-message-body");
+/* 				  const btns = document.querySelectorAll("#otherAlarmBtn");
+
+				  btns.forEach(btn => {
+				    let badge = btn.querySelector(".alarm-popup-badge");
+				    if (!badge) {
+				      badge = document.createElement("span");
+				      badge.className = "chat-popup-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white";
+				      btn.appendChild(badge);
+				    }
+				    badge.textContent = list.length;
+				    badge.style.display = list.length > 0 ? "inline-block" : "none";
+				  }); */
+
+				  // dropdown에 알림 목록 표시
+				  dropdowns.forEach(dropdown => {
+				    dropdown.innerHTML = "";
+				    dropdown.style.display = "block";
+
+				    if (list.length === 0) {
+				    	dropdown.innerHTML = `<div class="px-3 py-2 text-muted no-alarm-msg">새로운 알림이 없습니다.</div>`;
+				      return;
+				    }
+				    
+				    let alarmCntBig = document.getElementById('alarmCountBig');
+				    let alarmCntSmall = document.getElementById('alarmCountSmall');
+				    
+				    alarmCntBig.textContent = 'NEW';
+				    alarmCntSmall.textContent = 'NEW';
+
+				    list.forEach(alarm => {
+				    	const link = document.createElement("a");
+					    link.href = "javascript:void(0)";
+					    link.classList.add("dropdown-alarm", "py-6", "px-7", "d-flex", "align-items-center");
+					    link.setAttribute("data-type", alarm.alarmType);
+					    link.setAttribute("data-alarm-no", alarm.alarmNo);
+					    link.setAttribute("data-no", alarm.otherPkNo);
+					    if(alarm.alarmType == 'approval') {
+					    	link.setAttribute("data-member-no", alarm.approvalMemberNo);
+					    }
+					    link.innerHTML = `
+					      <div class="w-100">
+					        <h6 class="mb-0 fs-4 lh-base">${alarm.title || "전자결재"}</h6>
+					        <span class="fs-3 d-block text-body-secondary">${alarm.message || "새로운 메시지"}</span>
+					      </div>
+					    `;
+				      dropdown.appendChild(link);
+				      
+				      const otherAlarmBtnSmall = document.getElementById('otherAlarmBtnSmall');
+				      otherAlarmBtnSmall.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+				      const otherAlarmBtnBig = document.getElementById('otherAlarmBtnBig');
+				      otherAlarmBtnBig.innerHTML = '<i class="ti ti-bell-ringing"></i><div class="notification bg-primary rounded-circle"></div>';
+				      
+				    });
+				  });
+				}
+
+		  });
 
 	</script>
 
