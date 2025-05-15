@@ -44,6 +44,7 @@ layout:decorate="~{include/layout :: layout}">
 	  </div>
 	</div>
 	
+	
 	<!-- 💥 사원 근태 관리 감싸던 div 제거됨 -->
 
 	<!-- 📌 바로 이 div부터 시작 -->
@@ -222,6 +223,14 @@ layout:decorate="~{include/layout :: layout}">
 	    </div>
 	  </div>
 	</div>
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			  $('#workPolicyModal').on('hidden.bs.modal', function() {
+				    location.reload();
+			  });
+			});
+	</script>
 	
 	<script>
 		workTimeForm = document.work_time_form;
