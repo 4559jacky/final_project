@@ -20,6 +20,8 @@ import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
+import com.mjc.groupware.notice.entity.Notice;
+import com.mjc.groupware.notice.service.NoticeService;
 import com.mjc.groupware.plan.entity.Plan;
 import com.mjc.groupware.plan.service.PlanService;
 
@@ -34,7 +36,9 @@ public class HomeController {
 	private final AttendanceRepository attendanceRepository;
 	private final PlanService planService;
 	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
+	private final NoticeService noticeService;
     private final ChatRoomService chatRoomService;
+
 	
 	@GetMapping({"", "/", "/home"})
 	public String homeView(Model model, @AuthenticationPrincipal UserDetails userDetails) {
@@ -61,6 +65,12 @@ public class HomeController {
 	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
 	    model.addAttribute("workPolicy", wsp);
 	    
+
+		// ✅ 공지사항 최신 3건 추가
+		List<Notice> latestNoticeList = noticeService.getLatestNotices(3);
+		model.addAttribute("latestNotices", latestNoticeList);
+		
+
 	    
 	    /////// 채팅 //////
 	    List<ChatRoomDto> resultList = chatRoomService.selectChatRoomAll();
@@ -78,5 +88,4 @@ public class HomeController {
 	public String sampleView() {
 		return "sample";
 	}
-
 }

@@ -189,19 +189,43 @@ layout:decorate="~{/include/layout}">
 			        <!-- 첫 번째 박스 (공지사항 및 자유게시판) -->
 			        <div class="col-md-8">
 			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;">
+			                <div class="card-body" style="height: 360px;">
 			                    <div class="hstack gap-6 mb-3">
 			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-alert-circle"></i>
 			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-primary">공지사항</a>
+			                        <a href="/notice" class="text-dark link-primary">공지사항</a>
 			                    </div>
-		                        <div>
-		                        	공지사항 th<br>
-		                        	최신 공지 1<br>
-		                        	최신 공지 2<br>
-		                        	최신 공지 3
-		                        </div>
+		                       <div class="table-wrapper bg-white rounded-3 shadow-sm" style="max-height: 190px; overflow-y: auto;">
+ 							<table class="table table-sm align-middle text-center mb-0">
+   								 <thead class="bg-light" style="font-size: 13px;">
+    								  <tr>
+      								 	 <th style="width: 12%">번호</th>
+       									 <th class="text-start">제목</th>
+       									 <th style="width: 30%">등록일</th>
+      								  </tr>
+    							 </thead>
+    						<tbody>
+     				 <!-- 고정글 -->
+   							   <tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix == 'Y'}"
+          						   class="fixed-row" style="background-color: #fce4ec; font-size: 13px; cursor: pointer;"
+          						   th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
+        					      <td>📌</td>
+        						  <td class="text-start fw-semibold text-truncate" th:text="${notice.noticeTitle}">제목</td>
+        						  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
+      						   </tr>
+
+      				<!-- 일반글 -->
+      							<tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix != 'Y'}"
+          							style="font-size: 13px; cursor: pointer;"
+          							th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
+        						  <td th:text="${notice.noticeNo}">1</td>
+                                  <td class="text-start text-truncate" th:text="${notice.noticeTitle}">제목</td>
+                                  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
+      							</tr>
+    						</tbody>
+  						</table>
+					 </div>
 		                        <div class="hstack gap-6 mt-3 mb-3">
 			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-clipboard-text"></i>
@@ -283,6 +307,7 @@ layout:decorate="~{/include/layout}">
 				  }
 				  .dot-vacation {
 				    background-color: rgba(242, 146, 29, 1.0); /* 노랑 */
+				    }
 				</style>
 			    <div class="row">
 			        <!-- 세 번째 박스 (캘린더) -->
