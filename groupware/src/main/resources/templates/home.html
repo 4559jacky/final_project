@@ -44,7 +44,10 @@ layout:decorate="~{/include/layout}">
 						    <h5 class="fs-4 mb-1" th:text="${#authentication.principal.member.memberName}">사용자 이름</h5>
 							
 							<div class="mb-1 text-muted small">
-							    <span th:text="'#' + ${#authentication.principal.member.memberNo}">사번</span>
+							    <span id="loginMemberNo" 
+								      th:text="'#' + ${#authentication.principal.member.memberNo}"
+								      th:attr="data-member-no=${#authentication.principal.member.memberNo}">
+								</span>
 							</div>
 							
 						    <div class="text-center text-muted small">
@@ -203,6 +206,43 @@ layout:decorate="~{/include/layout}">
       								  </tr>
     							 </thead>
     						<tbody>
+     				 <!-- 고정글 -->
+   							   <tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix == 'Y'}"
+          						   class="fixed-row" style="background-color: #fce4ec; font-size: 13px; cursor: pointer;"
+          						   th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
+        					      <td>📌</td>
+        						  <td class="text-start fw-semibold text-truncate" th:text="${notice.noticeTitle}">제목</td>
+        						  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
+      						   </tr>
+
+      				<!-- 일반글 -->
+      							<tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix != 'Y'}"
+          							style="font-size: 13px; cursor: pointer;"
+          							th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
+        						  <td th:text="${notice.noticeNo}">1</td>
+                                  <td class="text-start text-truncate" th:text="${notice.noticeTitle}">제목</td>
+                                  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
+      							</tr>
+    						</tbody>
+  						</table>
+					 </div>
+		                        <div class="hstack gap-6 mt-3 mb-3">
+			                        <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="javascript:void(0)">
+			                            <i class="ti ti-clipboard-text"></i>
+			                        </a>
+			                        <a href="javascript:void(0)" class="text-dark link-primary">자유게시판</a>
+
+			                    </div>
+		                       <div class="table-wrapper bg-white rounded-3 shadow-sm" style="max-height: 190px; overflow-y: auto;">
+ 							<table class="table table-sm align-middle text-center mb-0">
+   								 <thead class="bg-light" style="font-size: 13px;">
+    								  <tr>
+      								 	 <th style="width: 12%">번호</th>
+       									 <th class="text-start">제목</th>
+       									 <th style="width: 30%">등록일</th>
+      								  </tr>
+    							 </thead>
+    						<tbody>
      				 			<!-- 고정글 -->
    							   <tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix == 'Y'}"
           						   class="fixed-row" style="background-color: #fce4ec; font-size: 13px; cursor: pointer;"
@@ -270,7 +310,6 @@ layout:decorate="~{/include/layout}">
     </tbody>
   </table>
 </div>
-
     </div>
   </div>
 </div>
@@ -340,7 +379,8 @@ layout:decorate="~{/include/layout}">
 				  }
 				  .dot-vacation {
 				    background-color: rgba(242, 146, 29, 1.0); /* 노랑 */
-				  }  
+				    }
+
 				</style>
 			    <div class="row">
 			        <!-- 세 번째 박스 (캘린더) -->
@@ -367,31 +407,195 @@ layout:decorate="~{/include/layout}">
 			
 			        <!-- 네 번째 박스 (채팅) -->
 			        <div class="col-md-4">
-			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;">
-			                    <div class="hstack gap-6 mb-3">
-			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
-			                            <i class="ti ti-message-circle"></i>
-			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-secondary">채팅</a>
-			                    </div>
-			                    <div>
-			                    	내 채팅방 상위 5개
-			                    </div>
-			                </div>
-			            </div>
-			        </div>
-			        
+					  <div class="card shadow-none border">
+					    <div class="card-body" style="height: 360px; max-height: 360px; padding: 15px;">
+					      <div class="hstack gap-3 mb-3">
+					        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
+					          <i class="ti ti-message-circle"></i>
+					        </a>
+					        <a th:href="@{/chat}" class="text-dark link-secondary fs-3">채팅</a>
+					      </div>
+					
+					      <div class="app-chat" style="height: 310px; overflow-y: auto;">
+							  <div data-simplebar style="height: 100%;">
+							    <ul th:if="${!#lists.isEmpty(chatRoomList)}" class="chat-users mb-0">
+							    
+							      <li th:each="chatRoom, stat : ${chatRoomList}" th:if="${stat.index < 5}" class="mb-2">
+							        <a href="javascript:void(0)"
+									   class="px-2 py-2 d-flex align-items-center justify-content-between chat-user"
+									   th:attr="data-room-id=${chatRoom.chat_room_no}"
+									   style="width: 100%;">
+									  
+									  <!-- 왼쪽: 이미지 + 텍스트 -->
+									  <div class="d-flex align-items-center" style="max-width: calc(100% - 110px); min-width: 0;">
+									    <img th:src="@{${chatRoom.profile_img_path}}" alt="profile"
+									         width="32" height="32" class="rounded-circle" />
+									    <div class="ms-2" style="min-width: 0;">
+									      <h6 th:text="${chatRoom.chat_room_title}" class="mb-1 fw-semibold fs-2 text-truncate">채팅방 이름</h6>
+									      <span th:text="${chatRoom.last_msg}" class="fs-1 text-truncate text-body-color last-msg d-block" style="max-width: 140px;">
+									        마지막 메세지
+									      </span>
+									    </div>
+									  </div>
+									
+									  <!-- 오른쪽: 시간 + 뱃지 -->
+									  <div class="d-flex flex-column align-items-end" style="min-width: 100px; margin-left: 8px;">
+									    <p th:text="${#temporals.format(chatRoom.last_msg_date, 'yy-MM-dd HH:mm')}"
+									       class="fs-1 mb-1 text-muted text-end"
+									       style="white-space: nowrap;">보낸시간</p>
+									    <span class="badge bg-danger rounded-pill unread-badge"
+									          style="font-size:10px; padding:2px 6px; line-height:1;"></span>
+									  </div>
+									</a>
+							      </li>
+							    </ul>
+							
+							    <ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0" id="empty-chat-msg">
+							      <li>
+							        <div class="text-center">
+							          <h6 class="mb-1 fw-semibold chat-title fs-6">현재 채팅 중인 방이 없습니다.</h6>
+							        </div>
+							      </li>
+							    </ul>
+							  </div>
+							</div>
+					    </div>
+					  </div>
+					</div>
 			    </div>
 			</div>
-
 		</div>
 	</div>
 	
 	<script>
-         	const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-       </script>
+         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		 const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    </script>
+
+	<!-- 채팅  -->
+	<script>
+		 document.addEventListener("DOMContentLoaded", function () {
+			 const loginMemberNo = document.getElementById("loginMemberNo")?.dataset.memberNo;
+			 
+			 // 채팅방 목록에서 클릭 시 채팅방으로 이동
+			 document.querySelectorAll(".chat-user").forEach(item => {
+		      item.addEventListener("click", function () {
+		        const roomNo = item.getAttribute("data-room-id");
+		        if (!roomNo) return;
+		
+		        console.log("✅ 홈 채팅방 클릭됨 → 이동 roomNo:", roomNo);
+		        sessionStorage.setItem("enterRoomNo", roomNo);
+		        window.location.href = "/chat";
+		      });
+		    });
+			 
+            // 뱃지 조회 호출
+		    document.querySelectorAll(".chat-user").forEach(chat => {
+		      const roomNo = chat.getAttribute("data-room-id");
+		      if (roomNo && loginMemberNo) {
+		        showUnreadBadge(roomNo, loginMemberNo);
+		      }
+		    });
+		  });
+			 
+	    // 실시간 메세지 + 뱃지 반영
+		function updateHomeChatPreview(update) {
+			  const chatUser = document.querySelector(`.chat-user[data-room-id="${update.chat_room_no}"]`);
+			  if (!chatUser) return;
+	
+			  // 마지막 메세지
+			  const msgEl = chatUser.querySelector(".last-msg");
+			  if (msgEl) {
+			    msgEl.textContent = update.chat_msg_content;
+			  }
+	
+			  // 보낸 시간
+			  const timeEl = chatUser.querySelector(".text-muted");
+			  if (timeEl) {
+			    timeEl.textContent = formatTime(update.send_date); // ✅ 아래 format 함수도 같이 정의 필요
+			  }
+	
+			  // 뱃지 처리
+			  const badge = chatUser.querySelector(".unread-badge");
+			  if (badge) {
+			    let count = parseInt(badge.textContent || "0", 10);
+			    badge.textContent = count + 1;
+			  } else {
+			    const badgeEl = document.createElement("span");
+			    badgeEl.className = "badge bg-danger rounded-pill unread-badge";
+			    badgeEl.textContent = "1";
+	
+			    // 뱃지 들어갈 자리 찾아서 append (시간 오른쪽 박스 div)
+			    const badgeTarget = chatUser.querySelector(".d-flex.flex-column.align-items-end");
+			    if (badgeTarget) badgeTarget.appendChild(badgeEl);
+			  }
+			}
+
+		
+	    // 뱃지 조회 
+	    function showUnreadBadge(roomNo, memberNo) {
+		  fetch("/chat/unread/count", {
+		    method: "POST",
+		    headers: {
+		      "Content-Type": "application/json",
+		      "header": document.querySelector('meta[name="_csrf_header"]').content,
+		      "X-CSRF-Token": document.querySelector('meta[name="_csrf"]').content
+		    },
+		    body: JSON.stringify({
+		      chat_room_no: roomNo,
+		      member_no: memberNo
+		    })
+		  })
+		    .then(res => res.text())
+		    .then(count => {
+		      const chatUser = document.querySelector(`.chat-user[data-room-id="${roomNo}"]`);
+		      if (!chatUser) return;
+		
+		      let badge = chatUser.querySelector(".badge");
+		
+		      // ❗ 뱃지가 없다면 새로 생성
+		      if (!badge) {
+		        badge = document.createElement("span");
+		        badge.className = "badge rounded-pill unread-badge";
+		        badge.style.fontSize = "10px";
+		        badge.style.padding = "2px 6px";
+		        badge.style.lineHeight = "1";
+		
+		        const target = chatUser.querySelector(".d-flex.flex-column.align-items-end");
+		        if (target) target.appendChild(badge);
+		      }
+		
+		      // ✅ 뱃지 내용 설정
+		      if (parseInt(count) > 0) {
+		        badge.classList.add("bg-danger");
+		        badge.textContent = count;
+		      } else {
+		        badge.classList.remove("bg-danger");
+		        badge.textContent = "";
+		      }
+		    })
+		    .catch(err => console.error("안읽은 메시지 표시 실패:", err));
+		}
+ 
+	    // 시간 함수 
+		function formatTime(dateStr) {
+			  if (!dateStr) return "";
+	
+			  const date = new Date(dateStr);
+			  const yy = String(date.getFullYear()).slice(2);
+			  const MM = String(date.getMonth() + 1).padStart(2, '0');
+			  const dd = String(date.getDate()).padStart(2, '0');
+			  const hh = String(date.getHours()).padStart(2, '0');
+			  const mm = String(date.getMinutes()).padStart(2, '0');
+	
+			  return `${yy}-${MM}-${dd} ${hh}:${mm}`;
+			}
+
+	    
+	    
+	</script>
+
+
 
 	<script>
 		const startTime = function () {
