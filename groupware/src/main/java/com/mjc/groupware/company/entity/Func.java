@@ -46,6 +46,9 @@ public class Func {
 	@JoinColumn(name="parent_func_no")
 	private Func parentFunc;
 	
+	@Column(name="func_order")
+	private Integer funcOrder;
+	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
 	private LocalDateTime regDate;

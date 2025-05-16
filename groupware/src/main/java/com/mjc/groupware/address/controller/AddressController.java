@@ -20,10 +20,6 @@ public class AddressController {
 	@GetMapping("/address/addr2")
 	@ResponseBody
 	public List<String> selectAddr2AllByAddr1(@RequestParam("addr1") String addr1) {
-		if (addr1 == null || addr1.trim().isEmpty()) {
-	        throw new IllegalArgumentException("addr1 값이 잘못되었습니다.");
-	    }
-
 		List<String> addr2List = service.selectAddr2ByAddr1(addr1);
 		
 		return addr2List;
