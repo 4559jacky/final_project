@@ -35,11 +35,11 @@ public class VoteAlarmService {
         Board board = vote.getBoard();
 
         // ✅ 중복 마감 알림 방지: 동일 게시글에 이미 마감 알림이 있는지 확인
-        boolean exists = alarmRepository.findByBoardAndAlarmTitle(board, "투표 마감 알림").isPresent();
-        if (exists) {
-            System.out.println("⚠️ 이미 마감 알림이 존재합니다.");
-            return;
-        }
+//        boolean exists = alarmRepository.findByBoardAndAlarmTitle(board, "투표 마감 알림").isPresent();
+//        if (exists) {
+//            System.out.println("⚠️ 이미 마감 알림이 존재합니다.");
+//            return;
+//        }
 
         // ✅ Alarm 저장
         Alarm alarm = Alarm.builder()

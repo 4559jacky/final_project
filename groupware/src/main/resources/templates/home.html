@@ -206,7 +206,7 @@ layout:decorate="~{/include/layout}">
       								  </tr>
     							 </thead>
     						<tbody>
-     				 <!-- 고정글 -->
+     				 			<!-- 고정글 -->
    							   <tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix == 'Y'}"
           						   class="fixed-row" style="background-color: #fce4ec; font-size: 13px; cursor: pointer;"
           						   th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
@@ -215,7 +215,7 @@ layout:decorate="~{/include/layout}">
         						  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
       						   </tr>
 
-      				<!-- 일반글 -->
+      							<!-- 일반글 -->
       							<tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix != 'Y'}"
           							style="font-size: 13px; cursor: pointer;"
           							th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
@@ -228,55 +228,57 @@ layout:decorate="~{/include/layout}">
 					 </div>
 					 <br>
 
-<!-- 자유게시판 제목 -->
-<div class="hstack gap-6 mb-3">
-  <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="/board/list">
-    <i class="ti ti-clipboard-text"></i>
-  </a>
-  <a href="/board/list" class="text-dark link-primary">자유게시판</a>
-</div>
+				
+					<!-- 자유게시판 제목 -->
+					<div class="hstack gap-6 mt-2 mb-1">
+					  <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="/board/list">
+					    <i class="ti ti-clipboard-text"></i>
+					  </a>
+					  <a href="/board/list" class="text-dark link-primary">자유게시판</a>
+					</div>
+					
+					<!-- 자유게시판 테이블 -->
+					<div class="table-wrapper bg-white rounded-3 shadow-sm" style="max-height: 190px; overflow-y: auto;">
+					  <table class="table table-sm align-middle text-center mb-0">
+					    <thead class="bg-light" style="font-size: 13px;">
+					      <tr>
+       					  	<th class="text-center">제목</th>
+       						<th style="width: 20%">작성자</th>
+       						<th style="width: 30%">등록일</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					      <!-- 고정글 먼저 출력 -->
+					      <tr th:each="board : ${recentBoards}" th:if="${board.isFixed}"
+					          style="background-color: #e8f5e9; font-weight: bold; font-size: 13px; cursor: pointer;"
+					          th:onclick="|location.href='/board/detail/${board.boardNo}'|">
+					        <td class="text-start fw-semibold text-truncate">
+					          <span th:if="${board.vote != null}">[투표] </span>
+					          <span th:text="|📌 ${board.boardTitle}|">제목</span>
+					        </td>
+					        <td th:text="${board.member.memberName}">작성자</td>
+					        <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">날짜</td>
+					      </tr>
+					
+					<!-- 일반글 출력 -->
+					<tr th:with="total=${recentBoards.size()}"
+					    th:each="board : ${recentBoards}"
+					    style="font-size: 13px; cursor: pointer;"
+					    th:onclick="|location.href='/board/detail/${board.boardNo}'|">
+					  <td class="text-start text-truncate">
+					    <span th:if="${board.vote != null}">[투표] </span>
+					    <span th:text="${board.boardTitle}">제목</span>
+					  </td>
+					  <td th:text="${board.member.memberName}">작성자</td>
+					  <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">날짜</td>
+					</tr>
+					    </tbody>
+					  </table>
+					</div>
 
-<!-- 자유게시판 테이블 -->
-<div class="table-wrapper bg-white rounded-3 shadow-sm" style="max-height: 190px; overflow-y: auto;">
-  <table class="table table-sm align-middle text-center mb-0">
-    <thead class="bg-light" style="font-size: 13px;">
-      <tr>
-        <th style="width: 12%">번호</th>
-        <th class="text-start">제목</th>
-        <th style="width: 30%">등록일</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- 고정글 먼저 출력 -->
-      <tr th:each="board : ${recentBoards}" th:if="${board.isFixed}"
-          style="background-color: #e8f5e9; font-size: 13px; cursor: pointer;"
-          th:onclick="|location.href='/board/detail/${board.boardNo}'|">
-        <td>📌</td>
-        <td class="text-start fw-semibold text-truncate">
-          <span th:if="${board.vote != null}">🗳️ </span>
-          <span th:text="${board.boardTitle}">제목</span>
-        </td>
-        <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">날짜</td>
-      </tr>
-
-<!-- 일반글 출력 (번호 역순) -->
-<tr th:with="total=${recentBoards.size()}"
-    th:each="board, stat : ${recentBoards}"
-    style="font-size: 13px; cursor: pointer;"
-    th:onclick="|location.href='/board/detail/${board.boardNo}'|">
-  <td th:text="${total - stat.index}">5</td> <!-- ← 역순 번호 -->
-  <td class="text-start text-truncate">
-    <span th:if="${board.vote != null}">🗳️ </span>
-    <span th:text="${board.boardTitle}">제목</span>
-  </td>
-  <td th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}">날짜</td>
-</tr>
-    </tbody>
-  </table>
-</div>
-    </div>
-  </div>
-</div>
+				    </div>
+				  </div>
+				</div>
 			
 			        <!-- 두 번째 박스 (오늘의 할 일) -->
 			        <div class="col-md-4">
@@ -416,9 +418,9 @@ layout:decorate="~{/include/layout}">
 							
 							    <ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0" id="empty-chat-msg">
 							      <li>
-							        <div class="text-center">
-							          <h6 class="mb-1 fw-semibold chat-title fs-6">현재 채팅 중인 방이 없습니다.</h6>
-							        </div>
+							        <div>
+									  <div class="text-muted" style="font-size: 13px;">&nbsp;&nbsp;&nbsp;현재 채팅중인 방이 없습니다.</div>
+									</div>
 							      </li>
 							    </ul>
 							  </div>

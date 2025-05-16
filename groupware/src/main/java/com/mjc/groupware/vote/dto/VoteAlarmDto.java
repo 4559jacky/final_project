@@ -16,8 +16,8 @@ import lombok.ToString;
 @ToString
 public class VoteAlarmDto {
     private Long voteNo;
+    private Long boardNo;
     private String title;
     private String message;
     private String senderName;
-    private Long boardNo;
 }

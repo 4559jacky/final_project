@@ -184,9 +184,8 @@ public class BoardService {
         return repository.findByIsFixedTrueAndBoardStatusNot("Y", Sort.by(Sort.Order.desc("regDate")));
     }
     
- // 자유게시판 최신글 N개 조회 (삭제된 글, 고정글 제외)
     @Transactional(readOnly = true)
-    public List<Board> selectRecentAllBoards(int limit) {
-        return repository.findByBoardStatusAndIsFixedFalseOrderByRegDateDesc("N", PageRequest.of(0, limit)).getContent();
+    public List<Board> selectRecentAllBoardsWithFixed(int limit) {
+        return repository.findByBoardStatusOrderByIsFixedDescRegDateDesc("N", PageRequest.of(0, limit)).getContent();
     }
 }
