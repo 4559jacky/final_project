@@ -290,7 +290,7 @@ layout:decorate="~{include/layout :: layout}">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-calendar"></i>
 			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-secondary">오늘일정</a>
+			                        <a href="/calendar" class="text-dark link-secondary">오늘일정</a>
 			                    </div>
 			                    <div id="today-todo-list" class="small">
 								  <div class="text-muted">오늘 등록된 일정이 없습니다.</div>
@@ -301,7 +301,13 @@ layout:decorate="~{include/layout :: layout}">
 			    </div>
 				
 				<style>
-				  /* 캘린더 툴바 줄이기 */
+				  .fc-day-sun .fc-daygrid-day-number {
+				    color: red !important;
+				  }
+				
+				  .fc-day-sat .fc-daygrid-day-number {
+				    color: blue !important;
+				  }
 				  .fc-toolbar {
 				    font-size: 0.85rem;
 				    padding: 4px 0;
@@ -360,7 +366,7 @@ layout:decorate="~{include/layout :: layout}">
 			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
 			                            <i class="ti ti-calendar"></i>
 			                        </a>
-			                        <a href="javascript:void(0)" class="text-dark link-secondary">일정</a>
+			                        <a href="/calendar" class="text-dark link-secondary">일정</a>
 			                    </div>
 			                    <div>
 			                    	<div id="calendar"
