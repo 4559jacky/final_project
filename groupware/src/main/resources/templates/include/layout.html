@@ -89,28 +89,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	</div>
 	
 	
-			<!-- ✅ 투표 마감 알림 토스트창 추가 -->
-		<div id="vote-alert-toast" class="d-none" style="
-		  position: fixed;
-		  bottom: 30px;
-		  right: 30px;
-		  background: #fffbe6;
-		  border: 2px solid #ffc107;
-		  padding: 24px 28px;
-		  z-index: 99999;
-		  border-radius: 14px;
-		  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		  font-size: 1.1rem;
-		  line-height: 1.6rem;
-		  width: 340px;
-		  max-width: 90%;">
-		  <strong style="font-size: 1.2rem;">[투표 마감]</strong><br>
-		  <span id="vote-toast-title">투표 제목</span><br>
-		  <span id="vote-toast-sender">작성자</span><br>
-		  <span id="vote-toast-msg">마감 메시지</span>
-		</div>
-	
-	
 	<!-- ✅ 커스텀 alert 모달 -->
 	<div class="modal fade" id="customAlertModal" tabindex="-1" aria-hidden="true">
 	  <div class="modal-dialog modal-dialog-centered">
@@ -167,106 +145,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 		  stompClient.connect({}, () => {
 		    console.log("📡 STOMP WebSocket 연결 성공");
-		    
-		 //-----------------------투표마감--------------------------------------------------
-			// ✅ 서버에 알림 구독 등록(게시글 상세에서만 가능함) - 전체적으로 실행 불가
-			stompClient.send("/app/vote/register", {}, JSON.stringify({ memberNo: myNo }));
-			
-			// ✅ 실시간 알림 수신
-			stompClient.subscribe(`/topic/vote/alarm/${myNo}`, (msg) => {
-			  const dto = JSON.parse(msg.body);
-			  console.log("📢 투표 마감 알림 수신:", dto);
-			  showVoteAlertToast(dto.title, dto.senderName, dto.message, dto.boardNo);
-			});
-			
-			// ✅ 새로고침 시 마감 알림 체크
-			checkClosed();
-			
-			// 🟡 투표 마감 알림 토스트 + 드롭다운 추가
-			function showVoteAlertToast(title, senderName, msg, boardNo) {
-			  const wrapper = document.getElementById("vote-alert-toast");
-			  if (!wrapper) return;
-			
-			  document.getElementById("vote-toast-title").textContent = title || "투표 마감";
-			  document.getElementById("vote-toast-sender").textContent = senderName || "";
-			  document.getElementById("vote-toast-msg").textContent = msg || "투표가 마감되었습니다.";
-			
-			  wrapper.classList.remove("d-none", "active");
-			  void wrapper.offsetWidth;
-			  wrapper.classList.add("active");
-			
-			  // 🛎️ 종 드롭다운에 추가
-			  if (boardNo) {
-			    prependOtherAlarmToDropdown({
-			      alarmType: "board",
-			      boardNo,
-			      title,
-			      senderName,
-			      message: msg,
-			      alarmNo: `vote-${boardNo}`
-			    });
-			  }
-			
-			  setTimeout(() => {
-			    wrapper.classList.add("d-none");
-			  }, 5000);
-			}
-			
-			// 🛎️ 드롭다운에 새 알림 삽입
-			function prependOtherAlarmToDropdown(dto) {
-			  const dropdowns = document.querySelectorAll(".alarm-message-body");
-			  if (!dropdowns.length) return;
-			
-			  dropdowns.forEach(dropdown => {
-			    dropdown.style.display = "block";
-			
-			    const emptyMsg = dropdown.querySelector(".no-alarm-msg");
-			    if (emptyMsg) emptyMsg.remove();
-			
-			    // 중복 방지
-			    if (dropdown.innerHTML.includes(`data-alarm-no=\"${dto.alarmNo}\"`)) return;
-			
-			    const link = document.createElement("a");
-			    link.href = `/board/detail/${dto.boardNo}`;
-			    link.classList.add("dropdown-item", "py-6", "px-7", "d-flex", "align-items-center");
-			    link.setAttribute("data-type", dto.alarmType);
-			    link.setAttribute("data-alarm-no", dto.alarmNo);
-			    link.setAttribute("data-no", dto.boardNo);
-			
-			    link.innerHTML = `
-			      <div class="w-100">
-			        <h6 class="mb-0 fs-4 lh-base">[투표 마감]</h6>
-			        <span class="fs-3 d-block text-body-secondary">${dto.senderName} : ${dto.message}</span>
-			      </div>
-			    `;
-			
-			    dropdown.prepend(link);
-			  });
-			}
-			
-			// 🔁 새로고침 시 마감된 투표 확인
-			function checkClosed() {
-			  const voteNo = document.getElementById("voteForm")?.getAttribute("data-vote-no");
-			  const memberNo = document.getElementById("member_no")?.value;
-			
-			  if (voteNo && memberNo) {
-			    fetch(`/vote/${voteNo}/should-alert?memberNo=${memberNo}`)
-			      .then(res => {
-			        if (!res.ok) throw new Error("알림 확인 실패");
-			        return res.json();
-			      })
-			      .then(data => {
-			        if (data && data.shouldAlert) {
-			          showVoteAlertToast(data.title, data.senderName, data.message, data.boardNo);
-			        }
-			      })
-			      .catch(err => {
-			        console.error("❌ checkClosed 실행 중 오류:", err);
-			      });
-			  }
-			}
-
-		 
 		    
 
 		////////////////////////////////////////////////////// 채팅 웹소캣 //////////////////////////////////////////////////////////////////////////////
