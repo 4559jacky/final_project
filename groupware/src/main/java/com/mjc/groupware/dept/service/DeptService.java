@@ -23,6 +23,10 @@ public class DeptService {
 		return repository.findAll();
 	}
 	
+	public List<Dept> selectByDeptStatusNot(int deptStatus) {
+		return repository.findByDeptStatusNotOrderByDeptNameAsc(deptStatus);
+	}
+	
 	public List<Dept> SelectDeptAllOrderByDeptNameAsc() {
 		return repository.findAllByOrderByDeptNameAsc();
 	}

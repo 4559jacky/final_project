@@ -39,7 +39,7 @@ public class DeptController {
 	@CheckPermission("DEPT_ADMIN_CRU")
 	@GetMapping("/admin/dept/create")
 	public String createDeptView(Model model) {
-		List<Dept> deptList = service.selectDeptAll();
+		List<Dept> deptList = service.selectByDeptStatusNot(3);
 		List<Member> memberList = memberService.selectMemberAll();
 		
 		List<Member> membersWithoutDept = new ArrayList<>();

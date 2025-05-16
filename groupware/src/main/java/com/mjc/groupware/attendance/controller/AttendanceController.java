@@ -76,7 +76,7 @@ public class AttendanceController {
 	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
 
 	    // 기본값: 오늘 날짜
-	    LocalDate targetDate = (searchDto.getTarget_date() != null) ? searchDto.getTarget_date() : LocalDate.now();
+	    LocalDate targetDate = (searchDto.getTarget_date() != null) ? searchDto.getTarget_date() : LocalDate.now(ZoneId.of("Asia/Seoul"));
 
 	    // 페이징 처리
 	    if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
@@ -261,7 +261,7 @@ public class AttendanceController {
 	    memberDto.setMember_id(userId);
 	    Member member = memberService.selectMemberOne(memberDto);
 
-	    LocalDate today = LocalDate.now();
+	    LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
 	    Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMemberNo(), today);
 	    if (attendance != null) {

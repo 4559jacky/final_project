@@ -251,13 +251,13 @@ public class AttendanceService {
 	        attendanceRepository.save(updated);
 
 	        resultMap.put("res_code", "200");
-	        resultMap.put("res_msg", "퇴근 시간이 저장되었습니다.");
+	        resultMap.put("res_msg", "퇴근 정보 저장 성공");
 	        resultMap.put("attendance", oldAttendanceDto);
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        resultMap.put("res_code", "500");
-	        resultMap.put("res_msg", "퇴근 저장 실패");
+	        resultMap.put("res_msg", "퇴근 정보 저장 실패");
 	    }
 
 	    return resultMap;

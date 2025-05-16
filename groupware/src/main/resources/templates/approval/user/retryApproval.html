@@ -537,8 +537,11 @@
 		
 		// 승인요청 버튼 클릭 시 결재 생성
 		const retryApprovalForm = document.retry_approval_form;
-		retryApprovalForm.addEventListener('submit', (e) => {
+		retryApprovalForm.addEventListener('submit', async (e) => {
 			e.preventDefault();
+			
+			const isConfirmed = await confirm('결재를 재기안 하시겠습니까?');
+			if(!isConfirmed) return;
 		
 			let valid = false;
 			let valid_msg = '';
@@ -573,18 +576,18 @@
 					    payload.append("deleteFiles", hidden.value);
 					  }
 					});
+				
 				let use_annual_leave = document.getElementById('use_annual_leave').innerText;
 				let annual_leave_type = 0;
 				if (document.getElementById('am').checked) {
-					annual_leave_type = 1;
-					payload.append('use_annual_leave', use_annual_leave);
-					payload.append('annual_leave_type', annual_leave_type);
+				    annual_leave_type = 1;
 				}
 				if (document.getElementById('pm').checked) {
-					annual_leave_type = 2;
-					payload.append('use_annual_leave', use_annual_leave);
-					payload.append('annual_leave_type', annual_leave_type);
+				    annual_leave_type = 2;
 				}
+
+				payload.append('use_annual_leave', use_annual_leave);
+				payload.append('annual_leave_type', annual_leave_type);
 		
 				const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 				const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;

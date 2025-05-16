@@ -917,7 +917,7 @@ layout:decorate="~{include/layout :: layout}">
 		// 개인정보 수정하는 부분
 		const infoForm = document.update_profile_info_form;
 		
-		infoForm.addEventListener('submit',(event) => {
+		infoForm.addEventListener('submit', async (event) => {
 			event.preventDefault();
 			
 			const birth = document.getElementById('member_birth').value.trim();
@@ -939,7 +939,7 @@ layout:decorate="~{include/layout :: layout}">
 			    return;
 			}
 			
-			if(confirm("개인정보를 정말 수정하시겠습니까?")) {
+			if(await confirm("개인정보를 정말 수정하시겠습니까?")) {
 				const payload = new FormData(infoForm);
 				
 				fetch(`/member/${memberNo}/update`, {
@@ -951,8 +951,8 @@ layout:decorate="~{include/layout :: layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = `/member/${memberNo}/update`;
 					}
@@ -1151,11 +1151,14 @@ layout:decorate="~{include/layout :: layout}">
 		});
 	
 		// 서명 저장
-		function saveSignature() {
+		async function saveSignature() {
 			const data = $("#signature").jSignature("getData", "image");
-	
+
 			const imageData = data[1];
-	
+			
+			const isConfirmed = await confirm('전자서명을 등록하시겠습니까?');
+			if(!isConfirmed) return;
+			
 			$.ajax({
 				url : '/member/create/signature',
 				method : 'post',
@@ -1166,24 +1169,27 @@ layout:decorate="~{include/layout :: layout}">
 				beforeSend : function(xhr) {
 					xhr.setRequestHeader(header, token); // spring security
 				},
-				success : function(data) {
-					alert(data.res_msg);
+				success : async function(data) {
+					await alert(data.res_msg);
 					location.reload();
 				},
 				error : function() {
 					alert('서명 저장 실패');
 				}
 			})
-	
+
 			// 모달 닫기
 			$('#signatureModal').modal('hide');
 		}
 	
 		// 서명변경
-		function updateSignature() {
+		async function updateSignature() {
 			const data = $("#updateSignature").jSignature("getData", "image");
 	
 			const imageData = data[1];
+			
+			const isConfirmed = await confirm('전자서명을 변경하시겠습니까?');
+			if(!isConfirmed) return;
 	
 			$.ajax({
 				url : '/member/update/signature',
@@ -1195,8 +1201,8 @@ layout:decorate="~{include/layout :: layout}">
 				beforeSend : function(xhr) {
 					xhr.setRequestHeader(header, token); // spring security
 				},
-				success : function(data) {
-					alert(data.res_msg);
+				success : async function(data) {
+					await alert(data.res_msg);
 					location.reload();
 				},
 				error : function() {
