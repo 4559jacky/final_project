@@ -320,7 +320,7 @@ layout:decorate="~{include/layout :: layout}">
 	
 	<script>
 		const holidayForm = document.holiday_form;
-			holidayForm.addEventListener('submit', function(e) {
+			holidayForm.addEventListener('submit', async function(e) {
 			e.preventDefault();
 			
 			const holidayName = document.getElementById('holiday_name').value;
@@ -335,7 +335,8 @@ layout:decorate="~{include/layout :: layout}">
 		    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 		    
-			if(!confirm('휴일 정보를 저장하시겠습니까?')) return;
+			const isConfirmed = await confirm('휴일 정보를 저장하시겠습니까?');
+			if(!isConfirmed) return;
 			
 		    fetch('/holiday/create', {
 		    	method:'post',
@@ -346,9 +347,9 @@ layout:decorate="~{include/layout :: layout}">
 		    	body: payload
 		    })
 		    .then(response => response.json())
-		    .then(data => {
+		    .then(async data => {
 		    	
-		    	alert(data.res_msg);
+		    	await alert(data.res_msg);
 		    	document.getElementById('holiday_name').value = '';
 			    document.getElementById('holiday_date').value = '';
 		    	if(data.res_code == 200) {
@@ -358,8 +359,8 @@ layout:decorate="~{include/layout :: layout}">
 			      data.holidayList.forEach(item => {
 			        const row = document.createElement("tr");
 			        row.innerHTML = `
-			        	<td><input type="text" id="name${item.id}" value="${item.name}"></td>
-				          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+			        	<td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+				          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
 				          <td>
 				            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
 				              수정
@@ -383,7 +384,7 @@ layout:decorate="~{include/layout :: layout}">
 	<!-- 연차 정책 설정 (같은 줄 오른쪽) -->
 	<script>
 		const annualLeaveForm = document.annual_leave_form;
-		annualLeaveForm.addEventListener('submit', function(e) {
+		annualLeaveForm.addEventListener('submit', async function(e) {
 			e.preventDefault();
 			
 			const year = document.getElementById('year').value;
@@ -398,7 +399,8 @@ layout:decorate="~{include/layout :: layout}">
 		    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 		    
-			if(!confirm(`${year}년차의 연차 일수를 ${leave_days}일로 저장하시겠습니까?`)) return;
+			const isConfirmed = await confirm(`${year}년차의 연차 일수를 ${leave_days}일로 저장하시겠습니까?`);
+			if(!isConfirmed) return;
 			
 		    fetch('/annualPolicy/update', {
 		    	method:'post',
@@ -409,7 +411,7 @@ layout:decorate="~{include/layout :: layout}">
 		    	body: payload
 		    })
 		    .then(response => response.json())
-		    .then(data => {
+		    .then(async data => {
 			      const tbody = document.getElementById("annual-policy-body");
 			      tbody.innerHTML = ""; // 초기화
 			      
@@ -510,12 +512,13 @@ layout:decorate="~{include/layout :: layout}">
 			}
 		});
 		
-		const annualLeaveUpdate = function(){
+		const annualLeaveUpdate = async function(){
 			const formData = new FormData();
 			formData.append("annual_leave", parseFloat(document.getElementById('annual_leave').value));
 			const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-			if(confirm('연차 개수를 저장하시겠습니까?')) {
+			const isConfirmed = await confirm('연차 개수를 저장하시겠습니까?');
+			if(isConfirmed) {
 				fetch('/member/annual/update/'+selectedMemberNo, {
 					method:'post',
 					headers: {
@@ -524,8 +527,8 @@ layout:decorate="~{include/layout :: layout}">
 					body: formData
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == 200) {
 						location.href = '/annual/management';
 					}
@@ -579,8 +582,9 @@ layout:decorate="~{include/layout :: layout}">
 			    .catch(err => console.error("휴일 정책 불러오기 실패:", err));
 			}
 		
-		function updateHoliday(id) {
-			  if (!confirm('휴일 정보를 수정하시겠습니까?')) return;
+		async function updateHoliday(id) {
+			const isConfirmed = await confirm('휴일 정보를 수정하시겠습니까?');
+			  if (!isConfirmed) return;
 			  
 			  let holiday_name = document.getElementById(`name${id}`).value;
 			  let holiday_date = document.getElementById(`date${id}`).value;
@@ -596,8 +600,8 @@ layout:decorate="~{include/layout :: layout}">
 			    body:payload
 			  })
 			    .then(response => response.json())
-			    .then(data => {
-			    	alert(data.res_msg);
+			    .then(async data => {
+			    	await alert(data.res_msg);
 			    	if(data.res_code == 200 || data.res_code == 409) {
 				      const tbody = document.getElementById("holiday-policy-body");
 				      tbody.innerHTML = ""; // 초기화
@@ -625,8 +629,9 @@ layout:decorate="~{include/layout :: layout}">
 			    .catch(err => console.error("휴일 수정 실패:", err));
 		}
 		
-		function deleteHoliday(id) {
-			  if (!confirm('정말 휴일 정보를 삭제하시겠습니까?')) return;
+		async function deleteHoliday(id) {
+			const isConfirmed = await confirm('정말 휴일 정보를 삭제하시겠습니까?');
+			  if (!isConfirmed) return;
 
 			  fetch('/holiday/delete/'+id, {
 			    method: 'DELETE',
@@ -635,8 +640,8 @@ layout:decorate="~{include/layout :: layout}">
 			    }
 			  })
 			    .then(response => response.json())
-			    .then(data => {
-			    	alert(data.res_msg);
+			    .then(async data => {
+			    	await alert(data.res_msg);
 			    	if(data.res_code == 200) {
 			    		 const tbody = document.getElementById("holiday-policy-body");
 					      tbody.innerHTML = ""; // 초기화
@@ -712,8 +717,9 @@ layout:decorate="~{include/layout :: layout}">
 			    .catch(err => console.error("연차 정책 불러오기 실패:", err));
 			}
 		
-		function deletePolicy(year) {
-			  if (!confirm(`${year}년차 정책을 삭제하시겠습니까?`)) return;
+		async function deletePolicy(year) {
+			const isConfirmed = await confirm(`${year}년차 정책을 삭제하시겠습니까?`);
+			  if (!isConfirmed) return;
 
 			  fetch('/annualPolicy/delete/'+year, {
 			    method: 'DELETE',
