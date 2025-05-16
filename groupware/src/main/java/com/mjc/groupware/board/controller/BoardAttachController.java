@@ -1,15 +1,15 @@
 package com.mjc.groupware.board.controller;
 
-import java.nio.file.Paths;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
+import com.mjc.groupware.common.annotation.CheckPermission;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -32,9 +35,15 @@ public class BoardAttachController {
     @Value("${ffupload.location}")
     private String uploadDir;
 
-
+    @CheckPermission("BOARD_R")
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> fileDownload(@PathVariable("id") Long id) throws IOException {
+    public ResponseEntity<Resource> fileDownload(@PathVariable("id") Long id, HttpServletRequest request) throws IOException {
+    	// URL 직접 접근을 차단 :: Ajax 요청이 아니면 차단
+    	String header = request.getHeader("X-Custom-Ajax");
+    	if (!"true".equals(header)) {
+    		throw new ResponseStatusException(HttpStatus.FORBIDDEN, "허용되지 않은 접근입니다.");
+    	}
+    	
         BoardAttach fileData = boardAttachService.selectAttachOne(id);
         if (fileData == null) {
             return ResponseEntity.notFound().build();

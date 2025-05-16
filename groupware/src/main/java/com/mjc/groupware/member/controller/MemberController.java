@@ -30,12 +30,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mjc.groupware.address.service.AddressService;
 import com.mjc.groupware.common.annotation.CheckPermission;
+import com.mjc.groupware.common.redis.RedisLoginLogService;
 import com.mjc.groupware.company.dto.CompanyDto;
 import com.mjc.groupware.company.service.CompanyService;
 import com.mjc.groupware.dept.dto.DeptDto;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.dept.service.DeptService;
 import com.mjc.groupware.member.dto.LogPageDto;
+import com.mjc.groupware.member.dto.LogRedisDto;
 import com.mjc.groupware.member.dto.MemberAttachDto;
 import com.mjc.groupware.member.dto.MemberCreateRequestDto;
 import com.mjc.groupware.member.dto.MemberCreationDto;
@@ -81,6 +83,8 @@ public class MemberController {
 	private final CompanyService companyService;
 	private final LoginLogService loginLogService;
 	private final PosRepository posRepository;
+	
+	private final RedisLoginLogService redisLoginLogService;
 	
 	@GetMapping("/login")
 	public String loginView(
@@ -396,7 +400,7 @@ public class MemberController {
 		        new StatusDto(100, "재직"),
 		        new StatusDto(101, "수습"),
 		        new StatusDto(102, "인턴"),
-		        new StatusDto(200, "전출"),
+		        new StatusDto(200, "파견"),
 		        new StatusDto(300, "휴직"),
 		        new StatusDto(301, "대기"),
 		        new StatusDto(400, "해고"),
@@ -645,35 +649,71 @@ public class MemberController {
 		model.addAttribute("selectedAddr2", member.getMemberAddr2());
 		model.addAttribute("memberAttachDto", memberAttachDto);
 		
-		// 로그인 이력 리스트를 조회해서 같이 넘겨주기 위함
+		// MariaDB에서 로그인 이력을 조회
+//		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		
+//		Page<LoginLog> loginLogs = loginLogService.findByMemberOrderByLoginTimeDesc(member, loginStartDate, loginEndDate, pageDto);
+//		
+//		pageDto.setTotalPage(loginLogs.getTotalPages());
+//		
+//		model.addAttribute("loginLogs", loginLogs);
+//		model.addAttribute("pageDto", pageDto);
+//		
+//		List<String> loginLogWithBrowserInfo = new ArrayList<>();
+//		for (LoginLog log : loginLogs) {
+//	        String browserInfo = getBrowserInfo(log.getLoginAgent());
+//	        loginLogWithBrowserInfo.add(browserInfo);
+//	    }
+//		
+//		model.addAttribute("loginLogWithBrowserInfo", loginLogWithBrowserInfo);
+//		
+//		List<String> loginLogWithDeviceInfo = new ArrayList<>();
+//		for (LoginLog log : loginLogs) {
+//	        String deviceInfo = getDeviceType(log.getLoginAgent());
+//	        loginLogWithDeviceInfo.add(deviceInfo);
+//	    }
+//
+//		model.addAttribute("loginLogWithDeviceInfo", loginLogWithDeviceInfo);
+//		
+//		model.addAttribute("loginDateStart", loginStartDate);
+//		model.addAttribute("loginDateEnd", loginEndDate);
+		
+		// Redis에서 로그인 이력을 조회
 		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
 		
-		Page<LoginLog> loginLogs = loginLogService.findByMemberOrderByLoginTimeDesc(member, loginStartDate, loginEndDate, pageDto);
+		List<LogRedisDto> loginLogList = redisLoginLogService.getLoginLogs(memberNo, loginStartDate, loginEndDate);
 		
-		pageDto.setTotalPage(loginLogs.getTotalPages());
+		// 총 페이지 수 계산 (페이징 처리)
+		int totalLogs = loginLogList.size();
+		int totalPages = (totalLogs + pageDto.getNumPerPage() - 1) / pageDto.getNumPerPage();
+		pageDto.setTotalPage(totalPages);
 		
-		model.addAttribute("loginLogs", loginLogs);
-		model.addAttribute("pageDto", pageDto);
-		
-		List<String> loginLogWithBrowserInfo = new ArrayList<>();
-		for (LoginLog log : loginLogs) {
+		// 페이징에 맞는 로그인 로그 추출
+	    int startIndex = (pageDto.getNowPage() - 1) * pageDto.getNumPerPage();
+	    int endIndex = Math.min(startIndex + pageDto.getNumPerPage(), totalLogs);
+	    List<LogRedisDto> paginatedLogList = loginLogList.subList(startIndex, endIndex);
+   
+	    List<String> loginLogWithBrowserInfo = new ArrayList<>();
+	    List<String> loginLogWithDeviceInfo = new ArrayList<>();
+	    
+	    for (LogRedisDto log : paginatedLogList) {
 	        String browserInfo = getBrowserInfo(log.getLoginAgent());
 	        loginLogWithBrowserInfo.add(browserInfo);
-	    }
-		
-		model.addAttribute("loginLogWithBrowserInfo", loginLogWithBrowserInfo);
-		
-		List<String> loginLogWithDeviceInfo = new ArrayList<>();
-		for (LoginLog log : loginLogs) {
+	        
 	        String deviceInfo = getDeviceType(log.getLoginAgent());
 	        loginLogWithDeviceInfo.add(deviceInfo);
 	    }
-
-		model.addAttribute("loginLogWithDeviceInfo", loginLogWithDeviceInfo);
-		
-		model.addAttribute("loginDateStart", loginStartDate);
-		model.addAttribute("loginDateEnd", loginEndDate);
-				
+	    
+	    model.addAttribute("loginLogs", paginatedLogList);
+	    
+	    model.addAttribute("loginLogWithBrowserInfo", loginLogWithBrowserInfo);
+	    model.addAttribute("loginLogWithDeviceInfo", loginLogWithDeviceInfo);
+	    
+	    model.addAttribute("loginDateStart", loginStartDate);
+	    model.addAttribute("loginDateEnd", loginEndDate);
+	    
+	    model.addAttribute("pageDto", pageDto);
+	    
 		return "member/myPage";
 	}
 	

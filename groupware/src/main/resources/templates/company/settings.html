@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	
 	<!-- Custom CSS Files -->
@@ -83,7 +83,7 @@ layout:decorate="~{/include/layout}">
 					      <div class="text-center">
 					        <!-- 업로드 이미지 (클릭 이벤트용) -->
 					        <img id="preview_image"
-					        	th:src="${companyDto != null && companyDto.profile_image_path != null ? '/uploads/' + companyDto.new_name : '/assets/images/big/img3.jpg'}"
+					        	th:src="${companyDto != null && companyDto.profile_image_path != null ? '/uploads/' + companyDto.new_name : '/img/mjc_profile_logo.png'}"
 					        	alt="profile-img"
 					            class="img-fluid rounded"
 					            style="width: 120px; height: 120px; object-fit: cover; cursor: pointer; transition: 0.2s;"
@@ -261,7 +261,7 @@ layout:decorate="~{/include/layout}">
 								            		style="cursor: pointer;"
 								                	th:value="${func.func_no}"
 								                	th:checked="${func.func_status == 1}"
-								                	th:disabled="${func.func_no == 1 || func.func_no == 2 || func.func_no == 3 || func.func_no == 4 || func.func_no == 5}"
+								                	th:disabled="${func.func_no == 1 || func.func_no == 2 || func.func_no == 3 || func.func_no == 4 || func.func_no == 5 || func.func_no == 7 || func.func_no == 8 || func.func_no == 11 || func.func_no == 32}"
 								                	class="form-check-input me-2"
 								                	onchange="changeFuncToggle(this)">
 								                	

@@ -14,7 +14,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
 	
 	<!-- Favicon icon-->
-	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.ico}" />
+	<link rel="shortcut icon" type="image/png" th:href="@{/img/mjc_profile_favicon.png}" />
 	
 	<title>Groupware</title>
 	
@@ -29,7 +29,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<link rel="stylesheet" th:href="@{/css/layout-media.css}" />
 	
 	<!-- alarm css file -->
-	<link  rel="stylesheet" th:href="@{/css/alarm.css}">
+	<link rel="stylesheet" th:href="@{/css/alarm.css}">
   	
 </head>
 <body>
@@ -662,11 +662,28 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		// 💥 alert 완전 대체
 		window.alert = function(message) {
-		  const msgEl = document.getElementById("customAlertMsg");
-		  msgEl.textContent = message;
+		  return new Promise((resolve) => {
+		    const msgEl = document.getElementById("customAlertMsg");
+		    msgEl.textContent = message;
 		
-		  const modal = new bootstrap.Modal(document.getElementById("customAlertModal"));
-		  modal.show();
+		    const modalEl = document.getElementById("customAlertModal");
+		    const modal = new bootstrap.Modal(modalEl);
+		    modal.show();
+		
+		    // 확인 버튼 눌렀을 때 닫고 resolve
+		    const closeBtnOld = modalEl.querySelector('[data-bs-dismiss="modal"]');
+		    const closeBtnNew = closeBtnOld.cloneNode(true);
+		    closeBtnOld.parentNode.replaceChild(closeBtnNew, closeBtnOld);
+		
+		    closeBtnNew.addEventListener("click", () => {
+		      resolve();
+		    });
+		
+		    // 모달 닫힐 때도 resolve (백 버튼 등 대비)
+		    modalEl.addEventListener("hidden.bs.modal", () => {
+		      resolve();
+		    }, { once: true });
+		  });
 		};
 		
 		// 💥 confirm 완전 대체 (비동기 Promise 버전)
@@ -695,7 +712,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    }, { once: true });
 		  });
 		};
-		
 
 	</script>
 

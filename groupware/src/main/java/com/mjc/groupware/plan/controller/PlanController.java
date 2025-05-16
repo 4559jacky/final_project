@@ -5,17 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.dept.entity.Dept;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -24,6 +26,7 @@ import com.mjc.groupware.plan.dto.PlanDto;
 import com.mjc.groupware.plan.entity.Plan;
 import com.mjc.groupware.plan.service.PlanService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -34,6 +37,7 @@ public class PlanController {
 	private final MemberService memberService;
 
 	// HTML리턴(페이지 이동용)
+	@CheckPermission("CALENDAR_USER")
 	@GetMapping("/calendar")
 	public String calendarView(Model model) {
 		List<Plan> planList = planService.selectPlanAll();
@@ -41,6 +45,7 @@ public class PlanController {
 	}
 	
 	// 달력에 db일정 뿌려주는 코드
+	@CheckPermission("CALENDAR_USER")
 	@GetMapping("/calendar/events")
 	@ResponseBody
 	public List<Map<String, Object>> getCalendarEvents(@RequestParam(name = "start") String start, @RequestParam(name = "end") String end,@AuthenticationPrincipal MemberDetails memberDetails) {
@@ -108,6 +113,7 @@ public class PlanController {
 	}
 
 	//일정 등록
+	@CheckPermission("CALENDAR_USER")
 	@PostMapping("/plan/create")
 	@ResponseBody
 	public Map<String,String> createPlanApi(PlanDto dto){
@@ -124,15 +130,23 @@ public class PlanController {
 	}
 
 	// 상세모달창
+	@CheckPermission("CALENDAR_USER")
 	@GetMapping("/plan/detail/{id}")
 	@ResponseBody
-	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
+	public PlanDto getPlanDetail(@PathVariable("id") Long planId, HttpServletRequest request) {
+		// URL 직접 접근을 차단 :: Ajax 요청이 아니면 차단
+		String header = request.getHeader("X-Custom-Ajax");
+		if (!"true".equals(header)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "허용되지 않은 접근입니다.");
+		}
+		
 	    Plan plan = planService.selectPlanById(planId);
 	    PlanDto dto = new PlanDto().toDto(plan);
 	    return dto;
 	}
 
 	// 상세모달창 수정
+	@CheckPermission("CALENDAR_USER")
 	@PostMapping("/plan/{id}/update")
 	@ResponseBody
 	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto,@AuthenticationPrincipal MemberDetails memberDetails){
@@ -168,7 +182,8 @@ public class PlanController {
 	}
 
 	// 상세모달창 삭제
-	@PostMapping("plan/{id}")
+	@CheckPermission("CALENDAR_USER")
+	@PostMapping("/plan/{id}")
 	@ResponseBody
 	public Map<String,String> deletePlanApi(@PathVariable("id") Long id,@AuthenticationPrincipal MemberDetails memberDetails){
 		Map<String,String> resultMap = new HashMap<>();

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.reply.dto.ReplyDto;
@@ -24,6 +27,7 @@ import com.mjc.groupware.reply.entity.Reply;
 import com.mjc.groupware.reply.repository.ReplyRepository;
 import com.mjc.groupware.reply.service.ReplyService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -49,6 +53,7 @@ public class ReplyController {
     
     
     // 댓글 등록 API (게시글에 댓글을 달기 위한 POST 요청)
+    @CheckPermission("BOARD_R")
     @PostMapping("/replies/{boardNo}/create")
     public String replyCreate(@ModelAttribute ReplyDto replyDto, @PathVariable("boardNo") Long boardNo, @AuthenticationPrincipal MemberDetails memberDetails) {
         Member member = getLoginMember(memberDetails);  // 로그인된 사용자 정보 얻기
@@ -62,6 +67,7 @@ public class ReplyController {
     
     
     // 대댓글 등록 API (댓글에 대한 대댓글을 달기 위한 POST 요청)
+    @CheckPermission("BOARD_R")
     @PostMapping("/replies/{boardNo}/{parentReplyNo}/create-sub")
     public String replyCreateSub(@ModelAttribute ReplyDto replyDto,
                                  @PathVariable("boardNo") Long boardNo,
@@ -79,6 +85,7 @@ public class ReplyController {
     
     
     // 댓글 수정 API (댓글 내용 수정)
+    @CheckPermission("BOARD_R")
     @PostMapping("/replies/{replyNo}/update")
     @ResponseBody
     public Map<String, Object> replyUpdate(@PathVariable("replyNo") Long replyNo,
@@ -103,6 +110,7 @@ public class ReplyController {
     
     
     // 댓글 삭제 API (댓글 삭제)
+    @CheckPermission("BOARD_R")
     @PostMapping("/replies/{replyNo}/delete")
     @ResponseBody
     public Map<String, String> replyDelete(@PathVariable("replyNo") Long replyNo,
@@ -122,9 +130,16 @@ public class ReplyController {
     
     
     // 새 API: 특정 댓글의 대댓글 수 조회
+    @CheckPermission("BOARD_R")
     @GetMapping("/replies/count/{replyNo}")
     @ResponseBody
-    public Map<String, Integer> getSubReplyCount(@PathVariable("replyNo") Long replyNo) {
+    public Map<String, Integer> getSubReplyCount(@PathVariable("replyNo") Long replyNo, HttpServletRequest request) {
+    	// URL 직접 접근을 차단 :: Ajax 요청이 아니면 차단
+    	String header = request.getHeader("X-Custom-Ajax");
+    	if (!"true".equals(header)) {
+    		throw new ResponseStatusException(HttpStatus.FORBIDDEN, "허용되지 않은 접근입니다.");
+    	}
+    	
         Map<String, Integer> result = new HashMap<>();
         int count = replyRepository.findByParentReply_ReplyNoAndReplyStatus(replyNo, "N").size();  // 해당 댓글의 대댓글 수 조회
         result.put("count", count);  // 대댓글 수를 결과로 반환
@@ -132,6 +147,7 @@ public class ReplyController {
     }
     
     // 댓글에서 +더보기 버튼 추가 코드
+    @CheckPermission("BOARD_R")
     @GetMapping("/replies/{boardNo}")
     @ResponseBody
     public Map<String, Object> getRepliesByBoardPaged(

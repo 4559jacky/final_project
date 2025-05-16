@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.shared.dto.SharedFolderDto;
@@ -32,6 +33,7 @@ public class SharedFolderController {
 	private final SharedFolderService sharedFolderService;
 	private final FileRepository fileRepository;
 	
+	@CheckPermission("SHARED_USER")
 	@GetMapping("/shared/main/tree")
 	@ResponseBody
 	public List<Map<String, Object>> getFolderTree(@RequestParam("type") String type, Authentication auth) {
@@ -98,6 +100,7 @@ public class SharedFolderController {
 	}
 	
 	// 최상위,하위 폴더 생성.
+	@CheckPermission("SHARED_USER")
 	@PostMapping("/shared/folder/create")
 	@ResponseBody
 	public Map<String,String> createFolder(@RequestBody SharedFolderDto dto){
@@ -106,6 +109,7 @@ public class SharedFolderController {
 	}
 	
 	// 부모 폴더 타입 상속.
+	@CheckPermission("SHARED_USER")
 	@GetMapping("/shared/folder/type")
 	@ResponseBody
 	public Map<String, Integer> getFolderType(@RequestParam("folderId") Long folderId) {
@@ -115,6 +119,7 @@ public class SharedFolderController {
 	}
 	
 	// 폴더 이동
+	@CheckPermission("SHARED_USER")
 	@PostMapping("/shared/folder/move")
 	@ResponseBody
 	public Map<String, String> moveFolder(@RequestBody Map<String, Long> payload) {
@@ -124,6 +129,7 @@ public class SharedFolderController {
 	    return Map.of("message", "폴더 위치가 변경되었습니다.");
 	}
 	
+	@CheckPermission("SHARED_USER")
 	@PostMapping("/shared/folder/delete")
 	@ResponseBody
 	public Map<String, Object> deleteFolder(@RequestBody Map<String, Long> payload, Authentication auth) {
