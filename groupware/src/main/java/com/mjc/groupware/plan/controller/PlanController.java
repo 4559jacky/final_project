@@ -134,6 +134,7 @@ public class PlanController {
 	@GetMapping("/plan/detail/{id}")
 	@ResponseBody
 	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
+
 	    Plan plan = planService.selectPlanById(planId);
 	    PlanDto dto = new PlanDto().toDto(plan);
 	    return dto;
