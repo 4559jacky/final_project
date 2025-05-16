@@ -31,249 +31,249 @@
 
     <div class="mt-5"></div>
 
-    <!-- 본문 카드 -->
-<div class="p-5 bg-white rounded-4 shadow-sm mb-5">
-
-<!-- 제목과 작성 정보 한 줄에 배치 -->
-<div class="mb-2 d-flex justify-content-between align-items-center">
-    <!-- 제목 (왼쪽 정렬) -->
-    <h2 th:text="${board.boardTitle ?: '제목 없음'}"
-        class="fw-bold mb-0"
-        style="font-size: 2rem;"></h2>
-        
-
-    <!-- 작성 정보 (오른쪽 정렬) -->
-<div class="d-flex align-items-start" style="font-size: 1rem; white-space: nowrap;">
-  <div>
-    <div class="d-flex align-items-center">
-<span>작성자: </span>
-<span th:text="'[' + ${board.member?.dept?.deptName ?: '부서'} + ']' + ${board.member?.memberName ?: '익명'}" class="me-2"></span>
-    </div>
-    <div><span>작성일: </span><span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span></div>
-    <div><span>조회수: </span><span th:text="${board.views}">0</span></div>
-  </div>
-</div>
-</div>
-<hr>
+	    <!-- 본문 카드 -->
+	<div class="p-5 bg-white rounded-4 shadow-sm mb-5">
+	
+	<!-- 제목과 작성 정보 한 줄에 배치 -->
+	<div class="mb-2 d-flex justify-content-between align-items-center">
+	    <!-- 제목 (왼쪽 정렬) -->
+	    <h2 th:text="${board.boardTitle ?: '제목 없음'}"
+	        class="fw-bold mb-0"
+	        style="font-size: 2rem;"></h2>
+	        
+	
+	    <!-- 작성 정보 (오른쪽 정렬) -->
+	<div class="d-flex align-items-start" style="font-size: 1rem; white-space: nowrap;">
+	  <div>
+	    <div class="d-flex align-items-center">
+	<span>작성자: </span>
+	<span th:text="'[' + ${board.member?.dept?.deptName ?: '부서'} + ']' + ${board.member?.memberName ?: '익명'}" class="me-2"></span>
+	    </div>
+	    <div><span>작성일: </span><span th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">등록일</span></div>
+	    <div><span>조회수: </span><span th:text="${board.views}">0</span></div>
+	  </div>
+	</div>
+	</div>
+	<hr>
     
-    <!-- 본문 내용 (테두리 없는 버전) -->
-<div class="toastui-editor-contents"
-     style="min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
-     th:utext="${board.boardContent}">
-</div>
+	    <!-- 본문 내용 (테두리 없는 버전) -->
+	<div class="toastui-editor-contents"
+	     style="min-height: 300px; font-size: 1.1rem; line-height: 1.8rem; padding: 1rem;"
+	     th:utext="${board.boardContent}">
+	</div>
 
 <br>    
-<!-- 투표 정보 영역 -->
-<div th:if="${board.vote != null}" class="mt-4">
+		<!-- 투표 정보 영역 -->
+		<div th:if="${board.vote != null}" class="mt-4">
+		
+		  <div class="d-flex justify-content-between align-items-center mb-2">
+		    <div>
+		      <span class="fw-bold">[투표] </span>
+		      <span class="fw-bold" th:text="${board.vote.voteTitle}">제목</span>
+		      <small class="text-muted ms-2" style="font-size: 0.9rem;">
+		        [
+		        <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
+		        <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
+		        <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
+		        <span th:if="${board.vote.isMultiple == 'N'}">, 단일 투표</span>
+		        ]
+		      </small>
+		    </div>
+		    <div>
+		      <span class="text-muted" style="font-size: 0.9rem;">
+		        마감일시:
+		        <span id="vote-end-time"
+		              th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}"
+		              th:data-end-time="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm:ss')}">
+		          2025-05-10
+		        </span>
+		      </span>
+		    </div>
+		  </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <div>
-      <span class="fw-bold">[투표] </span>
-      <span class="fw-bold" th:text="${board.vote.voteTitle}">제목</span>
-      <small class="text-muted ms-2" style="font-size: 0.9rem;">
-        [
-        <span th:if="${board.vote.isAnonymous == 'Y'}">익명</span>
-        <span th:if="${board.vote.isAnonymous == 'N'}">실명</span>
-        <span th:if="${board.vote.isMultiple == 'Y'}">, 중복 투표 가능</span>
-        <span th:if="${board.vote.isMultiple == 'N'}">, 단일 투표</span>
-        ]
-      </small>
-    </div>
-    <div>
-      <span class="text-muted" style="font-size: 0.9rem;">
-        마감일시:
-        <span id="vote-end-time"
-              th:text="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm')}"
-              th:data-end-time="${#temporals.format(board.vote.endDate, 'yyyy-MM-dd HH:mm:ss')}">
-          2025-05-10
-        </span>
-      </span>
-    </div>
-  </div>
+		  <!-- 투표 가능한 경우 -->
+		<form id="voteForm"
+		      th:data-vote-no="${board.vote.voteNo}"
+		      th:style="${isVoteClosed} ? 'display:none' : ''">
+		    <ul class="list-group mb-3">
+		      <li class="list-group-item d-flex align-items-center"
+		          th:each="option : ${board.vote.voteOptions}">
+				<input th:name="optionNos"
+		       		   th:id="'option-' + ${option.optionNo}"
+		       		   th:value="${option.optionNo}"
+		       		   class="form-check-input me-2"
+		       		   th:type="${board.vote.isMultiple == 'Y'} ? 'checkbox' : 'radio'" />
+		<label class="form-check-label" style="font-size: 1.1rem;" th:for="'option-' + ${option.optionNo}" th:text="${option.optionText}">항목</label>
+		      </li>
+		    </ul>
+		  </form>
 
-  <!-- 투표 가능한 경우 -->
-<form id="voteForm"
-      th:data-vote-no="${board.vote.voteNo}"
-      th:style="${isVoteClosed} ? 'display:none' : ''">
-    <ul class="list-group mb-3">
-      <li class="list-group-item d-flex align-items-center"
-          th:each="option : ${board.vote.voteOptions}">
-		<input th:name="optionNos"
-       		   th:id="'option-' + ${option.optionNo}"
-       		   th:value="${option.optionNo}"
-       		   class="form-check-input me-2"
-       		   th:type="${board.vote.isMultiple == 'Y'} ? 'checkbox' : 'radio'" />
-<label class="form-check-label" style="font-size: 1.1rem;" th:for="'option-' + ${option.optionNo}" th:text="${option.optionText}">항목</label>
-      </li>
-    </ul>
-  </form>
-
-<!-- 투표 마감 메시지를 버튼 위로 이동 -->
-<div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
-  투표가 마감되었습니다.
-</div>
-
-<!-- 투표/결과 버튼 묶음 -->
-<div class="d-flex gap-2 mt-3" id="vote-button-group">
-  <button type="button" class="btn btn-primary" id="submitVoteBtn" onclick="submitVote()">투표 하기</button>
-  <button type="button" class="btn btn-primary" id="resultChartBtn"
-          data-bs-toggle="modal" data-bs-target="#voteResultModal">
-    결과 차트
-  </button>
-</div>
-  <!-- 결과 차트 모달 -->
-  <div class="modal fade"
-     id="voteResultModal"
-     th:attr="data-vote-no=${board.vote.voteNo}"
-     tabindex="-1"
-     aria-labelledby="voteResultModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content rounded-4">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="voteResultModalLabel">투표 결과</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-        </div>
-			<div class="modal-body p-4" style="height: 500px;">
-  				<canvas id="voteResultChart" style="width: 100%; height: 100%;"></canvas>
-			</div>
-      </div>
-    </div>
-  </div>
-</div>
-<br>
-<!-- 🔽 첨부파일 다운로드 영역 -->
-<div class="border-top pt-3">
-  <h5 class="fw-semibold">첨부파일</h5>
-
-  <ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
-    <li th:each="boardAttach : ${attachList}" class="mb-1">
-      <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" class="file-link">
-        <i class="bi bi-file-earmark-text me-1 text-primary"></i>
-        <span th:text="${boardAttach.oriName}" class="file-link">파일명</span>
-      </a>
-    </li>
-  </ul>
-
-  <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
-</div>
-
-    <!-- 수정/삭제 버튼(본인이 쓴 글은 보일수있고, 남이 볼때는 보이지 않게 처리) -->
-    <th:block sec:authorize="isAuthenticated()">
-        <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="mt-4 text-end">
-            <a th:href="@{/board/list}" class="btn btn-primary px-3 py-1">목록으로</a>
-            <a class="btn btn-primary px-3 py-1" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
-            <a class="btn btn-danger px-3 py-1" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
-        </div>
-    </th:block>
-</div>
-
-<!--th:if를 추가해주니까 빈창이 나왔던게 hidden 되면서 댓글 등록을 하면 뜰수있게 할수있다-->
-<div class="custom-padding bg-white rounded-4 shadow-sm mb-5" th:if="${not #lists.isEmpty(replyList)}">
-  <!-- 댓글 및 대댓글 영역 -->
-  <div id="comment-container" class="container my-4">
-    <!-- 댓글 + 대댓글 리스트 -->
-	<div th:each="reply : ${replyList}" class="reply-item mb-3">
-      <div class="d-flex align-items-start mb-2">
-		<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 권한이 막혀있어서 프로필 이미지 등록이 안되는거였음
-		이중 파싱을 하든 그냥 일반 파싱을 해도 권한을 설정해준다면 정상적으로 일반사용자도 프로필이 나오게 할수있음 -->
-		<div class="profile-icon rounded-circle me-3">
-  			<img th:src="@{${reply.attachPath != null && !reply.attachPath.isEmpty() ? reply.attachPath : '/img/default_profile.png'}}"  
-       			alt="Profile Image" 
-       			class="rounded-circle" 
-       			style="width: 100%; height: 100%; object-fit: cover;" 
-       			onerror="this.src='/img/default_profile.png'" 
-       			loading="lazy">
+		<!-- 투표 마감 메시지를 버튼 위로 이동 -->
+		<div id="vote-closed-message" class="alert alert-warning mt-3" style="display: none;">
+		  투표가 마감되었습니다.
 		</div>
-        <div class="flex-grow-1">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <strong th:text="'[' + (${reply.deptName} != null ? ${reply.deptName} : '부서없음') + '] ' + (${reply.memberName} != null ? ${reply.memberName} : '익명')" class="me-2"></strong>
-              <small class="ms-2 time-display" th:text="${reply.regDateFormatted}"></small>
-              <small th:if="${reply.isModifiedFlag}" class="ms-1 modified-tag"></small>
-            </div>
-            <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
-              <div class="reply-actions d-flex gap-2">
-                <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
-                <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
-                <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${reply.reply_no})|">확인</button>
-                <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${reply.reply_no})|">취소</button>
-              </div>
-            </th:block>
-          </div>
+		
+		<!-- 투표/결과 버튼 묶음 -->
+		<div class="d-flex gap-2 mt-3" id="vote-button-group">
+		  <button type="button" class="btn btn-primary" id="submitVoteBtn" onclick="submitVote()">투표 하기</button>
+		  <button type="button" class="btn btn-primary" id="resultChartBtn"
+		          data-bs-toggle="modal" data-bs-target="#voteResultModal">
+		    결과 차트
+		  </button>
+		</div>
+		  <!-- 결과 차트 모달 -->
+		  <div class="modal fade"
+		     id="voteResultModal"
+		     th:attr="data-vote-no=${board.vote.voteNo}"
+		     tabindex="-1"
+		     aria-labelledby="voteResultModalLabel"
+		     aria-hidden="true">
+		    <div class="modal-dialog modal-dialog-centered">
+		      <div class="modal-content rounded-4">
+		        <div class="modal-header">
+		          <h5 class="modal-title fw-bold" id="voteResultModalLabel">투표 결과</h5>
+		          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+		        </div>
+					<div class="modal-body p-4" style="height: 500px;">
+		  				<canvas id="voteResultChart" style="width: 100%; height: 100%;"></canvas>
+					</div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<br>
+		<!-- 🔽 첨부파일 다운로드 영역 -->
+		<div class="border-top pt-3">
+		  <h5 class="fw-semibold">첨부파일</h5>
+		
+		  <ul class="list-unstyled" th:if="${attachList != null and not #lists.isEmpty(attachList)}">
+		    <li th:each="boardAttach : ${attachList}" class="mb-1">
+		      <a th:href="@{/download/{id}(id=${boardAttach.attachNo})}" class="file-link">
+		        <i class="bi bi-file-earmark-text me-1 text-primary"></i>
+		        <span th:text="${boardAttach.oriName}" class="file-link">파일명</span>
+		      </a>
+		    </li>
+		  </ul>
+		
+		  <p th:if="${attachList == null or #lists.isEmpty(attachList)}">첨부파일이 없습니다.</p>
+		</div>
+		
+		    <!-- 수정/삭제 버튼(본인이 쓴 글은 보일수있고, 남이 볼때는 보이지 않게 처리) -->
+		    <th:block sec:authorize="isAuthenticated()">
+		        <div th:if="${#authentication.principal.member.memberNo == board.member.memberNo}" class="mt-4 text-end">
+		            <a th:href="@{/board/list}" class="btn btn-primary px-3 py-1">목록으로</a>
+		            <a class="btn btn-primary px-3 py-1" th:href="@{/board/{id}/update(id=${board.boardNo})}">수정</a>
+		            <a class="btn btn-danger px-3 py-1" href="#" th:onclick="|boardDelete(${board.boardNo})|">삭제</a>
+		        </div>
+		    </th:block>
+		</div>
 
-          <!-- 댓글 내용 -->
-          <p class="reply-content mt-2 mb-2" th:id="'reply-content-' + ${reply.reply_no}" th:text="${reply.reply_content}"></p>
-
-          <!-- 댓글 수정 폼 -->
-          <div th:id="'reply-edit-form-' + ${reply.reply_no}" class="reply-edit-form">
-            <textarea th:id="'edit-textarea-' + ${reply.reply_no}" class="form-control mb-2" style="resize: none; height: 60px;"></textarea>
-          </div>
-
-          <!-- 답글 토글 및 작성 버튼 -->
-          <span th:id="'reply-toggle-' + ${reply.reply_no}"
-                th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
-                th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
-                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개' : '답글 달기'"
-                onclick="toggleSubReply(this)"
-                style="cursor: pointer;"></span>
-
-          <!-- 대댓글 리스트 -->
-          <div th:id="'sub-reply-list-' + ${reply.reply_no}" class="sub-reply-list collapsed" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
-            <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-2">
-              <div class="d-flex align-items-start">
-			<!-- 두 번째 프로필 이미지: 크기를 30px로 설정, 동일한 방식으로 반영 -->
-			<div class="profile-icon rounded-circle me-3" style="width: 30px; height: 30px;">
-  			<img th:src="@{${subReply.attachPath != null && !subReply.attachPath.isEmpty() ? subReply.attachPath : '/img/default_profile.png'}}" 
-       			alt="Profile Image" 
-       			class="rounded-circle" 
-       			style="width: 100%; height: 100%; object-fit: cover;" 
-       			onerror="this.src='/img/default_profile.png'" 
-       			loading="lazy">
+	<!--th:if를 추가해주니까 빈창이 나왔던게 hidden 되면서 댓글 등록을 하면 뜰수있게 할수있다-->
+	<div class="custom-padding bg-white rounded-4 shadow-sm mb-5" th:if="${not #lists.isEmpty(replyList)}">
+	  <!-- 댓글 및 대댓글 영역 -->
+	  <div id="comment-container" class="container my-4">
+	    <!-- 댓글 + 대댓글 리스트 -->
+		<div th:each="reply : ${replyList}" class="reply-item mb-3">
+	      <div class="d-flex align-items-start mb-2">
+			<!-- 첫 번째 프로필 이미지: 기본 이미지가 아닌, 사용자 업로드된 이미지를 반영 권한이 막혀있어서 프로필 이미지 등록이 안되는거였음
+			이중 파싱을 하든 그냥 일반 파싱을 해도 권한을 설정해준다면 정상적으로 일반사용자도 프로필이 나오게 할수있음 -->
+			<div class="profile-icon rounded-circle me-3">
+	  			<img th:src="@{${reply.attachPath != null && !reply.attachPath.isEmpty() ? reply.attachPath : '/img/default_profile.png'}}"  
+	       			alt="Profile Image" 
+	       			class="rounded-circle" 
+	       			style="width: 100%; height: 100%; object-fit: cover;" 
+	       			onerror="this.src='/img/default_profile.png'" 
+	       			loading="lazy">
 			</div>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong th:text="'[' + (${subReply.deptName} != null ? ${subReply.deptName} : '부서없음') + '] ' + (${subReply.memberName} != null ? ${subReply.memberName} : '익명')" class="me-2"></strong>
-                      <small class="ms-2 time-display" th:text="${subReply.regDateFormatted}"></small>
-                      <small th:if="${subReply.isModifiedFlag}" class="ms-1 modified-tag"></small>
-                    </div>
-                    <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
-                      <div class="reply-actions d-flex gap-2">
-                        <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${subReply.reply_no})|">수정</button>
-                        <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${subReply.reply_no}, ${board.boardNo})|">삭제</button>
-                        <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${subReply.reply_no})|">확인</button>
-                        <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
-                      </div>
-                    </th:block>
-                  </div>
-                  <p class="reply-content mt-1 mb-1" th:id="'reply-content-' + ${subReply.reply_no}" th:text="${subReply.reply_content}"></p>
-                  <div th:id="'reply-edit-form-' + ${subReply.reply_no}" class="reply-edit-form">
-                    <textarea th:id="'edit-textarea-' + ${subReply.reply_no}" class="form-control mb-2" style="resize: none; height: 50px;"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 대댓글 작성 폼 -->
-          <div class="sub-reply-write mt-2" style="display: none;" th:id="'sub-reply-form-' + ${reply.reply_no}">
-            <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}" method="POST" class="d-flex gap-2 align-items-stretch sub-reply-form-content">
-              <textarea name="reply_content" placeholder="답글을 입력하세요." required class="form-control"></textarea>
-              <input type="hidden" name="board_no" th:value="${board.boardNo}" />
-              <input type="hidden" name="parent_reply_no" th:value="${reply.reply_no}" />
-              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-              <button type="submit" class="btn btn-primary">등록</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<div class="text-center mt-3" th:if="${hasMoreReplies}">
-  <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button>
-</div>
-</div>
+	        <div class="flex-grow-1">
+	          <div class="d-flex justify-content-between align-items-center">
+	            <div>
+	              <strong th:text="'[' + (${reply.deptName} != null ? ${reply.deptName} : '부서없음') + '] ' + (${reply.memberName} != null ? ${reply.memberName} : '익명')" class="me-2"></strong>
+	              <small class="ms-2 time-display" th:text="${reply.regDateFormatted}"></small>
+	              <small th:if="${reply.isModifiedFlag}" class="ms-1 modified-tag"></small>
+	            </div>
+	            <th:block th:if="${reply.member_no == #authentication.principal.member.memberNo}">
+	              <div class="reply-actions d-flex gap-2">
+	                <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${reply.reply_no})|">수정</button>
+	                <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${reply.reply_no}, ${board.boardNo})|">삭제</button>
+	                <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${reply.reply_no})|">확인</button>
+	                <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${reply.reply_no})|">취소</button>
+	              </div>
+	            </th:block>
+	          </div>
+	
+	          <!-- 댓글 내용 -->
+	          <p class="reply-content mt-2 mb-2" th:id="'reply-content-' + ${reply.reply_no}" th:text="${reply.reply_content}"></p>
+	
+	          <!-- 댓글 수정 폼 -->
+	          <div th:id="'reply-edit-form-' + ${reply.reply_no}" class="reply-edit-form">
+	            <textarea th:id="'edit-textarea-' + ${reply.reply_no}" class="form-control mb-2" style="resize: none; height: 60px;"></textarea>
+	          </div>
+	
+	          <!-- 답글 토글 및 작성 버튼 -->
+	          <span th:id="'reply-toggle-' + ${reply.reply_no}"
+	                th:class="'reply-action-text ' + (${reply.subReplyCount > 0} ? 'has-sub-replies' : '')"
+	                th:attr="data-sub-reply-count=${reply.subReplyCount}, data-reply-no=${reply.reply_no}, data-board-no=${board.boardNo}"
+	                th:text="${reply.subReplyCount > 0} ? '답글 ' + ${reply.subReplyCount} + '개' : '답글 달기'"
+	                onclick="toggleSubReply(this)"
+	                style="cursor: pointer;"></span>
+	
+	          <!-- 대댓글 리스트 -->
+	          <div th:id="'sub-reply-list-' + ${reply.reply_no}" class="sub-reply-list collapsed" th:if="${reply.subReplies != null and !#lists.isEmpty(reply.subReplies)}">
+	            <div th:each="subReply : ${reply.subReplies}" class="sub-reply-item py-2">
+	              <div class="d-flex align-items-start">
+				<!-- 두 번째 프로필 이미지: 크기를 30px로 설정, 동일한 방식으로 반영 -->
+				<div class="profile-icon rounded-circle me-3" style="width: 30px; height: 30px;">
+	  			<img th:src="@{${subReply.attachPath != null && !subReply.attachPath.isEmpty() ? subReply.attachPath : '/img/default_profile.png'}}" 
+	       			alt="Profile Image" 
+	       			class="rounded-circle" 
+	       			style="width: 100%; height: 100%; object-fit: cover;" 
+	       			onerror="this.src='/img/default_profile.png'" 
+	       			loading="lazy">
+				</div>
+	                <div class="flex-grow-1">
+	                  <div class="d-flex justify-content-between align-items-center">
+	                    <div>
+	                      <strong th:text="'[' + (${subReply.deptName} != null ? ${subReply.deptName} : '부서없음') + '] ' + (${subReply.memberName} != null ? ${subReply.memberName} : '익명')" class="me-2"></strong>
+	                      <small class="ms-2 time-display" th:text="${subReply.regDateFormatted}"></small>
+	                      <small th:if="${subReply.isModifiedFlag}" class="ms-1 modified-tag"></small>
+	                    </div>
+	                    <th:block th:if="${subReply.member_no == #authentication.principal.member.memberNo}">
+	                      <div class="reply-actions d-flex gap-2">
+	                        <button type="button" class="btn btn-primary btn-sm edit-btn" th:onclick="|replyUpdate(${subReply.reply_no})|">수정</button>
+	                        <button type="button" class="btn btn-danger btn-sm delete-btn" th:onclick="|replyDelete(${subReply.reply_no}, ${board.boardNo})|">삭제</button>
+	                        <button type="button" class="btn btn-primary btn-sm save-btn" style="display: none;" th:onclick="|saveReplyEdit(${subReply.reply_no})|">확인</button>
+	                        <button type="button" class="btn btn-secondary btn-sm cancel-btn" style="display: none;" th:onclick="|cancelReplyEdit(${subReply.reply_no})|">취소</button>
+	                      </div>
+	                    </th:block>
+	                  </div>
+	                  <p class="reply-content mt-1 mb-1" th:id="'reply-content-' + ${subReply.reply_no}" th:text="${subReply.reply_content}"></p>
+	                  <div th:id="'reply-edit-form-' + ${subReply.reply_no}" class="reply-edit-form">
+	                    <textarea th:id="'edit-textarea-' + ${subReply.reply_no}" class="form-control mb-2" style="resize: none; height: 50px;"></textarea>
+	                  </div>
+	                </div>
+	              </div>
+	            </div>
+	          </div>
+	
+	          <!-- 대댓글 작성 폼 -->
+	          <div class="sub-reply-write mt-2" style="display: none;" th:id="'sub-reply-form-' + ${reply.reply_no}">
+	            <form th:action="@{/replies/{boardNo}/{parentReplyNo}/create-sub(boardNo=${board.boardNo}, parentReplyNo=${reply.reply_no})}" method="POST" class="d-flex gap-2 align-items-stretch sub-reply-form-content">
+	              <textarea name="reply_content" placeholder="답글을 입력하세요." required class="form-control"></textarea>
+	              <input type="hidden" name="board_no" th:value="${board.boardNo}" />
+	              <input type="hidden" name="parent_reply_no" th:value="${reply.reply_no}" />
+	              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+	              <button type="submit" class="btn btn-primary">등록</button>
+	            </form>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	<div class="text-center mt-3" th:if="${hasMoreReplies}">
+	  <button id="load-more-btn" class="btn btn-primary px-4">+ 더보기</button>
+	</div>
+	</div>
 
    
     <!-- 댓글 작성 영역 (하단 고정) -->
@@ -289,478 +289,409 @@
       <th:block sec:authorize="isAnonymous()">
         <p class="text-muted">로그인 후 댓글을 작성할 수 있습니다.</p>
       </th:block>
-    </div>        
+    </div> 
+    
 
-
-  <script>
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-
- // 게시글 삭제 기능
-    async function boardDelete(boardNo) {
-      const confirmed = await confirm("게시글을 삭제하시겠습니까?");
-      if (!confirmed) return;
-
-      fetch('/board/delete/' + boardNo, {
-        method: 'DELETE',
-        headers: {
-          [csrfHeader]: csrfToken,
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.res_msg);
-        if (data.res_code === "200") {
-          location.href = '/board/list';
-        }
-      })
-      .catch(err => {
-        alert("에러 발생: " + err);
-      });
-    }
-        
-    // 댓글 수정 시작
-    function replyUpdate(replyNo) {
-      const content = document.getElementById(`reply-content-${replyNo}`);
-      const form = document.getElementById(`reply-edit-form-${replyNo}`);
-      const textarea = document.getElementById(`edit-textarea-${replyNo}`);
-      const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
-      textarea.value = content.innerText.trim();
-      content.style.display = 'none';
-      form.style.display = 'block';
-      actions.querySelector('.edit-btn').style.display = 'none';
-      actions.querySelector('.delete-btn').style.display = 'none';
-      actions.querySelector('.save-btn').style.display = 'inline-block';
-      actions.querySelector('.cancel-btn').style.display = 'inline-block';
-    }
-
-    // 댓글 수정 저장
-    function saveReplyEdit(replyNo) {
-      const content = document.getElementById(`reply-content-${replyNo}`);
-      const form = document.getElementById(`reply-edit-form-${replyNo}`);
-      const textarea = document.getElementById(`edit-textarea-${replyNo}`);
-      const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
-      const timeElement = content.parentElement.querySelector('.time-display');
-      const newContent = textarea.value.trim();
-      if (!newContent) {
-        alert("댓글 내용을 입력하세요.");
-        return;
-      }
-      fetch(`/replies/${replyNo}/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          [csrfHeader]: csrfToken
-        },
-        body: JSON.stringify({ reply_content: newContent })
-      })
-      .then(res => {
-        if (!res.ok) throw new Error("응답 실패");
-        return res.json();
-      })
-      .then(data => {
-        if (data.success) {
-          content.innerText = newContent;
-          content.style.display = 'block';
-          form.style.display = 'none';
-          actions.querySelector('.edit-btn').style.display = 'inline-block';
-          actions.querySelector('.delete-btn').style.display = 'inline-block';
-          actions.querySelector('.save-btn').style.display = 'none';
-          actions.querySelector('.cancel-btn').style.display = 'none';
-          let modifiedTag = timeElement.parentElement.querySelector('.modified-tag');
-          if (!modifiedTag) {
-            modifiedTag = document.createElement('small');
-            modifiedTag.className = 'modified-tag ms-1';
-            modifiedTag.innerText = '(수정됨)';
-            timeElement.parentElement.appendChild(modifiedTag);
-          }
-          alert("댓글이 수정되었습니다.");
-        } else {
-          alert("수정에 실패했습니다.");
-        }
-      })
-      .catch(err => {
-        console.error("수정 실패:", err);
-        alert("오류가 발생했습니다.");
-      });
-    }
-
-    // 댓글 수정 취소
-    function cancelReplyEdit(replyNo) {
-      const content = document.getElementById(`reply-content-${replyNo}`);
-      const form = document.getElementById(`reply-edit-form-${replyNo}`);
-      const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
-      content.style.display = 'block';
-      form.style.display = 'none';
-      actions.querySelector('.edit-btn').style.display = 'inline-block';
-      actions.querySelector('.delete-btn').style.display = 'inline-block';
-      actions.querySelector('.save-btn').style.display = 'none';
-      actions.querySelector('.cancel-btn').style.display = 'none';
-    }
-
-    // 댓글 삭제
-      async function replyDelete(replyNo, boardNo) {
-    const confirmed = await confirm("댓글을 삭제하시겠습니까?");
-    if (!confirmed) return;
-
-    fetch(`/replies/${replyNo}/delete`, {
-      method: 'POST',
-      headers: {
-        [csrfHeader]: csrfToken,
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.res_msg);
-      if (data.res_code === "200") {
-        location.reload();
-      }
-    })
-    .catch(err => {
-      console.error('삭제 실패:', err);
-      alert("에러 발생: " + err);
-    });
-  }
-
-    // 답글 토글 및 대댓글 폼 표시
-  function toggleSubReply(element) {
-    const replyNo = element.getAttribute('data-reply-no');
-    const subReplyList = document.getElementById(`sub-reply-list-${replyNo}`);
-    const subReplyForm = document.getElementById(`sub-reply-form-${replyNo}`);
-    const count = parseInt(element.getAttribute('data-sub-reply-count')) || 0;
-
-    if (subReplyList) {
-      subReplyList.classList.toggle('collapsed');
-    }
-
-    if (subReplyForm) {
-      subReplyForm.style.display = subReplyForm.style.display === 'block' ? 'none' : 'block';
-    }
-
-    const isOpen = subReplyForm && subReplyForm.style.display === 'block';
-    element.innerText = count > 0 ? `답글 ${count}개(${isOpen ? '▲' : '▼'})` : '답글 달기';
-  }
-
-    // 대댓글 폼 제출 처리
-    document.querySelectorAll('.sub-reply-form-content').forEach(form => {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const replyNo = this.querySelector('input[name="parent_reply_no"]').value;
-        const toggleButton = document.getElementById(`reply-toggle-${replyNo}`);
-        let subReplyCount = parseInt(toggleButton.getAttribute('data-sub-reply-count')) || 0;
-        fetch(this.action, {
-          method: 'POST',
-          headers: {
-            [csrfHeader]: csrfToken,
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: new URLSearchParams(new FormData(this)).toString()
-        })
-        .then(res => {
-          if (res.ok) {
-            subReplyCount++;
-            toggleButton.setAttribute('data-sub-reply-count', subReplyCount);
-            toggleButton.classList.add('has-sub-replies');
-            toggleButton.innerText = `답글 ${subReplyCount}개(▼)`;
-            this.closest('.sub-reply-write').style.display = 'none';
-            this.reset();
-            fetch(`/replies/count/${replyNo}`, {
-              headers: { [csrfHeader]: csrfToken }
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.count !== undefined) {
-                toggleButton.setAttribute('data-sub-reply-count', data.count);
-                toggleButton.innerText = `답글 ${data.count}개(▲)`;
-              }
-            });
-            location.reload();
-          } else {
-            alert('답글 등록에 실패했습니다.');
-          }
-        })
-        .catch(err => {
-          console.error('대댓글 등록 오류:', err);
-          alert('오류 발생: ' + err);
-        });
-      });
-    });
-// + 더보기 버튼 추가
-let currentPage = 1; // page=0은 이미 서버 렌더링됨
-const pageSize = 5;
-const boardNo = /*[[${board.boardNo}]]*/ 0;
-
-function loadMoreReplies() {
-	  fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`, {
-	    headers: { [csrfHeader]: csrfToken }
-	  })
-	    .then(res => res.json())
-	    .then(data => {
-	      const replies = data.replies;
-	      const hasMore = data.hasMore;
-	      const container = document.getElementById('comment-container');
-	      
-	      if (!replies || replies.length === 0) {
-	        document.getElementById('load-more-btn')?.remove();
-	        return;
-	      }
-
-	      replies.forEach(reply => {
-	        const div = document.createElement('div');
-	        div.className = 'reply-item mb-3';
-	        div.innerHTML = `
-	          <div class="d-flex align-items-start mb-2">
-	            <div class="profile-icon rounded-circle me-3">
-	              <img src="${reply.attachPath || '/img/default_profile.png'}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
-	            </div>
-	            <div class="flex-grow-1">
-	              <div class="d-flex justify-content-between align-items-center">
-	                <div>
-	                  <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
-	                  <small class="ms-2 time-display">${reply.regDateFormatted}</small>
-	                </div>
-	              </div>
-	              <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
-	            </div>
-	          </div>
-	        `;
-
-	        // 덮어쓰기 X → 그냥 container에 추가
-	        container.appendChild(div);
-	      });
-
-	      if (!hasMore) {
-	        document.getElementById('load-more-btn')?.remove();
-	      } else {
-	        currentPage++;
-	      }
-	    })
-	    .catch(err => {
-	      console.error("❌ 댓글 불러오기 실패:", err);
-	    });
-	}
-document.getElementById('load-more-btn')?.addEventListener('click', loadMoreReplies);
-  </script>
+		<script>
+		const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+		const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		
+		// 게시글 삭제 기능
+		async function boardDelete(boardNo) {
+		  const confirmed = await window.confirm("게시글을 삭제하시겠습니까?");
+		  if (!confirmed) return;
+		
+		  try {
+		    const res = await fetch('/board/delete/' + boardNo, {
+		      method: 'DELETE',
+		      headers: {
+		        [csrfHeader]: csrfToken,
+		        'Content-Type': 'application/json'
+		      }
+		    });
+		    const data = await res.json();
+		    await window.alert(data.res_msg);
+		    if (data.res_code === "200") {
+		      location.href = '/board/list';
+		    }
+		  } catch (err) {
+		    await window.alert("에러 발생: " + err);
+		  }
+		}
+		
+		// 댓글 수정 저장
+		async function saveReplyEdit(replyNo) {
+		  const content = document.getElementById(`reply-content-${replyNo}`);
+		  const form = document.getElementById(`reply-edit-form-${replyNo}`);
+		  const textarea = document.getElementById(`edit-textarea-${replyNo}`);
+		  const actions = content.closest('.reply-item, .sub-reply-item').querySelector('.reply-actions');
+		  const timeElement = content.parentElement.querySelector('.time-display');
+		  const newContent = textarea.value.trim();
+		  if (!newContent) {
+		    await window.alert("댓글 내용을 입력하세요.");
+		    return;
+		  }
+		
+		  try {
+		    const res = await fetch(`/replies/${replyNo}/update`, {
+		      method: "POST",
+		      headers: {
+		        "Content-Type": "application/json",
+		        [csrfHeader]: csrfToken
+		      },
+		      body: JSON.stringify({ reply_content: newContent })
+		    });
+		    if (!res.ok) throw new Error("응답 실패");
+		    const data = await res.json();
+		    if (data.success) {
+		      content.innerText = newContent;
+		      content.style.display = 'block';
+		      form.style.display = 'none';
+		      actions.querySelector('.edit-btn').style.display = 'inline-block';
+		      actions.querySelector('.delete-btn').style.display = 'inline-block';
+		      actions.querySelector('.save-btn').style.display = 'none';
+		      actions.querySelector('.cancel-btn').style.display = 'none';
+		      let modifiedTag = timeElement.parentElement.querySelector('.modified-tag');
+		      if (!modifiedTag) {
+		        modifiedTag = document.createElement('small');
+		        modifiedTag.className = 'modified-tag ms-1';
+		        modifiedTag.innerText = '(수정됨)';
+		        timeElement.parentElement.appendChild(modifiedTag);
+		      }
+		      await window.alert("댓글이 수정되었습니다.");
+		    } else {
+		      await window.alert("수정에 실패했습니다.");
+		    }
+		  } catch (err) {
+		    console.error("수정 실패:", err);
+		    await window.alert("오류가 발생했습니다.");
+		  }
+		}
+		
+		// 댓글 삭제
+		async function replyDelete(replyNo, boardNo) {
+		  const confirmed = await window.confirm("댓글을 삭제하시겠습니까?");
+		  if (!confirmed) return;
+		
+		  try {
+		    const res = await fetch(`/replies/${replyNo}/delete`, {
+		      method: 'POST',
+		      headers: {
+		        [csrfHeader]: csrfToken,
+		        'Content-Type': 'application/json'
+		      }
+		    });
+		    const data = await res.json();
+		    await window.alert(data.res_msg);
+		    if (data.res_code === "200") {
+		      location.reload();
+		    }
+		  } catch (err) {
+		    console.error('삭제 실패:', err);
+		    await window.alert("에러 발생: " + err);
+		  }
+		}
+		
+		// 대댓글 등록 처리 오류 적용
+		document.querySelectorAll('.sub-reply-form-content').forEach(form => {
+		  form.addEventListener('submit', async function(e) {
+		    e.preventDefault();
+		    const replyNo = this.querySelector('input[name="parent_reply_no"]').value;
+		    const toggleButton = document.getElementById(`reply-toggle-${replyNo}`);
+		    let subReplyCount = parseInt(toggleButton.getAttribute('data-sub-reply-count')) || 0;
+		    try {
+		      const res = await fetch(this.action, {
+		        method: 'POST',
+		        headers: {
+		          [csrfHeader]: csrfToken,
+		          'Content-Type': 'application/x-www-form-urlencoded'
+		        },
+		        body: new URLSearchParams(new FormData(this)).toString()
+		      });
+		      if (!res.ok) throw new Error("등록 실패");
+		      subReplyCount++;
+		      toggleButton.setAttribute('data-sub-reply-count', subReplyCount);
+		      toggleButton.classList.add('has-sub-replies');
+		      toggleButton.innerText = `답글 ${subReplyCount}개(▼)`;
+		      this.closest('.sub-reply-write').style.display = 'none';
+		      this.reset();
+		      const countRes = await fetch(`/replies/count/${replyNo}`, {
+		        headers: { [csrfHeader]: csrfToken }
+		      });
+		      const data = await countRes.json();
+		      if (data.count !== undefined) {
+		        toggleButton.setAttribute('data-sub-reply-count', data.count);
+		        toggleButton.innerText = `답글 ${data.count}개(▲)`;
+		      }
+		      location.reload();
+		    } catch (err) {
+		      console.error('대댓글 등록 오류:', err);
+		      await window.alert('답글 등록에 실패했습니다.\n오류: ' + err);
+		    }
+		  });
+		});
+		
+		// 더보기 실패 시 알림
+		function loadMoreReplies() {
+		  fetch(`/replies/${boardNo}?page=${currentPage}&size=${pageSize}`, {
+		    headers: { [csrfHeader]: csrfToken }
+		  })
+		    .then(res => res.json())
+		    .then(data => {
+		      const replies = data.replies;
+		      const hasMore = data.hasMore;
+		      const container = document.getElementById('comment-container');
+		
+		      if (!replies || replies.length === 0) {
+		        document.getElementById('load-more-btn')?.remove();
+		        return;
+		      }
+		
+		      replies.forEach(reply => {
+		        const div = document.createElement('div');
+		        div.className = 'reply-item mb-3';
+		        div.innerHTML = `
+		          <div class="d-flex align-items-start mb-2">
+		            <div class="profile-icon rounded-circle me-3">
+		              <img src="${reply.attachPath || '/img/default_profile.png'}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+		            </div>
+		            <div class="flex-grow-1">
+		              <div class="d-flex justify-content-between align-items-center">
+		                <div>
+		                  <strong>[${reply.deptName || '부서없음'}] ${reply.memberName || '익명'}</strong>
+		                  <small class="ms-2 time-display">${reply.regDateFormatted}</small>
+		                </div>
+		              </div>
+		              <p class="reply-content mt-2 mb-2">${reply.reply_content}</p>
+		            </div>
+		          </div>
+		        `;
+		        container.appendChild(div);
+		      });
+		
+		      if (!hasMore) {
+		        document.getElementById('load-more-btn')?.remove();
+		      } else {
+		        currentPage++;
+		      }
+		    })
+		    .catch(async err => {
+		      console.error("❌ 댓글 불러오기 실패:", err);
+		      await window.alert("댓글을 더 불러오는 데 실패했습니다. 다시 시도해 주세요.");
+		    });
+		}
+		document.getElementById('load-more-btn')?.addEventListener('click', loadMoreReplies);
+		</script>
+		  
+	<script th:inline="javascript">
+		const csrfHeader1 = 'X-CSRF-TOKEN';
+		const csrfToken1 = '';
+		const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
+		
+		document.addEventListener("DOMContentLoaded", function () {
+		  const form = document.getElementById('voteForm');
+		  const voteNo = form?.getAttribute('data-vote-no');
+		  const voteBtn = document.getElementById('submitVoteBtn');
+		  const chartBtn = document.getElementById('resultChartBtn');
+		  const voteClosedMsg = document.getElementById('vote-closed-message');
+		  const endSpan = document.getElementById('vote-end-time');
+		  const endTimeStr = endSpan?.getAttribute('data-end-time');
+		  const endTime = endTimeStr ? new Date(endTimeStr.replace(' ', 'T')) : null;
+		
+		  // 1. 투표 여부 확인
+		  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+		    .then(res => res.json())
+		    .then(data => {
+		      if (data.voted) {
+		        voteBtn.disabled = true;
+		        voteBtn.classList.remove('btn-primary');
+		        voteBtn.classList.add('btn-danger');
+		        voteBtn.innerText = '투표 완료';
+		        chartBtn.style.display = 'inline-block';
+		      }
+		    });
+		
+		  // 2. 마감 여부 확인
+		  fetch(`/vote/${voteNo}/is-closed`)
+		    .then(res => res.json())
+		    .then(data => {
+		      if (data.closed) {
+		        if (form) form.style.display = 'none';
+		        if (voteBtn) voteBtn.remove();
+		        if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+		
+		        fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+		          .then(res => res.json())
+		          .then(data => {
+		            if (data.voted) {
+		              chartBtn.style.display = 'inline-block';
+		            }
+		          });
+		      }
+		    });
+		
+		  document.addEventListener("DOMContentLoaded", function () {
+		    const now = new Date();
+		    if (endTime && now >= endTime) {
+		      if (form) form.style.display = 'none';
+		      if (voteBtn) voteBtn.remove();
+		      if (voteClosedMsg) voteClosedMsg.style.display = 'block';
+		
+		      fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
+		        .then(res => res.json())
+		        .then(data => {
+		          if (data.voted) {
+		            chartBtn.style.display = 'inline-block';
+		          }
+		        });
+		    }
+		  });
+		
+		  if (endTime) {
+		    checkClosed();
+		    setInterval(checkClosed, 1000);
+		  }
+		});
+		
+		// 투표 제출
+		async function submitVote() {
+		  const form = document.getElementById('voteForm');
+		  const voteNo = form.getAttribute('data-vote-no');
+		  const selectedOptions = Array.from(form.querySelectorAll("input[name='optionNos']:checked"))
+		    .map(opt => opt.value);
+		
+		  if (selectedOptions.length === 0) {
+		    await window.alert("하나 이상의 항목을 선택해주세요.");
+		    return;
+		  }
+		
+		  try {
+		    const res = await fetch(`/vote/${voteNo}/submit?` + new URLSearchParams({
+		      optionNos: selectedOptions
+		    }), {
+		      method: 'POST',
+		      headers: {
+		        [csrfHeader]: csrfToken
+		      }
+		    });
+		
+		    if (!res.ok) throw new Error("투표 실패");
+		
+		    await window.alert("투표 완료!");
+		
+		    const voteBtn = document.getElementById('submitVoteBtn');
+		    voteBtn.disabled = true;
+		    voteBtn.classList.remove('btn-primary');
+		    voteBtn.classList.add('btn-danger');
+		    voteBtn.innerText = '투표 완료';
+		
+		    document.getElementById('resultChartBtn').style.display = 'inline-block';
+		
+		  } catch (err) {
+		    await window.alert("에러 발생: " + err);
+		  }
+		}
+		
+		// Chart.js 결과 차트 표시(막대 그래프)
+		document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
+		  const voteNo = this.getAttribute('data-vote-no');
+		
+		  fetch(`/vote/${voteNo}/result`, {
+		    headers: { [csrfHeader]: csrfToken }
+		  })
+		    .then(res => res.json())
+		    .then(data => {
+		      const labels = data.map(opt => opt.optionText);
+		      const counts = data.map(opt => opt.voteCount);
+		      const voters = data.map(opt => opt.voters || []);
+		      const isAnonymous = data[0]?.anonymous === 'Y';
+		
+		      const ctx = document.getElementById('voteResultChart').getContext('2d');
+		      if (window.voteChart) window.voteChart.destroy();
+		
+		      const backgroundColors = [
+		        '#0d6efd', '#6f42c1', '#fd7e14',
+		        '#198754', '#dc3545', '#20c997',
+		        '#ffc107', '#6610f2'
+		      ];
+		
+		      window.voteChart = new Chart(ctx, {
+		        type: 'bar',
+		        data: {
+		          labels: labels,
+		          datasets: [{
+		            label: '득표 수',
+		            data: counts,
+		            backgroundColor: backgroundColors.slice(0, labels.length),
+		            borderRadius: 5,
+		            borderSkipped: false,
+		            barThickness: 40
+		          }]
+		        },
+		        options: {
+		          responsive: true,
+		          maintainAspectRatio: false,
+		          animation: false,
+		          scales: {
+		            x: {
+		              grid: { display: false },
+		              title: { display: false }
+		            },
+		            y: {
+		              beginAtZero: true,
+		              ticks: {
+		                stepSize: 1,
+		                callback: value => `${value}표`
+		              },
+		              title: {
+		                display: true,
+		                text: '득표 수'
+		              }
+		            }
+		          },
+		          plugins: {
+		            legend: { display: false },
+		            tooltip: {
+		              callbacks: {
+		                title: () => '',
+		                label: function (context) {
+		                  const value = context.raw;
+		                  const index = context.dataIndex;
+		                  const rawLabel = context.label;
+		                  const cleanedLabel = rawLabel.includes(':')
+		                    ? rawLabel.split(':').slice(1).join(':').trim()
+		                    : rawLabel;
+		                  const lines = [`${cleanedLabel}: ${value}표`];
+		
+		                  if (!isAnonymous) {
+		                    const voterNames = voters[index];
+		                    if (voterNames && voterNames.length > 0) {
+		                      for (let i = 0; i < voterNames.length; i += 3) {
+		                        lines.push(voterNames.slice(i, i + 3).join(', '));
+		                      }
+		                    } else {
+		                      lines.push('투표자 없음');
+		                    }
+		                  }
+		
+		                  return lines;
+		                }
+		              }
+		            }
+		          },
+		          onClick: () => {}
+		        }
+		      });
+		    })
+		    .catch(async err => {
+		      await window.alert("투표 결과를 불러오는 데 실패했습니다.");
+		      console.error(err);
+		    });
+		});
+	</script>
   
   
-  <script th:inline="javascript">
-  const csrfHeader1 = 'X-CSRF-TOKEN';
-  const csrfToken1 = '';
-  const memberNo = /*[[${#authentication?.principal?.member?.memberNo}]]*/ 0;
-
-  document.addEventListener("DOMContentLoaded", function () {
-	  const form = document.getElementById('voteForm');
-	  const voteNo = form?.getAttribute('data-vote-no');
-	  const voteBtn = document.getElementById('submitVoteBtn');
-	  const chartBtn = document.getElementById('resultChartBtn');
-	  const voteClosedMsg = document.getElementById('vote-closed-message');
-	  const endSpan = document.getElementById('vote-end-time');
-	  const endTimeStr = endSpan?.getAttribute('data-end-time');
-	  const endTime = endTimeStr ? new Date(endTimeStr.replace(' ', 'T')) : null;
-
-	  // 1. 투표 여부 확인
-	  fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-	    .then(res => res.json())
-	    .then(data => {
-	      if (data.voted) {
-	        voteBtn.disabled = true;
-	        voteBtn.classList.remove('btn-primary');
-	        voteBtn.classList.add('btn-danger');
-	        voteBtn.innerText = '투표 완료';
-	        chartBtn.style.display = 'inline-block'; // 투표한 사용자만 결과 차트 보기 가능
-	      }
-	    });
-
-	  // 2. 마감 여부 확인
-	  fetch(`/vote/${voteNo}/is-closed`)
-	    .then(res => res.json())
-	    .then(data => {
-	      if (data.closed) {
-	        if (form) form.style.display = 'none'; // 폼 제거
-	        if (voteBtn) voteBtn.remove(); // 버튼 제거
-	        if (voteClosedMsg) voteClosedMsg.style.display = 'block';
-
-	        // 마감 + 이미 투표한 사용자라면 차트 보기 가능
-	        fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-	          .then(res => res.json())
-	          .then(data => {
-	            if (data.voted) {
-	              chartBtn.style.display = 'inline-block';
-	            }
-	          });
-	      }
-	    });
-
-	  // 3. 실시간 마감 체크 -> 새로고침으로 바꾸기
-document.addEventListener("DOMContentLoaded", function () {
-  const now = new Date();
-  if (endTime && now >= endTime) {
-    if (form) form.style.display = 'none';
-    if (voteBtn) voteBtn.remove();
-    if (voteClosedMsg) voteClosedMsg.style.display = 'block';
-
-    fetch(`/vote/${voteNo}/has-voted?memberNo=${memberNo}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.voted) {
-          chartBtn.style.display = 'inline-block';
-        }
-      });
-  }
-});
-
-	  if (endTime) {
-	    checkClosed();
-	    setInterval(checkClosed, 1000);
-	  }
-	});
   
-  // 투표 제출
-function submitVote() {
-  const form = document.getElementById('voteForm');
-  const voteNo = form.getAttribute('data-vote-no');
-  const selectedOptions = Array.from(form.querySelectorAll("input[name='optionNos']:checked"))
-    .map(opt => opt.value);
-
-  if (selectedOptions.length === 0) {
-    alert("하나 이상의 항목을 선택해주세요.");
-    return;
-  }
-
-  fetch(`/vote/${voteNo}/submit?` + new URLSearchParams({
-    optionNos: selectedOptions
-  }), {
-    method: 'POST',
-    headers: {
-      [csrfHeader]: csrfToken
-    }
-  })
-    .then(res => res.ok ? res.text() : Promise.reject("투표 실패"))
-    .then(() => {
-      alert("투표 완료!");
-   // 버튼 처리
-      const voteBtn = document.getElementById('submitVoteBtn');
-      voteBtn.disabled = true;
-      voteBtn.classList.remove('btn-primary');
-      voteBtn.classList.add('btn-danger');
-      voteBtn.innerText = '투표 완료';
-
-      // 차트 버튼 보이기
-      document.getElementById('resultChartBtn').style.display = 'inline-block';
-
-    })
-  }
-
-  // Chart.js 결과 차트 표시(막대 그래프)
-  document.getElementById('voteResultModal').addEventListener('show.bs.modal', function () {
-  const voteNo = this.getAttribute('data-vote-no');
-
-  fetch(`/vote/${voteNo}/result`, {
-    headers: { [csrfHeader]: csrfToken }
-  })
-    .then(res => res.json())
-    .then(data => {
-      const labels = data.map(opt => opt.optionText);
-      const counts = data.map(opt => opt.voteCount);
-      const voters = data.map(opt => opt.voters || []);
-      const isAnonymous = data[0]?.anonymous === 'Y';
-
-      const ctx = document.getElementById('voteResultChart').getContext('2d');
-
-      if (window.voteChart) window.voteChart.destroy();
-
-      const backgroundColors = [
-        '#0d6efd', '#6f42c1', '#fd7e14',
-        '#198754', '#dc3545', '#20c997',
-        '#ffc107', '#6610f2'
-      ];
-
-      window.voteChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: '득표 수',
-            data: counts,
-            backgroundColor: backgroundColors.slice(0, labels.length),
-            borderRadius: 5,
-            borderSkipped: false,
-            barThickness: 40
-          }]
-        },
-        options: {
-        	  responsive: true,
-        	  maintainAspectRatio: false, // 중요!
-        	  animation: false, // 애니메이션 제거
-        	  scales: {
-        	    x: {
-        	      grid: { display: false },
-        	      title: { display: false }
-        	    },
-        	    y: {
-        	      beginAtZero: true,
-        	      ticks: {
-        	        stepSize: 1,
-        	        callback: value => `${value}표`
-        	      },
-        	      title: {
-        	        display: true,
-        	        text: '득표 수'
-        	      }
-        	    }
-        	  },
-        	  plugins: {
-        	    legend: { display: false },
-        	    tooltip: {
-        	    	  callbacks: {
-        	    	    title: function () {
-        	    	      // 상단 title(예: "22: 항목명") 제거
-        	    	      return '';
-        	    	    },
-        	    	    label: function (context) {
-        	    	    	  const value = context.raw;
-        	    	    	  const index = context.dataIndex;
-
-        	    	    	  const rawLabel = context.label;
-        	    	    	  const cleanedLabel = rawLabel.includes(':')
-        	    	    	    ? rawLabel.split(':').slice(1).join(':').trim()
-        	    	    	    : rawLabel;
-
-        	    	    	  const lines = [`${cleanedLabel}: ${value}표`];
-
-        	    	    	  if (!isAnonymous) {
-        	    	    	    const voterNames = voters[index];
-        	    	    	    if (voterNames && voterNames.length > 0) {
-        	    	    	      const chunked = [];
-        	    	    	      for (let i = 0; i < voterNames.length; i += 3) {
-        	    	    	    	  chunked.push(voterNames.slice(i, i + 3).join(', '));
-        	    	    	    	}
-        	    	    	      lines.push(...chunked); // 각 줄 추가
-        	    	    	    } else {
-        	    	    	      lines.push('투표자 없음');
-        	    	    	    }
-        	    	    	  }
-
-        	    	    	  return lines;
-        	    	    	}
-        	    	  }
-        	    	}
-        	  },
-        	  onClick: function (e, elements) {
-        	    // 그래프 클릭 이벤트 제거
-        	  }
-        	}
-      });
-    })
-    .catch(err => {
-      alert("투표 결과를 불러오는 데 실패했습니다.");
-      console.error(err);
-    });
-});
-</script>
- 
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
