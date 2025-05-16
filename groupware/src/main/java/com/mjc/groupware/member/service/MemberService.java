@@ -217,6 +217,7 @@ public class MemberService {
 			        dto.getMember_addr3()
 			    );
 			
+			// 정보를 수정했으므로 MemberDetails를 즉각 수정해줌 : 갱신
 			MemberDetails updatedDetails = new MemberDetails(target);
 			
 			Authentication newAuth = new UsernamePasswordAuthenticationToken(
@@ -239,6 +240,14 @@ public class MemberService {
 		// 당연하게도 dto에 삽입된 정보만 바꿀 것이므로 @Transaction + 도메인메소드 활용
 		try {
 			Member target = repository.findById(dto.getMember_no()).orElseThrow(() -> new IllegalArgumentException("잘못된 요청입니다."));
+			
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+			Long currentMemberNo = memberDetails.getMember().getMemberNo();
+			
+			if (dto.getMember_no().equals(currentMemberNo)) {
+			    throw new IllegalArgumentException("자신의 정보는 수정할 수 없습니다.");
+			}
 			
 			Dept currentDept = target.getDept();
 			Long currentDeptNo = currentDept != null ? currentDept.getDeptNo() : null;
@@ -319,7 +328,6 @@ public class MemberService {
 		return memberList;
 	}
 	
-	
 	// 전자서명 저장
 	@Transactional(rollbackFor=Exception.class)
 	public int createSignatureApi(Long member_no, String signature) {
@@ -328,6 +336,7 @@ public class MemberService {
 		
 		try {
 			Member entity = repository.findById(member_no).orElse(null);
+
 			Member saved = null;
 			if(entity != null) {
 				entity.createAndUpdateSignature(signature);

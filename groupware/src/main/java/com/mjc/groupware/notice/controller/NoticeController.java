@@ -70,14 +70,14 @@ public class NoticeController {
     	model.addAttribute("noticeList", noticeList);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
-        return "/notice/list";
+        return "notice/list";
     }
 
     // 게시글 작성 화면
     @CheckPermission("NOTICE_CRU")
     @GetMapping("/notice/create")
     public String createNoticeAdminView() {
-        return "/notice/create";
+        return "notice/create";
     }
     
     @CheckPermission("NOTICE_CRU")
@@ -102,7 +102,7 @@ public class NoticeController {
             return "redirect:/notice";
         }
         model.addAttribute("notice", noticeDto);
-        return "/notice/update";
+        return "notice/update";
     }
     
     // 게시글 등록 처리 (fetch용)
@@ -150,7 +150,7 @@ public class NoticeController {
         List<Attach> attachList= attachRepository.findByNotice(notice);
         model.addAttribute("attachList",attachList);
         model.addAttribute("notice", notice);
-        return "/notice/detail";
+        return "notice/detail";
     }
     
     // 게시글 수정 화면

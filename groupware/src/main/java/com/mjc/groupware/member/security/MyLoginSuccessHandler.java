@@ -1,12 +1,16 @@
 package com.mjc.groupware.member.security;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.mjc.groupware.common.redis.RedisLoginLogService;
+import com.mjc.groupware.member.dto.LogRedisDto;
 import com.mjc.groupware.member.entity.LoginLog;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.repository.LoginLogRepository;
@@ -23,6 +27,8 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
 	
 	private final MemberRepository memberRepository;
 	private final LoginLogRepository loginLogRepository;
+	private final RedisLoginLogService redisLoginLogService;
+	private final RedisTemplate<String, Object> redisTemplate;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -40,6 +46,7 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
 		Member member = memberRepository.findById(memberNo)
 				.orElseThrow(() -> new RuntimeException("회원 정보가 존재하지 않습니다. id: " + memberNo + ", 로그인 시각: " + LocalDateTime.now()));
 		
+		// MariaDB 저장
 		LoginLog log = LoginLog.builder()
                 .member(member)
                 .loginTime(LocalDateTime.now())
@@ -48,8 +55,29 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .build();
         
         loginLogRepository.save(log);
-		
+        
+        // Redis 저장
+        LogRedisDto redisDto = LogRedisDto.builder()
+                .loginTime(log.getLoginTime())
+                .loginIp(log.getLoginIp())
+                .loginAgent(log.getLoginAgent())
+                .build();
+        
+        redisLoginLogService.saveLoginLog(memberNo, redisDto);
+        
+        // Redis에 "member:session:" + memberNo를 키로 세션 수를 저장 :: 동시로그인 제어
+        String key = "member:session:" + memberNo;  // 예: member:session:123
+        Long sessionCount = redisTemplate.opsForValue().increment(key, 1);  // 세션 수 1 증가
+        
+        if (sessionCount > 3) {
+        	redisTemplate.opsForValue().decrement(key);
+        	String errorMsg = "동시 접속 허용 수(3)를 초과했습니다.";
+            response.sendRedirect("/login?error=true&errorMsg=" + URLEncoder.encode(errorMsg, "UTF-8"));
+            return;
+        }
+        
 		System.out.println("MyLoginSuccessHandler :: 로그인 성공");
+		
 		response.sendRedirect("/");
 	}
 	

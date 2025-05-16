@@ -237,7 +237,7 @@ public class MeetingRoomController {
 		
 		model.addAttribute("meetingRoomList",resultList);
 
-		return "/meetingRoom/adminMeetingRoomSelect";
+		return "meetingRoom/adminMeetingRoomSelect";
 	}
 	
 	// 관리자 - 회의실 등록

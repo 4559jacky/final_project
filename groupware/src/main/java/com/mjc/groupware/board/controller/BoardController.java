@@ -10,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,13 +34,14 @@ import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.entity.BoardAttach;
 import com.mjc.groupware.board.service.BoardAttachService;
 import com.mjc.groupware.board.service.BoardService;
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.security.MemberDetails;
 import com.mjc.groupware.reply.dto.ReplyDto;
 import com.mjc.groupware.reply.service.ReplyService;
 import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
 import com.mjc.groupware.vote.service.VoteService;
-
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,13 +58,16 @@ public class BoardController {
     
     // 알람 2025-05-14(수요일)
     private final VoteService voteService;
-
+    
+    @CheckPermission("BOARD_CRU")
     @GetMapping("/board/create")
     public String createBoardView(Model model) {
         model.addAttribute("boardDto", new BoardDto());
         return "board/create";
     }
+    
     // @AuthenticationPrincipal(expression = "member") Member loginMember) = 첨부파일이 안되서 다시 추가
+    @CheckPermission("BOARD_CRU")
     @PostMapping("/board")
     @ResponseBody
     public Map<String, String> createBoard(@ModelAttribute BoardDto dto,
@@ -95,7 +102,7 @@ public class BoardController {
     				return resultMap;
     }
     
-
+    @CheckPermission("BOARD_R")
     @GetMapping("/board/list")
     public String selectBoardAll(Model model, SearchDto searchDto, PageDto pageDto) {
         if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
@@ -115,7 +122,7 @@ public class BoardController {
         return "board/list";
     }
     
-
+    @CheckPermission("BOARD_R")
     @GetMapping("/board/detail/{boardNo}")
     public String selectBoardOne(@PathVariable("boardNo") Long boardNo, Model model) {
         boardService.updateViews(boardNo);
@@ -147,10 +154,26 @@ public class BoardController {
         return "board/detail";
     }
     
-    
+    @CheckPermission("BOARD_CRU")
     @GetMapping("/board/{id}/update")
     public String updateBoardView(@PathVariable("id") Long id, Model model) {
         Optional<Board> optionalBoard = boardService.selectBoardOne(id);
+        Long memberNo = optionalBoard.get().getMember().getMemberNo();
+        
+        // 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+     	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+     	
+     	if (authentication == null || !authentication.isAuthenticated()) {
+     		throw new AccessDeniedException("로그인 정보가 없습니다.");
+     	}
+     		
+     	MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+     	Long currentMemberNo = memberDetails.getMember().getMemberNo();
+     	
+     	if (!memberNo.equals(currentMemberNo)) {
+     		throw new AccessDeniedException("접근 권한이 없습니다.");
+     	}
+        
         if (optionalBoard.isPresent()) {
             model.addAttribute("board", optionalBoard.get());
             List<BoardAttach> attachList = boardAttachService.selectAttachList(id);
@@ -162,7 +185,7 @@ public class BoardController {
         }
     }
     
-
+    @CheckPermission("BOARD_CRU")
     @PostMapping("/board/{boardNo}/update")
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateBoard(@PathVariable("boardNo") Long boardNo,
@@ -172,6 +195,23 @@ public class BoardController {
                                                            @AuthenticationPrincipal(expression = "member") Member loginMember) {
         Map<String, String> result = new HashMap<>();
         try {
+        	Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
+            Long memberNo = optionalBoard.get().getMember().getMemberNo();
+        	
+        	// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+         	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         	
+         	if (authentication == null || !authentication.isAuthenticated()) {
+         		throw new AccessDeniedException("로그인 정보가 없습니다.");
+         	}
+         		
+         	MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+         	Long currentMemberNo = memberDetails.getMember().getMemberNo();
+         	
+         	if (!memberNo.equals(currentMemberNo)) {
+         		throw new AccessDeniedException("접근 권한이 없습니다.");
+         	}
+        	
             boardDto.setBoard_no(boardNo);
             boardDto.setDelete_files(deleteFiles);
             boardDto.setMember_no(loginMember.getMemberNo()); // ✅ 수정 시에도 로그인 사용자 주입
@@ -190,12 +230,29 @@ public class BoardController {
         }
     }
     
-
+    @CheckPermission("BOARD_CRU")
     @DeleteMapping("/board/delete/{boardNo}")
     @ResponseBody
     public Map<String, String> deleteBoard(@PathVariable("boardNo") Long boardNo) {
         Map<String, String> resultMap = new HashMap<>();
         try {
+        	Optional<Board> optionalBoard = boardService.selectBoardOne(boardNo);
+            Long memberNo = optionalBoard.get().getMember().getMemberNo();
+        	
+        	// 본인이 아닌데 URL 을 바꿔서 진입하려고 하면 Security에 의해 차단해야 함
+         	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         	
+         	if (authentication == null || !authentication.isAuthenticated()) {
+         		throw new AccessDeniedException("로그인 정보가 없습니다.");
+         	}
+         		
+         	MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+         	Long currentMemberNo = memberDetails.getMember().getMemberNo();
+         	
+         	if (!memberNo.equals(currentMemberNo)) {
+         		throw new AccessDeniedException("접근 권한이 없습니다.");
+         	}
+        	
             boardService.deleteBoard(boardNo);
             resultMap.put("res_code", "200");
             resultMap.put("res_msg", "게시글이 성공적으로 삭제되었습니다.");

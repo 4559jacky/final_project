@@ -38,6 +38,7 @@ import com.mjc.groupware.chat.service.ChatAttachService;
 import com.mjc.groupware.chat.service.ChatRoomService;
 import com.mjc.groupware.chat.session.ChatSessionTracker;
 import com.mjc.groupware.chat.session.SessionRegistry;
+import com.mjc.groupware.common.annotation.CheckPermission;
 import com.mjc.groupware.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,7 @@ public class ChatAttachController {
     private final ChatSessionTracker chatSessionTracker; 
 	
 	// 파일 업로드 
+    @CheckPermission("CHAT_USER")
     @PostMapping("/chat/attach/create")
     @ResponseBody
     public Map<String, String> createAttachApi(@RequestParam("files") List<MultipartFile> files,
@@ -223,7 +225,7 @@ public class ChatAttachController {
 	    }
 	
 	    
-	    
+	    @CheckPermission("CHAT_USER")
 	    @GetMapping("/chat/download/{id}")
 		public ResponseEntity<Object> fileDownlod(@PathVariable("id") Long id) {
 			try {
