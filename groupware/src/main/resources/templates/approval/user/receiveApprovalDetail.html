@@ -364,11 +364,12 @@
 		});
 	
 		// 합의자 수락버튼
-		const agree = function() {
+		const agree = async function() {
 			memberNo = document.getElementById('memberNo').value;
 			apprNo = document.getElementById('approvalNo').value;
 			
-			if(confirm('결재를 수락하시겠습니까?')) {
+			const isConfirmed = await confirm('결재를 수락하시겠습니까?');
+			if(isConfirmed) {
 				const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
 			    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 				fetch('/approval/agree/'+apprNo, {
@@ -379,8 +380,8 @@
 					}
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code =='200') {
 						console.log('성공');
 						location.href = '/approval/receive/detail/'+apprNo;
@@ -396,14 +397,15 @@
 		const rejectForm = document.reject_form;
 
 		// 합의자 거절
-		rejectForm.addEventListener('submit', (e) => {
+		rejectForm.addEventListener('submit', async (e) => {
 		    e.preventDefault();
 
 		    const apprNo = document.getElementById('approvalNo').value;
 		    const rejectReason = document.getElementById('approvalRejectReason').value;
 
 		    if (rejectReason) {
-		        if (confirm('결재를 거절하시겠습니까?')) {
+		    	const isConfirmed = await confirm('결재를 거절하시겠습니까?');
+		        if (isConfirmed) {
 		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
 		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 		            const payload = new FormData(rejectForm);
@@ -416,8 +418,8 @@
 		                body: payload
 		            })
 		                .then(response => response.json())
-		                .then(data => {
-		                    alert(data.res_msg);
+		                .then(async data => {
+		                    await alert(data.res_msg);
 		                    if (data.res_code == '200') {
 		                        console.log('성공');
 		                        location.href = '/approval/receive/detail/' + apprNo;
@@ -437,9 +439,10 @@
 		});
 		
 		
-		const approval = function(){
+		const approval = async function(){
 			apprNo = document.getElementById('approvalNo').value;
-			if(confirm('결재를 승인하시겠습니까?')) {
+			const isConfirmed = await confirm('결재를 승인하시겠습니까?');
+			if(isConfirmed) {
 				const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
 			    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 				fetch('/approval/success/'+apprNo, {
@@ -449,8 +452,8 @@
 					}
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code =='200') {
 						console.log('성공');
 						location.href = '/approval/receive/detail/'+apprNo;
@@ -461,14 +464,15 @@
 		
 		const companionForm = document.companion_form;
 		
-		companionForm.addEventListener('submit', (e) => {
+		companionForm.addEventListener('submit', async (e) => {
 		    e.preventDefault();
 
 		    const apprNo = document.getElementById('approvalNo').value;
 		    const companionReason = document.getElementById('approvalCompanionReason').value;
 
 		    if (companionReason) {
-		        if (confirm('결재를 반려하시겠습니까?')) {
+		    	const isConfirmed = await confirm('결재를 반려하시겠습니까?');
+		        if (isConfirmed) {
 		            const csrfHeaderName = document.querySelector('meta[name="_csrf_header"]').content;
 		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 		            const payload = new FormData(companionForm);
@@ -481,8 +485,8 @@
 		                body: payload
 		            })
 		                .then(response => response.json())
-		                .then(data => {
-		                    alert(data.res_msg);
+		                .then(async data => {
+		                    await alert(data.res_msg);
 		                    if (data.res_code == '200') {
 		                        console.log('성공');
 		                        location.href = '/approval/receive/detail/' + apprNo;

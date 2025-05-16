@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   /*=================*/
   // Calender Modal Elements
-  /*=================*/
+  /*=================*/ 
   var getModalTitleEl = document.querySelector("#event-title");
   var getModalStartDateEl = document.querySelector("#event-start-date");
   var getModalEndDateEl = document.querySelector("#event-end-date");

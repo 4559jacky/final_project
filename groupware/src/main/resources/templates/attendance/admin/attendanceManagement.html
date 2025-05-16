@@ -234,8 +234,11 @@ layout:decorate="~{include/layout :: layout}">
 	
 	<script>
 		workTimeForm = document.work_time_form;
-		workTimeForm.addEventListener('submit', function(e){
+		workTimeForm.addEventListener('submit', async function(e){
 			e.preventDefault();
+			
+			const isConfirmed = await confirm('근태 정책을 변경하시겠습니까?');
+			if(!isConfirmed) return;
 			
 			const start_time_min = document.getElementById('start_time_min').value;
 		    const start_time_max = document.getElementById('start_time_max').value;
@@ -265,8 +268,8 @@ layout:decorate="~{include/layout :: layout}">
 		    	body: payload,
 		    })
 		    .then(response => response.json())
-			.then(data => {
-				alert(data.res_msg);
+			.then(async data => {
+				await alert(data.res_msg);
 				if(data.res_code =='200') {
 					document.getElementById('start_time_min').value = data.workPolicy.startTimeMin;
 					document.getElementById('start_time_max').value = data.workPolicy.startTimeMax;
@@ -379,7 +382,7 @@ layout:decorate="~{include/layout :: layout}">
 	    });
 	  });
 	
-	  function saveAttendanceUpdate() {
+	  async function saveAttendanceUpdate() {
 		
 		const attendDate = document.getElementById('attendDate').value;
 		const formattedDate = attendDate.replaceAll('.', '-');
@@ -387,6 +390,9 @@ layout:decorate="~{include/layout :: layout}">
 	    const updateEnd = document.getElementById('editEndTime').value;
 	    const updateLateYn = document.getElementById('editLateYn').value;
 	    const updateEarlyYn = document.getElementById('editEarlyLeaveYn').value;
+	    
+	    const isConfirmed = await confirm('회원의 근무 상태를 변경하시겠습니까?');
+	    if(!isConfirmed) return;
 	    
 	    console.log(attendDate);
 	    
@@ -418,8 +424,8 @@ layout:decorate="~{include/layout :: layout}">
 			})
 	    })
 	    .then(res => res.json())
-	    .then(data => {
-	      alert(data.res_msg);
+	    .then(async data => {
+	      await alert(data.res_msg);
 	      if (data.res_code == 200) {
 	        location.reload();
 	      }
