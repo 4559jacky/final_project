@@ -743,25 +743,34 @@
 		    tbody.addEventListener("click", function (e) {
 		        const btn = e.target.closest(".cancel_btn");
 		        if (btn) {
-		            const reservationNo = btn.getAttribute("data-id");
-		
-		            if (confirm("회의실 예약을 취소하시겠습니까?")) {
-		                fetch('/delete/' + reservationNo, {
-		                    method: 'post',
-		                    headers: {
-		                        'header': document.querySelector('meta[name="_csrf_header"]').content,
-		                        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-		                    },
-		                })
-		                .then(response => response.json())
-		                .then(data => {
-		                    alert(data.res_msg);
-		                    if (data.res_code == 200) {
-		                        location.reload();
-		                    }
-		                });
-		            }
-		        }
+		        	  const reservationNo = btn.getAttribute("data-id");
+
+		        	  async function cancelReservation(reservationNo) {
+		        	    const confirmed = await confirm("회의실 예약을 취소하시겠습니까?");
+		        	    if (!confirmed) return;
+
+		        	    try {
+		        	      const response = await fetch('/delete/' + reservationNo, {
+		        	        method: 'POST',
+		        	        headers: {
+		        	          'header': document.querySelector('meta[name="_csrf_header"]').content,
+		        	          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		        	        },
+		        	      });
+
+		        	      const data = await response.json();
+		        	      alert(data.res_msg); // ✅ 커스텀 alert 작동됨
+
+		        	      if (data.res_code == 200) {
+		        	        location.reload();
+		        	      }
+		        	    } catch (error) {
+		        	      console.error("예약 취소 중 오류:", error);
+		        	    }
+		        	  }
+
+		        	  cancelReservation(reservationNo); 
+		        	}
 		    });
 		});
 

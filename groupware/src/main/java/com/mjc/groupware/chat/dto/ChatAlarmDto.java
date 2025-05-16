@@ -50,6 +50,7 @@ public class ChatAlarmDto {
     private String chat_alarm_content;
     
     private String chat_room_title;
+    
 	
 
 }

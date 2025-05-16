@@ -235,7 +235,7 @@ layout:decorate="~{include/layout :: layout}">
 	        </form>
 	
 	        <!-- 📌 연차 정책 보기 제목 -->
-	        <h5 class="fw-bold mb-3">연차 정책 보기</h5>
+	        <h5 class="fw-bold mb-3">휴일 정보</h5>
 	
 	        <!-- 📌 표 영역 -->
 	        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
@@ -452,10 +452,10 @@ layout:decorate="~{include/layout :: layout}">
 			
 			  <!-- ✔ input + 버튼 줄 정렬 -->
 			  <div class="d-flex justify-content-center align-items-center gap-2">
-			    <input type="number" class="form-control text-center" step="0.5" id="annual_leave" style="max-width: 120px;">
+			    <input type="number" class="form-control text-center" step="1" id="annual_leave" style="max-width: 120px;">
 			    <div class="btn-group" role="group">
-			      <button type="button" class="btn btn-success" id="btnPlusAnnual">+</button>
-			      <button type="button" class="btn btn-danger" id="btnMinusAnnual">-</button>
+			      <button type="button" class="btn btn-rounded btn-light" id="btnPlusAnnual">+</button>
+			      <button type="button" class="btn btn-rounded btn-light" id="btnMinusAnnual">-</button>
 			    </div>
 			  </div>
 			</div>
@@ -496,7 +496,7 @@ layout:decorate="~{include/layout :: layout}">
 	
 		document.getElementById('btnPlusAnnual').addEventListener('click', function () {
 			let val = parseFloat(document.getElementById('annual_leave').value) || 0;
-			val = val + 0.5;
+			val = val + 1;
 			document.getElementById('annual_leave').value = val.toFixed(1);
 			document.getElementById('currentAnnual').textContent = val.toFixed(1);
 		});
@@ -504,7 +504,7 @@ layout:decorate="~{include/layout :: layout}">
 		document.getElementById('btnMinusAnnual').addEventListener('click', function () {
 			let val = parseFloat(document.getElementById('annual_leave').value) || 0;
 			if (val > 0) {
-				val = val - 0.5;
+				val = val - 1;
 				document.getElementById('annual_leave').value = val.toFixed(1);
 				document.getElementById('currentAnnual').textContent = val.toFixed(1);
 			}
