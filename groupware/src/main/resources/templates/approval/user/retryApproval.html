@@ -168,7 +168,7 @@
 					<!-- 승인요청 버튼: div2 하단 오른쪽 정렬 -->
 					
 					<div class="d-flex justify-content-end mt-3">
-					    <button th:onclick="|sendApprovalDetail('${approval.apprNo}')|"
+					    <button type="button" th:onclick="|sendApprovalDetail('${approval.apprNo}')|"
 					            class="btn btn-secondary me-2">돌아가기</button>
 					    <button type="submit" class="btn btn-primary">승인요청</button>
 					</div>
@@ -300,8 +300,9 @@
 	
 		
 	
-		function sendApprovalDetail(apprNo) {
-			if(confirm('재기안을 중지하고 상세페이지로 돌아가시겠습니까?')) {
+		async function sendApprovalDetail(apprNo) {
+			const isConfirmed = await confirm('재기안을 중지하고 상세페이지로 돌아가시겠습니까?');
+			if(isConfirmed) {
 				location.href = '/approval/send/detail/'+apprNo;
 			}
 		}
@@ -599,8 +600,8 @@
 					credentials: 'include'
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if (data.res_code === '200') {
 						location.href = '/approval';
 					}
