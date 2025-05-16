@@ -1,6 +1,9 @@
 package com.mjc.groupware.accommodationReservation.controller;
 
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +18,7 @@ import com.mjc.groupware.accommodationReservation.dto.ReadyResponse;
 import com.mjc.groupware.accommodationReservation.service.KakaoPayService;
 import com.mjc.groupware.common.util.SessionUtils;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -40,7 +44,7 @@ public class KakaoPayController {
     }
 
     @GetMapping("/pay/completed")
-    public String payCompleted(@RequestParam("pg_token") String pgToken) {
+    public void payCompleted(@RequestParam("pg_token") String pgToken, HttpServletResponse response)throws IOException {
     
         String tid = SessionUtils.getStringAttributeValue("tid");
 //        log.info("결제승인 요청을 인증하는 토큰: " + pgToken);
@@ -48,8 +52,24 @@ public class KakaoPayController {
         
         // 카카오 결제 요청하기
         ApproveResponse approveResponse = kakaoPayService.payApprove(tid, pgToken);
-
-        return "redirect:/order/completed";
+        
+        //응답설정
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        
+        out.println("<html><head><title>결제완료</title>");
+        out.println("<script>");
+        out.println("window.onload = function() {");
+        out.println("    if (window.opener) {");
+        out.println("        window.opener.location.href = '/order/completed';");
+        out.println("    }");
+        out.println("    window.close();");
+        out.println("};");
+        out.println("</script></head>");
+        out.println("<body>");
+        out.println("<p>결제가 완료되었습니다. 창이 곧 닫힙니다.</p>");
+        out.println("</body></html>");
+//        return "redirect:/order/completed";
     }
     
     
