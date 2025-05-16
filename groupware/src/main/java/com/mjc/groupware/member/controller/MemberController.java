@@ -107,7 +107,14 @@ public class MemberController {
 	}
 	
 	@GetMapping("/forgetPassword")
-	public String forgetPasswordView() {
+	public String forgetPasswordView(
+			@RequestParam(value="error", required=false) String error,
+			@RequestParam(value="errorMsg", required=false) String errorMsg,
+			Model model) {
+		
+		model.addAttribute("error", error);
+		model.addAttribute("errorMsg", errorMsg);
+		
 		return "member/forgetPassword";
 	}
 	
