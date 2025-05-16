@@ -296,9 +296,11 @@
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
 
-    // 게시글 삭제 기능
-    function boardDelete(boardNo) {
-      if (!confirm("게시글을 삭제하시겠습니까?")) return;
+ // 게시글 삭제 기능
+    async function boardDelete(boardNo) {
+      const confirmed = await confirm("게시글을 삭제하시겠습니까?");
+      if (!confirmed) return;
+
       fetch('/board/delete/' + boardNo, {
         method: 'DELETE',
         headers: {
@@ -308,11 +310,9 @@
       })
       .then(res => res.json())
       .then(data => {
+        alert(data.res_msg);
         if (data.res_code === "200") {
-          alert(data.res_msg);
           location.href = '/board/list';
-        } else {
-          alert(data.res_msg);
         }
       })
       .catch(err => {
@@ -400,29 +400,29 @@
     }
 
     // 댓글 삭제
-    function replyDelete(replyNo, boardNo) {
-      if (!confirm("댓글을 삭제하시겠습니까?")) return;
-      fetch(`/replies/${replyNo}/delete`, {
-        method: 'POST',
-        headers: {
-          [csrfHeader]: csrfToken,
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.res_code === "200") {
-          alert(data.res_msg);
-          location.reload();
-        } else {
-          alert(data.res_msg);
-        }
-      })
-      .catch(err => {
-        console.error('삭제 실패:', err);
-        alert("에러 발생: " + err);
-      });
-    }
+      async function replyDelete(replyNo, boardNo) {
+    const confirmed = await confirm("댓글을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    fetch(`/replies/${replyNo}/delete`, {
+      method: 'POST',
+      headers: {
+        [csrfHeader]: csrfToken,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.res_msg);
+      if (data.res_code === "200") {
+        location.reload();
+      }
+    })
+    .catch(err => {
+      console.error('삭제 실패:', err);
+      alert("에러 발생: " + err);
+    });
+  }
 
     // 답글 토글 및 대댓글 폼 표시
   function toggleSubReply(element) {

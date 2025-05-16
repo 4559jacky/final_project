@@ -35,10 +35,8 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     Page<Board> findByIsFixedFalse(Specification<Board> spec, Pageable pageable);  // 일반글만
 
 	List<Board> findByIsFixedTrueAndBoardStatusNot(String string, Sort by);
-	
-	// 최근 자유게시판 글 리스트 (SoftDelete 제외, 고정글 제외)
-	Page<Board> findByBoardStatusOrderByRegDateDesc(String boardStatus, Pageable pageable);
 
-	Page<Board> findByBoardStatusAndIsFixedFalseOrderByRegDateDesc(String boardStatus, Pageable pageable);
+	Page<Board> findByBoardStatusOrderByIsFixedDescRegDateDesc(String boardStatus, Pageable pageable);
+	
 
 }

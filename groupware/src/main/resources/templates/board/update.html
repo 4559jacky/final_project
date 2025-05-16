@@ -188,26 +188,26 @@
     const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
     const csrfToken = /*[[${_csrf.token}]]*/ '';
 
-    function deleteVote() {
-        if (!confirm("정말 이 게시글의 투표를 삭제하시겠습니까?")) return;
+    async function deleteVote() {
+    	  const confirmed = await confirm("정말 이 게시글의 투표를 삭제하시겠습니까?");
+    	  if (!confirmed) return;
 
-        fetch(`/vote/delete/by-board/${boardNo}`, {
-            method: 'DELETE',
-            headers: {
-                [csrfHeader]: csrfToken
-            }
-        })
-        .then(res => res.ok ? res.text() : Promise.reject("투표 삭제 실패"))
-        .then(msg => {
-            alert("투표가 삭제되었습니다.");
-            // 투표 영역을 숨기거나 수정 완료 시에도 반영되도록 처리
-            location.reload();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("투표 삭제 중 오류 발생: " + err);
-        });
-    }
+    	  fetch(`/vote/delete/by-board/${boardNo}`, {
+    	    method: 'DELETE',
+    	    headers: {
+    	      [csrfHeader]: csrfToken
+    	    }
+    	  })
+    	  .then(res => res.ok ? res.text() : Promise.reject("투표 삭제 실패"))
+    	  .then(msg => {
+    	    alert("투표가 삭제되었습니다.");
+    	    location.reload();
+    	  })
+    	  .catch(err => {
+    	    console.error(err);
+    	    alert("투표 삭제 중 오류 발생: " + err);
+    	  });
+    	}
 </script>
 
     <!-- Bootstrap Common JS Files Start -->
