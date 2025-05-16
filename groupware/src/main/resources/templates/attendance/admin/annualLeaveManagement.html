@@ -355,6 +355,7 @@ layout:decorate="~{include/layout :: layout}">
 		    	if(data.res_code == 200) {
 			      const tbody = document.getElementById("holiday-policy-body");
 			      tbody.innerHTML = ""; // 초기화
+			      
 
 			      data.holidayList.forEach(item => {
 			        const row = document.createElement("tr");
@@ -606,6 +607,7 @@ layout:decorate="~{include/layout :: layout}">
 				      const tbody = document.getElementById("holiday-policy-body");
 				      tbody.innerHTML = ""; // 초기화
 				      
+				      
 				      data.holidayList.forEach(item => {
 				        const row = document.createElement("tr");
 				        row.innerHTML = `
@@ -645,6 +647,13 @@ layout:decorate="~{include/layout :: layout}">
 			    	if(data.res_code == 200) {
 			    		 const tbody = document.getElementById("holiday-policy-body");
 					      tbody.innerHTML = ""; // 초기화
+					      
+					      if(!Array.isArray(data.holidayList) || data.holidayList.length === 0) {
+					    	  const row = document.createElement("tr");
+					    	  row.innerHTML = '<td colspan="4">조회된 데이터가 없습니다.</td>';
+					    	  tbody.appendChild(row);
+					    	  return;
+					      }
 
 					      data.holidayList.forEach(item => {
 					        const row = document.createElement("tr");
