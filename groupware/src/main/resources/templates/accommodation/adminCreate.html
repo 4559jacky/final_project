@@ -203,7 +203,7 @@ layout:decorate="~{include/layout :: layout}">
    				/* const rawPrice = document.getElementById("price").value.replace(/,/g, ''); */
 			  
 			// 등록버튼 클릭시 동작
-			document.getElementById("submitBtn").addEventListener("click", function (e) {
+			document.getElementById("submitBtn").addEventListener("click", async function (e) {
 			    e.preventDefault();
 				
 				const content = editor.getHTML();
@@ -263,7 +263,8 @@ layout:decorate="~{include/layout :: layout}">
 					}
 				})
 				.then(res => res.json())
-				.then(data =>{
+				.then(async data =>{
+					await alert("숙소가 등록되었습니다.");
 					if(data.res_code == "200"){
 						location.href ="/accommodation/adminHome";
 					}

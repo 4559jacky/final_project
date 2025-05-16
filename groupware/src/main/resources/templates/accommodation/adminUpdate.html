@@ -226,7 +226,7 @@ layout:decorate="~{include/layout :: layout}">
 			  // 수정 완료 버튼 클릭 시
 			  const updateBtn = document.getElementById("updateBtn");
 			  if (updateBtn) {
-			    updateBtn.addEventListener("click", function (e) {
+			    updateBtn.addEventListener("click", async function (e) {
 			      e.preventDefault();
 			
 			      const updatedContent = editor.getHTML();
@@ -295,9 +295,9 @@ layout:decorate="~{include/layout :: layout}">
 				       if (!res.ok) throw new Error("HTTP error " + res.status);
 				       return res.json();
 				     })
-			        .then(data => {
+			        .then(async data => {
 			          if (data.res_code === "200") {
-			            alert("수정이 완료되었습니다.");
+			           await alert("수정이 완료되었습니다.");
 			            location.href = "/accommodation/adminHome";
 			          } else {
 			            alert("수정 실패: " + data.res_msg);
