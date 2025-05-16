@@ -1,7 +1,9 @@
 package com.mjc.groupware.common;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.mjc.groupware.company.dto.CompanyDto;
+import com.mjc.groupware.company.entity.Func;
 import com.mjc.groupware.company.entity.FuncMapping;
 import com.mjc.groupware.company.repository.FuncMappingRepository;
 import com.mjc.groupware.company.service.CompanyService;
@@ -85,13 +88,23 @@ public class GlobalModelAttribute {
 	        return;
 	    }
 		
-		// 접근가능한 기능번호 목록을 뿌려줌
+		// 접근가능한 기능번호 목록을 뿌려줌 + 메뉴의 사용 여부를 뿌려줌
 		Set<Long> accessibleFuncNoList = new HashSet<>();
+		Map<Long, Integer> funcStatusMap = new HashMap<>();
+		
 	    for (FuncMapping mapping : mappings) {
+	    	Func func = mapping.getFunc();
+	    	if(func != null) {
+	    		Long funcNo = func.getFuncNo();
+	    		Integer funcStatus = func.getFuncStatus(); // 1: 사용, 2: 미사용
+	    		
+	    		funcStatusMap.put(funcNo, funcStatus);	    		
+	    	}
 	        accessibleFuncNoList.add(mapping.getFunc().getFuncNo());
 	    }
 	    
 	    model.addAttribute("accessibleFuncNoList", accessibleFuncNoList);
+	    model.addAttribute("funcStatusMap", funcStatusMap);
 	    
 	    // 게시판 메뉴가 보여야할 지 판단하여 플래그를 뿌려줌
 	    boolean boardMenu = accessibleFuncNoList.stream()
