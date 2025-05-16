@@ -280,7 +280,104 @@ layout:decorate="~{/include/layout}">
 				  </div>
 				</div>
 			
-			    <!-- 두 번째 박스 (채팅) -->
+			        <!-- 두 번째 박스 (오늘의 할 일) -->
+			        <div class="col-md-4">
+			            <div class="card shadow-none border">
+			                <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;">
+			                    <div class="hstack gap-6 mb-3">
+			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
+			                            <i class="ti ti-calendar"></i>
+			                        </a>
+			                        <a href="/calendar" class="text-dark link-secondary">오늘일정</a>
+			                    </div>
+			                    <div id="today-todo-list" class="small">
+								  <div class="text-muted">오늘 등록된 일정이 없습니다.</div>
+								</div>
+			                </div>
+			            </div>
+			        </div>
+			    </div>
+				
+				<style>
+				  .fc-day-sun .fc-daygrid-day-number {
+				    color: red !important;
+				  }
+				
+				  .fc-day-sat .fc-daygrid-day-number {
+				    color: blue !important;
+				  }
+				  .fc-toolbar {
+				    font-size: 0.85rem;
+				    padding: 4px 0;
+				  }
+				  .fc .fc-button {
+				    padding: 2px 8px;
+				    font-size: 0.75rem;
+				    height: 28px;
+				    line-height: 1;
+				    border-radius: 4px;
+				  }
+				  .fc .fc-toolbar-title {
+				    font-size: 1rem;
+				  }
+				  /* 날짜 숫자 크기 줄이기 */
+				  .fc .fc-daygrid-day-number {
+				    font-size: 0.75rem !important;
+				    padding: 2px;
+				  }
+				  .fc .fc-daygrid-day {
+				    padding: 4px 0;
+				  }
+				  /* 요일 헤더도 작게 */
+				  .fc .fc-col-header-cell-cushion {
+				    font-size: 0.75rem;
+				    padding: 2px;
+				  }
+				  .dot {
+				    display: inline-block;
+				    width: 10px;
+				    height: 10px;
+				    border-radius: 50%;
+				    margin-right: 6px;
+				  }
+				  .dot-company {
+				    background-color: rgba(92, 100, 242, 1.0); /* 보라 */
+				  }
+				  .dot-department {
+				    background-color: rgba(242, 75, 120, 1.0); /* 분홍 */
+				  }
+				  .dot-personal {
+				    background-color: rgba(63, 191, 155, 1.0); /* 연두 */
+				  }
+				  .dot-vacation {
+				    background-color: rgba(242, 146, 29, 1.0); /* 노랑 */
+				    }
+
+				</style>
+			    <div class="row">
+			        <!-- 세 번째 박스 (캘린더) -->
+			        <div class="col-md-8">
+			            <div class="card shadow-none border">
+			                <!-- <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;"> -->
+			                <div class="card-body" style="height: 600px; overflow:hidden;">
+			                    <div class="hstack gap-6 mb-3">
+			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
+			                            <i class="ti ti-calendar"></i>
+			                        </a>
+			                        <a href="/calendar" class="text-dark link-secondary">일정</a>
+			                    </div>
+			                    <div>
+			                    	<div id="calendar"
+									     th:data-member-no="${#authentication.principal.member.memberNo}"
+									     th:data-dept-no="${#authentication.principal.member.dept != null ? #authentication.principal.member.dept.deptNo : 0}">
+									</div>
+			                    	<!-- 캘린더<br> -->
+			                    </div>
+			                </div>
+			            </div>
+			        </div>
+			
+			        <!-- 네 번째 박스 (채팅) -->
 			        <div class="col-md-4">
 					  <div class="card shadow-none border">
 					    <div class="card-body" style="height: 360px; max-height: 360px; padding: 15px;">
@@ -336,105 +433,7 @@ layout:decorate="~{/include/layout}">
 							</div>
 					    </div>
 					  </div>
-					</div>    
-				
-				<!-- 세 번째 박스 (캘린더) -->
-				<style>
-				  .fc-day-sun .fc-daygrid-day-number {
-				    color: red !important;
-				  }
-				
-				  .fc-day-sat .fc-daygrid-day-number {
-				    color: blue !important;
-				  }
-				  .fc-toolbar {
-				    font-size: 0.85rem;
-				    padding: 4px 0;
-				  }
-				  .fc .fc-button {
-				    padding: 2px 8px;
-				    font-size: 0.75rem;
-				    height: 28px;
-				    line-height: 1;
-				    border-radius: 4px;
-				  }
-				  .fc .fc-toolbar-title {
-				    font-size: 1rem;
-				  }
-				  /* 날짜 숫자 크기 줄이기 */
-				  .fc .fc-daygrid-day-number {
-				    font-size: 0.75rem !important;
-				    padding: 2px;
-				  }
-				  .fc .fc-daygrid-day {
-				    padding: 4px 0;
-				  }
-				  /* 요일 헤더도 작게 */
-				  .fc .fc-col-header-cell-cushion {
-				    font-size: 0.75rem;
-				    padding: 2px;
-				  }
-				  .dot {
-				    display: inline-block;
-				    width: 10px;
-				    height: 10px;
-				    border-radius: 50%;
-				    margin-right: 6px;
-				  }
-				  .dot-company {
-				    background-color: rgba(92, 100, 242, 1.0); /* 보라 */
-				  }
-				  .dot-department {
-				    background-color: rgba(242, 75, 120, 1.0); /* 분홍 */
-				  }
-				  .dot-personal {
-				    background-color: rgba(63, 191, 155, 1.0); /* 연두 */
-				  }
-				  .dot-vacation {
-				    background-color: rgba(242, 146, 29, 1.0); /* 노랑 */
-				    }
-				</style>
-			    <div class="row">
-			        <div class="col-md-8">
-			            <div class="card shadow-none border">
-			                <!-- <div class="card-body" style="height: 360px; max-height: 360px; overflow-y:auto;"> -->
-			                <div class="card-body" style="height: 600px; overflow:hidden;">
-			                    <div class="hstack gap-6 mb-3">
-			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
-			                            <i class="ti ti-calendar"></i>
-			                        </a>
-			                        <a href="/calendar" class="text-dark link-secondary">일정</a>
-			                    </div>
-			                    <div>
-			                    	<div id="calendar"
-									     th:data-member-no="${#authentication.principal.member.memberNo}"
-									     th:data-dept-no="${#authentication.principal.member.dept != null ? #authentication.principal.member.dept.deptNo : 0}">
-									</div>
-			                    	<!-- 캘린더<br> -->
-			                    </div>
-			                </div>
-			            </div>
-			        </div>
-			
-					<!-- 두 번째 박스 (오늘의 할 일) -->
-			        <div class="col-md-4">
-			            <div class="card shadow-none border">
-			                <div class="card-body" style="height: 600px; overflow-y:auto;">
-			                    <div class="hstack gap-6 mb-3">
-			                        <a class="hstack p-0 round-32 justify-content-center btn btn-secondary rounded-circle" href="javascript:void(0)">
-			                            <i class="ti ti-calendar"></i>
-			                        </a>
-			                        <a href="/calendar" class="text-dark link-secondary">오늘일정</a>
-			                    </div>
-			                    <div id="today-todo-list" class="small">
-								  <div class="text-muted">오늘 등록된 일정이 없습니다.</div>
-								</div>
-			                </div>
-			            </div>
-			        </div>
-			    </div>
-			
-			        
+					</div>
 			    </div>
 			</div>
 		</div>
