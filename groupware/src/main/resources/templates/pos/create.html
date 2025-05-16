@@ -95,7 +95,7 @@ layout:decorate="~{include/layout :: layout}">
 	<script>
 		// 직급 등록 로직
 		const form = document.create_pos_form;
-		form.addEventListener('submit',(event) => {
+		form.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
 			// 1. 유효성 검사
@@ -124,8 +124,8 @@ layout:decorate="~{include/layout :: layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = "/admin/pos/create";
 					}
@@ -180,8 +180,8 @@ layout:decorate="~{include/layout :: layout}">
 						body: JSON.stringify(orderedIds)
 					})
 					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
+					.then(async data => {
+						await alert(data.res_msg);
 						if(data.res_code == '200') {
 							location.href = "/admin/pos/create";
 						}
@@ -228,7 +228,7 @@ layout:decorate="~{include/layout :: layout}">
 	
 	<script>
 		// 직급명 수정 로직
-		document.addEventListener('DOMContentLoaded', function () {
+		document.addEventListener('DOMContentLoaded', async function () {
 		  	const posList = document.getElementById('pos-list');
 			
 		  	posList.querySelectorAll('li').forEach(li => {
@@ -242,7 +242,7 @@ layout:decorate="~{include/layout :: layout}">
 		    	let originalValue = input.value;
 				
 		    	// 수정 버튼 클릭
-		    	editBtn.addEventListener('click', () => {
+		    	editBtn.addEventListener('click', async () => {
 		      		posNameSpan.classList.add('d-none');
 		      		input.classList.remove('d-none');
 		      		input.focus();
@@ -257,7 +257,7 @@ layout:decorate="~{include/layout :: layout}">
 		    	});
 				
 		    	// 저장 버튼 클릭
-		    	saveBtn.addEventListener('click', () => {
+		    	saveBtn.addEventListener('click', async () => {
 		      		const newName = input.value.trim();
 		      		const posNo = li.dataset.id;
 					
@@ -281,7 +281,7 @@ layout:decorate="~{include/layout :: layout}">
 						})
 		      		})
 		        	.then(response => response.json())
-		        	.then(data => {
+		        	.then(async data => {
 		          		posNameSpan.textContent = newName;
 
 		          		input.classList.add('d-none');
@@ -293,7 +293,7 @@ layout:decorate="~{include/layout :: layout}">
 		          		
 		          		deleteBtn.classList.remove('d-none');
 		          		
-						alert(data.res_msg);
+						await alert(data.res_msg);
 						if(data.res_code == '200') {
 							location.href = "/admin/pos/create";
 						} else {
@@ -306,7 +306,7 @@ layout:decorate="~{include/layout :: layout}">
 		    	});
 
 		    	// 취소 버튼 클릭
-		    	cancelBtn.addEventListener('click', () => {
+		    	cancelBtn.addEventListener('click', async () => {
 		      		input.value = originalValue;
 
 		      		input.classList.add('d-none');
@@ -324,38 +324,39 @@ layout:decorate="~{include/layout :: layout}">
 	
 	<script>
 		// 직급 삭제 로직
-		document.addEventListener('DOMContentLoaded', function () {
+		document.addEventListener('DOMContentLoaded', async function () {
 			const posList = document.getElementById('pos-list');
 			
 			posList.querySelectorAll('li').forEach(li => {
 				const deleteBtn = li.querySelector('.delete-btn');
 				const posNo = li.dataset.id;
 				
-				deleteBtn.addEventListener('click', () => {
-					if (!confirm("정말 이 직급을 삭제하시겠습니까?")) return;
-					
-					fetch("/admin/pos/delete", {
-						method: "post",
-						headers: {
-							'Content-Type': 'application/json',
-							'header': document.querySelector('meta[name="_csrf_header"]').content,
-							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						},
-		        		body: JSON.stringify({
-							pos_no: Number(posNo)
+				deleteBtn.addEventListener('click', async () => {
+					if (await confirm("정말 이 직급을 삭제하시겠습니까?")) {
+
+						fetch("/admin/pos/delete", {
+							method: "post",
+							headers: {
+								'Content-Type': 'application/json',
+								'header': document.querySelector('meta[name="_csrf_header"]').content,
+								'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+							},
+			        		body: JSON.stringify({
+								pos_no: Number(posNo)
+							})
 						})
-					})
-					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
-						if (data.res_code === '200') {
-							li.remove();
-							location.href = "/admin/pos/create";
-						}
-					})
-					.catch(error => {
-		        		console.log(error);
-		        	});
+						.then(response => response.json())
+						.then(data => {
+							alert(data.res_msg);
+							if (data.res_code === '200') {
+								li.remove();
+								location.href = "/admin/pos/create";
+							}
+						})
+						.catch(error => {
+			        		console.log(error);
+			        	});
+					}
 				});
 			});
 		});

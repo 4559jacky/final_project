@@ -1,7 +1,6 @@
 package com.mjc.groupware.member.controller;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.dto.StatusDto;
-import com.mjc.groupware.member.entity.LoginLog;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;

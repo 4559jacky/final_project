@@ -121,7 +121,7 @@ layout:decorate="~{include/layout :: layout}">
 	
 	<script>
 		const form = document.create_member_form;
-		form.addEventListener('submit',(event) => {
+		form.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
 			// 1. 유효성 검사
@@ -165,8 +165,8 @@ layout:decorate="~{include/layout :: layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = "/admin/member/create";
 					}
