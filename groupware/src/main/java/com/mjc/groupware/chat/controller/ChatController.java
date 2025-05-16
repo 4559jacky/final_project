@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -322,6 +323,29 @@ public class ChatController {
 		
 		return chatAlarmService.selectChatAlarmAll(memberNo);
 	}
+	
+	
+    // 채팅방 날짜 셋팅
+	@PostMapping("/chat/system-date")
+	@ResponseBody
+	public ResponseEntity<?> sendSystemDateMsg(@RequestBody ChatMsgDto dto) {
+	    chatMsgService.sendDateSystemMsg(dto.getChat_room_no(), dto.getChat_msg_content(), dto.getMember_no());
+	    return ResponseEntity.ok().build();
+	}
+
+	// 알림 헤더 삭제 
+	@PostMapping("/chat/alarm/read/{roomNo}")
+	@ResponseBody
+	public Map<String, Object> readChatAlarms(@PathVariable("roomNo") Long chatRoomNo,
+	                                          @RequestBody Map<String, Long> body) {
+	    Long memberNo = body.get("memberNo");
+	    int removedCount = chatAlarmService.markAlarmsAsRead(chatRoomNo, memberNo);
+
+	    Map<String, Object> result = new HashMap<>();
+	    result.put("removedCount", removedCount);
+	    return result;
+	}
+
 	
 	
 }

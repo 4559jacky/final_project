@@ -13,4 +13,9 @@ public interface  ChatAlarmRepository extends JpaRepository<ChatAlarm, Long>{
 
 	List<ChatAlarm> findAll(Specification<ChatAlarm> spec, Sort by);
 
+	List<ChatAlarm> findByChatRoomNo_ChatRoomNoAndMemberNo_MemberNoAndReadStatus(
+		    Long chatRoomNo, Long memberNo, String readStatus
+		);
+
+	
 }

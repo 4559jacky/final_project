@@ -722,10 +722,11 @@ layout:decorate="~{include/layout :: layout}">
 		const imageForm = document.update_profile_image_form;
     	let memberNo = document.getElementById('member_no').value;
     	
-		imageForm.addEventListener('submit',(event) => {
+		imageForm.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
-			if(confirm("프로필 사진을 정말 수정하시겠습니까?")) {
+			const isConfirmed = await confirm("프로필 사진을 정말 수정하시겠습니까?");
+			if(isConfirmed) {
 				const payload = new FormData(imageForm);
 				
 				fetch(`/member/${memberNo}/update/image`, {
@@ -737,8 +738,8 @@ layout:decorate="~{include/layout :: layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = `/member/${memberNo}/update`;
 					}
@@ -815,7 +816,7 @@ layout:decorate="~{include/layout :: layout}">
 			return lengthCheck && numberCheck && specialCheck;
 		}
     	
-		updatePwForm.addEventListener('submit',(event) => {
+		updatePwForm.addEventListener('submit', async (event) => {
 			event.preventDefault();
 			
 			let vali_check = false;
@@ -843,7 +844,7 @@ layout:decorate="~{include/layout :: layout}">
 			if(vali_check == false){
 				alert(vali_text);
 			} else {
-				if(confirm("비밀번호를 수정하시겠습니까?")) {
+				if(await confirm("비밀번호를 수정하시겠습니까?")) {
 					const payload = new FormData(updatePwForm);
 					
 					fetch(`/member/${memberNo}/update/pw`, {
@@ -855,8 +856,8 @@ layout:decorate="~{include/layout :: layout}">
 						body : payload
 					})
 					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
+					.then(async data => {
+						await alert(data.res_msg);
 						if(data.res_code == '200') {
 							location.href = `/member/${memberNo}/update`;
 						}

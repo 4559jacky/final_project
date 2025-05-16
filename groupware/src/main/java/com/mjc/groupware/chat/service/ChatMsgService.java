@@ -112,5 +112,21 @@ public class ChatMsgService {
 	    ChatMsgDto dto = new ChatMsgDto().toDto(chatMsg); // DTO로 변환
 	    messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomNo, dto);				
 	}
+	
+	// 날짜 셋팅
+	public void sendDateSystemMsg(Long chatRoomNo, String dateText, Long memberNo) {
+	    ChatRoom room = chatRoomRepository.findById(chatRoomNo).orElseThrow();
+
+	    ChatMsg systemMsg = new ChatMsg();
+	    systemMsg.setChatRoomNo(room);
+	    systemMsg.setChatMsgType("D"); // ✅ 시스템 메시지
+	    systemMsg.setChatMsgContent(dateText); // ✅ "[2025-05-15]"
+	    systemMsg.setMemberNo(memberRepository.findById(memberNo).orElseThrow());
+	    chatMsgRepository.save(systemMsg);
+
+	    ChatMsgDto dto = new ChatMsgDto().toDto(systemMsg);
+	    messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomNo, dto);
+	}
+
 
 }

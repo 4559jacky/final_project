@@ -95,7 +95,7 @@
       class="fixed-row" style="cursor:pointer;">
       <td><span>📌</span></td>
       <td class="text-center">
-  		<span th:if="${board.vote != null}">🗳️ </span>
+  		<span th:if="${board.vote != null}">[투표] </span>
   		<span th:text="${board.boardTitle}">제목</span>
 	 </td>
       <td th:text="${board.member.memberName}">작성자</td>
@@ -113,7 +113,7 @@
     (pageDto.totalCount - ((pageDto.nowPage - 1) * pageDto.numPerPage + stat.index)) 
     : ((pageDto.nowPage - 1) * pageDto.numPerPage + stat.index + 1)}">번호</td>
 	<td class="text-center">
-  		<span th:if="${board.vote != null}">🗳️ </span>
+  		<span th:if="${board.vote != null}">[투표] </span>
   		<span th:text="${board.boardTitle}">제목</span>
 	</td>
     <td th:text="${board.member.memberName}">작성자</td>

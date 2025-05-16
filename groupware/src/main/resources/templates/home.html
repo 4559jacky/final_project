@@ -208,7 +208,7 @@ layout:decorate="~{include/layout :: layout}">
       								  </tr>
     							 </thead>
     						<tbody>
-     				 <!-- 고정글 -->
+     				 			<!-- 고정글 -->
    							   <tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix == 'Y'}"
           						   class="fixed-row" style="background-color: #fce4ec; font-weight: bold; font-size: 13px; cursor: pointer;"
           						   th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
@@ -217,7 +217,7 @@ layout:decorate="~{include/layout :: layout}">
         						  <td th:text="${#temporals.format(notice.regDate, 'yyyy-MM-dd')}">날짜</td>
       						   </tr>
 
-      				<!-- 일반글 -->
+      							<!-- 일반글 -->
       							<tr th:each="notice : ${latestNotices}" th:if="${notice.noticeFix != 'Y'}"
           							style="font-size: 13px; cursor: pointer;"
           							th:onclick="|location.href='/notice/detail?noticeNo=${notice.noticeNo}'|">
@@ -228,7 +228,7 @@ layout:decorate="~{include/layout :: layout}">
     						</tbody>
   						</table>
 					 </div>
-
+					
 					<!-- 자유게시판 제목 -->
 					<div class="hstack gap-6 mt-2 mb-1">
 					  <a class="p-0 hstack justify-content-center round-32 btn btn-secondary rounded-circle" href="/board/list">
@@ -417,9 +417,9 @@ layout:decorate="~{include/layout :: layout}">
 							
 							    <ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0" id="empty-chat-msg">
 							      <li>
-							        <div class="text-center">
-							          <h6 class="mb-1 fw-semibold chat-title fs-6">현재 채팅 중인 방이 없습니다.</h6>
-							        </div>
+							        <div>
+									  <div class="text-muted" style="font-size: 13px;">&nbsp;&nbsp;&nbsp;현재 채팅중인 방이 없습니다.</div>
+									</div>
 							      </li>
 							    </ul>
 							  </div>
