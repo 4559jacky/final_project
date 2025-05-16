@@ -43,7 +43,7 @@ public class RegularEventScheduler {
 	@Scheduled(cron = "0 0 0 * * *")
 	@Transactional(rollbackFor = Exception.class)
 	public void giveAnnualLeave() {
-		LocalDate today = LocalDate.now();
+		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 		List<Member> memberList = memberRepository.findAll();
 		
 		int givenCount = 0;
@@ -76,6 +76,7 @@ public class RegularEventScheduler {
 	@Scheduled(cron = "0 0 0 1 1 *")
 	public void fetchHolidayOnNewYear() {
 	    int nextYear = LocalDate.now(ZoneId.of("Asia/Seoul")).getYear();
+	    holidayRepository.deleteAll();
 	    try {
 	        holidayService.fetchAndSaveHolidays(nextYear);
 	    } catch (Exception e) {
@@ -104,7 +105,7 @@ public class RegularEventScheduler {
 	@Scheduled(cron = "0 0 1 * * ?")
 	@Transactional(rollbackFor = Exception.class)
 	public void grantMonthlyLeave() {
-	    LocalDate today = LocalDate.now();
+	    LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 	    List<Member> allMembers = memberRepository.findAll();
 	    List<Holiday> holidays = holidayRepository.findByDateBetween(today.minusMonths(1), today);
 

@@ -1,8 +1,8 @@
 package com.mjc.groupware.home.comtroller;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,13 +16,10 @@ import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
 import com.mjc.groupware.attendance.repository.AttendanceRepository;
 import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
 import com.mjc.groupware.attendance.service.AttendanceService;
-
 import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.board.service.BoardService;
-
 import com.mjc.groupware.chat.dto.ChatRoomDto;
 import com.mjc.groupware.chat.service.ChatRoomService;
-
 import com.mjc.groupware.member.dto.MemberDto;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.service.MemberService;
@@ -56,7 +53,7 @@ public class HomeController {
 	    memberDto.setMember_id(userId);
 	    Member member = memberService.selectMemberOne(memberDto);
 
-	    LocalDate today = LocalDate.now();
+	    LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
 	    Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMemberNo(), today);
 	    if (attendance != null) {
