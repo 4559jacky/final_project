@@ -1,7 +1,7 @@
 package com.mjc.groupware.member.controller;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,7 +47,6 @@ import com.mjc.groupware.member.dto.MemberSearchDto;
 import com.mjc.groupware.member.dto.PageDto;
 import com.mjc.groupware.member.dto.RoleDto;
 import com.mjc.groupware.member.dto.StatusDto;
-import com.mjc.groupware.member.entity.LoginLog;
 import com.mjc.groupware.member.entity.Member;
 import com.mjc.groupware.member.entity.Role;
 import com.mjc.groupware.member.security.MemberDetails;
@@ -328,7 +327,7 @@ public class MemberController {
 		if(companyDto != null) {
 			String companyInitial = companyDto.getCompany_initial();
 			if(companyInitial != null) {
-				String entryYear = String.valueOf(LocalDate.now().getYear());
+				String entryYear = String.valueOf(LocalDate.now(ZoneId.of("Asia/Seoul")).getYear());
 				String yearSuffix = entryYear.equals("2025") ? "25" : entryYear.substring(2); 
 				Long lastMemberNo = service.selectMemberOneByLastNo().getMemberNo();
 				Long newMemberNo = (lastMemberNo != null) ? lastMemberNo + 1 : 1L;
