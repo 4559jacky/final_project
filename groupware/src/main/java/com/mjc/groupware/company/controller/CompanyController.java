@@ -120,12 +120,19 @@ public class CompanyController {
 			MultipartFile file = dto.getProfile_image();
 			CompanyDto param = new CompanyDto();
 			CompanyDto latest = service.selectLatestCompanyProfile();
+			CompanyDto secondLatest = service.selectSecondLatestCompanyProfile();
 			
 			String previousFilePath = null;
+			String deleteTargetPath = null;
 			
 			if(latest != null) {
 				previousFilePath = service.selectLatestCompanyProfile().getAttach_path();
 			}
+			
+			if (secondLatest != null) {
+				deleteTargetPath = service.selectSecondLatestCompanyProfile().getAttach_path();
+			}
+
 			
 			if (file == null || file.isEmpty()) {
 				latest = service.selectLatestCompanyProfile();
@@ -151,8 +158,8 @@ public class CompanyController {
 			
 			service.createCompany(param);
 			
-			if(previousFilePath != null) {
-				service.deleteFile(previousFilePath);
+			if(deleteTargetPath != null) {
+				service.deleteFile(deleteTargetPath);
 			}
 			
 			resultMap.put("res_code", "200");

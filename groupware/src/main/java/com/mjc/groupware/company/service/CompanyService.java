@@ -133,6 +133,31 @@ public class CompanyService {
 				.build();
 	}
 	
+	public CompanyDto selectSecondLatestCompanyProfile() {
+		List<Company> result = repository.findTop2ByOrderByRegDateDesc();
+		
+		if (result.size() < 2) {
+	        return null;
+	    }
+		
+		Company secondLatest = result.get(1);
+		
+		return CompanyDto.builder()
+				.company_no(secondLatest.getCompanyNo())
+				.company_name(secondLatest.getCompanyName())
+				.ori_name(secondLatest.getOriName())
+				.new_name(secondLatest.getNewName())
+				.attach_path(secondLatest.getAttachPath())
+				.theme_color(secondLatest.getThemeColor())
+				.company_initial(secondLatest.getCompanyInitial())
+				.rule_status(secondLatest.getRuleStatus())
+				.reg_date(secondLatest.getRegDate())
+				.mod_date(secondLatest.getModDate())
+				.light_logo_path("/uploads/" + secondLatest.getNewName())
+                .dark_logo_path("/uploads/" + secondLatest.getNewName())
+				.build();
+	}
+	
 	@Transactional(rollbackFor = Exception.class)
 	public CompanyDto updateThemeColor(String themeColor) {
 		// 가장 마지막에 등록된 회사의 객체를 뽑아서 컬러를 수정해주는 로직
