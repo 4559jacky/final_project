@@ -133,13 +133,7 @@ public class PlanController {
 	@CheckPermission("CALENDAR_USER")
 	@GetMapping("/plan/detail/{id}")
 	@ResponseBody
-	public PlanDto getPlanDetail(@PathVariable("id") Long planId, HttpServletRequest request) {
-		// URL 직접 접근을 차단 :: Ajax 요청이 아니면 차단
-		String header = request.getHeader("X-Custom-Ajax");
-		if (!"true".equals(header)) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "허용되지 않은 접근입니다.");
-		}
-		
+	public PlanDto getPlanDetail(@PathVariable("id") Long planId) {
 	    Plan plan = planService.selectPlanById(planId);
 	    PlanDto dto = new PlanDto().toDto(plan);
 	    return dto;
@@ -151,12 +145,9 @@ public class PlanController {
 	@ResponseBody
 	public Map<String,String> updateTodoApi(@PathVariable("id") Long id, @RequestBody PlanDto dto,@AuthenticationPrincipal MemberDetails memberDetails){
 		Member loginMember = memberDetails.getMember();
-//		Long memberId = member.getMemberNo();
-//		Long deptNo = member.getDept().getDeptNo();
 		Map<String, String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "403"); // 기본 권한 없음
 	    resultMap.put("res_msg", "수정 권한이 없습니다.");
-	    System.out.println("확인 : "+dto.getLast_update_member());
 	    
 		 Plan plan = planService.findPlanById(id);
 		    if (plan == null) {
