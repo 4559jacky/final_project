@@ -186,6 +186,23 @@ public class BoardService {
     
     @Transactional(readOnly = true)
     public List<Board> selectRecentAllBoardsWithFixed(int limit) {
-        return repository.findByBoardStatusOrderByIsFixedDescRegDateDesc("N", PageRequest.of(0, limit)).getContent();
+        List<Board> result = new ArrayList<>();
+
+        // 고정글 최대 1개
+        List<Board> fixedList = repository
+            .findByIsFixedTrueAndBoardStatusNot("Y", PageRequest.of(0, 1, Sort.by(Sort.Order.desc("regDate"))))
+            .getContent();
+        result.addAll(fixedList);
+
+        // 일반글에서 나머지 개수만큼 가져오기
+        int remain = limit - fixedList.size();
+        if (remain > 0) {
+            List<Board> normalList = repository
+                .findByBoardStatusAndIsFixedFalse("N", PageRequest.of(0, remain, Sort.by(Sort.Order.desc("regDate"))))
+                .getContent();
+            result.addAll(normalList);
+        }
+
+        return result;
     }
 }

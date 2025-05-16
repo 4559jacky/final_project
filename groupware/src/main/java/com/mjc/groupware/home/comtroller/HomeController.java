@@ -70,7 +70,7 @@ public class HomeController {
 	    model.addAttribute("workPolicy", wsp);
 	    
 	
-	    List<Board> recentAllBoards = boardService.selectRecentAllBoardsWithFixed(3); // 총 3개 가져오기
+	    List<Board> recentAllBoards = boardService.selectRecentAllBoardsWithFixed(3); // 총 3개
 	    model.addAttribute("recentBoards", recentAllBoards);
 
 
