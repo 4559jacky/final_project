@@ -70,8 +70,8 @@ public class ChatController {
     @CheckPermission("CHAT_USER")
 	@PostMapping("/chat/create") 
 	@ResponseBody
-	public Map<String, String> createChatRoom(ChatRoomDto dto) {
-	    Map<String, String> resultMap = new HashMap<>();
+	public Map<String, Object> createChatRoom(ChatRoomDto dto) {
+	    Map<String, Object> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "500");
 	    resultMap.put("res_msg", "채팅방 추가 중 오류가 발생하였습니다.");
 	    
@@ -97,6 +97,7 @@ public class ChatController {
 	        ChatRoomDto roomDto = ChatRoomDto.toDto(chatRoom, md.getMember().getMemberNo(), attachRepository);
 
 	        messagingTemplate.convertAndSend("/topic/chat/room/new", roomDto);
+	        resultMap.put("room", roomDto);
 	    }
 
 	    return resultMap;
