@@ -416,9 +416,9 @@ layout:decorate="~{/include/layout}">
 							
 							    <ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0" id="empty-chat-msg">
 							      <li>
-							        <div class="text-center">
-							          <h6 class="mb-1 fw-semibold chat-title fs-6">현재 채팅 중인 방이 없습니다.</h6>
-							        </div>
+							        <div>
+									  <div class="text-muted" style="font-size: 13px;">&nbsp;&nbsp;&nbsp;현재 채팅중인 방이 없습니다.</div>
+									</div>
 							      </li>
 							    </ul>
 							  </div>
