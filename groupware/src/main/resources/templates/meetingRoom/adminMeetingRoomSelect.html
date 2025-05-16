@@ -177,7 +177,7 @@ layout:decorate="~{include/layout :: layout}">
 			      });
 			
 			      const data = await response.json();
-			      alert(data.res_msg);
+			      await alert(data.res_msg);
 			      if (data.res_code == 200) {
 			        location.reload();
 			      }
@@ -203,7 +203,7 @@ layout:decorate="~{include/layout :: layout}">
 			      });
 			
 			      const data = await response.json();
-			      alert(data.res_msg);
+			      await alert(data.res_msg);
 			      if (data.res_code == 200) {
 			        location.reload();
 			      }
