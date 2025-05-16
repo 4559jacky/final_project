@@ -759,7 +759,7 @@
 		        	      });
 
 		        	      const data = await response.json();
-		        	      alert(data.res_msg); // ✅ 커스텀 alert 작동됨
+		        	      await alert(data.res_msg); // ✅ 커스텀 alert 작동됨
 
 		        	      if (data.res_code == 200) {
 		        	        location.reload();

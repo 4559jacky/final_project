@@ -45,8 +45,19 @@
 								<img th:src="@{/img/default_profile.png}" width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
-								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
-								<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								<th:block th:if="${#authentication.principal.member.pos != null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.pos == null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} (직급미배정)|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept != null}">
+									<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept == null}">
+									<h6 class="fw-semibold mb-2">(부서미배정)</h6>
+								</th:block>
+								
 							</div>
 						</div>
 
@@ -167,10 +178,17 @@
 													placeholder="메세지를 입력해주세요." fdprocessedid="0p3op" id="msgContent"/>
 											</div>
 											<input type= hidden id="chatRoomNo">
-											<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
-											<input type= hidden id="sendMemberName" th:value="${#authentication.principal.member.memberName}">
-											<input type= hidden id="sendMemberPos" th:value="${#authentication.principal.member.pos.posName}">
-											<input type= hidden id="sendMemberDept" th:value="${#authentication.principal.member.dept.deptName}">
+											<input type="hidden" id="sendMemberNo"
+											       th:value="${#authentication.principal.member != null ? #authentication.principal.member.memberNo : ''}" />
+											
+											<input type="hidden" id="sendMemberName"
+											       th:value="${#authentication.principal.member != null ? #authentication.principal.member.memberName : ''}" />
+											
+											<input type="hidden" id="sendMemberPos"
+											       th:value="${#authentication.principal.member.pos != null ? #authentication.principal.member.pos.posName : ''}" />
+
+											<input type="hidden" id="sendMemberDept" th:value="${#authentication.principal.member.dept != null ? #authentication.principal.member.dept.deptName : ''}">
+
 											<ul class="list-unstyledn mb-0 d-flex align-items-center">
 												<li><a
 													class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
@@ -258,8 +276,18 @@
 									width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
-								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
-								<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								<th:block th:if="${#authentication.principal.member.pos != null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.pos == null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} (직급미배정)|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept != null}">
+									<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept == null}">
+									<h6 class="fw-semibold mb-2">(부서미배정)</h6>
+								</th:block>
 							</div>
 						</div>
 
@@ -1289,7 +1317,7 @@
 	      const data = await res.json();
 	
 	      // ✅ 커스텀 alert도 작동됨
-	      alert(data.res_msg);
+	      await alert(data.res_msg);
 	
 	      if (data.res_code === "200") {
 	        location.reload();
