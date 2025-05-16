@@ -537,8 +537,11 @@
 		
 		// 승인요청 버튼 클릭 시 결재 생성
 		const retryApprovalForm = document.retry_approval_form;
-		retryApprovalForm.addEventListener('submit', (e) => {
+		retryApprovalForm.addEventListener('submit', async (e) => {
 			e.preventDefault();
+			
+			const isConfirmed = await confirm('결재를 재기안 하시겠습니까?');
+			if(!isConfirmed) return;
 		
 			let valid = false;
 			let valid_msg = '';
