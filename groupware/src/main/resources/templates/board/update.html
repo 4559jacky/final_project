@@ -106,109 +106,106 @@
         const boardNo = /*[[${board.boardNo}]]*/ 0;
     </script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const editor = new toastui.Editor({
-                el: document.querySelector('#editor'),
-                height: '400px',
-                initialEditType: 'wysiwyg',
-                previewStyle: 'vertical',
-                initialValue: initialContent
-            });
-
-            const form = document.getElementById("board_form");
-
-            form.addEventListener("submit", function (e) {
-                e.preventDefault();
-
-                const title = form.board_title.value.trim();
-                const content = editor.getHTML();
-                document.getElementById("board_content").value = content;
-
-                let msg = "";
-                if (!title) msg += "제목을 입력하세요.\n";
-                if (!content || content === '<p><br></p>') msg += "내용을 입력하세요.\n";
-
-                if (msg) {
-                    alert(msg);
-                    return;
-                }
-
-                const payload = new FormData(form);
-
-                // CSRF 처리
-                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                // 삭제할 파일 정보 추가
-                document.querySelectorAll("input[name='deleteFiles']").forEach(hidden => {
-                    if (!hidden.disabled) {
-                        payload.append("deleteFiles", hidden.value);
-                    }
-                });
-
-                // fetch 요청 (게시글 수정 처리)
-                fetch("/board/" + boardNo + "/update", {
-                    method: "POST",
-                    headers: {
-                        [csrfHeader]: csrfToken
-                    },
-                    body: payload
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.res_msg);
-                    if (data.res_code === '200') {
-                        location.href = "/board/list";
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    alert("서버 오류가 발생했습니다.");
-                });
-            });
-        });
-        // 체크가 해제될 때 삭제 처리
-        function toggleDeleteCheckbox(checkbox) {
-            const item = checkbox.closest('.file-item');
-            const hidden = item.querySelector('input[type=hidden]');
-            const filename = item.querySelector('.file-name');
-
-            if (!checkbox.checked) {
-                hidden.disabled = false;
-                filename.classList.add('text-decoration-line-through'); // 밑줄 추가
-            } else {
-                hidden.disabled = true;
-                filename.classList.remove('text-decoration-line-through'); // 밑줄 제거
-            }
-        }
-    </script>
-    
-    <script th:inline="javascript">
-    const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
-    const csrfToken = /*[[${_csrf.token}]]*/ '';
-
-    async function deleteVote() {
-    	  const confirmed = await confirm("정말 이 게시글의 투표를 삭제하시겠습니까?");
-    	  if (!confirmed) return;
-
-    	  fetch(`/vote/delete/by-board/${boardNo}`, {
-    	    method: 'DELETE',
-    	    headers: {
-    	      [csrfHeader]: csrfToken
-    	    }
-    	  })
-    	  .then(res => res.ok ? res.text() : Promise.reject("투표 삭제 실패"))
-    	  .then(msg => {
-    	    alert("투표가 삭제되었습니다.");
-    	    location.reload();
-    	  })
-    	  .catch(err => {
-    	    console.error(err);
-    	    alert("투표 삭제 중 오류 발생: " + err);
-    	  });
-    	}
-</script>
+		<script>
+		    document.addEventListener("DOMContentLoaded", function () {
+		        const editor = new toastui.Editor({
+		            el: document.querySelector('#editor'),
+		            height: '400px',
+		            initialEditType: 'wysiwyg',
+		            previewStyle: 'vertical',
+		            initialValue: initialContent
+		        });
+		
+		        const form = document.getElementById("board_form");
+		
+		        form.addEventListener("submit", async function (e) {
+		            e.preventDefault();
+		
+		            const title = form.board_title.value.trim();
+		            const content = editor.getHTML();
+		            document.getElementById("board_content").value = content;
+		
+		            let msg = "";
+		            if (!title) msg += "제목을 입력하세요.\n";
+		            if (!content || content === '<p><br></p>') msg += "내용을 입력하세요.\n";
+		
+		            if (msg) {
+		                await window.alert(msg);
+		                return;
+		            }
+		
+		            const payload = new FormData(form);
+		
+		            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+		            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+		
+		            document.querySelectorAll("input[name='deleteFiles']").forEach(hidden => {
+		                if (!hidden.disabled) {
+		                    payload.append("deleteFiles", hidden.value);
+		                }
+		            });
+		
+		            try {
+		                const response = await fetch("/board/" + boardNo + "/update", {
+		                    method: "POST",
+		                    headers: {
+		                        [csrfHeader]: csrfToken
+		                    },
+		                    body: payload
+		                });
+		                const data = await response.json();
+		                await window.alert(data.res_msg);
+		                if (data.res_code === '200') {
+		                    location.href = "/board/list";
+		                }
+		            } catch (error) {
+		                console.error(error);
+		                await window.alert("서버 오류가 발생했습니다.");
+		            }
+		        });
+		    });
+		
+		    function toggleDeleteCheckbox(checkbox) {
+		        const item = checkbox.closest('.file-item');
+		        const hidden = item.querySelector('input[type=hidden]');
+		        const filename = item.querySelector('.file-name');
+		
+		        if (!checkbox.checked) {
+		            hidden.disabled = false;
+		            filename.classList.add('text-decoration-line-through');
+		        } else {
+		            hidden.disabled = true;
+		            filename.classList.remove('text-decoration-line-through');
+		        }
+		    }
+		</script>
+		
+		<script th:inline="javascript">
+		const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+		const csrfToken = /*[[${_csrf.token}]]*/ '';
+		
+		async function deleteVote() {
+		    const confirmed = await window.confirm("정말 이 게시글의 투표를 삭제하시겠습니까?");
+		    if (!confirmed) return;
+		
+		    try {
+		        const res = await fetch(`/vote/delete/by-board/${boardNo}`, {
+		            method: 'DELETE',
+		            headers: {
+		                [csrfHeader]: csrfToken
+		            }
+		        });
+		
+		        if (!res.ok) throw new Error("투표 삭제 실패");
+		
+		        await window.alert("투표가 삭제되었습니다.");
+		        location.reload();
+		    } catch (err) {
+		        console.error(err);
+		        await window.alert("투표 삭제 중 오류 발생: " + err);
+		    }
+		}
+		</script>
 
     <!-- Bootstrap Common JS Files Start -->
     <script th:src="@{/assets/js/vendor.min.js}"></script>

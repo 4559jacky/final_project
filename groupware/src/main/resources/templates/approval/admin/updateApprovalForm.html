@@ -296,6 +296,9 @@
 
 					let vali_check = false;
 					let vali_text = "";
+					
+					const isConfirmed = await confirm('양식을 수정하시겠습니까?');
+					if(!isConfirmed) return;
 
 					const title = form.approval_form_name.value;
 					const content = editorInstance.getData();
@@ -333,7 +336,7 @@
 							});
 							const data = await response.json();
 							console.log(data);
-							alert(data.res_msg);
+							await alert(data.res_msg);
 							if (data.res_code === '200') {
 								location.href = '/admin/approval';
 							}
