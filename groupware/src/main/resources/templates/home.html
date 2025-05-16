@@ -563,7 +563,7 @@ layout:decorate="~{include/layout :: layout}">
 
 
 	<script>
-		const startTime = function () {
+		const startTime = async function () {
 			const now = new Date();
 			const koreaOffset = 9 * 60;
 			const localDate = new Date(now.getTime() + (koreaOffset * 60 * 1000));
@@ -573,8 +573,9 @@ layout:decorate="~{include/layout :: layout}">
 			const minutes = String(now.getMinutes()).padStart(2, '0');
 			const seconds = String(now.getSeconds()).padStart(2, '0');
 			const checkIn = `${hours}:${minutes}:${seconds}`;
-	
-			if (!confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`)) return;
+			
+			const isConfirmed = await confirm(`현재시간 ${checkIn} 출근 하시겠습니까?`);
+			if (!isConfirmed) return;
 	
 			// 휴가에 따른 출근 기준 시간 조정
 			const planTitle = document.getElementById('plan_title')?.value || '';
@@ -642,7 +643,7 @@ layout:decorate="~{include/layout :: layout}">
 				});
 		}
 	
-		const endTime = function () {
+		const endTime = async function () {
 			const now = new Date();
 			const attendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -694,21 +695,12 @@ layout:decorate="~{include/layout :: layout}">
 				confirmMsg = `아직 퇴근시간이 아닙니다.\n(${requiredHour.toString().padStart(2, '0')}:${requiredMinute.toString().padStart(2, '0')}) 이후에 정상퇴근 가능합니다.\n그래도 퇴근하시겠습니까?`;
 				earlyLeaveYn = 'Y';
 				
-				console.log("🧾 실제 출근 시간 (baseCheckInMin):", baseCheckInMin);
-				console.log("🧾 기준 출근 시간 (baseTotalMin):", baseTotalMin); // 지각이면 660(11시)이어야 함
-				console.log("🧾 workDuration:", workDuration);
-				console.log("🧾 퇴근 기준 requiredMin (분):", requiredMin);
-				console.log("🕒 퇴근 기준 시각:", requiredHour + ":" + requiredMinute);
-				console.log("🧾 maxStartMin (회사 마지노선):", maxStartMin);
-				console.log("🧾 baseCheckInMin:", baseCheckInMin);
-				console.log("🧾 비교 결과:", baseCheckInMin >= maxStartMin);
-
 			} else {
 				confirmMsg = `현재 시간 ${currentTimeStr} 퇴근 가능합니다. 퇴근 하시겠습니까?`;
 			}
 			
-			
-			if (!confirm(confirmMsg)) return;
+			const isConfirmed = await confirm(confirmMsg);
+			if (!isConfirmed) return;
 
 			// 퇴근 요청
 			fetch('/attendance/saveEndTime', {
