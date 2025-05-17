@@ -71,7 +71,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 	
 	<!-- 전자결재 알림 모달 -->
-	<div id="approval-alert-toast" class="d-none" style="
+	<div id="alarm-alert-toast" class="d-none" style="
 	  position: fixed;
 	  bottom: 30px;
 	  right: 30px;
@@ -84,8 +84,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  opacity: 1;
 	">
 	  <strong class="text-primary">[알림]</strong>&nbsp;
-	  <span id="approval-toast-title">테스트 제목</span><br>
-	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
+	  <span id="alarm-toast-title">테스트 제목</span><br>
+	  <span id="alarm-toast-msg">새로운 결재가 있습니다</span>
 	</div>
 	
 	
@@ -206,9 +206,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
 		    	    const dto = JSON.parse(msg.body);
 		    	    console.log("전자결재 알림 도착:", dto);
-		    	    showApprovalAlertToast(dto);
+		    	    showAlarmAlertToast(dto);
 		      });
-		   	  
+		
+		////////////////////////////////////////////////////// 긴급 공지  웹소캣 //////////////////////////////////////////////////////////////////////////////
+		   	  // 공지사항 알림
+		      stompClient.subscribe(`/topic/notice/alarm/${myNo}`, (msg) => {
+		    	    const dto = JSON.parse(msg.body);
+		    	    console.log("긴급공지 알림 도착:", dto);
+		    	    showAlarmAlertToast(dto);
+		      });
   		
 			}
 		  }, (error) => {
@@ -217,17 +224,17 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		});
 		
 
-		//////////////////////////////////////////////////////전자 결재  알림 모달  //////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////전자결재, 긴급공지 알림 모달  //////////////////////////////////////////////////////////////////////////////
 		 
-		// 전자결재 알림 토스트 모달
-		function showApprovalAlertToast(dto) {
+		// 전자결재, 긴급공지 알림 토스트 모달
+		function showAlarmAlertToast(dto) {
 	
-		    const wrapper = document.getElementById("approval-alert-toast");
+		    const wrapper = document.getElementById("alarm-alert-toast");
 		    if (!wrapper) return;
 		
 		    // 내용 세팅
-		    document.getElementById("approval-toast-title").innerHTML = `<strong>${dto.title}</strong>` || "전자결재";
-		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
+		    document.getElementById("alarm-toast-title").innerHTML = `<strong>${dto.title}</strong>` || "";
+		    document.getElementById("alarm-toast-msg").textContent = dto.message || "";
 		
 		    // 모달 표시
 		    wrapper.classList.remove("d-none");
@@ -243,7 +250,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		  }
 
 	  function closeApprovalToast() {
-	    const wrapper = document.getElementById("approval-alert-toast");
+	    const wrapper = document.getElementById("alarm-alert-toast");
 	    wrapper.classList.remove("active");
 	    wrapper.classList.add("d-none");
 	  }
@@ -464,9 +471,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		
 		
-		////////////////////////////////////전자결재  알람 헤더에 적용 /////////////////////////////////////////
+		//////////////////////////////////// 전자결재, 긴급공지  알람 헤더에 적용 /////////////////////////////////////////
 		
-		//  헤더 알림 실시간 반영 
+		// 전자결재, 긴급공지 헤더 알림 실시간 반영 
 		function prependOtherAlarmToDropdown(dto) {
 			  const dropdowns = document.querySelectorAll(".alarm-message-body");
 			  if (!dropdowns.length) return;
@@ -553,7 +560,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					        window.location.href = `/approval/receive/detail/${no}`;
 					        break;
 					      case "notice":
-					        window.location.href = `/notice/detail/${no}`;
+					        window.location.href = `/notice/detail?noticeNo=${no}`;
 					        break;
 					      case "board":
 					        window.location.href = `/board/detail/${no}`;
