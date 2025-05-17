@@ -33,7 +33,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<div class="position-relative overflow-hidden radial-gradient min-vh-100 w-100 d-flex align-items-center justify-content-center">
       <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
-          <div class="col-md-8 col-lg-6 col-xxl-3 auth-card">
+          <div class="col-md-8 col-lg-6 col-xxl-3 auth-card" style="position: relative;">
             <div class="card mb-0">
               <div class="card-body">
               
@@ -142,7 +142,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     </div>
 	
 	<th:block th:if="${error != null}">
-		<div id="custom-alert" class="alert bg-danger text-white d-flex align-items-center alert-dismissible fade show" role="alert" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
+		<div id="custom-alert" class="alert bg-danger text-white d-flex align-items-center alert-dismissible fade show" role="alert" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
     		<i class="bi bi-exclamation-triangle-fill me-2"></i>
     		<div id="alert-msg" th:text="${errorMsg}" style="font-size: 1.0rem; text-align: center;"></div>
     		<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -162,6 +162,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	    	const alertBox = document.getElementById("custom-alert");
 	    	
 	    	if (alertBox) {
+	    		positionAlert();
+	    		
 				setTimeout(function () {
 					alertBox.classList.remove('show');
 					alertBox.classList.add('fade');
@@ -178,6 +180,24 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				}, 3000);
 			}
 	  	});
+	</script>
+	
+	<script>
+		// 얼럿창 위치 조절
+		function positionAlert() {
+		    const alertBox = document.getElementById("custom-alert");
+		    const cardEl = document.querySelector('.auth-card .card');
+		    if (!alertBox || !cardEl) return;
+	
+		    const cardRect = cardEl.getBoundingClientRect();
+		    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+		    const cardTop = cardRect.top + scrollTop;
+	
+		    const alertHeight = alertBox.offsetHeight || 60;
+		    const offsetTop = cardTop - alertHeight - 15;
+	
+		    alertBox.style.top = `${offsetTop}px`;
+		}
 	</script>
 	
 	<script>
