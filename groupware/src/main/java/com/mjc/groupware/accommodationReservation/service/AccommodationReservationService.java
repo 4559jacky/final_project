@@ -144,21 +144,35 @@ public class AccommodationReservationService {
 		        .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 		
 		String reserveStatus;
+		String alarmMessage;
 	    if (status == 1) {
 	        reserveStatus = "대기";
 	        reservation.setRejectReason(null);
+	        alarmMessage = "신청한 숙소 예약상태가 대기로 바뀌었습니다.";
 	    } else if (status == 2) {
 	        reserveStatus = "승인";
 	        reservation.setRejectReason(null);
+	        alarmMessage = "신청한 숙소 예약이 승인되었습니다.";
 	    } else if (status == 3) {
 	        reserveStatus = "반려";
 	        reservation.setRejectReason(rejectReason); // 반려사유 저장
+	        alarmMessage = "신청한 숙소 예약이 반려되었습니다.";
 	    } else {
 	        throw new IllegalArgumentException("유효하지 않은 상태 코드입니다.");
 	    }
 
 	    reservation.setReservationStatus(reserveStatus); // "대기", "승인" 또는 "반려"
 	    reservationRepository.flush(); // 강제 flush
+	    
+	    // 결재 알림 보내기
+    	Long reservationMember = reservation.getMember().getMemberNo();
+
+		accommodationAlarmService.sendAlarmToMember(
+			reservationMember,
+			reservation,
+			alarmMessage
+		);
+	    
 	}
 
 	public AccommodationReservationDto findLatestByAccommodationNo(Long accommodationNo) {

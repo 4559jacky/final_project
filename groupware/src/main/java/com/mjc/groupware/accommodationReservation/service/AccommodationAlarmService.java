@@ -62,4 +62,40 @@ public class AccommodationAlarmService {
 
         }
 	}
+	
+	@Transactional(rollbackFor=Exception.class)
+	public void sendAlarmToMember(Long memberNo, AccommodationReservation accommodationReservation, String message) {
+		Alarm alarm = Alarm.builder()
+				.alarmTitle("제휴숙소")
+				.alarmMessage(message)
+				.accommodation(accommodationReservation.getAccommodationInfo())
+				.build();
+		
+		Alarm saved = alarmRepository.save(alarm);
+		
+		AccommodationReservationAlarmDto dto = AccommodationReservationAlarmDto.builder()
+				.alarmNo(saved.getAlarmNo())
+				.title("제휴숙소")
+				.message(message)
+				.alarmType("reservationMember")
+				.otherPkNo(memberNo)
+				.build();
+		
+        	
+        messagingTemplate.convertAndSend("/topic/accommodationReservation/alarm/" + memberNo, dto);
+        
+        Member member = memberRepository.findById(memberNo).orElse(null);
+        
+        if(member != null) {
+        	
+        	AlarmMapping alarmMapping = AlarmMapping.builder()
+            		.alarm(saved)
+            		.member(member)
+            		.readYn("N")
+            		.build();
+        	
+        	alarmMappingRepository.save(alarmMapping);
+        }
+
+	}
 }

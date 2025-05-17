@@ -560,6 +560,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					      case "accommodationReservation":
 					        window.location.href = `/admin/accommodation/reservation/list?accommodation_no=${no}`;
 					        break;
+					      case "reservationMember":
+					        window.location.href = '/user/accommodation/reservation/list';
+					        break;
 					      default:
 					        console.warn("알 수 없는 알림 타입:", type);
 					    }
@@ -578,6 +581,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					        break;
 					      case "accommodationReservation":
 					        window.location.href = `/admin/accommodation/reservation/list?accommodation_no=${no}`;
+					        break;
+					      case "reservationMember":
+					        window.location.href = '/user/accommodation/reservation/list';
 					        break;
 					      default:
 					        console.warn("알 수 없는 알림 타입:", type);
