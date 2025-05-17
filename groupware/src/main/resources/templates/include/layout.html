@@ -216,6 +216,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    	    console.log("긴급공지 알림 도착:", dto);
 		    	    showAlarmAlertToast(dto);
 		      });
+		
+		//////////////////////////////////////////////////////긴급 공지  웹소캣 //////////////////////////////////////////////////////////////////////////////
+		   	  // 공지사항 알림
+		      stompClient.subscribe(`/topic/accommodationReservation/alarm/${myNo}`, (msg) => {
+		    	    const dto = JSON.parse(msg.body);
+		    	    console.log("제휴숙소 알림 도착:", dto);
+		    	    showAlarmAlertToast(dto);
+		      });
   		
 			}
 		  }, (error) => {
@@ -226,7 +234,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 		//////////////////////////////////////////////////////전자결재, 긴급공지 알림 모달  //////////////////////////////////////////////////////////////////////////////
 		 
-		// 전자결재, 긴급공지 알림 토스트 모달
+		// 전자결재, 긴급공지, 제휴숙소 알림 토스트 모달
 		function showAlarmAlertToast(dto) {
 	
 		    const wrapper = document.getElementById("alarm-alert-toast");
@@ -549,6 +557,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					      case "board":
 					        window.location.href = `/board/detail/${no}`;
 					        break;
+					      case "accommodationReservation":
+					        window.location.href = `/admin/accommodation/reservation/list?accommodation_no=${no}`;
+					        break;
 					      default:
 					        console.warn("알 수 없는 알림 타입:", type);
 					    }
@@ -564,6 +575,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					        break;
 					      case "board":
 					        window.location.href = `/board/detail/${no}`;
+					        break;
+					      case "accommodationReservation":
+					        window.location.href = `/admin/accommodation/reservation/list?accommodation_no=${no}`;
 					        break;
 					      default:
 					        console.warn("알 수 없는 알림 타입:", type);
