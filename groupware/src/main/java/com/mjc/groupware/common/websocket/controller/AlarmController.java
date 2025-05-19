@@ -68,6 +68,12 @@ public class AlarmController {
 	    	} else if(alarm.getBoard() != null) {
 	    		dto.setAlarmType("board");
 	    		dto.setOtherPkNo(alarm.getBoard().getBoardNo());
+	    	} else if(alarm.getAccommodation() != null && "제휴숙소 신청".equals(alarm.getAlarmTitle())) {
+	    		dto.setAlarmType("accommodationReservation");
+	    		dto.setOtherPkNo(alarm.getAccommodation().getAccommodationNo());
+	    	} else if(alarm.getAccommodation() != null && "제휴숙소 신청 결과".equals(alarm.getAlarmTitle())) {
+	    		dto.setAlarmType("reservationMember");
+	    		dto.setOtherPkNo(alarm.getAccommodation().getAccommodationNo());
 	    	}
 	    	dtos.add(dto);
 	    }
