@@ -392,8 +392,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		      body: JSON.stringify(payload)
 		    })
 		      .then(res => res.json())
-			  .then(async (data) => {
-			    await alert(data.res_msg);
+			  .then((data) => {
+			    alert(data.res_msg);
 			    if (data.res_code === "200") {
 			      const modalInstance = bootstrap.Modal.getInstance(document.getElementById("eventModaldetail"));
 			      modalInstance.hide();
