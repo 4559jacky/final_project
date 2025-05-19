@@ -101,27 +101,29 @@ layout:decorate="~{include/layout :: layout}">
     });
     
  	// 삭제 기능
-    function accommodationDelete(accommodationNo) {
-      if (!confirm("숙소를 삭제하시겠습니까?")) return;
-      fetch('/accommodation/delete/' + accommodationNo, {
-        method: 'DELETE',
-        headers: {
-        	"X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.res_code === "200") {
-          alert(data.res_msg);
-          location.href = '/accommodation/adminHome';
-        } else {
-          alert(data.res_msg);
-        }
-      })
-      .catch(err => {
-        alert("에러 발생: " + err);
-      });
-    }
+	async function accommodationDelete(accommodationNo) {
+	  const result = await confirm("숙소를 삭제하시겠습니까?");
+	  if (!result) return;
+	
+	  try {
+	    const response = await fetch('/accommodation/delete/' + accommodationNo, {
+	      method: 'DELETE',
+	      headers: {
+	        "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+	      }
+	    });
+	    const data = await response.json();
+	
+	    if (data.res_code === "200") {
+	     await alert(data.res_msg);
+	      location.href = '/accommodation/adminHome';
+	    } else {
+	      alert(data.res_msg);
+	    }
+	  } catch (err) {
+	    alert("에러 발생: " + err);
+	  }
+	}
   </script>
  <script>
   function handleColorTheme(e) {

@@ -2,9 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<th:block th:fragment="navLayout">
 
+		<link rel="stylesheet" th:href="@{/css/cjs/nav.css}" />
+				
           <!-- Sidebar navigation-->
           <nav id="sidebarnavh" class="sidebar-nav scroll-sidebar container-fluid">
-            <ul id="sidebarnav">
+            <ul id="sidebarnav" style="display: flex; justify-content: center;">
               <!-- ============================= -->
               <!-- Home -->
               <!-- ============================= -->
@@ -16,512 +18,374 @@
               <!-- Dashboard -->
               <!-- =================== -->
               <li class="sidebar-item">
-              <a class="sidebar-link" th:href="@{/home}" aria-expanded="false">
-                <span>
-                  <i class="ti ti-home-2"></i>
-                </span>
-                <span class="hide-menu">Home</span>
-              </a>
+	              <a class="sidebar-link" th:href="@{/home}" aria-expanded="false">
+	                <span>
+	                  <i class="ti ti-home-2"></i>
+	                </span>
+	                <span class="hide-menu">Home</span>
+	              </a>
               </li>
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span>
-                    <i class="ti ti-home-2"></i>
-                  </span>
-                  <span class="hide-menu">임시태그</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a th:href="@{/starter}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">Starter</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/sample}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">Sample</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/admin/approval}" class="sidebar-link">
-                      <i class="ti ti-file-text"></i>
-                      <span class="hide-menu">전자결재(관리자)</span>
-                    </a>
-                    <a th:href="@{/approval}" class="sidebar-link">
-                      <i class="ti ti-file-text"></i>
-                      <span class="hide-menu">전자결재</span>
-                    </a>
-
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/chat}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">채팅</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/calendar}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">일정</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/accommodation}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">사내복지</span>
-                    </a>
-                  </li>
-				  
-                  <li class="sidebar-item">
-                    <a th:href="@{/shared}"class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">공유문서함</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a th:href="@{/board/list}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">자유게시판</span>
-                    </a>
-                  </li>
-                  <!--
-                  <li class="sidebar-item">
-                    <a th:href="@{/login}" class="sidebar-link">
-                      <i class="ti ti-aperture"></i>
-                      <span class="hide-menu">로그인</span>
-                    </a>
-                  </li>
-                  -->
-                  <!--
-                  <li class="sidebar-item">
-                    <a href="./main/index2.html" class="sidebar-link">
-                      <i class="ti ti-shopping-cart"></i>
-                      <span class="hide-menu">eCommerce</span>
-                    </a>
-                  </li>
-                  -->
-                </ul>
-              </li>
+	   		  
+	   		  <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 결재담당자, 최고관리자 -->
               <!-- ============================= -->
-              <!-- Apps -->
+              
+              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		      	<th:block th:if="${funcNo == 17}">
+		      		<li class="sidebar-item">
+	                    <a th:href="@{/approval}" class="sidebar-link">
+	                      <i class="ti ti-file-text"></i>
+	                      <span class="hide-menu">전자결재</span>
+	                    </a>
+                  	</li>
+		      	</th:block>
+		      </th:block>
+	   		  
+	   		  <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 근태담당자, 최고관리자 -->
               <!-- ============================= -->
-              <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">Apps</span>
-              </li>
-              <li class="sidebar-item">
-                <a class="sidebar-link two-column has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span>
-                    <i class="ti ti-archive"></i>
-                  </span>
-                  <span class="hide-menu">공유 문서함</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a href="./main/app-calendar.html" class="sidebar-link">
-                      <i class="ti ti-calendar"></i>
-                      <span class="hide-menu">Calendar</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/app-kanban.html" class="sidebar-link">
-                      <i class="ti ti-layout-kanban"></i>
-                      <span class="hide-menu">Kanban</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/app-chat.html" class="sidebar-link">
-                      <i class="ti ti-message-dots"></i>
-                      <span class="hide-menu">Chat</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a class="sidebar-link" href="./main/app-email.html" aria-expanded="false">
-                      <span>
-                        <i class="ti ti-mail"></i>
-                      </span>
-                      <span class="hide-menu">Email</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/app-contact.html" class="sidebar-link">
-                      <i class="ti ti-phone"></i>
-                      <span class="hide-menu">Contact Table</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/app-contact2.html" class="sidebar-link">
-                      <i class="ti ti-list-details"></i>
-                      <span class="hide-menu">Contact List</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/app-notes.html" class="sidebar-link">
-                      <i class="ti ti-notes"></i>
-                      <span class="hide-menu">Notes</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/app-invoice.html" class="sidebar-link">
-                      <i class="ti ti-file-text"></i>
-                      <span class="hide-menu">Invoice</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/page-user-profile.html" class="sidebar-link">
-                      <i class="ti ti-user-circle"></i>
-                      <span class="hide-menu">User Profile</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/blog-posts.html" class="sidebar-link">
-                      <i class="ti ti-article"></i>
-                      <span class="hide-menu">Posts</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/blog-detail.html" class="sidebar-link">
-                      <i class="ti ti-details"></i>
-                      <span class="hide-menu">Detail</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/eco-shop.html" class="sidebar-link">
-                      <i class="ti ti-shopping-cart"></i>
-                      <span class="hide-menu">Shop</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/eco-shop-detail.html" class="sidebar-link">
-                      <i class="ti ti-basket"></i>
-                      <span class="hide-menu">Shop Detail</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/eco-product-list.html" class="sidebar-link">
-                      <i class="ti ti-list-check"></i>
-                      <span class="hide-menu">List</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/eco-checkout.html" class="sidebar-link">
-                      <i class="ti ti-brand-shopee"></i>
-                      <span class="hide-menu">Checkout</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/eco-add-product.html" class="sidebar-link">
-                      <i class="ti ti-file-plus"></i>
-                      <span class="hide-menu">Add Product</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/eco-edit-product.html" class="sidebar-link">
-                      <i class="ti ti-file-pencil"></i>
-                      <span class="hide-menu">Edit Product</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
+              
+              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		      	<th:block th:if="${funcNo == 19}">
+		      		<li class="sidebar-item">
+	                    <a th:href="@{/attendance/info}" class="sidebar-link">
+	                      <i class="ti ti-clock"></i>
+	                      <span class="hide-menu">근무이력</span>
+	                    </a>
+                  	</li>
+		      	</th:block>
+		      </th:block>
+	   		  
+	   		  <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 최고관리자 -->
               <!-- ============================= -->
-              <!-- Front Pages -->
+	   		  
+	   		  <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		      	<th:block th:if="${funcNo == 20}">
+		      		<li class="sidebar-item">
+              			<a th:href="@{/calendar}" class="sidebar-link">
+                			<i class="ti ti-calendar"></i>
+                			<span class="hide-menu">일정</span>
+                		</a>
+              		</li>
+		      	</th:block>
+		      </th:block>
+	   		  
               <!-- ============================= -->
-              <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">Front Pages</span>
-              </li>
-              <!-- =================== -->
-              <!-- Front Pages -->
-              <!-- =================== -->
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span class="rounded-3">
-                    <i class="ti ti-layout-grid"></i>
-                  </span>
-                  <span class="hide-menu">Front Pages</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-landingpage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Homepage</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-aboutpage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">About Us</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-blogpage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Blog</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-blogdetailpage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Blog Details</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-contactpage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Contact Us</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-portfoliopage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Portfolio</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/frontend-pricingpage.html" class="sidebar-link">
-                      <i class="ti ti-circle"></i>
-                      <span class="hide-menu">Pricing</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
+              <!-- 접근 :: 일반사원, 최고관리자 -->
               <!-- ============================= -->
-              <!-- PAGES -->
+              
+              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		      	<th:block th:if="${funcNo == 21}">
+	            	<li class="sidebar-item">
+		              	<a th:href="@{/chat}" class="sidebar-link">
+		                	<i class="ti ti-brand-telegram"></i>
+		              		<span class="hide-menu">채팅</span>
+		              	</a>
+	              	</li>
+	             </th:block>
+	          </th:block>
+	          
+	          <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 최고관리자 -->
               <!-- ============================= -->
-              <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">PAGES</span>
-              </li>
-              <li class="sidebar-item">
-                <a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  <span>
-                    <i class="ti ti-notebook"></i>
-                  </span>
-                  <span class="hide-menu">Pages</span>
-                </a>
-                <ul aria-expanded="false" class="collapse first-level">
-                  <li class="sidebar-item">
-                    <a href="./main/page-faq.html" class="sidebar-link">
-                      <i class="ti ti-help"></i>
-                      <span class="hide-menu">FAQ</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/page-account-settings.html" class="sidebar-link">
-                      <i class="ti ti-user-circle"></i>
-                      <span class="hide-menu">Account Setting</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/page-pricing.html" class="sidebar-link">
-                      <i class="ti ti-currency-dollar"></i>
-                      <span class="hide-menu">Pricing</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/widgets-cards.html" class="sidebar-link">
-                      <i class="ti ti-cards"></i>
-                      <span class="hide-menu">Card</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/widgets-banners.html" class="sidebar-link">
-                      <i class="ti ti-ad"></i>
-                      <span class="hide-menu">Banner</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./main/widgets-charts.html" class="sidebar-link">
-                      <i class="ti ti-chart-bar"></i>
-                      <span class="hide-menu">Charts</span>
-                    </a>
-                  </li>
-                  <li class="sidebar-item">
-                    <a href="./landingpage/index.html" class="sidebar-link">
-                      <i class="ti ti-app-window"></i>
-                      <span class="hide-menu">Landing Page</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <!-- ============================= -->
+              
+              <th:block th:if="${funcStatusMap[6L]} == 1">
+	              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+			      	<th:block th:if="${funcNo == 22}">
+		            	<li class="sidebar-item">
+		                	<a th:href="@{/shared}"class="sidebar-link">
+		                    	<i class="ti ti-file"></i>
+		                    	<span class="hide-menu">공유문서함</span>
+		                    </a>
+		             	</li>
+		             </th:block>
+		          </th:block>
+              </th:block>
+	   		  
+	   		  <!-- ============================= -->
               <!-- 접근 :: 일반사원, 게시판담당자, 최고관리자 -->
               <!-- ============================= -->
-              <li class="sidebar-item">
-	          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-	            	<span class="rounded-3">
-	                	<i class="ti ti-layout-board"></i>
-	                </span>
-	                <span class="hide-menu">게시판</span>
-	           	</a>
-	            <ul aria-expanded="false" class="collapse first-level">
-	            	<li class="sidebar-item">
-	                    <a th:href="@{/notice}" class="sidebar-link">
-	                      <i class="ti ti-alert-circle"></i>
-	                      <span class="hide-menu">공지사항</span>
-	                    </a>
-                  	</li>
-	    		</ul>
-	   		  </li>
-	   		  <!-- ============================= -->
-              <!-- 접근 :: 일반사원, 근태 담당자, 최고관리자 -->
-              <!-- ============================= -->
-	   		  <li class="sidebar-item">
-	          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-	            	<span class="rounded-3">
-	                	<i class="ti ti-layout"></i>
-	                </span>
-	                <span class="hide-menu">근태</span>
-	           	</a>
-	            <ul aria-expanded="false" class="collapse first-level">
-	            	<th:block th:each="funcNo : ${accessibleFuncNoList}">
-		                <th:block th:if="${funcNo == 18}">
-			            	<li class="sidebar-item">
-			                    <a th:href="@{/attendance/management}" class="sidebar-link">
-			                      <i class="ti ti-aperture"></i>
-			                      <span class="hide-menu">근태 관리</span>
-			                    </a>
-		                  	</li>
-		                </th:block>
-		            </th:block>
-		            <th:block th:each="funcNo : ${accessibleFuncNoList}">
-		                <th:block th:if="${funcNo == 32}">
-			            	<li class="sidebar-item">
-			                    <a th:href="@{/annual/management}" class="sidebar-link">
-			                      <i class="ti ti-aperture"></i>
-			                      <span class="hide-menu">연차 관리</span>
-			                    </a>
-		                  	</li>
-		                </th:block>
-		            </th:block>
-                  	<li class="sidebar-item">
-	                    <a th:href="@{/attendance/info}" class="sidebar-link">
-	                      <i class="ti ti-aperture"></i>
-	                      <span class="hide-menu">근태 정보</span>
-	                    </a>
-                  	</li>
-	    		</ul>
-	   		  </li>
-	   		  
-	   		  <!-- ============================= -->
-              <!-- 접근 :: 일반사원, 회의실, 최고관리자 -->
-              <!-- ============================= -->
-              <li class="sidebar-item">
-	          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-	            	<span class="rounded-3">
-	                	<i class="ti ti-apps"></i>
-	                </span>
-	                <span class="hide-menu">부가기능</span>
-	           	</a>
-	            <ul aria-expanded="false" class="collapse first-level">
-                  	<li class="sidebar-item">
-	                    <a th:href="@{/meetingRoom}" class="sidebar-link">
-	                    	<i class="ti ti-calendar-event"></i>
-	                    	<span class="hide-menu">회의실 예약 및 조회</span>
-	                    </a>
-                  	</li>
-                  	<th:block th:each="funcNo : ${accessibleFuncNoList}">
-		            	<th:block th:if="${funcNo == 28}">
-		                  	<li class="sidebar-item">
-			                    <a th:href="@{/admin/meetingRoom}" class="sidebar-link">
-			                    	<i class="ti ti-clipboard-list"></i>
-			                    	<span class="hide-menu">회의실 관리</span>
-			                    </a>
-			                </li>
-		            	</th:block>
-		            </th:block>
-	                <th:block th:each="funcNo : ${accessibleFuncNoList}">
-		            	<th:block th:if="${funcNo == 28}">
-				        	<li class="sidebar-item">
-				            	<a th:href="@{/admin/meetingReservation}" class="sidebar-link">
-				                	<i class="ti ti-calendar-stats"></i>
-				                	<span class="hide-menu">회의실 예약 관리</span>
-				                </a>
-			            	</li>
-                  		</th:block>
-                  	</th:block>
-	    		</ul>
-	   		  </li>
-	   		  
-              <!-- =================== -->
-              <!-- 접근 :: 인사담당자, 최고관리자 -->
-              <!-- =================== -->
-              <th:block th:if="${showHrMenu}">
-	          	<li class="sidebar-item">
-	            	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-	                	<span class="rounded-3">
-	                    	<i class="ti ti-layout"></i>
-	                  	</span>
-	                  	<span class="hide-menu">인사담당자</span>
-	                </a>
-	                <ul aria-expanded="false" class="collapse first-level">
-		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
-		                	<th:block th:if="${funcNo == 12}">
-			                	<li class="sidebar-item">
-			                    	<a th:href="@{/admin/member/create}" class="sidebar-link">
-			                      		<i class="ti ti-id"></i>
-			                      		<span class="hide-menu">사원 등록</span>
-			                    	</a>
+              
+              <th:block th:if="${boardMenu}">
+	              <li class="sidebar-item">
+		          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+		            	<span class="rounded-3">
+		                	<i class="ti ti-layout-board"></i>
+		                </span>
+		                <span class="hide-menu">게시판</span>
+		           	</a>
+		            <ul aria-expanded="false" class="collapse first-level">
+		            	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+			      			<th:block th:if="${funcNo == 24}">
+			      				<li class="sidebar-item">
+				                    <a th:href="@{/notice}" class="sidebar-link inner-sidebar-item">
+				                      <i class="ti ti-alert-circle"></i>
+				                      <span class="hide-menu">공지사항</span>
+				                    </a>
 			                  	</li>
-		                	</th:block>
-		                </th:block>
-		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
-		                	<th:block th:if="${funcNo == 13}">
+			      			</th:block>
+			      		</th:block>
+			      		<th:block th:each="funcNo : ${accessibleFuncNoList}">
+			      			<th:block th:if="${funcNo == 26}">
 			                  	<li class="sidebar-item">
-			                    	<a th:href="@{/admin/dept/create}" class="sidebar-link">
-			                     		<i class="ti ti-building"></i>
-			                      		<span class="hide-menu">부서 관리</span>
-			                    	</a>
+				                    <a th:href="@{/board/list}" class="sidebar-link inner-sidebar-item">
+				                    	<i class="ti ti-clipboard-text"></i>
+				                    	<span class="hide-menu">자유게시판</span>
+				                    </a>
 			                  	</li>
-		                	</th:block>
-		                </th:block>
-		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
-		                	<th:block th:if="${funcNo == 14}">
-			                  	<li class="sidebar-item">
-			                    	<a th:href="@{/admin/pos/create}" class="sidebar-link">
-			                      		<i class="ti ti-badge"></i>
-			                      		<span class="hide-menu">직급 관리</span>
-			                    	</a>
-			                  	</li>
-		                	</th:block>
-		                </th:block>
-		                <th:block th:each="funcNo : ${accessibleFuncNoList}">
-		                	<th:block th:if="${funcNo == 15}">
-			                  	<li class="sidebar-item">
-			                    	<a th:href="@{/admin/member}" class="sidebar-link">
-			                      		<i class="ti ti-users"></i>
-			                      		<span class="hide-menu">인사 관리</span>
-			                    	</a>
-			                  	</li>
-		                	</th:block>
-		                </th:block>
-	                </ul>
-	          	</li>
+			      			</th:block>
+			      		</th:block>
+		    		</ul>
+		   		  </li>
               </th:block>
-              <th:block th:if="${#authentication.principal.member.role.roleNo == 1}">
-              	<li class="sidebar-item">
-                	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-                  		<span class="rounded-3">
+	   		  
+	   		  <!-- ============================= -->
+              <!-- 접근 :: 일반사원, 회의실담당자, 최고관리자 -->
+              <!-- ============================= -->
+              
+              <th:block th:if="${additionalMenu and (funcStatusMap[9L] == 1 or funcStatusMap[10L] == 1)}">
+	              <li class="sidebar-item">
+		          	<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+		            	<span class="rounded-3">
+		                	<i class="ti ti-apps"></i>
+		                </span>
+		                <span class="hide-menu">부가기능</span>
+		           	</a>
+		            <ul aria-expanded="false" class="collapse first-level">
+			            <th:block th:if="${funcStatusMap[9L]} == 1">
+			            	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+					      		<th:block th:if="${funcNo == 29}">
+						      		<li class="sidebar-item">
+					                    <a th:href="@{/meetingRoom}" class="sidebar-link inner-sidebar-item">
+					                    	<i class="ti ti-calendar-event"></i>
+					                    	<span class="hide-menu">회의실예약</span>
+					                    </a>
+				                  	</li>
+					      		</th:block>
+			            	</th:block>
+				      	</th:block>
+				      	<th:block th:if="${funcStatusMap[10L]} == 1">
+					      	<th:block th:each="funcNo : ${accessibleFuncNoList}">
+					      		<th:block th:if="${funcNo == 31}">
+				                  	<li class="sidebar-item">
+					                	<a th:href="@{/accommodation}" class="sidebar-link inner-sidebar-item">
+					                    	<i class="fas fa-hands-helping"></i>
+					                    	<span class="hide-menu">사내복지</span>
+					                    </a>
+					            	</li>
+					      		</th:block>
+					      	</th:block>
+				      	</th:block>
+		    		</ul>
+		   		  </li>
+              </th:block>
+ 				
+			  <!-- =================== -->
+		      <!-- 설정 메뉴 :: 특정 권한이 있어야만 접근할 수 있음 -->
+		      <!-- =================== -->
+		      
+ 			  <th:block th:if="${#authentication.principal.member.role.roleNo == 1 or showSettingMenu}">	
+ 				<li class="sidebar-item">
+ 					<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
+ 						<span class="rounded-3">
                     		<i class="ti ti-settings"></i>
                   		</span>
-                  		<span class="hide-menu">최고관리자</span>
-                	</a>
-	                <ul aria-expanded="false" class="collapse first-level">
-	                  <li class="sidebar-item">
-	                    <a th:href="@{/admin/company}" class="sidebar-link">
-	                      <i class="ti ti-tools"></i>
-	                      <span class="hide-menu">사이트 설정</span>
-	                    </a>
-	                  </li>
+                  		<span class="hide-menu">설정</span>
+ 					</a>
+
+ 					<ul aria-expanded="false" class="collapse first-level">
+ 					
+ 					  <!-- =================== -->
+		              <!-- 접근 :: 최고관리자 -->
+		              <!-- =================== -->
+ 					
+	                  <th:block th:if="${#authentication.principal.member.role.roleNo == 1}">
+		              	<li class="sidebar-item">
+		                	<a class="sidebar-link inner-sidebar-item" href="javascript:void(0)" aria-expanded="false">
+		                  		<span class="rounded-3">
+		                    		<i class="ti ti-settings"></i>
+		                  		</span>
+		                  		<span class="hide-menu">관리 : 그룹웨어</span>
+		                	</a>
+			                <ul aria-expanded="false" class="collapse second-level">
+			                  <li class="sidebar-item">
+			                    <a th:href="@{/admin/company}" class="sidebar-link inner-sidebar-item">
+			                      <i class="ti ti-tools"></i>
+			                      <span class="hide-menu">사이트설정</span>
+			                    </a>
+			                  </li>
+			                </ul>
+		              	</li>
+		              </th:block>
+		              
+		              <!-- =================== -->
+		              <!-- 접근 :: 인사담당자, 최고관리자 -->
+		              <!-- =================== -->
+		              
+		              <th:block th:if="${showHrMenu}">
+			          	<li class="sidebar-item">
+			            	<a class="sidebar-link inner-sidebar-item" href="javascript:void(0)" aria-expanded="false">
+			                	<span class="rounded-3">
+			                    	<i class="ti ti-layout"></i>
+			                  	</span>
+			                  	<span class="hide-menu">관리 : 인사</span>
+			                </a>
+			                <ul aria-expanded="false" class="collapse second-level">
+				                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+				                	<th:block th:if="${funcNo == 12}">
+					                	<li class="sidebar-item">
+					                    	<a th:href="@{/admin/member/create}" class="sidebar-link inner-sidebar-item">
+					                      		<i class="ti ti-id"></i>
+					                      		<span class="hide-menu">사원등록</span>
+					                    	</a>
+					                  	</li>
+				                	</th:block>
+				                </th:block>
+				                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+				                	<th:block th:if="${funcNo == 13}">
+					                  	<li class="sidebar-item">
+					                    	<a th:href="@{/admin/dept/create}" class="sidebar-link inner-sidebar-item">
+					                     		<i class="ti ti-building"></i>
+					                      		<span class="hide-menu">부서관리</span>
+					                    	</a>
+					                  	</li>
+				                	</th:block>
+				                </th:block>
+				                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+				                	<th:block th:if="${funcNo == 14}">
+					                  	<li class="sidebar-item">
+					                    	<a th:href="@{/admin/pos/create}" class="sidebar-link inner-sidebar-item">
+					                      		<i class="ti ti-badge"></i>
+					                      		<span class="hide-menu">직급관리</span>
+					                    	</a>
+					                  	</li>
+				                	</th:block>
+				                </th:block>
+				                <th:block th:each="funcNo : ${accessibleFuncNoList}">
+				                	<th:block th:if="${funcNo == 15}">
+					                  	<li class="sidebar-item">
+					                    	<a th:href="@{/admin/member}" class="sidebar-link inner-sidebar-item">
+					                      		<i class="ti ti-users"></i>
+					                      		<span class="hide-menu">인사관리</span>
+					                    	</a>
+					                  	</li>
+				                	</th:block>
+				                </th:block>
+			                </ul>
+			          	</li>
+		              </th:block>
+		              
+		              <!-- ============================= -->
+              		  <!-- 접근 :: 결재담당자, 최고관리자 -->
+               	 	  <!-- ============================= -->
+		              
+		              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		      		  	<th:block th:if="${funcNo == 16}">
+		      		  		<li class="sidebar-item">
+					        	<a class="sidebar-link inner-sidebar-item" href="javascript:void(0)" aria-expanded="false">
+					            	<span class="rounded-3">
+					                	<i class="ti ti-apps"></i>
+					                </span>
+					                <span class="hide-menu">관리 : 결재</span>
+					           	</a>
+					           	<ul aria-expanded="false" class="collapse second-level">
+							    	<li class="sidebar-item">
+					                    <a th:href="@{/admin/approval}" class="sidebar-link inner-sidebar-item">
+					                      <i class="ti ti-file-text"></i>
+					                      <span class="hide-menu">결재관리</span>
+					                    </a>
+				                  	</li>
+								</ul>
+				        	</li>
+		      		  	</th:block>
+		      		  </th:block>
+		              
+		              <!-- ============================= -->
+              		  <!-- 접근 :: 근태담당자, 최고관리자 -->
+               	 	  <!-- ============================= -->
+		              
+		              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		              	<th:block th:if="${funcNo == 18}">
+		              		<li class="sidebar-item">
+					          	<a class="sidebar-link inner-sidebar-item" href="javascript:void(0)" aria-expanded="false">
+					            	<span class="rounded-3">
+					                	<i class="ti ti-layout"></i>
+					                </span>
+					                <span class="hide-menu">관리 : 근태</span>
+					           	</a>
+					           	<ul aria-expanded="false" class="collapse second-level">
+					            	<li class="sidebar-item">
+					                    <a th:href="@{/attendance/management}" class="sidebar-link inner-sidebar-item">
+					                      <i class="ti ti-clock"></i>
+					                      <span class="hide-menu">근태관리</span>
+					                    </a>
+				                  	</li>
+			    				</ul>
+					         </li>
+		              	</th:block>
+		              </th:block>
+		              
+		              <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		              	<th:block th:if="${funcNo == 33}">
+		              		<li class="sidebar-item">
+					          	<a class="sidebar-link inner-sidebar-item" href="javascript:void(0)" aria-expanded="false">
+					            	<span class="rounded-3">
+					                	<i class="ti ti-layout"></i>
+					                </span>
+					                <span class="hide-menu">관리 : 연차</span>
+					           	</a>
+								<ul aria-expanded="false" class="collapse second-level">
+					            	<li class="sidebar-item">
+					                    <a th:href="@{/annual/management}" class="sidebar-link inner-sidebar-item">
+					                      <i class="fas fa-plane"></i>
+					                      <span class="hide-menu">연차관리</span>
+					                    </a>
+				                  	</li>
+			    				</ul>
+					         </li>
+		              	</th:block>
+		              </th:block>
+		              
+		              <!-- ============================= -->
+              		  <!-- 접근 :: 회의실담당자, 최고관리자 -->
+              		  <!-- ============================= -->
+              		  
+              		  <th:block th:each="funcNo : ${accessibleFuncNoList}">
+		              	<th:block th:if="${funcNo == 28}">
+			            	<li class="sidebar-item">
+					          	<a class="sidebar-link inner-sidebar-item" href="javascript:void(0)" aria-expanded="false">
+					            	<span class="rounded-3">
+					                	<i class="ti ti-apps"></i>
+					                </span>
+					                <span class="hide-menu">관리 : 회의실</span>
+					           	</a>
+					           	<ul aria-expanded="false" class="collapse second-level">
+							        <li class="sidebar-item">
+							          <a th:href="@{/admin/meetingRoom}" class="sidebar-link inner-sidebar-item">
+							            <i class="ti ti-clipboard-list"></i>
+							            <span class="hide-menu">회의실관리</span>
+							          </a>
+							        </li>
+							        <li class="sidebar-item">
+							          <a th:href="@{/admin/meetingReservation}" class="sidebar-link inner-sidebar-item">
+							            <i class="ti ti-calendar-stats"></i>
+							            <span class="hide-menu">예약관리</span>
+							          </a>
+							        </li>
+							      </ul>
+
+				        	</li>
+		              	</th:block>
+		              </th:block>
+              		  
 	                </ul>
-              	</li>
-              </th:block>
-              
- 
+ 				</li>
+ 			  </th:block>
+
             </ul>
           </nav>
           <!-- End Sidebar navigation -->
-
+		  
 	</th:block>
 </html>

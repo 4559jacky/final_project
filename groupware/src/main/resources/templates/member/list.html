@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
@@ -227,8 +227,8 @@ layout:decorate="~{/include/layout}">
 														<select class="mb-0 fw-normal fs-4"
 																name="status"
 																th:classappend="${member.status == 100 ? 'text-success' :
-																			    (member.status == 101 || member.status == 102 || member.status == 300 || member.status == 301) ? 'text-danger' :
-																			    (member.status == 200 || member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
+																			    (member.status == 101 || member.status == 102 || member.status == 200 || member.status == 300 || member.status == 301) ? 'text-warning' :
+																			    (member.status == 400 || member.status == 401 || member.status == 402 || member.status == 900) ? 'text-secondary' :
 																			    ''}">
 															<option th:each="status : ${statusList}"
 																	th:value="${status.status_no}"
@@ -370,7 +370,7 @@ layout:decorate="~{/include/layout}">
 								{ no: 100, name: '재직'},
 								{ no: 101, name: '수습'},
 								{ no: 102, name: '인턴'},
-								{ no: 200, name: '전출'},
+								{ no: 200, name: '파견'},
 								{ no: 300, name: '휴직'},
 								{ no: 301, name: '대기'},
 								{ no: 400, name: '해고'},
@@ -383,7 +383,7 @@ layout:decorate="~{/include/layout}">
 								100: 'text-success',
 								101: 'text-warning',
 								102: 'text-warning',
-								200: 'text-secondary',
+								200: 'text-warning',
 								300: 'text-warning',
 								301: 'text-warning',
 								400: 'text-secondary',
@@ -481,11 +481,11 @@ layout:decorate="~{/include/layout}">
 	
 	<script>
 		// 테이블의 수정버튼을 클릭하여 해당 항목의 정보를 수정하는 로직 - 피드백 이후 현재 쓰지 않고 있음
-		document.getElementById('member-tbody').addEventListener('click', function (e) {
+		document.getElementById('member-tbody').addEventListener('click', async function (e) {
 			
 			if (e.target.classList.contains('edit-member-btn')) {
 
-				if(!confirm("정말로 수정하시겠습니까?")) {
+				if(await !confirm("정말로 수정하시겠습니까?")) {
 					return;
 				}
 				
@@ -516,8 +516,8 @@ layout:decorate="~{/include/layout}">
 					body: JSON.stringify(updateData)
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = "/admin/member";
 					}
@@ -531,7 +531,7 @@ layout:decorate="~{/include/layout}">
 	
 	<script>
 		// 부서별 조회에서 일괄 수정 버튼을 눌렀을 때 발생하는 로직
-		document.getElementById('chkUpdateBtn').addEventListener('click', function () {
+		document.getElementById('chkUpdateBtn').addEventListener('click', async function () {
 			const checkedRows = document.querySelectorAll('.member-checkbox:checked');
 			if (checkedRows.length === 0) {
 				alert('수정할 사원을 선택해주세요.');
@@ -564,35 +564,34 @@ layout:decorate="~{/include/layout}">
 			
 			const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
 			
-			if(!confirm(nameConfirmMsg)) {
-				return;
+			if(await confirm(nameConfirmMsg)) {
+				fetch('/admin/members/update', {
+					method : "post",
+					headers : {
+						'Content-Type': 'application/json',
+						'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+					},
+					body: JSON.stringify(updateList)
+				})
+				.then(response => response.json())
+				.then(async data => {
+					await alert(data.res_msg);
+					if(data.res_code == '200') {
+						location.href = "/admin/member";
+					}
+				})
+				.catch(error => {
+					console.log(error);
+				})
 			}
 			
-			fetch('/admin/members/update', {
-				method : "post",
-				headers : {
-					'Content-Type': 'application/json',
-					'header': document.querySelector('meta[name="_csrf_header"]').content,
-					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-				},
-				body: JSON.stringify(updateList)
-			})
-			.then(response => response.json())
-			.then(data => {
-				alert(data.res_msg);
-				if(data.res_code == '200') {
-					location.href = "/admin/member";
-				}
-			})
-			.catch(error => {
-				console.log(error);
-			})
 		});
 	</script>
 	
 	<script>
 	// 전체 조회에서 일괄 수정 버튼을 눌렀을 때 발생하는 로직
-	document.getElementById('checkboxUpdateBtn').addEventListener('click', function () {
+	document.getElementById('checkboxUpdateBtn').addEventListener('click', async function () {
 		const checkedRows = document.querySelectorAll('.member-checkbox:checked');
 		if (checkedRows.length === 0) {
 			alert('수정할 사원을 선택해주세요.');
@@ -625,29 +624,28 @@ layout:decorate="~{/include/layout}">
 		
 		const nameConfirmMsg = nameList.join(', ') + ' 사원을 수정하시겠습니까?';
 		
-		if(!confirm(nameConfirmMsg)) {
-			return;
+		if(await confirm(nameConfirmMsg)) {
+			fetch('/admin/memberAll/update', {
+				method : "post",
+				headers : {
+					'Content-Type': 'application/json',
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body: JSON.stringify(updateList)
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if(data.res_code == '200') {
+					location.href = "/admin/member";
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			})
 		}
 		
-		fetch('/admin/memberAll/update', {
-			method : "post",
-			headers : {
-				'Content-Type': 'application/json',
-				'header': document.querySelector('meta[name="_csrf_header"]').content,
-				'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-			},
-			body: JSON.stringify(updateList)
-		})
-		.then(response => response.json())
-		.then(data => {
-			alert(data.res_msg);
-			if(data.res_code == '200') {
-				location.href = "/admin/member";
-			}
-		})
-		.catch(error => {
-			console.log(error);
-		})
 	});
 	</script>
 	

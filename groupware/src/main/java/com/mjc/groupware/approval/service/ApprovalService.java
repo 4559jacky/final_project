@@ -2,6 +2,7 @@ package com.mjc.groupware.approval.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -453,7 +454,7 @@ public class ApprovalService {
 			ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
 			
 			approvalDto.setAppr_status("R");
-			approvalDto.setAppr_res_date(approverEntity.getApproverDecisionStatusTime());
+			approvalDto.setAppr_res_date(approverEntity.getApproverDecisionStatusTime() != null ? approverEntity.getApproverDecisionStatusTime() : LocalDateTime.now(ZoneId.of("Asia/Seoul")));
 			approvalDto.setAppr_reason(approverEntity.getDecisionReason());
 			
 			
@@ -578,7 +579,7 @@ public class ApprovalService {
 			Approval approval = approvalRepository.findById(id).orElse(null);
 			ApprovalDto approvalDto = new ApprovalDto().toDto(approval);
 			approvalDto.setAppr_status("R");
-			approvalDto.setAppr_res_date(entity.getAgreementerAgreeStatusTime());
+			approvalDto.setAppr_res_date(entity.getAgreementerAgreeStatusTime() != null ? entity.getAgreementerAgreeStatusTime() : LocalDateTime.now(ZoneId.of("Asia/Seoul")));
 			approvalDto.setAppr_reason(entity.getAgreeReason());
 			
 			Approval approvalParam = approvalDto.toEntity();

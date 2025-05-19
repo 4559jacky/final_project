@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,13 +23,19 @@ public class ApprovalAttachService {
 	
 	private final ApprovalAttachRepository approvalAttachRepository;
 	
+	@Value("${ffupload.location}")
+	private String filePath;
+	
+	
 	public void saveFile(MultipartFile file, Approval approval) throws IOException {
         if (!file.isEmpty()) {
+
+        	String approvalFilePath = filePath + "/approval";
             String ori = file.getOriginalFilename();
             String newName = UUID.randomUUID().toString() + "_" + ori;
-            String path = "C:/upload/approval/" + newName;
+            String path = approvalFilePath + newName;
 
-            File uploadDir = new File("C:/upload/groupware/approval/");
+            File uploadDir = new File(approvalFilePath);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }

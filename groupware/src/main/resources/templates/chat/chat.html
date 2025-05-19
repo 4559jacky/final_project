@@ -45,8 +45,19 @@
 								<img th:src="@{/img/default_profile.png}" width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
-								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
-								<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								<th:block th:if="${#authentication.principal.member.pos != null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.pos == null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} (직급미배정)|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept != null}">
+									<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept == null}">
+									<h6 class="fw-semibold mb-2">(부서미배정)</h6>
+								</th:block>
+								
 							</div>
 						</div>
 
@@ -95,9 +106,7 @@
 						</ul>
 						<ul th:if="${#lists.isEmpty(chatRoomList)}" class="chat-users mb-0" id="empty-chat-msg">
 							<li>
-								<div class="ms-3 d-inline-block w-75 text-center">
-									<h6 class="mb-1 fw-semibold chat-title">현재 채팅 중인 방이 없습니다.</h6>
-								</div>
+								<div id="empty-chat-msg" class="text-center text-muted my-3">채팅방이 없습니다</div>
 							</li>
 						</ul>
 					</div>
@@ -167,10 +176,17 @@
 													placeholder="메세지를 입력해주세요." fdprocessedid="0p3op" id="msgContent"/>
 											</div>
 											<input type= hidden id="chatRoomNo">
-											<input type= hidden id="sendMemberNo" th:value="${#authentication.principal.member.memberNo}">
-											<input type= hidden id="sendMemberName" th:value="${#authentication.principal.member.memberName}">
-											<input type= hidden id="sendMemberPos" th:value="${#authentication.principal.member.pos.posName}">
-											<input type= hidden id="sendMemberDept" th:value="${#authentication.principal.member.dept.deptName}">
+											<input type="hidden" id="sendMemberNo"
+											       th:value="${#authentication.principal.member != null ? #authentication.principal.member.memberNo : ''}" />
+											
+											<input type="hidden" id="sendMemberName"
+											       th:value="${#authentication.principal.member != null ? #authentication.principal.member.memberName : ''}" />
+											
+											<input type="hidden" id="sendMemberPos"
+											       th:value="${#authentication.principal.member.pos != null ? #authentication.principal.member.pos.posName : ''}" />
+
+											<input type="hidden" id="sendMemberDept" th:value="${#authentication.principal.member.dept != null ? #authentication.principal.member.dept.deptName : ''}">
+
 											<ul class="list-unstyledn mb-0 d-flex align-items-center">
 												<li><a
 													class="text-dark px-2 fs-7 bg-hover-primary nav-icon-hover position-relative z-index-5"
@@ -258,8 +274,18 @@
 									width="54" height="54" class="rounded-circle" />
 							</div>
 							<div class="ms-3">
-								<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
-								<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								<th:block th:if="${#authentication.principal.member.pos != null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} ${#authentication.principal.member.pos.posName}|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.pos == null}">
+									<h6 th:text="|${#authentication.principal.member.memberName} (직급미배정)|" class="fw-semibold mb-2"></h6>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept != null}">
+									<p th:text="${#authentication.principal.member.dept.deptName}" class="mb-0 fs-2">부서</p>
+								</th:block>
+								<th:block th:if="${#authentication.principal.member.dept == null}">
+									<h6 class="fw-semibold mb-2">(부서미배정)</h6>
+								</th:block>
 							</div>
 						</div>
 
@@ -680,6 +706,7 @@
 	    alert(data.res_msg);
 	
 	    if (data.res_code === "200") {
+	      
 	      form.reset();
 	      document.getElementById("selectedUsersInputs").innerHTML = "";
 	      document.getElementById("selectMemberList").innerHTML = "";
@@ -711,15 +738,15 @@
 	  const wrapper = document.querySelector(".app-chat"); // ul 감싸는 div
 	  const myNo = parseInt(document.getElementById("createMemberNo").value, 10);
 	
-	  // ✅ 내가 소속된 채팅방인지 확인
+	  //  내가 소속된 채팅방인지 확인
 	  const isMember = room.memberInfos.some(m => m.memberNo === myNo);
 	  if (!isMember) return;
 	  
-	  // ✅ 안내 메시지 li 제거
-	  const emptyMsg = document.querySelector("#empty-chat-msg li");
+	  //  안내 메시지 li 제거
+	  const emptyMsg = document.querySelector("#empty-chat-msg div");
 	  if (emptyMsg) emptyMsg.remove();
 	
-	  // ✅ 기존 ul 찾기 (없으면 새로 만들기)
+	  // 기존 ul 찾기 (없으면 새로 만들기)
 	  let ul = wrapper.querySelector(".chat-users");
 	  if (!ul) {
 	    ul = document.createElement("ul");
@@ -727,10 +754,10 @@
 	    wrapper.insertBefore(ul, wrapper.firstChild);
 	  }
 	
-	  // ✅ li 생성
+	  //  li 생성
 	  const li = document.createElement("li");
 	
-	  // ✅ 제목 처리
+	  //  제목 처리
 	  let title = room.chat_room_title;
 	  if (!title || title.trim() === "") {
 	    const others = room.memberInfos.filter(m => m.memberNo !== myNo);
@@ -740,7 +767,7 @@
 	  const others = room.memberInfos.filter(m => m.memberNo !== myNo);
 	  let profileImg;
 
-	  // 👥 단체방은 무조건 단체 이미지
+	  //  단체방은 무조건 단체 이미지
 	  if (others.length > 1) {
 	    profileImg = "/img/people-circle.png";
 	  } else if (others.length === 1) {
@@ -775,10 +802,10 @@
 	    </a>
 	  `;
 	
-	  // ✅ ul 맨 위에 prepend
+	  // ul 맨 위에 prepend
 	  ul.insertBefore(li, ul.firstChild);
 	
-	  // ✅ 이벤트 연결
+	  //  이벤트 연결
 	  initChatRoomClick();
 	}
 
@@ -843,16 +870,16 @@
 	     });
 
     	
-    	 // ✅ 전체 래퍼 보여주기
+    	 //  전체 래퍼 보여주기
     	  document.getElementById("chatBoxWrapper")?.classList.remove("d-none");
 
-    	  // ✅ 안내 문구 강력하게 숨기기
+    	  //  안내 문구 강력하게 숨기기
     	  const placeholder = document.getElementById("chatPlaceholder");
     	  if (placeholder) {
     	    placeholder.style.setProperty("display", "none", "important");
     	  }
 
-    	  // ✅ 채팅 본문 보이게
+    	  // 채팅 본문 보이게
     	  const realContent = document.getElementById("chatRealContent");
     	  if (realContent) {
     	    realContent.style.display = "block";
@@ -1289,7 +1316,7 @@
 	      const data = await res.json();
 	
 	      // ✅ 커스텀 alert도 작동됨
-	      alert(data.res_msg);
+	      await alert(data.res_msg);
 	
 	      if (data.res_code === "200") {
 	        location.reload();

@@ -13,7 +13,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
 	
 	<!-- Favicon icon-->
-	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.png}" />
+	<link rel="shortcut icon" type="image/png" th:href="@{/img/mjc_profile_favicon.png}" />
 	
 	<title>Groupware</title>
 	
@@ -58,12 +58,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					<div class="d-block d-md-none text-center">
 			            <th:block th:if="${theme} != dark">
 			              	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
-			                	<img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
+			                	<img th:src="@{/img/mjc_profile.png}" class="dark-logo" alt="Logo-Dark" />
 			            	</a>
 			            </th:block>
 			            <th:block th:if="${theme} == dark">
 			              	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
-								<img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" />
+								<img th:src="@{/img/mjc_profile_dark.png}" class="light-logo" alt="Logo-Light" />
 			            	</a>
 			        	</th:block>
 			        </div>
@@ -87,15 +87,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				  </li>
 			  </th:block>
               <th:block th:if="${latestProfile == null}">
-	          		<li class="d-none d-md-block">
+	          	<li class="d-none d-md-block">
 		          	<th:block th:if="${theme} != dark">
 			          	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
-			            	<img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
+			            	<img th:src="@{/img/mjc_profile.png}" class="dark-logo" alt="Logo-Dark" />
 			            </a>
 			      	</th:block>
 			        <th:block th:if="${theme} == dark">
 			        	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
-							<img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" />
+							<img th:src="@{/img/mjc_profile_dark.png}" class="light-logo" alt="Logo-Light" />
 			            </a>
 			      	</th:block>
 		      	</li>

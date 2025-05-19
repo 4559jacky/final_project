@@ -14,7 +14,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
 	
 	<!-- Favicon icon-->
-	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.ico}" />
+	<link rel="shortcut icon" type="image/png" th:href="@{/img/mjc_profile_favicon.png}" />
 	
 	<title>Groupware</title>
 	
@@ -29,7 +29,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<link rel="stylesheet" th:href="@{/css/layout-media.css}" />
 	
 	<!-- alarm css file -->
-	<link  rel="stylesheet" th:href="@{/css/alarm.css}">
+	<link rel="stylesheet" th:href="@{/css/alarm.css}">
   	
 </head>
 <body>
@@ -71,7 +71,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 	
 	<!-- 전자결재 알림 모달 -->
-	<div id="approval-alert-toast" class="d-none" style="
+	<div id="alarm-alert-toast" class="d-none" style="
 	  position: fixed;
 	  bottom: 30px;
 	  right: 30px;
@@ -84,8 +84,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  opacity: 1;
 	">
 	  <strong class="text-primary">[알림]</strong>&nbsp;
-	  <span id="approval-toast-title">테스트 제목</span><br>
-	  <span id="approval-toast-msg">새로운 결재가 있습니다</span>
+	  <span id="alarm-toast-title">테스트 제목</span><br>
+	  <span id="alarm-toast-msg">새로운 결재가 있습니다</span>
 	</div>
 	
 	
@@ -97,8 +97,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 	      </div>
 	      <div class="modal-body text-center text-body">
-	        <p id="customAlertMsg" class="fs-5 mb-4">알림 내용</p>
-	        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">확인</button>
+	        <p id="customAlertMsg" class="fs-4 mb-4">알림 내용</p>
+	        <button type="button" class="btn btn-primary px-3" data-bs-dismiss="modal">확인</button>
 	      </div>
 	    </div>
 	  </div>
@@ -112,10 +112,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 	      </div>
 	      <div class="modal-body text-center text-body">
-	        <p id="customConfirmMsg" class="fs-5 mb-4">정말 진행하시겠습니까?</p>
+	        <p id="customConfirmMsg" class="fs-4 mb-4">정말 진행하시겠습니까?</p>
 	        <div class="d-flex justify-content-center gap-3">
-	          <button type="button" id="confirmYesBtn" class="btn btn-primary px-4">확인</button>
-	          <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">취소</button>
+	          <button type="button" id="confirmYesBtn" class="btn btn-primary px-3">확인</button>
+	          <button type="button" class="btn btn-danger px-3" data-bs-dismiss="modal">취소</button>
 	        </div>
 	      </div>
 	    </div>
@@ -206,9 +206,24 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		      stompClient.subscribe(`/topic/approval/alarm/${myNo}`, (msg) => {
 		    	    const dto = JSON.parse(msg.body);
 		    	    console.log("전자결재 알림 도착:", dto);
-		    	    showApprovalAlertToast(dto);
+		    	    showAlarmAlertToast(dto);
 		      });
-		   	  
+		
+		////////////////////////////////////////////////////// 긴급 공지  웹소캣 //////////////////////////////////////////////////////////////////////////////
+		   	  // 공지사항 알림
+		      stompClient.subscribe(`/topic/notice/alarm/${myNo}`, (msg) => {
+		    	    const dto = JSON.parse(msg.body);
+		    	    console.log("긴급공지 알림 도착:", dto);
+		    	    showAlarmAlertToast(dto);
+		      });
+		
+		//////////////////////////////////////////////////////긴급 공지  웹소캣 //////////////////////////////////////////////////////////////////////////////
+		   	  // 공지사항 알림
+		      stompClient.subscribe(`/topic/accommodationReservation/alarm/${myNo}`, (msg) => {
+		    	    const dto = JSON.parse(msg.body);
+		    	    console.log("제휴숙소 알림 도착:", dto);
+		    	    showAlarmAlertToast(dto);
+		      });
   		
 			}
 		  }, (error) => {
@@ -217,17 +232,17 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		});
 		
 
-		//////////////////////////////////////////////////////전자 결재  알림 모달  //////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////전자결재, 긴급공지 알림 모달  //////////////////////////////////////////////////////////////////////////////
 		 
-		// 전자결재 알림 토스트 모달
-		function showApprovalAlertToast(dto) {
+		// 전자결재, 긴급공지, 제휴숙소 알림 토스트 모달
+		function showAlarmAlertToast(dto) {
 	
-		    const wrapper = document.getElementById("approval-alert-toast");
+		    const wrapper = document.getElementById("alarm-alert-toast");
 		    if (!wrapper) return;
 		
 		    // 내용 세팅
-		    document.getElementById("approval-toast-title").innerHTML = `<strong>${dto.title}</strong>` || "전자결재";
-		    document.getElementById("approval-toast-msg").textContent = dto.message || "";
+		    document.getElementById("alarm-toast-title").innerHTML = `<strong>${dto.title}</strong>` || "";
+		    document.getElementById("alarm-toast-msg").textContent = dto.message || "";
 		
 		    // 모달 표시
 		    wrapper.classList.remove("d-none");
@@ -243,7 +258,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		  }
 
 	  function closeApprovalToast() {
-	    const wrapper = document.getElementById("approval-alert-toast");
+	    const wrapper = document.getElementById("alarm-alert-toast");
 	    wrapper.classList.remove("active");
 	    wrapper.classList.add("d-none");
 	  }
@@ -464,9 +479,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		
 		
-		////////////////////////////////////전자결재  알람 헤더에 적용 /////////////////////////////////////////
+		//////////////////////////////////// 전자결재, 긴급공지  알람 헤더에 적용 /////////////////////////////////////////
 		
-		//  헤더 알림 실시간 반영 
+		// 전자결재, 긴급공지 헤더 알림 실시간 반영 
 		function prependOtherAlarmToDropdown(dto) {
 			  const dropdowns = document.querySelectorAll(".alarm-message-body");
 			  if (!dropdowns.length) return;
@@ -484,17 +499,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			    link.setAttribute("data-type", dto.alarmType);
 			    link.setAttribute("data-alarm-no", dto.alarmNo);
 			    link.setAttribute("data-no", dto.otherPkNo);
-			    link.setAttribute("data-member-no", dto.approvalMemberNo);
-			    console.log(dto);
-			    let nowMemberNo = document.getElementById('member_no').value;
-			    let approvalMemberNo = dto.approvalMemberNo;
-			    console.log("🔍 현재 유저:", nowMemberNo, "결재올린 유저:", approvalMemberNo);
-				console.log("=== 결과:", parseInt(nowMemberNo) === parseInt(approvalMemberNo));
+			    if(dto.alarmType == 'approval') {
+			    	link.setAttribute("data-member-no", dto.approvalMemberNo);
+			    }
 
 			    link.innerHTML = `
 			      <div class="w-100">
-			        <h6 class="mb-0 fs-4 lh-base">${dto.title || "전자결재"}</h6>
-			        <span class="fs-3 d-block text-body-secondary">${dto.message || "새로운 메시지"}</span>
+			        <h6 class="mb-0 fs-4 lh-base">${dto.title}</h6>
+			        <span class="fs-3 d-block text-body-secondary">${dto.message}</span>
 			      </div>
 			    `;
 
@@ -545,6 +557,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					      case "board":
 					        window.location.href = `/board/detail/${no}`;
 					        break;
+					      case "accommodationReservation":
+					        window.location.href = `/admin/accommodation/reservation/list?accommodation_no=${no}`;
+					        break;
+					      case "reservationMember":
+					        window.location.href = '/user/accommodation/reservation/list';
+					        break;
 					      default:
 					        console.warn("알 수 없는 알림 타입:", type);
 					    }
@@ -556,10 +574,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					        window.location.href = `/approval/receive/detail/${no}`;
 					        break;
 					      case "notice":
-					        window.location.href = `/notice/detail/${no}`;
+					        window.location.href = `/notice/detail?noticeNo=${no}`;
 					        break;
 					      case "board":
 					        window.location.href = `/board/detail/${no}`;
+					        break;
+					      case "accommodationReservation":
+					        window.location.href = `/admin/accommodation/reservation/list?accommodation_no=${no}`;
+					        break;
+					      case "reservationMember":
+					        window.location.href = '/user/accommodation/reservation/list';
 					        break;
 					      default:
 					        console.warn("알 수 없는 알림 타입:", type);
@@ -600,18 +624,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			  
 			  function renderAlarms(list) {
 				  const dropdowns = document.querySelectorAll(".alarm-message-body");
-/* 				  const btns = document.querySelectorAll("#otherAlarmBtn");
-
-				  btns.forEach(btn => {
-				    let badge = btn.querySelector(".alarm-popup-badge");
-				    if (!badge) {
-				      badge = document.createElement("span");
-				      badge.className = "chat-popup-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white";
-				      btn.appendChild(badge);
-				    }
-				    badge.textContent = list.length;
-				    badge.style.display = list.length > 0 ? "inline-block" : "none";
-				  }); */
 
 				  // dropdown에 알림 목록 표시
 				  dropdowns.forEach(dropdown => {
@@ -641,8 +653,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					    }
 					    link.innerHTML = `
 					      <div class="w-100">
-					        <h6 class="mb-0 fs-4 lh-base">${alarm.title || "전자결재"}</h6>
-					        <span class="fs-3 d-block text-body-secondary">${alarm.message || "새로운 메시지"}</span>
+					        <h6 class="mb-0 fs-4 lh-base">${alarm.title}</h6>
+					        <span class="fs-3 d-block text-body-secondary">${alarm.message}</span>
 					      </div>
 					    `;
 				      dropdown.appendChild(link);
@@ -683,6 +695,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    modalEl.addEventListener("hidden.bs.modal", () => {
 		      resolve();
 		    }, { once: true });
+
 		  });
 		};
 		
@@ -712,7 +725,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    }, { once: true });
 		  });
 		};
-		
 
 	</script>
 

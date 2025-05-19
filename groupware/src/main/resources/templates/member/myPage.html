@@ -3,14 +3,14 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	
 	<!-- jQuery -->
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	
 	<!-- JSignature -->
-	<script th:src="@{/js/jji/Jsignature/Jsignature.min.js}"></script>
+	<script th:src="@{/js/jji/jSignature/jSignature.min.js}"></script>
 	
 	<!-- Custom CSS Files -->
 	<link th:href="@{/css/jji.css}" rel="stylesheet">
@@ -51,12 +51,14 @@ layout:decorate="~{/include/layout}">
                 	<span class="d-none d-md-block">전자서명 관리</span>
                 </button>
             </li>
+            <!--
             <li class="nav-item" role="presentation">
             	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-bills-tab" data-bs-toggle="pill" data-bs-target="#pills-bills" type="button" role="tab" aria-controls="pills-bills" aria-selected="false">
                 	<i class="ti ti-article me-2 fs-6"></i>
                 	<span class="d-none d-md-block">Bills</span>
                 </button>
             </li>
+            -->
             <li class="nav-item" role="presentation">
             	<button class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3" id="pills-security-tab" data-bs-toggle="pill" data-bs-target="#pills-security" type="button" role="tab" aria-controls="pills-security" aria-selected="false">
                 	<i class="ti ti-lock me-2 fs-6"></i>
@@ -535,20 +537,27 @@ layout:decorate="~{/include/layout}">
                     <div class="col-lg-12">
                       <div class="card border shadow-none">
                         <div class="card-body p-4">
-                          <h4 class="card-title">최근 로그인 이력</h4>
-                          <p class="card-subtitle mb-4">You can check your recent login history.</p>
+                          <h4 class="card-title">로그인 이력<span style="font-size: 0.7em;" class="text-muted small"> (최근 3개월)</span></h4>
+                          <p class="card-subtitle mb-4">You can check your recent login history for 3 months.</p>
 						  <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
-							<input type="date" id="loginDateStart" name="loginDateStart"
-								th:value="${loginDateStart != null} ? ${loginDateStart} : ''"
-								class="form-control form-control-sm" placeholder="시작일" style="max-width: 140px;">
+							<input type="text" id="loginDateStart" name="loginDateStart"
+							    th:value="${loginDateStart != null ? loginDateStart : ''}"
+							    class="form-control form-control-sm" placeholder="시작일" 
+							    onfocus="this.type='date'; this.showPicker();"
+        						onblur="if(this.value===''){this.type='text';}"
+							    style="max-width: 140px;">
 							~
-							<input type="date" id="loginDateEnd" name="loginDateEnd" 
-								th:value="${loginDateEnd != null} ? ${loginDateEnd} : ''"
-								class="form-control form-control-sm" placeholder="종료일" style="max-width: 140px;">
-							<button type="button" class="btn btn-sm btn-primary" onclick="filterLoginLogs()">조회</button>
-							<button type="button" class="btn btn-sm btn-secondary" id="resetBtn">초기화</button>
+							<input type="text" id="loginDateEnd" name="loginDateEnd"
+							    th:value="${loginDateEnd != null ? loginDateEnd : ''}"
+							    class="form-control form-control-sm" placeholder="종료일"
+							    onfocus="this.type='date'; this.showPicker();"
+        						onblur="if(this.value===''){this.type='text';}"
+							    style="max-width: 140px;">
+							<button type="button" class="btn btn-sm btn-primary" style="min-width: 43px;" onclick="filterLoginLogs()">조회</button>
+							<button type="button" class="btn btn-sm btn-secondary" style="min-width: 55px;" id="resetBtn">초기화</button>
 						  </div>
-					      <div class="table-responsive mb-4 border rounded-1">
+						  <!-- MariaDB를 통해 조회하는 방법 -->
+					      <!-- <div class="table-responsive mb-4 border rounded-1">
 					        <table class="table text-nowrap text-center mb-0 align-middle custom-table">
 					          <thead class="bg-body-secondary text-body">
 					            <tr>
@@ -562,6 +571,70 @@ layout:decorate="~{/include/layout}">
 							          <td colspan="3">로그인 이력이 없습니다.</td>
 							      </tr>
 							      <tr th:each="log, stat : ${loginLogs.content}">
+							          <td th:text="${#temporals.format(log.loginTime, 'yyyy-MM-dd HH:mm:ss')}">시간</td>
+							          <td th:text="${log.loginIp}">로그인 IP</td>
+							          <td th:text="|${loginLogWithBrowserInfo[stat.index]} (${loginLogWithDeviceInfo[stat.index]})|">브라우저(디바이스)</td>
+							      </tr>
+							  </tbody>
+					        </table>
+
+					      </div> -->
+					      
+					      <!-- <div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+						  	<nav>
+							    <ul class="pagination mb-0">
+							        이전 버튼
+							        <th:block th:with="memberPk=${#authentication.principal.member.memberNo}">
+									  <li class="page-item" th:classappend="${!pageDto.prev} ? 'd-none'">
+									    <a class="page-link"
+									       th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${pageDto.pageBarStart - 1}, loginDateStart=${loginDateStart}, loginDateEnd=${loginDateEnd})}"
+									       aria-label="Previous">
+									      <span aria-hidden="true">&laquo;</span>
+									    </a>
+									  </li>
+									</th:block>
+									
+							        페이지 숫자
+							        <th:block th:with="memberPk=${#authentication.principal.member.memberNo}">
+									  <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+									    <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+									      <a class="page-link"
+									         th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+									         th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${num}, loginDateStart=${loginDateStart}, loginDateEnd=${loginDateEnd})}"
+									         th:text="${num}">페이지</a>
+									    </li>
+									  </th:block>
+									</th:block>
+									
+							        다음 버튼
+									<th:block th:with="memberPk=${#authentication.principal.member.memberNo}">
+									  <li class="page-item" th:classappend="${!pageDto.next} ? 'd-none'">
+									    <a class="page-link"
+									       th:href="@{/member/{id}/update(id=${memberPk}, nowPage=${pageDto.pageBarEnd + 1}, loginDateStart=${loginDateStart}, loginDateEnd=${loginDateEnd})}"
+									       aria-label="Next">
+									      <span aria-hidden="true">&raquo;</span>
+									    </a>
+									  </li>
+									</th:block>
+							    </ul>
+							</nav>
+						  </div> -->
+						  
+						  <!-- Redis를 통해 조회하는 방법 -->
+						  <div class="table-responsive mb-4 border rounded-1">
+					        <table class="table text-nowrap text-center mb-0 align-middle custom-table">
+					          <thead class="bg-body-secondary text-body">
+					            <tr>
+					            	<th class="align-middle text-nowrap px-2 py-1">로그인 시각</th>
+									<th class="align-middle text-nowrap px-2 py-1">IP 주소</th>
+									<th class="align-middle text-nowrap px-2 py-1">브라우저(디바이스)</th>
+					            </tr>
+					          </thead>
+					          <tbody>
+							      <tr th:if="${#lists.isEmpty(loginLogs)}">
+							          <td colspan="3">로그인 이력이 없습니다.</td>
+							      </tr>
+							      <tr th:each="log, stat : ${loginLogs}">
 							          <td th:text="${#temporals.format(log.loginTime, 'yyyy-MM-dd HH:mm:ss')}">시간</td>
 							          <td th:text="${log.loginIp}">로그인 IP</td>
 							          <td th:text="|${loginLogWithBrowserInfo[stat.index]} (${loginLogWithDeviceInfo[stat.index]})|">브라우저(디바이스)</td>
@@ -649,10 +722,11 @@ layout:decorate="~{/include/layout}">
 		const imageForm = document.update_profile_image_form;
     	let memberNo = document.getElementById('member_no').value;
     	
-		imageForm.addEventListener('submit',(event) => {
+		imageForm.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
-			if(confirm("프로필 사진을 정말 수정하시겠습니까?")) {
+			const isConfirmed = await confirm("프로필 사진을 정말 수정하시겠습니까?");
+			if(isConfirmed) {
 				const payload = new FormData(imageForm);
 				
 				fetch(`/member/${memberNo}/update/image`, {
@@ -664,8 +738,8 @@ layout:decorate="~{/include/layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = `/member/${memberNo}/update`;
 					}
@@ -685,14 +759,23 @@ layout:decorate="~{/include/layout}">
 			const saveBtn = document.getElementById('saveImageBtn');
 			const resetBtn = document.getElementById('resetImageBtn');
 			const maxSize = 2 * 1024 * 1024; // 2MB
-			
-			if (file && file.size > maxSize) {
-		        alert("파일 용량은 2MB 이하만 업로드 가능합니다.");
-		        input.value = "";
-		        return;
-		    }
+			const allowedTypes = ['image/jpeg', 'image/png']; // jpeg, jpg, png 
 			
 			if (file) {
+				// 파일 크기 체크
+				if (file && file.size > maxSize) {
+			        alert("파일 용량은 2MB 이하만 업로드 가능합니다.");
+			        input.value = "";
+			        return;
+			    }
+				
+				// 파일 형식 체크
+				if (!allowedTypes.includes(file.type)) {
+					alert("이미지 파일(JPEG, JPG, PNG)만 업로드 가능합니다.");
+					input.value = "";
+					return;
+				}
+				
 		    	const reader = new FileReader();
 		    	reader.onload = function (e) {
 		     		preview.src = e.target.result;
@@ -733,7 +816,7 @@ layout:decorate="~{/include/layout}">
 			return lengthCheck && numberCheck && specialCheck;
 		}
     	
-		updatePwForm.addEventListener('submit',(event) => {
+		updatePwForm.addEventListener('submit', async (event) => {
 			event.preventDefault();
 			
 			let vali_check = false;
@@ -761,7 +844,7 @@ layout:decorate="~{/include/layout}">
 			if(vali_check == false){
 				alert(vali_text);
 			} else {
-				if(confirm("비밀번호를 수정하시겠습니까?")) {
+				if(await confirm("비밀번호를 수정하시겠습니까?")) {
 					const payload = new FormData(updatePwForm);
 					
 					fetch(`/member/${memberNo}/update/pw`, {
@@ -773,8 +856,8 @@ layout:decorate="~{/include/layout}">
 						body : payload
 					})
 					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
+					.then(async data => {
+						await alert(data.res_msg);
 						if(data.res_code == '200') {
 							location.href = `/member/${memberNo}/update`;
 						}
@@ -834,7 +917,7 @@ layout:decorate="~{/include/layout}">
 		// 개인정보 수정하는 부분
 		const infoForm = document.update_profile_info_form;
 		
-		infoForm.addEventListener('submit',(event) => {
+		infoForm.addEventListener('submit', async (event) => {
 			event.preventDefault();
 			
 			const birth = document.getElementById('member_birth').value.trim();
@@ -856,7 +939,7 @@ layout:decorate="~{/include/layout}">
 			    return;
 			}
 			
-			if(confirm("개인정보를 정말 수정하시겠습니까?")) {
+			if(await confirm("개인정보를 정말 수정하시겠습니까?")) {
 				const payload = new FormData(infoForm);
 				
 				fetch(`/member/${memberNo}/update`, {
@@ -868,8 +951,8 @@ layout:decorate="~{/include/layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = `/member/${memberNo}/update`;
 					}
@@ -914,6 +997,31 @@ layout:decorate="~{/include/layout}">
 		    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		    return regex.test(emailString);
 		}
+	</script>
+	
+	<script>
+		// 선택 가능한 날짜를 최근 3개월로 제한하는 로직
+		document.addEventListener("DOMContentLoaded", function () {
+			const today = new Date();
+			const threeMonthsAgo = new Date();
+			threeMonthsAgo.setMonth(today.getMonth() - 3);
+	
+			const formatDate = (date) => {
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, "0");
+				const day = String(date.getDate()).padStart(2, "0");
+				return `${year}-${month}-${day}`;
+			};
+	
+			const minDate = formatDate(threeMonthsAgo);
+			const maxDate = formatDate(today);
+	
+			document.getElementById("loginDateStart").min = minDate;
+			document.getElementById("loginDateStart").max = maxDate;
+	
+			document.getElementById("loginDateEnd").min = minDate;
+			document.getElementById("loginDateEnd").max = maxDate;
+		});
 	</script>
 	
 	<script>
@@ -1043,11 +1151,14 @@ layout:decorate="~{/include/layout}">
 		});
 	
 		// 서명 저장
-		function saveSignature() {
+		async function saveSignature() {
 			const data = $("#signature").jSignature("getData", "image");
-	
+
 			const imageData = data[1];
-	
+			
+			const isConfirmed = await confirm('전자서명을 등록하시겠습니까?');
+			if(!isConfirmed) return;
+			
 			$.ajax({
 				url : '/member/create/signature',
 				method : 'post',
@@ -1058,24 +1169,27 @@ layout:decorate="~{/include/layout}">
 				beforeSend : function(xhr) {
 					xhr.setRequestHeader(header, token); // spring security
 				},
-				success : function(data) {
-					alert(data.res_msg);
+				success : async function(data) {
+					await alert(data.res_msg);
 					location.reload();
 				},
 				error : function() {
 					alert('서명 저장 실패');
 				}
 			})
-	
+
 			// 모달 닫기
 			$('#signatureModal').modal('hide');
 		}
 	
 		// 서명변경
-		function updateSignature() {
+		async function updateSignature() {
 			const data = $("#updateSignature").jSignature("getData", "image");
 	
 			const imageData = data[1];
+			
+			const isConfirmed = await confirm('전자서명을 변경하시겠습니까?');
+			if(!isConfirmed) return;
 	
 			$.ajax({
 				url : '/member/update/signature',
@@ -1087,8 +1201,8 @@ layout:decorate="~{/include/layout}">
 				beforeSend : function(xhr) {
 					xhr.setRequestHeader(header, token); // spring security
 				},
-				success : function(data) {
-					alert(data.res_msg);
+				success : async function(data) {
+					await alert(data.res_msg);
 					location.reload();
 				},
 				error : function() {
@@ -1140,8 +1254,6 @@ layout:decorate="~{/include/layout}">
   	<!-- Bootstrap Common JS Files End -->
   	
   	<!-- Custom JS Files -->
-  	
-  	
   	
 </th:block>
 </html>

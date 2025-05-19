@@ -35,6 +35,9 @@ public interface BoardRepository extends JpaRepository<Board, Long>, JpaSpecific
     Page<Board> findByIsFixedFalse(Specification<Board> spec, Pageable pageable);  // 일반글만
 
 	List<Board> findByIsFixedTrueAndBoardStatusNot(String string, Sort by);
+	
+	Page<Board> findByIsFixedTrueAndBoardStatusNot(String status, Pageable pageable);
+	Page<Board> findByBoardStatusAndIsFixedFalse(String status, Pageable pageable);
 
 	Page<Board> findByBoardStatusOrderByIsFixedDescRegDateDesc(String boardStatus, Pageable pageable);
 	

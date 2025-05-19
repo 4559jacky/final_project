@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light"
-	data-color-theme="Blue_Theme" data-layout="horizontal"
+<html
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -173,8 +172,10 @@
 			  .catch(err => console.error('Fetch Error:', err));
 			};
 			
-			const changeStatus = function() {
-				  console.log('test');
+			const changeStatus = async function() {
+				
+				const isConfirmed = await confirm('결재양식 상태를 변경하시겠습니까?');
+				if(!isConfirmed) return;
 				  
 				  let form = document.getElementsByClassName('active')[0];
 
@@ -191,8 +192,8 @@
 						}
 				    })
 				    .then(response => response.json())
-			  		.then(data => {
-				    	alert(data.res_msg);
+			  		.then(async data => {
+				    	await alert(data.res_msg);
 				    	if(data.res_code = '200') {
 				    		location.reload();
 				    	}

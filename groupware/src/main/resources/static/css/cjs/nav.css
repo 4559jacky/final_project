@@ -1,0 +1,38 @@
+@charset "UTF-8";
+
+/* li 간격 제거 */
+.sidebar-nav li {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* a 태그 간격 제거 */
+.sidebar-link {
+	margin: 0 !important;
+	padding: 6px 10px !important; /* 필요에 따라 조정 */
+	display: flex;
+	align-items: center;
+	gap: 8px; /* 아이콘과 텍스트 사이 여백 */
+}
+
+.inner-sidebar-item {
+	padding: 10px 10px !important; /* 필요에 따라 조정 */
+}
+
+/* 아이콘과 텍스트 span */
+.sidebar-link i, .sidebar-link span {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* collapse 내부 ul 간격 제거 */
+.collapse.first-level {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* first-level 내부 li 간격 제거 */
+.collapse.first-level>li {
+	margin: 0 !important;
+	padding: 0 !important;
+}

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light"
-	data-color-theme="Blue_Theme" data-layout="horizontal"
+<html
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -286,11 +285,14 @@
 	        editorInstance = editor; // 에디터 인스턴스 저장
 
 	        const form = document.create_approval_form;
-	        form.addEventListener('submit', (e) => {
+	        form.addEventListener('submit', async (e) => {
 	            e.preventDefault();
 
 	            let vali_check = false;
 	            let vali_text = "";
+	            
+	            const isConfirmed = await confirm('새로운 양식을 생성하시겠습니까?');
+	            if(!isConfirmed) return;
 
 	            const title = form.approval_form_name.value;
 	            const content = editorInstance.getData(); // 여기 수정 (editorInstance)
@@ -327,9 +329,9 @@
 	                    body: payload
 	                })
 	                .then(response => response.json())
-	                .then(data => {
+	                .then(async data => {
 	                    console.log(data);
-	                    alert(data.res_msg);
+	                    await alert(data.res_msg);
 	                    if (data.res_code === '200') {
 	                        location.href = '/admin/approval';
 	                    }
