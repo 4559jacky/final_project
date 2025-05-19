@@ -52,7 +52,7 @@ layout:decorate="~{include/layout :: layout}">
 		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
 		  <!-- 삭제 버튼 -->
 		  <!-- <a href="javascript:void(0)" class="btn btn-primary">삭제</a> -->
-	      <!-- 오른쪽: 정렬 -->
+	      <!-- 오른쪽: 정렬! -->
 	      <form th:action="@{/admin/accommodation/reservation/list}" method="get"> 
 	        <input type="hidden" name="accommodation_no" th:value="${reservationList[0].accommodation_no}" />
 			  <select name="sort"
