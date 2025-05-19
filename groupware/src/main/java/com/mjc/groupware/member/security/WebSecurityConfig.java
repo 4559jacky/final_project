@@ -48,7 +48,10 @@ public class WebSecurityConfig {
 		http.userDetailsService(customUserDetailsService)
 		.addFilterAfter(accountStatusFilter, BasicAuthenticationFilter.class) // 로그인 이후 인증된 사용자 상태 체크 
 		.authorizeHttpRequests(requests -> requests
-				.requestMatchers("/login","/logout", "/forgetPassword/**","/ws-chat/**").permitAll()
+				.requestMatchers("/login","/logout", "/forgetPassword/**", 
+						"/ws-chat/**",
+				        "/ws-chat/**/**",               
+				        "/ws-chat/**/**/**" ).permitAll()
 				.requestMatchers("/admin/company/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 		.formLogin(login -> login
