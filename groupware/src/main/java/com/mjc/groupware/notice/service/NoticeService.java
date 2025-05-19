@@ -2,7 +2,10 @@ package com.mjc.groupware.notice.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +35,7 @@ public class NoticeService {
     private final MemberRepository memberRepository; // 추가
     private final AttachRepository attachRepository;
     private final AttachService attachService;
+    private final NoticeAlarmService noticeAlarmService;
     
     //게시글 생성
     public int createNoticeApi(NoticeDto dto, List<MultipartFile> files) {
@@ -63,6 +67,23 @@ public class NoticeService {
                 }
             }
         }
+        
+        if("Y".equals(saved.getNoticeEmergency())) {
+        	// 결재 알림 보내기
+        	List<Long> targetAllMemberNo = new ArrayList<>();
+			List<Member> memberAllList = memberRepository.findAll();
+			for(Member m : memberAllList) {
+				if(m.getRole().getRoleNo() == 1) continue;
+				targetAllMemberNo.add(m.getMemberNo());
+			}
+			noticeAlarmService.sendAlarmToAllMembers(
+				targetAllMemberNo,
+			    saved,
+			    member.getMemberName() + "님이 긴급 공지사항을 등록하였습니다."
+			);
+        }
+        
+        
         return 1;
     }
 

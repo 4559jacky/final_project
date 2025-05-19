@@ -484,7 +484,7 @@
 	
 	<script>
 		// 출퇴근 조작 방지를 위해 한국 표준시간을 가져와서 사용
-	  document.addEventListener("DOMContentLoaded", function () {
+	  /* document.addEventListener("DOMContentLoaded", function () {
 	    async function fetchKoreanTimeAndRunClock() {
 	      try {
 	        const res = await fetch("https://timeapi.io/api/Time/current/zone?timeZone=Asia/Seoul");
@@ -517,12 +517,12 @@
 	    }
 	
 	    fetchKoreanTimeAndRunClock();
-	  });
+	  }); */
 	</script>
 
 	<script>
   		// 시간 임의로 변경하여 출퇴근 테스트 할 때 사용
-		  /* function updateTime() {
+		  function updateTime() {
 			    const now = new Date();
 			    const hours = String(now.getHours()).padStart(2, '0');
 			    const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -534,7 +534,7 @@
 			  document.addEventListener("DOMContentLoaded", function () {
 			    updateTime(); // 초기 실행
 			    setInterval(updateTime, 1000); // 1초마다 업데이트
-			  }); */
+			  });
 		  
 		  
 		  function getWeekRange(date) {
