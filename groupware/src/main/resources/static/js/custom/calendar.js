@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   /*=================*/
   // Calender Modal Elements
-  /*=================*/
+  /*=================*/ 
   var getModalTitleEl = document.querySelector("#event-title");
   var getModalStartDateEl = document.querySelector("#event-start-date");
   var getModalEndDateEl = document.querySelector("#event-end-date");
@@ -392,13 +392,13 @@ document.addEventListener("DOMContentLoaded", function () {
 		      body: JSON.stringify(payload)
 		    })
 		      .then(res => res.json())
-		      .then(data => {
-		        alert(data.res_msg);
-		        if (data.res_code === "200") {
-		          bootstrap.Modal.getInstance(document.getElementById("eventModaldetail")).hide();
-				  location.reload();
-		        }
-		      })
+			  .then(async (data) => {
+			    await alert(data.res_msg);
+			    if (data.res_code === "200") {
+			      const modalInstance = bootstrap.Modal.getInstance(document.getElementById("eventModaldetail"));
+			      modalInstance.hide();
+			    }
+			  })
 		      .catch(err => {
 		        console.error("서버 수정 실패", err);
 		      });

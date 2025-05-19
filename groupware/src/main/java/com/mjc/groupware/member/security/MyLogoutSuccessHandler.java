@@ -24,13 +24,13 @@ public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
         Long memberNo = memberDetails.getMember().getMemberNo();
 		
         // Redis에서 해당 memberNo 세션 정보 저장
-        String key = "member:session:" + memberNo;	// 예: member:session:123
-        Long sessionCount = redisTemplate.opsForValue().decrement(key);	// 세션 수 1 감소
+//        String key = "member:session:" + memberNo;	// 예: member:session:123
+//        Long sessionCount = redisTemplate.opsForValue().decrement(key);	// 세션 수 1 감소
         
         // 세션 수가 0이 되면 Redis에서 키 삭제
-        if (sessionCount == null || sessionCount <= 0) {
-            redisTemplate.delete(key);
-        }
+//        if (sessionCount == null || sessionCount <= 0) {
+//            redisTemplate.delete(key);
+//        }
         
 		System.out.println("MyLogoutSuccessHandler :: 로그아웃 성공");
 		

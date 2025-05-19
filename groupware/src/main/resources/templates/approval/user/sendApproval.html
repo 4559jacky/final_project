@@ -491,11 +491,14 @@
 		});
 
 		// 서명 저장
-		function saveSignature() {
+		async function saveSignature() {
 			const data = $("#signature").jSignature("getData", "image");
 
 			const imageData = data[1];
-
+			
+			const isConfirmed = await confirm('전자서명을 등록하시겠습니까?');
+			if(!isConfirmed) return;
+			
 			$.ajax({
 				url : '/member/create/signature',
 				method : 'post',
@@ -506,8 +509,8 @@
 				beforeSend : function(xhr) {
 					xhr.setRequestHeader(header, token); // spring security
 				},
-				success : function(data) {
-					alert(data.res_msg);
+				success : async function(data) {
+					await alert(data.res_msg);
 					location.reload();
 				},
 				error : function() {
@@ -520,10 +523,13 @@
 		}
 
 		// 서명변경
-		function updateSignature() {
+		async function updateSignature() {
 			const data = $("#updateSignature").jSignature("getData", "image");
 
 			const imageData = data[1];
+			
+			const isConfirmed = await confirm('전자서명을 변경하시겠습니까?');
+			if(!isConfirmed) return;
 
 			$.ajax({
 				url : '/member/update/signature',
@@ -535,8 +541,8 @@
 				beforeSend : function(xhr) {
 					xhr.setRequestHeader(header, token); // spring security
 				},
-				success : function(data) {
-					alert(data.res_msg);
+				success : async function(data) {
+					await alert(data.res_msg);
 					location.reload();
 				},
 				error : function() {

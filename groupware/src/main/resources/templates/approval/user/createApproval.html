@@ -1097,10 +1097,13 @@
 		
 		// 승인요청 버튼 클릭 시 결재 생성
 		const createApprovalForm = document.create_approval_form;
-		createApprovalForm.addEventListener('submit', (e) =>{
+		createApprovalForm.addEventListener('submit', async (e) =>{
 			e.preventDefault();
 			let valid = false;
 			let valid_msg = '';
+			
+			const isConfirmed = await confirm('결재 요청을 보내시겠습니까?');
+			if(!isConfirmed) return;
 			
 			const approverThList = document.querySelectorAll('#approver th');
 			const hasApprover = Array.from(approverThList).some(th => th.textContent.trim() !== '');
@@ -1154,8 +1157,8 @@
 					credentials: 'include'
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code =='200') {
 						location.href = '/approval';
 					}

@@ -86,7 +86,7 @@ layout:decorate="~{include/layout :: layout}">
 					</div>
 				</div>
 			</div>
-		<script>
+		<script> 
 		  // 각 타입에 맞는 텍스트 매핑
 		  const calendarTitles = {
 		    회사: "회사 캘린더",
@@ -212,15 +212,15 @@ layout:decorate="~{include/layout :: layout}">
                   </div>
                 </div>
                 <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary btn-add-event">
+                    등록
+                  </button>
                   <button type="button" class="btn bg-danger-subtle text-danger" data-bs-dismiss="modal">
                     취소
                   </button>
                   <!-- <button type="button" class="btn btn-success btn-update-event" data-fc-event-public-id="">
                     수정
                   </button> -->
-                  <button type="submit" class="btn btn-primary btn-add-event">
-                    등록
-                  </button>
                 </div>
               </div>
             </div>
@@ -346,9 +346,9 @@ layout:decorate="~{include/layout :: layout}">
 			          </div>
 			        </div>
 			          <div class="modal-footer">
-				        <button type="button" class="btn btn-outline-danger" id="btn-delete-event">삭제</button>
 				        <button type="button" class="btn btn-primary btn-update-event" id="btn-update-event"
 				        data-id="plan_no">수정</button>
+				        <button type="button" class="btn btn-outline-danger" id="btn-delete-event">삭제</button>
 				      </div>
 			          <div class="col">
 			            <!-- <label class="form-label">수정기록</label> -->

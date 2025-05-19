@@ -454,7 +454,7 @@ layout:decorate="~{include/layout :: layout}">
 	<script>
 		// 프로필 등록하는 로직
 		const infoForm = document.create_profile_form;
-		infoForm.addEventListener('submit',(event) => {
+		infoForm.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
 			let vali_chk = false;
@@ -481,8 +481,8 @@ layout:decorate="~{include/layout :: layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = "/admin/company";
 					}
@@ -575,7 +575,7 @@ layout:decorate="~{include/layout :: layout}">
 	
 	<script>
 		// 사용할 기능 체크박스를 클릭하면 DB에 접근하여 func_status를 바꿔주는 로직
-		function changeFuncToggle(checkbox) {
+		async function changeFuncToggle(checkbox) {
 			const checked = checkbox.checked;
 		    const funcNo = checkbox.value;
 		    
@@ -583,7 +583,7 @@ layout:decorate="~{include/layout :: layout}">
 		      ? "해당 기능을 활성화하시겠습니까?" 
 		      : "해당 기능을 비활성화하시겠습니까?";
 		    
-		    if (!confirm(confirmMsg)) {
+		    if (await !confirm(confirmMsg)) {
 				checkbox.checked = !checked;
 				return;
 		    } else {
@@ -600,8 +600,8 @@ layout:decorate="~{include/layout :: layout}">
 					})
 		    	})
 		    	.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if (data.res_code === '200') {
 						location.reload();
 					}
@@ -773,7 +773,7 @@ layout:decorate="~{include/layout :: layout}">
 	<script>
 		// 규칙 등록하는 로직
 		const ruleForm = document.create_rule_form;
-		ruleForm.addEventListener('submit',(event) => {
+		ruleForm.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
 			const flagElement = document.querySelector('span[data-company-flag]'); // CompanyDto가 없을 때 문제 해결하기 위해 flag 하나 숨겨둠
@@ -783,9 +783,7 @@ layout:decorate="~{include/layout :: layout}">
 		        return;
 		    }
 			
-			if(!confirm("규칙을 설정하시겠습니까?")) {
-				return;
-			} else {
+			if(await confirm("규칙을 설정하시겠습니까?")) {
 				const payload = new FormData();
 				
 				payload.append('company_no', ruleForm.company_no.value);
@@ -801,8 +799,8 @@ layout:decorate="~{include/layout :: layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = "/admin/company";
 					}
@@ -817,7 +815,7 @@ layout:decorate="~{include/layout :: layout}">
 	<script>
 		// 컬러 칩을 선택하면 동작하는 로직 :: 색상이 테마 색상이 변경되며 <p>태그 문구가 바뀜
 		document.querySelectorAll('.theme-option').forEach(option => {
-			option.addEventListener('click', function () {
+			option.addEventListener('click', async function () {
 				const selectedTheme = this.getAttribute('data-theme');
 				
 				const flagElement = document.querySelector('span[data-flag]'); // CompanyDto가 없을 때 문제 해결하기 위해 flag 하나 숨겨둠
@@ -827,34 +825,32 @@ layout:decorate="~{include/layout :: layout}">
 			        return;
 			    }
 				
-				if(!confirm('테마 색상을 변경하시겠습니까?')) {
-					return;
-				}
-				
-				document.getElementById('selected-theme').textContent = selectedTheme.substring(0, selectedTheme.indexOf('_'));
-				
-				fetch("/admin/company/color/update", {
-					method: "post",
-					headers: {
-						'Content-Type': 'application/json',
-						'header': document.querySelector('meta[name="_csrf_header"]').content,
-						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-					},
-	        		body: JSON.stringify({
-	        			theme_color: selectedTheme
+				if(await confirm('테마 색상을 변경하시겠습니까?')) {
+					document.getElementById('selected-theme').textContent = selectedTheme.substring(0, selectedTheme.indexOf('_'));
+					
+					fetch("/admin/company/color/update", {
+						method: "post",
+						headers: {
+							'Content-Type': 'application/json',
+							'header': document.querySelector('meta[name="_csrf_header"]').content,
+							'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+						},
+		        		body: JSON.stringify({
+		        			theme_color: selectedTheme
+						})
 					})
-				})
-				.then(response => response.json())
-				.then(data => {
-					document.getElementById('selected-theme').textContent = data.res_theme_color.substring(0, selectedTheme.indexOf('_'));
-					alert(data.res_msg);
-					if (data.res_code === '200') {
-						location.reload();
-					}
-				})
-				.catch(error => {
-	        		console.log(error);
-	        	});
+					.then(response => response.json())
+					.then(async data => {
+						document.getElementById('selected-theme').textContent = data.res_theme_color.substring(0, selectedTheme.indexOf('_'));
+						await alert(data.res_msg);
+						if (data.res_code === '200') {
+							location.reload();
+						}
+					})
+					.catch(error => {
+		        		console.log(error);
+		        	});
+				}
 
 			});
 		});
