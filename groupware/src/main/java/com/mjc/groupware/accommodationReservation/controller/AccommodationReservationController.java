@@ -59,6 +59,10 @@ public class AccommodationReservationController {
 	public String userReservationList(@ModelAttribute SearchDto searchDto,
             @AuthenticationPrincipal MemberDetails memberDetails,
             Model model) {
+		if (searchDto.getReg_date_sort() == null || searchDto.getReg_date_sort().isEmpty()) {
+	        searchDto.setReg_date_sort("desc"); // 기본값: 최신순
+	    }
+		
 		Long memberId = memberDetails.getMember().getMemberNo();
 		List<AccommodationReservationDto> list = reservationService.getReservationsByMemberSorted(memberId, searchDto.getReg_date_sort());
 		
@@ -70,8 +74,10 @@ public class AccommodationReservationController {
 
     // 관리자 예약 현황
     @GetMapping("/admin/accommodation/reservation/list")
-    public String adminReservationList(@RequestParam("accommodation_no") Long accommodationNo, Model model) {
-        List<AccommodationReservationDto> list = reservationService.getReservationsByAccommodation(accommodationNo);
+    public String adminReservationList(@RequestParam("accommodation_no") Long accommodationNo,
+    		@RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
+    		Model model) {
+        List<AccommodationReservationDto> list = reservationService.getReservationsByAccommodation(accommodationNo,sort);
         
         // AccommodationService 통해 숙소명 직접 가져오기
         AccommodationInfoDto accommodation = accommodationService.findById(accommodationNo);
@@ -79,6 +85,7 @@ public class AccommodationReservationController {
         
         model.addAttribute("reservationList", list);
         model.addAttribute("accommodationName", accommodationName); //숙소명 가져오기
+        model.addAttribute("sort", sort);
         return "accommodation/adminList";
     }
     

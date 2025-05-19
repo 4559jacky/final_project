@@ -60,7 +60,7 @@ public class AccommodationReservationService {
     }
 
     // 관리자 전체 예약 조회
-	public List<AccommodationReservationDto> getReservationsByAccommodation(Long accommodationNo) {
+	public List<AccommodationReservationDto> getReservationsByAccommodation(Long accommodationNo , String sort) {
 		List<AccommodationReservation> reservations = reservationRepository.findByAccommodationInfo_AccommodationNo(accommodationNo);
 	    List<AccommodationReservationDto> dtoList = new ArrayList<>();
 
@@ -91,6 +91,13 @@ public class AccommodationReservationService {
 	        dtoList.add(dto);
 	    }
 
+		 // 정렬 추가
+		    if ("asc".equalsIgnoreCase(sort)) {
+		        dtoList.sort(Comparator.comparing(AccommodationReservationDto::getReservation_date));
+		    } else {
+		        dtoList.sort(Comparator.comparing(AccommodationReservationDto::getReservation_date).reversed());
+		    }
+	    
 	    return dtoList;
 	}
 	
