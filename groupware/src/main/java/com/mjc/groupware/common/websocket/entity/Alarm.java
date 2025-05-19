@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.mjc.groupware.accommodationReservation.entity.AccommodationInfo;
 import com.mjc.groupware.approval.entity.Approval;
 import com.mjc.groupware.board.entity.Board;
 import com.mjc.groupware.notice.entity.Notice;
@@ -57,4 +58,8 @@ public class Alarm {
 	@ManyToOne
 	@JoinColumn(name="board_no")
 	private Board board;
+	
+	@ManyToOne
+	@JoinColumn(name="accommodation_no")
+	private AccommodationInfo accommodation;
 }

@@ -42,7 +42,7 @@ public class AccommodationReservationController {
 	        dto.setReservation_date(LocalDateTime.now());
 	        dto.setReservation_status("대기");
 
-	        reservationService.createReservation(dto);
+	        reservationService.createReservation(dto, memberNo);
 
 	        result.put("res_code", "200");
 	        result.put("res_msg", "예약이 완료되었습니다.");

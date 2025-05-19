@@ -28,7 +28,7 @@
   border-top-right-radius: 0.5rem;
 }
 
-#approval-alert-toast {
+#alarm-alert-toast {
   position: fixed;
   bottom: 30px;
   right: 30px;
@@ -37,7 +37,7 @@
   transition: opacity 0.3s ease-in-out;
 }
 
-#approval-alert-toast.active {
+#alarm-alert-toast.active {
   display: block !important;
   opacity: 1 !important;
 }
