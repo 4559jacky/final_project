@@ -28,7 +28,7 @@ public class AccommodationAlarmService {
 	@Transactional(rollbackFor=Exception.class)
 	public void sendAlarmToAdmins(List<Long> admins, AccommodationReservation accommodationReservation, String message) {
 		Alarm alarm = Alarm.builder()
-				.alarmTitle("제휴숙소")
+				.alarmTitle("제휴숙소 신청")
 				.alarmMessage(message)
 				.accommodation(accommodationReservation.getAccommodationInfo())
 				.build();
@@ -37,7 +37,7 @@ public class AccommodationAlarmService {
 		
 		AccommodationReservationAlarmDto dto = AccommodationReservationAlarmDto.builder()
 				.alarmNo(saved.getAlarmNo())
-				.title("제휴숙소")
+				.title("제휴숙소 신청")
 				.message(message)
 				.alarmType("accommodationReservation")
 				.otherPkNo(accommodationReservation.getAccommodationInfo().getAccommodationNo())
@@ -66,7 +66,7 @@ public class AccommodationAlarmService {
 	@Transactional(rollbackFor=Exception.class)
 	public void sendAlarmToMember(Long memberNo, AccommodationReservation accommodationReservation, String message) {
 		Alarm alarm = Alarm.builder()
-				.alarmTitle("제휴숙소")
+				.alarmTitle("제휴숙소 신청 결과")
 				.alarmMessage(message)
 				.accommodation(accommodationReservation.getAccommodationInfo())
 				.build();
@@ -75,7 +75,7 @@ public class AccommodationAlarmService {
 		
 		AccommodationReservationAlarmDto dto = AccommodationReservationAlarmDto.builder()
 				.alarmNo(saved.getAlarmNo())
-				.title("제휴숙소")
+				.title("제휴숙소 신청 결과")
 				.message(message)
 				.alarmType("reservationMember")
 				.otherPkNo(memberNo)
