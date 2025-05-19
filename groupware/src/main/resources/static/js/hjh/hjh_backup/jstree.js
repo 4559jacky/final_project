@@ -278,7 +278,7 @@ async function uploadFiles() {
   const folderId = $('#shared-tree').jstree('get_selected')[0];
 
   if (!folderId) {
-    alert("업로드할 폴더를 선택해주세요.");
+    alert("s업로드할 폴더를 선택해주세요. ");
     return;
   }
 
