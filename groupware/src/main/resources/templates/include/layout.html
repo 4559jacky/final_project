@@ -672,7 +672,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 		//////////////////////alrt, confirm 완전 대체 /////////////////////////////////////////
 		
-		// 💥 alert 완전 대체
+	// 💥 alert 완전 대체
 		window.alert = function(message) {
 		  return new Promise((resolve) => {
 		    const msgEl = document.getElementById("customAlertMsg");
@@ -695,6 +695,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		    modalEl.addEventListener("hidden.bs.modal", () => {
 		      resolve();
 		    }, { once: true });
+
 		  });
 		};
 		

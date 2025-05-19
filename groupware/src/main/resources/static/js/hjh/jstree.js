@@ -278,8 +278,8 @@ function createNewFolder() {
     body: JSON.stringify(payload)
   })
     .then(res => res.json())
-    .then(data => {
-      alert(data.message || "폴더 생성 완료!");
+    .then(async data => {
+      await alert(data.message || "폴더 생성 완료!");
       $('#folderModal').modal('hide');
       $('#shared-tree').jstree(true).refresh();
     })
@@ -358,10 +358,15 @@ async function uploadFiles() {
   const folderId = $('#shared-tree').jstree('get_selected')[0];
 
   if (!folderId) {
-    alert("업로드할 폴더를 선택해주세요.");
+    alert("왼쪽 트리에서 업로드할 폴더를 선택해주세요");
+		
     return;
   }
-
+	
+  if (files.length === 0) {
+    alert("업로드할 파일을 선택해주세요.");
+    return;
+  }
   // 🔥 [추가] 전체 업로드 용량 계산
   let totalUploadSize = 0;
   for (const file of files) {
@@ -810,3 +815,55 @@ window.deleteSelectedDocs = async function () {
     alert("삭제 중 오류 발생: " + err.message);
   }
 }
+
+/*// 💥 alert 완전 대체
+window.alert = function(message) {
+  const msgEl = document.getElementById("customAlertMsg");
+  msgEl.textContent = message;
+
+  const modal = new bootstrap.Modal(document.getElementById("customAlertModal"));
+  modal.show();
+};
+
+// 💥 confirm 완전 대체 (비동기 Promise 버전)
+window.confirm = function(message) {
+  return new Promise((resolve) => {
+    const msgEl = document.getElementById("customConfirmMsg");
+    msgEl.textContent = message;
+
+    const modalEl = document.getElementById("customConfirmModal");
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+
+    const yesBtnOld = document.getElementById("confirmYesBtn");
+    const yesBtnNew = yesBtnOld.cloneNode(true);
+    yesBtnOld.parentNode.replaceChild(yesBtnNew, yesBtnOld);
+
+    yesBtnNew.addEventListener("click", () => {
+      modal.hide();
+      resolve(true);
+    });
+
+    modalEl.addEventListener("hidden.bs.modal", () => {
+      resolve(false);
+    }, { once: true });
+  });
+};*/
+
+document.addEventListener("DOMContentLoaded", function () {
+  const fileInput = document.getElementById("fileUpload");
+  const fileNameSpan = document.getElementById("selectedFileNames");
+
+  fileInput.addEventListener("change", function () {
+    const files = Array.from(fileInput.files);
+    if (files.length === 0) {
+      fileNameSpan.textContent = "선택된 파일 없음";
+    } else if (files.length === 1) {
+      fileNameSpan.textContent = `선택된 파일: ${files[0].name}`;
+    } else {
+      fileNameSpan.innerHTML = `선택된 파일 (${files.length}개):<br>` +
+        files.map(f => f.name).join("<br>");
+    }
+  });
+});
+
