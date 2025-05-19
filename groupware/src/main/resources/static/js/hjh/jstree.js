@@ -278,8 +278,8 @@ function createNewFolder() {
     body: JSON.stringify(payload)
   })
     .then(res => res.json())
-    .then(data => {
-      alert(data.message || "폴더 생성 완료!");
+    .then(async data => {
+      await alert(data.message || "폴더 생성 완료!");
       $('#folderModal').modal('hide');
       $('#shared-tree').jstree(true).refresh();
     })
@@ -358,7 +358,7 @@ async function uploadFiles() {
   const folderId = $('#shared-tree').jstree('get_selected')[0];
 
   if (!folderId) {
-    alert("업로드할 폴더를 선택해주세요");
+    alert("왼쪽 트리에서 업로드할 폴더를 선택해주세요");
 		
     return;
   }
