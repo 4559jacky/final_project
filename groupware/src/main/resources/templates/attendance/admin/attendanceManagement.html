@@ -273,9 +273,9 @@ layout:decorate="~{include/layout :: layout}">
 				if(data.res_code =='200') {
 					document.getElementById('start_time_min').value = data.workPolicy.startTimeMin;
 					document.getElementById('start_time_max').value = data.workPolicy.startTimeMax;
-					document.getElementById('work_duration').value = data.workPolicy.workDuration;
-					document.getElementById('week_work_min_time').value = data.workPolicy.weekWorkMinTime;
-					document.getElementById('week_work_max_time').value = data.workPolicy.weekWorkMaxTime;
+					document.getElementById('work_duration').value = parseFloat(data.workPolicy.workDuration).toFixed(1);
+					document.getElementById('week_work_min_time').value = parseFloat(data.workPolicy.weekWorkMinTime).toFixed(1);
+					document.getElementById('week_work_max_time').value = parseFloat(data.workPolicy.weekWorkMaxTime).toFixed(1);
 				}
 			})
 		});
