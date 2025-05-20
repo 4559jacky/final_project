@@ -16,7 +16,7 @@
 ![스크린샷 2025-05-20 121732](https://github.com/user-attachments/assets/5159b857-7f50-48fe-a891-adc1c4e65c55)
 
 
-# Demo
+# 주요기능
 | 메인화면 및 로그인 | 그룹웨어 커스텀 |
 | :---: | :---: |
 |![1](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/fab31f21-b242-44ec-8886-c9456955478f)|![2](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/586e1359-071a-4871-9dec-f303dc063855) |
