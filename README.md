@@ -13,7 +13,7 @@
 
 </div>
 
-![스크린샷 2025-05-19 173738](https://github.com/user-attachments/assets/19b1ffe0-d729-4740-bc51-70ff7fce8eaf)
+![스크린샷 2025-05-20 121732](https://github.com/user-attachments/assets/5159b857-7f50-48fe-a891-adc1c4e65c55)
 
 
 # Demo
