@@ -31,11 +31,21 @@
 
 
 
-# Tech Stack
+# 기술 스택
 
 | Backend | Frontend | DB | DevOps | IDE |
 | :-----: | :------: | :-: | :-----: | :-: |
 | <img src="https://img.shields.io/badge/Java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white"><br><img src="https://img.shields.io/badge/SpringBoot-6DB33F.svg?style=for-the-badge&logo=springboot&logoColor=white"><br><img src="https://img.shields.io/badge/Thymeleaf-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white"><br><img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white"><br><img src="https://img.shields.io/badge/Tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=black"> | <img src="https://img.shields.io/badge/HTML5-E34F26.svg?style=for-the-badge&logo=html5&logoColor=white"><br><img src="https://img.shields.io/badge/CSS3-1572B6.svg?style=for-the-badge&logo=css3&logoColor=white"><br><img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black"><br><img src="https://img.shields.io/badge/jQuery-0769AD.svg?style=for-the-badge&logo=jquery&logoColor=white"><br><img src="https://img.shields.io/badge/Bootstrap-7952B3.svg?style=for-the-badge&logo=bootstrap&logoColor=white"> | <img src="https://img.shields.io/badge/MariaDB-003545.svg?style=for-the-badge&logo=mariadb&logoColor=white"><br><img src="https://img.shields.io/badge/MyBatis-000000.svg?style=for-the-badge"><br><img src="https://img.shields.io/badge/JPA-6DB33F.svg?style=for-the-badge"><br><img src="https://img.shields.io/badge/Redis-DC382D.svg?style=for-the-badge&logo=redis&logoColor=white"> | <img src="https://img.shields.io/badge/GitHub-181717.svg?style=for-the-badge&logo=github&logoColor=white"><br><img src="https://img.shields.io/badge/Linux-FCC624.svg?style=for-the-badge&logo=linux&logoColor=black"><br><img src="https://img.shields.io/badge/Docker-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white"><br><img src="https://img.shields.io/badge/ngrok-1F1F1F.svg?style=for-the-badge"> | <img src="https://img.shields.io/badge/Eclipse-2C2255.svg?style=for-the-badge&logo=eclipseide&logoColor=white"><br><img src="https://img.shields.io/badge/HeidiSQL-4479A1.svg?style=for-the-badge"><br><img src="https://img.shields.io/badge/Redis%20Insight-DC382D.svg?style=for-the-badge"><br><img src="https://img.shields.io/badge/MobaXterm-33AADD.svg?style=for-the-badge"> |
+
+| **분류** | **기술** |
+|----------|----------|
+| **백앤드** | ![Java](https://img.shields.io/badge/Java-orange?logo=openjdk&logoColor=white) ![Spring Boot](https://img.shields.io/badge/SpringBoot-6DB33F?logo=springboot&logoColor=white) ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?logo=thymeleaf&logoColor=white) ![Gradle](https://img.shields.io/badge/Gradle-02303A?logo=gradle&logoColor=white) ![Tomcat](https://img.shields.io/badge/Tomcat-F8DC75?logo=apachetomcat&logoColor=black) |
+| **프런트앤드** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) ![jQuery](https://img.shields.io/badge/jQuery-0769AD?logo=jquery&logoColor=white) ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white) |
+| **데이터베이스** | ![MariaDB](https://img.shields.io/badge/MariaDB-003545?logo=mariadb&logoColor=white) ![MyBatis](https://img.shields.io/badge/MyBatis-000000?style=flat) ![JPA](https://img.shields.io/badge/JPA-59666C?style=flat) ![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white) |
+| **배포 / DevOps** | ![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black) ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white) ![ngrok](https://img.shields.io/badge/ngrok-1A1A1A?logo=ngrok&logoColor=white) |
+| **IDE** | ![Eclipse](https://img.shields.io/badge/Eclipse-2C2255?logo=eclipseide&logoColor=white) ![HeidiSQL](https://img.shields.io/badge/HeidiSQL-4479A1?logoColor=white) ![Redis Insight](https://img.shields.io/badge/RedisInsight-DC382D?logo=redis&logoColor=white) ![MobaXterm](https://img.shields.io/badge/MobaXterm-00BFFF?style=flat) |
+
+
 
 
 
