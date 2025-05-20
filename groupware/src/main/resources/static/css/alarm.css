@@ -1,0 +1,56 @@
+@charset "UTF-8";
+
+#chat-alert-toast {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1080;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#chat-alert-toast.active {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+#chat-alert-toast .toast {
+  border: none;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+}
+
+#chat-alert-toast .toast-header {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+#alarm-alert-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1080;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#alarm-alert-toast.active {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+.dropdown-alarm {
+    pointer-events: auto !important;
+    cursor: pointer;
+    background-color: white !important;
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+  
+.alarm-message-body {
+  max-height: 300px; /* 적당히 5개 높이 정도로 제한 */
+  overflow-y: auto;
+}

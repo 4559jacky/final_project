@@ -3,7 +3,7 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
 	
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
@@ -23,7 +23,7 @@ layout:decorate="~{/include/layout}">
                      			<i class="ti ti-home fs-5"></i>
                     		</a>
                    	 	</li>
-						<li class="breadcrumb-item" aria-current="page">인사 관리 / 부서 관리</li>
+						<li class="breadcrumb-item" aria-current="page">인사 담당자 / 부서 관리</li>
                   	</ol>
 				</nav><br>
 				<h2 class="mb-0 fw-bolder fs-8">부서 관리</h2>
@@ -42,10 +42,17 @@ layout:decorate="~{/include/layout}">
                           			<h4 class="card-title" style="font-weight: bold;">부서</h4>
                           			<br>
   									
+  									<th:block th:if="${!#lists.isEmpty(deptList)}">
   									<div class="d-flex justify-content-start mb-3">
    										<button id="expand_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle me-1">+</button>
    										<button id="collapse_all" class="btn btn-sm px-1 py-0 border text-secondary bg-light-subtle">-</button>
 									</div>
+									</th:block>
+									<th:block th:if="${#lists.isEmpty(deptList)}">
+  									<div class="d-flex justify-content-start mb-3">
+   										등록된 부서가 없습니다.
+									</div>
+									</th:block>
 									
 									<div id="dept-tree">
    										<ul>
@@ -54,8 +61,6 @@ layout:decorate="~{/include/layout}">
 									      </li>
 									   </ul>
 									</div>
-									
-									
 									
 									<!-- jsTree 데이터 확인용 버튼 -->
   									<!-- <button id="jstree-btn">선택된 노드 보기</button> -->
@@ -70,6 +75,38 @@ layout:decorate="~{/include/layout}">
                         			<form name="update_dept_form">
                           				<h4 class="card-title" style="font-weight: bold;">부서 상세</h4>
                           				<br>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_list" class="form-label">부서목록</label>
+                              				<input type="text" class="form-control" id="dept_list" name="dept_list" th:value="${deptList}">
+                            			</div>
+                          				
+                          				<div class="mb-3" style="display:none;">
+                              				<label for="dept_no" class="form-label">부서번호</label>
+                              				<input type="text" class="form-control" id="dept_no" name="dept_no">
+                            			</div>
+                            			
+                            			<div class="mb-3">
+										  <label class="form-label d-block">부서 상태</label>
+										
+										  <div class="form-check form-check-inline">
+										    <input class="form-check-input" type="radio" name="dept_status" id="status_active" th:value="1"
+										           th:checked="${dept?.deptStatus == 1}">
+										    <label class="form-check-label" for="status_active">활성</label>
+										  </div>
+										
+										  <div class="form-check form-check-inline">
+										    <input class="form-check-input" type="radio" name="dept_status" id="status_inactive" th:value="2"
+										           th:checked="${dept?.deptStatus == 2}">
+										    <label class="form-check-label" for="status_inactive">비활성</label>
+										  </div>
+										
+										  <div class="form-check form-check-inline">
+										    <input class="form-check-input" type="radio" name="dept_status" id="status_deleted" th:value="3"
+										           th:checked="${dept?.deptStatus == 3}">
+										    <label class="form-check-label text-danger fw-bold" for="status_deleted">삭제</label>
+										  </div>
+										</div>
                           				
                             			<div class="mb-3">
                               				<label for="dept_name" class="form-label">부서명*</label>
@@ -139,7 +176,10 @@ layout:decorate="~{/include/layout}">
                                   			<label for="member_no" class="form-label">부서장</label>
                                   			<select class="form-select" id="member_no" name="member_no" aria-label="dept-chief-member">
                                     			<option selected th:value="0">-</option>
-                                    			<option th:each="member : ${memberList}" th:value="${member.memberNo}" th:text="'# ' + ${member.memberNo} + ' ' + ${member.memberName}"></option>
+                                    			<option th:each="member : ${memberWithoutDept}"
+                                    					th:if="${member.memberNo != 1}"
+                                    					th:value="${member.memberNo}"
+                                    					th:text="'# ' + ${member.memberNo} + ' ' + ${member.memberName}"></option>
                                   			</select>
                                 		</div>
                                 		
@@ -147,7 +187,7 @@ layout:decorate="~{/include/layout}">
                                   			<label for="parent_dept_no" class="form-label">상위 부서</label>
                                   			<select class="form-select" id="parent_dept_no" name="parent_dept_no" aria-label="parent-department">
                                     			<option selected th:value="0">-</option>
-                                    			<option th:each="dept : ${deptList}" th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
+                                    			<option th:each="dept : ${deptList}" th:if="${dept.deptNo}" th:value="${dept.deptNo}" th:text="${dept.deptName}"></option>
                                   			</select>
                                 		</div>
                                 		
@@ -175,11 +215,34 @@ layout:decorate="~{/include/layout}">
 		</div>
 	</div>
 	
+	<!-- 부서 이관 모달 부트스트랩5 기반 -->
+	<div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered modal-lg">
+	    <div class="modal-content shadow-lg rounded-3">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="transferModalLabel">이관할 부서를 선택하세요</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+	      </div>
+	      <div class="modal-body">
+	        <!-- jsTree 영역 -->
+	        <div id="transferTree" class="border rounded p-2" style="max-height: 400px; overflow-y: auto;"></div>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" onclick="submitDeptForm()">이관</button>
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- hidden input (필요 시 form 안에 넣기) :: form 쓰지 말고 그냥 바로 onclick 넣는 방식이 편한듯 -->
+	<input type="hidden" id="transfer_dept_no" name="transfer_dept_no">
+	
 	<script>
 		// 부서 추가 로직
 		const form = document.create_dept_form;
 		
-		form.addEventListener('submit',(event) => {
+		form.addEventListener('submit',async (event) => {
 			event.preventDefault();
 			
 			// 1. 유효성 검사
@@ -216,8 +279,8 @@ layout:decorate="~{/include/layout}">
 					body : payload
 				})
 				.then(response => response.json())
-				.then(data => {
-					alert(data.res_msg);
+				.then(async data => {
+					await alert(data.res_msg);
 					if(data.res_code == '200') {
 						location.href = "/admin/dept/create";
 					}
@@ -249,11 +312,47 @@ layout:decorate="~{/include/layout}">
 						deptId : deptId
 					},
 					success: function(data) {
-						$('form[name="update_dept_form"] input[name="dept_name"]').val(data.dept_name);
-						$('form[name="update_dept_form"] select[name="member_no"]').val(Number(data.member_no));
-						$('form[name="update_dept_form"] select[name="parent_dept_no"]').val(Number(data.parent_dept_no));
-						$('form[name="update_dept_form"] input[name="dept_phone"]').val(data.dept_phone);
-						$('form[name="update_dept_form"] input[name="dept_location"]').val(data.dept_location);
+						const currentDeptNo = data.deptNo;
+						const currentMemberNo = data.memberNo;
+						
+						$('form[name="update_dept_form"] input[name="dept_no"]').val(Number(data.deptNo));
+						$('form[name="update_dept_form"] input[name="dept_status"][value="' + data.deptStatus + '"]').prop('checked', true);
+						$('form[name="update_dept_form"] input[name="dept_name"]').val(data.deptName);
+						$('form[name="update_dept_form"] select[name="member_no"]').val(Number(data.memberNo));
+						
+						$('form[name="update_dept_form"] select[name="parent_dept_no"]').val(Number(data.parentDeptNo));
+						
+						const parentSelect = $('form[name="update_dept_form"] select[name="parent_dept_no"]');
+						parentSelect.find('option').each(function() {
+							if ($(this).val() === String(currentDeptNo)) {
+								$(this).css('display', 'none');
+							} else {
+								$(this).css('display', 'block');
+							}
+						});
+
+						$('form[name="update_dept_form"] input[name="dept_phone"]').val(data.deptPhone);
+						$('form[name="update_dept_form"] input[name="dept_location"]').val(data.deptLocation);
+						
+						const memberSelect = $('form[name="update_dept_form"] select[name="member_no"]');
+		                memberSelect.empty();
+		                
+		                memberSelect.append(
+		                    $('<option>').val(0).text('-')
+		                );
+
+		                // 멤버 데이터 추가
+		                data.members.forEach(member => {
+		                    memberSelect.append(
+		                        $('<option>').val(member.member_no).text('# ' + member.member_no + ' ' + member.member_name)
+		                    );
+		                });
+
+		                if (currentMemberNo) {
+		                    memberSelect.val(currentMemberNo);
+		                } else {
+		                    memberSelect.val(0);
+		                }
 					},
 					error: function(error) {
 						console.log(error);
@@ -275,6 +374,115 @@ layout:decorate="~{/include/layout}">
 				}
 			}
 		});
+	</script>
+	
+	<script>
+		// 부서 수정 로직
+		const updateForm = document.update_dept_form;
+		let selectedDeptNo = null;
+		
+		updateForm.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			
+			// 1. 유효성 검사
+			let vali_chk = false;
+			let vali_msg = "";
+			
+			if(!updateForm.dept_name.value) {
+				vali_msg += "부서명을 입력하세요";
+				updateForm.dept_name.focus();
+			} else {
+				vali_chk = true;
+			}
+			
+			if(vali_chk == false) {
+				alert(vali_msg);
+			} else {
+				const status = updateForm.dept_status.value;
+				
+				if (status == 3) {
+					if(await confirm("해당 부서는 삭제 처리되며, 조직도에서 영구적으로 사라집니다.\n" +
+				             "소속된 직원들이 있을 경우 이관할 부서를 선택하세요.\n" +
+		             "소속된 직원들이 없다면 선택하지 않으셔도 됩니다.\n\n계속 진행하시겠습니까?")) {
+						openTransferModal();
+						return;
+					}
+					
+					alert("삭제 처리를 취소하셨습니다.");
+					
+					return;
+				}
+				
+				if(await confirm("정말로 수정하시겠습니까?")) {
+					submitDeptForm();
+					return;
+				}
+				
+			}
+		});
+		
+		function submitDeptForm() {
+			// 2. 부서 수정
+			const payload = new FormData(updateForm);
+			
+			if (selectedDeptNo !== null) {
+				payload.append("transferDeptNo", selectedDeptNo);
+			}
+			
+			fetch('/admin/dept/update', {
+				method : "post",
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+					'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body : payload
+			})
+			.then(response => response.json())
+			.then(async data => {
+				await alert(data.res_msg);
+				if(data.res_code == '200') {
+					location.href = "/admin/dept/create";
+				}
+			})
+			.catch(error => {
+				console.log(error);
+			})
+		};
+		
+		// 이관 모달에서 jsTree를 열어주는 함수
+		function openTransferModal() {
+			getAvailableDeptsForTransfer().then(data => {	
+				$('#transferTree').jstree("destroy").empty();
+
+				$('#transferTree').jstree({
+					'core': {
+						'data': data
+					}
+				});
+		
+				selectedDeptNo = null;
+				
+				$('#transferTree').on("select_node.jstree", function (e, data) {
+					const selectedNode = data.node;
+					selectedDeptNo = selectedNode.id;
+				});
+				
+				const modal = new bootstrap.Modal(document.getElementById('transferModal'));
+				modal.show();
+			});
+		}
+		
+		function getAvailableDeptsForTransfer() {
+			return fetch('/admin/dept/tree', {
+					method: 'get'
+				})
+				.then(data => data.json())
+				.catch(error => {
+					console.error(error);
+					return [];
+				});
+		}
+		
 	</script>
 
 	<!-- Bootstrap Common JS Files Start -->

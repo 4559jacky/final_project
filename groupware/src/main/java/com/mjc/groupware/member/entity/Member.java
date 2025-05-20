@@ -1,9 +1,9 @@
 package com.mjc.groupware.member.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.mjc.groupware.dept.entity.Dept;
@@ -52,18 +52,32 @@ public class Member {
 	@Column(name="member_gender")
 	private String memberGender;
 	
-	@Column(name="member_addr")
-	private String memberAddr;
+	@Column(name="member_addr1")
+	private String memberAddr1;
+	
+	@Column(name="member_addr2")
+	private String memberAddr2;
+	
+	@Column(name="member_addr3")
+	private String memberAddr3;
+	
+	@Column(name="member_email")
+	private String memberEmail;
 	
 	@Column(name="member_phone")
 	private String memberPhone;
 
     @Column(name = "status")
-    private String status;
+    private int status;
+    
+    @Column(name = "annual_leave")
+    private double annualLeave;
+    
+    @Column(name = "signature")
+    private String signature;
 	
-	@CreationTimestamp
-	@Column(updatable=false,name="reg_date")
-	private LocalDateTime regDate;
+	@Column(name="reg_date")
+	private LocalDate regDate;
 	
 	@UpdateTimestamp
 	@Column(insertable=false,name="mod_date")
@@ -86,5 +100,49 @@ public class Member {
 	
 	@OneToMany(mappedBy="member")
 	private List<Dept> depts;
+
+	@OneToMany(mappedBy="member")
+	private List<MemberAttach> memberAttachs;
+	
+	@OneToMany(mappedBy="member")
+	private List<LoginLog> memberLoginLogs;
+	
+	public void changePassword(String newEncodedPw) {
+	    this.memberPw = newEncodedPw;
+	}
+	
+	public void changeDept(Dept newDept) {
+	    this.dept = newDept;
+	}
+	
+	public void updateProfileInfo(String name, String gender, String birth, String phone, String email, String addr1, String addr2, String addr3) {
+			this.memberName = name;
+			this.memberGender = gender;
+			this.memberBirth = birth;
+			this.memberPhone = phone;
+			this.memberEmail = email;
+			this.memberAddr1 = addr1;
+			this.memberAddr2 = addr2;
+			this.memberAddr3 = addr3;
+	}
+	
+	public void updateMember(Dept dept, Pos pos, Role role, int status) {
+		this.dept = dept;
+		this.pos = pos;
+		this.role = role;
+		this.status = status;
+	}
+	
+	public void changeRoleNo(Role role) {
+		this.role = role;
+	}
+	
+	public void updateAnnualLeave(double leave) {
+		this.annualLeave = this.annualLeave+leave;
+	}
+	
+	public void createAndUpdateSignature(String signature) {
+		this.signature = signature;
+	}
 	
 }

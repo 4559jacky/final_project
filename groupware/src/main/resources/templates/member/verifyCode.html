@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" th:attr="data-bs-theme=${theme}, data-color-theme=${latestProfile != null ? latestProfile.theme_color : 'Blue_Theme'}" data-layout="horizontal" data-boxed-layout="boxed" data-card="shadow" data-sidebartype="mini-sidebar" 
+xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	
+	<!-- Spring Security -->
+	<meta id="_csrf" name="_csrf" th:attr="content=${_csrf.token}">
+	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
+	
+	<!-- Favicon icon-->
+	<link rel="shortcut icon" type="image/png" th:href="@{/img/mjc_profile_favicon.png}" />
+	
+	<title>Groupware</title>
+	
+	<!-- Core Css -->
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}" />
+	
+	<!-- Owl Carousel  -->
+	<link rel="stylesheet" th:href="@{/assets/libs/owl.carousel/dist/assets/owl.carousel.min.css}" />
+	
+	<!-- Custom Css : Override - 992px 기준으로 모바일 화면 -->
+	<link rel="stylesheet" th:href="@{/css/layout-common.css}" />
+	
+</head>
+<body>
+<th:block>
+	
+	<div class="position-relative overflow-hidden radial-gradient min-vh-100 w-100 d-flex align-items-center justify-content-center">
+      <div class="d-flex align-items-center justify-content-center w-100">
+        <div class="row justify-content-center w-100">
+          <div class="col-md-8 col-lg-6 col-xxl-3 auth-card" style="position: relative;">
+            <div class="card mb-0">
+              <div class="card-body">
+              
+				<div class="text-center mb-4">
+	              <h4 class="fw-bold">인증번호 입력</h4>
+				  <p class="text-muted small">이메일로 전송된 6자리 인증번호를 입력해주세요.</p>
+	            </div>
+				
+                <form name="auth_code_form" id="auth_code_form" method="post">
+                  <div class="mb-3">
+                  	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                  </div>
+                  <div class="mb-3 text-center d-flex justify-content-center">
+					<input type="text" class="form-control code-box mx-2" id="auth_code_1" maxlength="1" autocomplete="off">
+					<input type="text" class="form-control code-box mx-2" id="auth_code_2" maxlength="1" autocomplete="off">
+					<input type="text" class="form-control code-box mx-2" id="auth_code_3" maxlength="1" autocomplete="off">
+					<input type="text" class="form-control code-box mx-2" id="auth_code_4" maxlength="1" autocomplete="off">
+					<input type="text" class="form-control code-box mx-2" id="auth_code_5" maxlength="1" autocomplete="off">
+				  	<input type="text" class="form-control code-box mx-2" id="auth_code_6" maxlength="1" autocomplete="off">
+				  </div>
+				  
+				  <button type="submit" class="btn btn-primary w-100 py-2 mb-2 rounded-2">
+				    인증
+				  </button>
+				  
+				  <a th:href="@{/login}" class="btn btn-link w-100 text-center text-decoration-none">
+				    취소
+				  </a>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+	<div id="custom-alert" class="alert bg-danger text-white d-flex align-items-center alert-dismissible fade show d-none" role="alert" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
+		<i class="bi bi-exclamation-triangle-fill me-2"></i>
+		<div id="alert-msg" style="font-size: 1.0rem; text-align: center;">
+			<span th:text="${res_msg}"></span>
+		</div>
+		<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+	
+    <script>
+    	// 다크모드
+  		function handleColorTheme(e) {
+    		document.documentElement.setAttribute("data-color-theme", e);
+  		}
+	</script>
+	
+	<script>
+		// 커스텀 얼럿 선언
+		function showAlert(message) {
+			return new Promise((resolve) => {
+			    const alertBox = document.getElementById("custom-alert");
+			    const alertMsg = document.getElementById("alert-msg");
+		
+			    if (alertBox && alertMsg) {
+			        alertMsg.textContent = message;
+			        positionAlert();
+			        alertBox.classList.remove('d-none');
+			        alertBox.classList.add('show');
+		
+			        setTimeout(() => {
+			            alertBox.classList.remove('show');
+			            alertBox.classList.add('fade');
+		
+			            setTimeout(() => {
+			                alertBox.classList.add('d-none');
+			                const url = new URL(window.location);
+			                url.searchParams.delete('error');
+			                url.searchParams.delete('errorMsg');
+			                window.history.replaceState({}, document.title, url.pathname);
+			                resolve();
+			            }, 300);
+			        }, 3000);
+			    }  else {
+		            resolve();
+		        }
+			});
+		}
+	</script>
+	
+	<script>
+		// 얼럿창 위치 조절
+		function positionAlert() {
+		    const alertBox = document.getElementById("custom-alert");
+		    const cardEl = document.querySelector('.auth-card .card');
+		    if (!alertBox || !cardEl) return;
+	
+		    const cardRect = cardEl.getBoundingClientRect();
+		    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+		    const cardTop = cardRect.top + scrollTop;
+	
+		    const alertHeight = alertBox.offsetHeight || 60;
+		    const offsetTop = cardTop - alertHeight - 15;
+	
+		    alertBox.style.top = `${offsetTop}px`;
+		}
+	</script>
+	
+	<script>
+		// 얼럿창 x버튼
+    	document.addEventListener('DOMContentLoaded', function() {
+        	const alertCloseButton = document.querySelector('.btn-close');
+        	if (alertCloseButton) {
+            	alertCloseButton.addEventListener('click', function() {
+                	const alertBox = document.getElementById("custom-alert");
+                	alertBox.classList.add('d-none');
+            	});
+        	}
+    	});
+	</script>
+	
+	<script>
+	    document.addEventListener("DOMContentLoaded", function() {
+	        // 6개 입력 박스를 하나로 합치는 로직
+	        const inputs = document.querySelectorAll('.code-box');
+	        inputs.forEach((input, index) => {
+	            input.addEventListener('input', (event) => {
+	                if (input.value.length === 1 && index < inputs.length - 1) {
+	                    inputs[index + 1].focus(); // 다음 입력박스로 포커스 이동
+	                } else if (input.value.length === 0 && index > 0) {
+	                    inputs[index - 1].focus(); // 이전 입력박스로 포커스 이동
+	                }
+	            });
+	        });
+	        
+	        const form = document.getElementById("auth_code_form");
+	        form.addEventListener("submit", function(event) {
+	            event.preventDefault();
+				
+	            // 인증번호 박스들에서 값들을 모아서 하나의 문자열로 결합
+	            const authCode = Array.from(inputs).map(input => input.value).join("");
+				
+	            // 인증번호 입력이 비어있으면 알림
+	            if (authCode.length !== 6) {
+	            	showAlert("인증번호 6자리를 모두 입력해 주세요.");
+	                return;
+	            }
+				
+	            const payload = new FormData(form);
+	            payload.append("auth_code", authCode);
+				
+	            fetch("/forgetPassword/verifyCode", {
+	                method : "post",
+	                headers : {
+	                	'header': document.querySelector('meta[name="_csrf_header"]').content,
+						'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	                },
+	                body : payload
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+					showAlert(data.res_msg).then(() => {
+				        if(data.res_code == '200') {
+				            location.href = "/forgetPassword/changePassword";
+				        }
+				    });
+				})
+	            .catch(error => {
+	                console.log(error);
+	            });
+	        });
+	    });
+	</script>
+	
+</th:block>
+</body>
+</html>

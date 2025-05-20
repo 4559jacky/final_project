@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" th:attr="data-bs-theme=${theme}, data-color-theme=${latestProfile != null ? latestProfile.theme_color : 'Blue_Theme'}" data-layout="horizontal" data-boxed-layout="boxed" data-card="shadow" data-sidebartype="mini-sidebar" 
+xmlns:th="http://www.thymeleaf.org"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	
+	<!-- Spring Security -->
+	<meta id="_csrf" name="_csrf" th:attr="content=${_csrf.token}">
+	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
+	
+	<!-- Favicon icon-->
+	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.png}" />
+	
+	<title>405 Method Not Allowed</title>
+	
+	<!-- Core Css -->
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}" />
+	
+	<!-- Owl Carousel  -->
+	<link rel="stylesheet" th:href="@{/assets/libs/owl.carousel/dist/assets/owl.carousel.min.css}" />
+	
+	<!-- Custom Css : Override - 992px 기준으로 모바일 화면 -->
+	<link rel="stylesheet" th:href="@{/css/layout-common.css}" />
+	
+</head>
+<body>
+	<div class="position-relative overflow-hidden radial-gradient min-vh-100 w-100 d-flex align-items-center justify-content-center">
+	  <div class="d-flex align-items-center justify-content-center w-100">
+	    <div class="row justify-content-center w-100">
+	      <div class="col-md-8 col-lg-6 col-xxl-3 auth-card">
+	        <div class="card mb-0">
+	          <div class="card-body text-center">
+	
+	            <div class="error-code mb-3" style="font-size: 48px; font-weight: 800;">
+	              <span class="text-primary">405</span>
+	            </div>
+	
+	            <div class="error-message mb-4" style="font-size: 16px; color: #6b7280;">
+	              허용되지 않은 방식의 요청입니다.<br>
+	              요청 방식을 다시 확인해 주세요.
+	            </div>
+	
+	            <div class="d-flex justify-content-center gap-2">
+	              <a th:href="@{/home}" class="btn btn-primary">홈으로 이동하기</a>
+	              <button type="button" class="btn btn-primary" onclick="history.back()">이전 페이지</button>
+	            </div>
+	
+	          </div>
+	        </div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</body>
+</html>

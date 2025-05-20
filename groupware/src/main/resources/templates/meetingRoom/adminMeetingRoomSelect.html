@@ -3,9 +3,13 @@
 xmlns:th="http://www.thymeleaf.org"
 xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-layout:decorate="~{/include/layout}">
+layout:decorate="~{include/layout :: layout}">
 	<th:block layout:fragment="content">
-  		
+		<link rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+		<link th:href="@{/css/ysw.css}" rel="stylesheet">
+		<link th:href="@{/css/cjs/meeting_room.css}" rel="stylesheet">
+		
   		<!-- 상단 메뉴 표시  -->
         <div class="col-lg-8 col-md-6 col-12 align-self-center">
           <nav aria-label="breadcrumb">
@@ -13,7 +17,7 @@ layout:decorate="~{/include/layout}">
               <li class="breadcrumb-item">
                 <a class="text-muted text-decoration-none" th:href="@{/home}">
                   <i class="ti ti-home fs-5"></i>
-                </a>
+                </a> 
               </li>
               <li class="breadcrumb-item" aria-current="page">회의실 관리</li>
             </ol>
@@ -21,13 +25,14 @@ layout:decorate="~{/include/layout}">
           <h2 class="mb-0 fw-bolder fs-8">회의실 관리</h2>
         </div><br>
         
-        <div class="d-flex align-items-center mb-3">
-		    <button class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#meetingRoomModal">+ 회의실 등록</button>
-		</div>
-        
         <!-- 전체 회의실 조회 -->
         <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
-        	<h5 class="card-title" style="font-weight: bold; color: black;">전체 회의실 조회</h5><br>
+        	<div class="d-flex justify-content-between align-items-center mb-3">
+		        <h5 class="card-title mb-0 fw-bold">전체 회의실 조회</h5>
+		        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#meetingRoomModal">
+		            + 회의실 등록
+		        </button>
+		    </div>
 		    <div class="table-responsive">
 			    <table class="table align-middle text-center">
 			    	<thead class="table-light">
@@ -44,19 +49,18 @@ layout:decorate="~{/include/layout}">
 				        <tr th:if="${!#lists.isEmpty(meetingRoomList)}"
 				        	th:each="meetingRoom: ${meetingRoomList}">
 				        	<th:block th:if="${meetingRoom.meetingRoomStatus != 'D'}">
-						        <th th:text="${meetingRoom.meetingRoomName}">회의실명</th>
-						        <th th:if="${meetingRoom.meetingRoomStatus == 'Y'}">
+						        <td th:text="${meetingRoom.meetingRoomName}">회의실명</td>
+						        <td th:if="${meetingRoom.meetingRoomStatus == 'Y'}">
 						        	<button type="button" class="btn bg-success-subtle text-success px-3 py-1" th:onclick="|javascript:updateMeetingRoomStatus('${meetingRoom.meetingRoomNo}')|">사용 가능</button>
-						        </th>
-						         <th th:if="${meetingRoom.meetingRoomStatus == 'N'}">
+						        </td>
+						         <td th:if="${meetingRoom.meetingRoomStatus == 'N'}">
 						        	<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1" th:onclick="|javascript:updateMeetingRoomStatus('${meetingRoom.meetingRoomNo}')|">사용 불가</button>
-						        </th>
-						        <th style="padding-top: 0.2rem; padding-bottom: 0.2rem;">
+						        </td>
+						        <td style="padding-top: 0.2rem; padding-bottom: 0.2rem;">
 								    <button class="btn btn-primary me-2 px-3 py-1" data-bs-toggle="modal" data-bs-target="#updateMeetingRoomModal"
 								    		th:attr="data-id=${meetingRoom.meetingRoomNo}, data-name=${meetingRoom.meetingRoomName}" onclick="openUpdateModal(this)">수정</button>
 								    <button class="btn btn-primary px-3 py-1" th:onclick="|javascript:deleteMeetingRoom('${meetingRoom.meetingRoomNo}')|">삭제</button>
-								</th>
-								
+								</td>
 				        	</th:block>
 				        </tr>
 			        </tbody>
@@ -68,7 +72,7 @@ layout:decorate="~{/include/layout}">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content p-3">
 					<div class="modal-header">
-						<h5 class="card-title" style="font-weight: bold; color: black;">회의실 등록</h5>
+						<h5 class="card-title" style="font-weight: bold;">회의실 등록</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
 					</div>
 					<div class="modal-body">
@@ -76,7 +80,7 @@ layout:decorate="~{/include/layout}">
 							<div class="mb-3">
 								<label for="meeingRoomName" class="form-label">회의실 명</label>
 								<input type="text" class="form-control" id="meetingRoomName" name="meeting_room_name"
-										style="color: black;" placeholder="등록하실 회의실명을 입력해주세요.">
+										placeholder="등록하실 회의실명을 입력해주세요.">
 							</div>
 							<input type="hidden" value="Y" name="meeting_room_status">
 							<div class="d-flex justify-content-end">
@@ -102,7 +106,7 @@ layout:decorate="~{/include/layout}">
 							<label for="oriMeetingRoomName" class="form-label">기존 회의실명</label>
 							<input type="text" class="form-control" id="oriMeetingRoomName" readonly><br>
 							<label for="newMeetingRoomName" class="form-label">새로운 회의실명</label>
-							<input type="text" class="form-control" id="newMeetingRoomName" name="new_meeting_room_name" style="color: black;" placeholder="변경하실 회의실명을 입력해주세요."><br>
+							<input type="text" class="form-control" id="newMeetingRoomName" name="new_meeting_room_name" placeholder="변경하실 회의실명을 입력해주세요."><br>
 							<div class="text-end">
 								<button type="submit" class="btn btn-primary">수정 완료</button>
 							</div>
@@ -157,46 +161,58 @@ layout:decorate="~{/include/layout}">
 				}
 			})
 			
-			// 회의실 삭제
-			const deleteMeetingRoom = function (meetingRoomNo) {
-				if (confirm("회의실을 삭제하시겠습니까?")) {
-					fetch('/admin/delete/'+meetingRoomNo, { 
-						method: 'delete',
-						headers : {
-							'header': document.querySelector('meta[name="_csrf_header"]').content,
-			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
-						if (data.res_code == 200) {
-							location.reload();
-						}
-					});
-				}
+			// ✅ 회의실 삭제 (기존 deleteMeetingRoom 그대로)
+			function deleteMeetingRoom(meetingRoomNo) {
+			  (async () => {
+			    const confirmed = await confirm("회의실을 삭제하시겠습니까?");
+			    if (!confirmed) return;
+			
+			    try {
+			      const response = await fetch('/admin/delete/' + meetingRoomNo, {
+			        method: 'DELETE',
+			        headers: {
+			          'header': document.querySelector('meta[name="_csrf_header"]').content,
+			          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			        },
+			      });
+			
+			      const data = await response.json();
+			      await alert(data.res_msg);
+			      if (data.res_code == 200) {
+			        location.reload();
+			      }
+			    } catch (error) {
+			      console.error("❌ 회의실 삭제 실패:", error);
+			    }
+			  })();
 			}
 			
-			// 회의실 상태 변경
-			const updateMeetingRoomStatus = function (meetingRoomNo) {
-				if (confirm("회의실의 상태를 변경하시겠습니까?")) {
-					fetch('/admin/updateStatus/'+meetingRoomNo, { 
-						method: 'post',
-						headers : {
-							'header': document.querySelector('meta[name="_csrf_header"]').content,
-			              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						alert(data.res_msg);
-						if (data.res_code == 200) {
-							location.reload();
-						}
-					});
-				}
-			}
+			// ✅ 회의실 상태 변경 (기존 updateMeetingRoomStatus 그대로)
+			function updateMeetingRoomStatus(meetingRoomNo) {
+			  (async () => {
+			    const confirmed = await confirm("회의실의 상태를 변경하시겠습니까?");
+			    if (!confirmed) return;
 			
+			    try {
+			      const response = await fetch('/admin/updateStatus/' + meetingRoomNo, {
+			        method: 'POST',
+			        headers: {
+			          'header': document.querySelector('meta[name="_csrf_header"]').content,
+			          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			        },
+			      });
+			
+			      const data = await response.json();
+			      await alert(data.res_msg);
+			      if (data.res_code == 200) {
+			        location.reload();
+			      }
+			    } catch (error) {
+			      console.error("❌ 상태 변경 실패:", error);
+			    }
+			  })();
+			}
+
 			// 수정 모달창에 정보 셋팅
 			function openUpdateModal(btn) {
 				const id = btn.getAttribute("data-id");

@@ -1,33 +1,26 @@
 @charset "UTF-8";
 
-#dept-jstree {
-	margin: 20px;
-	width: 300px;
-	border: 1px solid #ddd;
-}
-
 .jstree-default .jstree-node {
 	cursor: pointer;
 }
 
 .d-none {
-	display:none;
+	display: none;
 }
 
-#expand_all,
-#collapse_all {
+#expand_all, #collapse_all {
 	padding: 2px 6px;
 	line-height: 1.2;
 	font-weight: bold;
 	font-size: 0.85rem;
 	border-radius: 4px;
 	border: 1px solid transparent;
-	transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+	transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s
+		ease, box-shadow 0.2s ease;
 }
 
 /* 공통 호버 */
-#expand_all:hover,
-#collapse_all:hover {
+#expand_all:hover, #collapse_all:hover {
 	background-color: #dee2e6;
 	color: #000;
 	border-color: #555;
@@ -35,38 +28,54 @@
 }
 
 /* 라이트 모드에서 호버 시 */
-[data-bs-theme="light"] #expand_all:hover,
-[data-bs-theme="light"] #collapse_all:hover {
+[data-bs-theme="light"] #expand_all:hover, [data-bs-theme="light"] #collapse_all:hover
+	{
 	border-color: #444;
 	box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
 /* 다크 모드 기본 상태 */
-[data-bs-theme="dark"] #expand_all,
-[data-bs-theme="dark"] #collapse_all {
+[data-bs-theme="dark"] #expand_all, [data-bs-theme="dark"] #collapse_all
+	{
 	background-color: #2b2b2b;
 	border-color: #555;
 	color: #eee;
 }
 
 /* 다크 모드 호버 */
-[data-bs-theme="dark"] #expand_all:hover,
-[data-bs-theme="dark"] #collapse_all:hover {
+[data-bs-theme="dark"] #expand_all:hover, [data-bs-theme="dark"] #collapse_all:hover
+	{
 	border-color: #aaa;
 	box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
 }
 
 /* 클릭 시 (active) */
-#expand_all:active,
-#collapse_all:active {
+#expand_all:active, #collapse_all:active {
 	background-color: #ced4da;
 	color: #000;
 	transform: scale(0.96);
 }
 
 /* 다크 모드에서 클릭 시 */
-[data-bs-theme="dark"] #expand_all:active,
-[data-bs-theme="dark"] #collapse_all:active {
+[data-bs-theme="dark"] #expand_all:active, [data-bs-theme="dark"] #collapse_all:active
+	{
 	background-color: #444;
 	color: #fff;
+}
+
+table select {
+	padding: 4px 8px;
+	font-size: 14px;
+	border: 1px solid var(--bs-border-color, #ced4da);
+	border-radius: 0.375rem;
+	background-color: var(--bs-body-bg, #fff);
+	color: var(--bs-body-color, #212529);
+	width: 100%;
+	box-sizing: border-box;
+}
+
+table select:focus {
+	outline: none;
+	border-color: var(--bs-primary, #5c9ded);
+	box-shadow: 0 0 0 0.2rem rgba(92, 157, 237, 0.25);
 }

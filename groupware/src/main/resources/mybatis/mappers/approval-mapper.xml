@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mjc.groupware.approval.mybatis.mapper.ApprovalMapper">
+	<select id="selectApprovalAllByMemberNo" parameterType="map"
+	resultType="com.mjc.groupware.approval.mybatis.vo.ApprovalVo">
+	SELECT AA.appr_no, AA.appr_title, AA.appr_reg_date, AA.appr_status,
+		       AA.appr_order_status, AA.relationship, AA.member_name,
+		       AA.approval_form_name
+		FROM (
+			SELECT W.appr_no ,W.appr_title ,W.appr_reg_date ,W.appr_status
+			,W.appr_order_status ,W.relationship ,M.member_name
+			,AF.approval_form_name
+			FROM
+			(SELECT a.appr_no , a.appr_reg_date
+					,a.appr_title,a.appr_status ,a.appr_order_status
+					,a.appr_sender ,a.approval_type_no
+					,'P' as relationship
+			FROM `approval` a
+			JOIN (
+				SELECT *
+				FROM `appr_approver`
+				WHERE approver_no = #{member_no}) p
+			ON a.appr_no = p.appr_no
+			AND p.approver_order <![CDATA[ <= ]]> a.appr_order_status
+			UNION
+			SELECT a.appr_no , a.appr_reg_date
+					,a.appr_title ,a.appr_status ,a.appr_order_status
+					 ,a.appr_sender ,a.approval_type_no
+					,'A' as relationship
+			FROM `approval` a
+			JOIN (SELECT * FROM `appr_agreementer` WHERE agreementer_no = #{member_no}) t ON a.appr_no = t.appr_no
+			UNION
+			SELECT a.appr_no , a.appr_reg_date
+					,a.appr_title ,a.appr_status ,a.appr_order_status
+					,a.appr_sender ,a.approval_type_no
+					,'R' AS relationship
+			FROM `approval` a
+			JOIN (SELECT * FROM `appr_referencer` WHERE referencer_no = #{member_no}) r ON a.appr_no = r.appr_no
+				) W
+			JOIN `member` M ON W.appr_sender = M.member_no
+			JOIN `approval_form` AF ON W.approval_type_no = AF.approval_form_no
+		) AA
+		<where>
+			<if test="search_type == 'appr_title' and search_text != null and search_text != ''">
+				AND AA.appr_title LIKE CONCAT('%', #{search_text}, '%')
+			</if>
+			<if test="search_type == 'member_name' and search_text != null and search_text != ''">
+				AND AA.member_name LIKE CONCAT('%', #{search_text}, '%')
+			</if>
+			<if test="search_type == 'approval_form_name' and search_text != null and search_text != ''">
+				AND AA.approval_form_name LIKE CONCAT('%', #{search_text}, '%')
+			</if>
+			<if test="search_status != null and search_status != ''">
+		        AND AA.relationship = #{search_status}
+		    </if>
+		</where>
+		<choose>
+		  <when test="order_type == 1">
+		    ORDER BY AA.appr_reg_date DESC
+		  </when>
+		  <when test="order_type == 2">
+		    ORDER BY AA.appr_reg_date ASC
+		  </when>
+		  <otherwise>
+		    ORDER BY AA.appr_reg_date DESC
+		  </otherwise>
+		</choose>
+	</select>
+	
+	<select id="selectApprovalStatusByMemberNo" parameterType="map"
+	resultType="com.mjc.groupware.approval.mybatis.vo.ApprovalStatusVo">
+	SELECT
+	  SUM(CASE WHEN W.relationship = 'P' THEN 1 ELSE 0 END) AS P_count,
+	  SUM(CASE WHEN W.relationship = 'A' THEN 1 ELSE 0 END) AS A_count,
+	  SUM(CASE WHEN W.relationship = 'R' THEN 1 ELSE 0 END) AS R_count
+	FROM (
+	    SELECT a.appr_no, 'P' AS relationship
+	    FROM `approval` a
+	    JOIN (SELECT * FROM `appr_approver` WHERE approver_no = #{member_no}) p ON a.appr_no = p.appr_no
+	    AND p.approver_order <![CDATA[ <= ]]> a.appr_order_status
+	
+	    UNION ALL
+	
+	    SELECT a.appr_no, 'A' AS relationship
+	    FROM `approval` a
+	    JOIN (SELECT * FROM `appr_agreementer` WHERE agreementer_no = #{member_no}) t ON a.appr_no = t.appr_no
+	
+	    UNION ALL
+	
+	    SELECT a.appr_no, 'R' AS relationship
+	    FROM `approval` a
+	    JOIN (SELECT * FROM `appr_referencer` WHERE referencer_no = #{member_no}) r ON a.appr_no = r.appr_no
+	) W;
+	</select>
+</mapper>

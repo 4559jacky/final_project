@@ -2,13 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{/include/layout}">
+	layout:decorate="~{include/layout :: layout}">
 <th:block layout:fragment="content">
+	<link th:href="@{/css/ysw.css}" rel="stylesheet">
 	<script th:src="@{/js/jquery-3.7.1.js}"></script>
 	<link rel="stylesheet"
 		href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-	<link th:href="@{/css/ysw.css}" rel="stylesheet">
-
+	<script th:src="@{/js/ysw/jstree.js}"></script>
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb align-items-center">
@@ -156,49 +156,143 @@
 			style="max-width: 800px; width: auto; max-height: none;">
 			<div class="modal-content p-3" style="max-height: none;">
 				<div class="modal-header">
-					<h5 class="modal-title" style="font-weight: bold; color: black;"> 회의실 예약 </h5>
+					<h5 class="modal-title fw-bold fs-4"> 회의실 예약 </h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
 					<!-- 상단: 조직도 + 사원 목록 -->
 					<div class="row mb-4" style="height: 280px;">
-					<p style="color: gray;">회의에 참석할 인원을 선택해주세요.</p>
+						<p style="color: gray;">회의에 참석할 인원을 선택해주세요.</p>
 						<!-- 조직도 -->
-						<div class="col-6 pe-3 border-end">
+						<div class="col-6 pe-3 border-end d-flex flex-column">
 							<h6 class="fw-semibold mb-2">조직도</h6>
-							<div id="reserve_jstree"
+							<div id="ysw_create_jstree"
 								class="ps-2 h-100 overflow-auto border rounded bg-light p-2">
 								<!-- JSTree 영역 -->
 							</div>
 						</div>
 
 						<!-- 사원 목록 -->
-						<div class="col-6 ps-3">
+						<div class="col-6 ps-3 d-flex flex-column">
 							<h6 class="fw-semibold mb-2">선택한 부서의 사원 목록</h6>
 							<div id="memberListBox"
-								class="h-100 overflow-auto border rounded bg-light p-2">
-								<ul id="memberList" class="list-group fs-6"></ul>
+								class="h-100 overflow-auto border rounded bg-light p-2" style="max-height: 280px;">
+								<!-- ✅ 스크롤 영역 고정 높이 설정 -->
+								<ul id="memberList" class="list-group fs-6 mb-0"></ul>
 							</div>
 						</div>
-					</div><BR><bR>
-					<!-- 하단: 결재자/참조자/합의자 -->
-					<div class="row gx-3 text-center" style="height: 200px;">
-						<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
-							<ul id="selectMemberList" class="list-group fs-6"></ul>	
+					</div><br><br>
+		
+					<!-- 하단: 선택된 인원, 첫번쨰 모달창의 정보 -->
+					<form name="meetingRoom_reservation_form">
+						<input type="hidden" id="meetingTitle" name="meeting_title">
+						<input type="hidden" id="meetingDate" name="meeting_date">
+						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
+						<input type="hidden" id="meetingRoomNo" name="meeting_room_no">
+						<input type="hidden" id="reservationStatus" name="reservation_status" value="Y">
+						<br><br>
+						<div id="selectedUsersInputs"></div>
+						<div class="row gx-3 text-center" style="height: 200px;">
+							<div id="selectMemberListBox" class="h-100 overflow-auto border rounded bg-light p-2">
+								<ul id="selectMemberList" class="list-group fs-6"></ul>	
+							</div>
 						</div>
-					</div>
-					<div class="modal-footer justify-content-end">
-						<button type="button" class="btn btn-primary px-4">회의실 예약</button>
-					</div><bR>
+						<div class="modal-footer justify-content-end">
+							<button type="submit" class="btn btn-primary px-4">회의실 예약</button>
+						</div><bR>
+					</form>
 				</div>
 			</div>
+		</div>
+	</div>
+	
+	<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+		<h5 class="card-title" style="font-weight: bold;">나의 회의실 예약 내역</h5>
+		<br>
+		<div class="table-responsive">
+			<div class="d-flex justify-content-end align-items-center mb-3 gap-5">
+				<!-- 회의실별 조회 -->
+				<div class="d-flex align-items-center gap-2">
+					<label for="roomSelect" class="form-label mb-0 fw-bold">회의실 선택</label> 
+					<select id="roomSelect" class="form-select filter_btn" style="width: 200px; height: 36px;">
+						<option value="">전체</option>
+						<th:block th:each="room:${meetingRoomList}">
+							<th:block th:if="${room.meetingRoomStatus == 'Y'}">
+								<option th:value="${room.meetingRoomNo}" th:text="${room.meetingRoomName}">회의실명</option>
+							</th:block>
+							<th:block th:if="${room.meetingRoomStatus == 'N'}">
+								<option th:value="${room.meetingRoomNo}" th:text="${room.meetingRoomName}">회의실명</option>
+							</th:block>
+							<th:block th:if="${room.meetingRoomStatus == 'D'}">
+								<option th:value="${room.meetingRoomNo}" th:text="${room.meetingRoomName}">회의실명</option>
+							</th:block>
+						</th:block>
+						<!-- 필요한 회의실 옵션 추가 -->
+					</select>
+				</div>
+				<!-- 날짜별 조회 -->
+				<div class="d-flex align-items-center gap-2">
+					<label for="dateSelect" class="form-label mb-0 fw-bold">날짜 선택</label> 
+					<input type="date" id="dateSelect" class="form-control filter_btn" style="width: 200px; height: 36px;">
+				</div>
+			</div>
+			<input type="hidden" id="loginMemberNo" th:value="${#authentication.principal.member.memberNo}">
+			<table class="table align-middle text-center" id="myReservationTable">
+				<thead class="bg-light">
+					<tr>
+						<th>회의실</th>
+						<th>회의명</th>
+						<th>사용자</th>
+						<th>날짜</th>
+						<th>시간</th> 
+						<th>예약 상태</th>
+					</tr>
+				</thead>
+				<tbody id="reservation-body">
+				    <tr th:each="list : ${reservationList}"
+				        th:if="${#lists.contains(list.member_no, #authentication.principal.member.memberNo)}"
+				        class="reservation-row">
+				        <td th:text="${list.meeting_room_name}">회의실</td>
+				        <td th:text="${list.meeting_title}">회의명</td>
+				        <td th:text="${#strings.listJoin(list.member_name, ', ')}">회의인원</td>
+				        <td th:text="${list.meeting_date}">날짜</td>
+				        <td th:text="${#strings.listJoin(list.meeting_start_time, ', ')}">회의시작 시간</td>
+				        <td>
+				            <!-- 취소 가능: 상태 Y + 시간이 안 지남 -->
+					        <button type="button" class="btn bg-danger-subtle text-danger px-3 py-1 cancel_btn"
+					            th:if="${list.reservation_status == 'Y' and 
+					                    T(java.time.LocalDateTime).of(list.meeting_date, list.meeting_start_time[0])
+					                        .isAfter(T(java.time.LocalDateTime).now())}"
+					            th:attr="data-id=${list.reservation_no}">예약 취소</button>
+					
+					        <!-- 취소 불가: 상태 Y + 시간이 지남 -->
+					        <button type="button" class="btn btn-rounded btn-light px-3 py-1"
+					            th:if="${list.reservation_status == 'Y' and 
+					                    T(java.time.LocalDateTime).of(list.meeting_date, list.meeting_start_time[0])
+					                        .isBefore(T(java.time.LocalDateTime).now())}"
+					            disabled>취소 불가</button>
+					
+					        <!-- 취소 완료 -->
+					        <button type="button" class="btn bg-danger-subtle text-danger px-3 py-1"
+					            th:if="${list.reservation_status == 'N'}"
+					            disabled>취소 완료</button>
+				        </td>
+				    </tr>
+				
+				    <!-- 아무 회의도 없을 경우 -->
+				    <tr id="no-reservation-row">
+				        <td colspan="6" class="text-center">회의실 예약 목록이 없습니다.</td>
+				    </tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 	
 	<script>
 		const form = document.meetingRoom_title_form;
 		const input = document.getElementById("meetingRoomTitle");
-	
+		
+		
 		// 날짜 클릭시 회의실 선택 모달창 띄움
 		var calendarSelect = function (info) {
 			const selectedDateText = document.getElementById("selected-date-text");
@@ -235,14 +329,15 @@
 			.then(data => {
 				MeetingRoomButtons(data);
 			});
+			
+			// 회의실 예약 시간 조회 
+		    
 	
 			// 회의실 선택 모달 보여줌
 			const dateInfoModal = new bootstrap.Modal(document.getElementById("dateInfoModal"));
 			dateInfoModal.show();
 		};
 		
-		
-	
 		// 회의실 버튼 추가, 회의실 버튼 클릭 시 시간 버튼 추가 
 		function MeetingRoomButtons(meetingRoom) {
 			// btn 추가할 곳
@@ -272,7 +367,7 @@
 					// 버튼 추가 
 					container.appendChild(btn);
 					
-					// 회의실 버버튼 클릭 시 input에 회의실 roomNo 담아줌
+					// 회의실 버튼 클릭 시 input에 회의실 roomNo 담아줌
 					btn.addEventListener("click", function () {
 						const selectRoomNo = this.dataset.roomId;
 
@@ -287,37 +382,91 @@
 								b.className = "btn bg-primary-subtle text-primary";
 								b.classList.add("selected");
 							}
-						});
-
+						}); 
 					    // 클릭된 버튼만 primary 스타일 + 비활성화 처리
 					    btn.className = "btn btn-primary";
-
+					    
 					    // 기존 시간 버튼 초기화
 					    timeContainer.innerHTML = "";
-
-					    // 시간 버튼 표시
-					    let timeButtons = 
-					    	`<button type="button" class="btn bg-primary-subtle text-primary" data-time="09:00">09:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="10:00">10:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="11:00">11:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="12:00">12:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="13:00">13:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="14:00">14:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="15:00">15:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="16:00">16:00</button>
-					        <button type="button" class="btn bg-primary-subtle text-primary" data-time="17:00">17:00</button>`;
-
-					    timeContainer.innerHTML = timeButtons;
 					    
-					    // 시간 버튼 토글 
-					    timeContainer.querySelectorAll("button[data-time]").forEach(timeBtn => {
-					    	timeBtn.addEventListener("click", () => {
-					    	    timeBtn.classList.toggle("btn-primary");
-					    	    timeBtn.classList.toggle("bg-primary-subtle");
-					    	    timeBtn.classList.toggle("text-primary");
-					    	    timeBtn.classList.toggle("selected");
-					    	});
-					    });
+					    // 날짜랑 회의실 정보 불러옴
+					    const selectedDate = document.getElementById("selectDate").value;
+					    const meetingRoomNo = document.getElementById("roomNo").value;
+					    
+					    // 해당 회의실 예약 내역 조회  
+						fetch("/reservationInfo", {
+						    	  method: 'POST',
+						    	  headers: {
+						    		  'Content-Type':'application/json',
+						    	    [document.querySelector('meta[name="_csrf_header"]').content]:
+						    	      document.querySelector('meta[name="_csrf"]').content
+						    	  },
+						    	  body: JSON.stringify({
+								    		meetingRoomNo:meetingRoomNo,
+								    		selectedDate:selectedDate
+										})
+						    	  })
+						.then(response => response.json())
+						.then(data => {
+						    const timeList = [
+						        "09:00", "10:00", "11:00", "12:00",
+						        "13:00", "14:00", "15:00", "16:00", "17:00"
+						    ];
+
+						    const reservedTimeList = [];
+
+						    // ✅ 시간만 비교
+						   for (let i = 0; i < data.length; i++) {
+							    const item = data[i];
+							
+							    if (Array.isArray(item.meeting_start_time)) {
+							        const times = item.meeting_start_time.map(time => time.substring(0, 5));
+							        reservedTimeList.push(...times);
+							    } else if (typeof item.meeting_start_time === "string") {
+							        reservedTimeList.push(item.meeting_start_time.substring(0, 5));
+							    }
+							}
+
+	    
+						// 현재 날짜와 시간 체크
+						   const now = new Date();
+						   const todayStr = now.toISOString().slice(0, 10); // yyyy-MM-dd
+						   const currentHour = now.getHours();
+
+						   // 버튼 만들기 (예약된 시간 + 현재 시간 이전이면 비활성화)
+						   let timeButtons = "";
+						   for (let i = 0; i < timeList.length; i++) {
+						       const time = timeList[i];
+						       const hour = parseInt(time.split(":")[0]);
+
+						       const isPastTime = selectedDate === todayStr && hour <= currentHour;
+						       const isReserved = reservedTimeList.includes(time);
+
+						       if (isPastTime || isReserved) {
+						           timeButtons += `<button type="button" class="btn btn-rounded btn-light" disabled>${time}</button>`;
+						       } else {
+						           timeButtons += `<button type="button" class="btn bg-primary-subtle text-primary" data-time="${time}">${time}</button>`;
+						       }
+						   }
+
+
+						    timeContainer.innerHTML = timeButtons;
+
+						    // 선택 버튼 이벤트
+						    const clickableButtons = timeContainer.querySelectorAll("button[data-time]");
+						    for (let i = 0; i < clickableButtons.length; i++) {
+						        const timeBtn = clickableButtons[i];
+
+						        timeBtn.addEventListener("click", () => {
+						            timeBtn.classList.toggle("btn-primary");
+						            timeBtn.classList.toggle("bg-primary-subtle");
+						            timeBtn.classList.toggle("text-primary");
+						            timeBtn.classList.toggle("selected");
+						        });
+						    }
+						});
+
+
 					});
 				}		
 			});
@@ -326,8 +475,8 @@
 		
 		
 		// 모든 html이 있을 때 실행
+		// 첫번쨰 모달창의 정보를 가지고 두번쨰 모달창 보여줌 
 		document.addEventListener("DOMContentLoaded", () => {
-			const form = document.meetingRoom_title_form;
 			const input = document.getElementById("meetingRoomTitle");
 
 			// form 이벤트는 여기 한 번만 등록
@@ -355,59 +504,136 @@
 				const meetingTimes = [...selectTimeBtn].map(btn => btn.getAttribute("data-time"));
 				const meetingDate = form.selectDate.value;
 
+				// 정보를 form 안에 저장
+				document.querySelector("#meetingTitle").value = meetingtitle;
+				document.querySelector("#meetingRoomNo").value = meetingRoomNo;
+				document.querySelector("#meetingDate").value = meetingDate;
 				
+				// 초기화 모달 새로 열릴때를 방지 
+				document.querySelectorAll("input[name='meetingTimes']").forEach(el => el.remove());
+				
+				meetingTimes.forEach(time => {
+				    const input = document.createElement("input");
+				    input.type = "hidden";
+				    input.name = "meeting_start_time";
+				    input.value = time;
+				    document.forms["meetingRoom_reservation_form"].appendChild(input);
+				});
 
 				console.log(meetingtitle, meetingRoomNo, meetingTimes, meetingDate);
 
 				
-				// 기존 모달 숨기기
-				const dateInfoModal = bootstrap.Modal.getInstance(document.getElementById("dateInfoModal"));
-				if (dateInfoModal) dateInfoModal.hide(); // 인스턴스가 null일 수 있으니 체크!
-
 				// 새 모달 보여주기
-				const confirmModal = new bootstrap.Modal(document.getElementById("selectMemberModal"));
-				confirmModal.show();
+				const nextModal = new bootstrap.Modal(document.getElementById("selectMemberModal"));
+			    nextModal.show();
+			    
+			    const currentModal = bootstrap.Modal.getInstance(document.getElementById("dateInfoModal"));
+			    currentModal.hide();
+
 			});
 		});
 		
-		 
+		// 회의 예약 인원 선택
+		document.addEventListener("DOMContentLoaded",function(){
+			const selectBtn = document.querySelectorAll(".selectBtn");
+			const selectUserList = document.getElementById("selectMemberList");
+			const selectedUsersInputs = document.getElementById("selectedUsersInputs");
+
+			
+			document.addEventListener("click", function (e) {
+			    if (e.target.classList.contains("selectBtn")) {
+			        const memberNo = e.target.getAttribute("data-id");
+			        const memberName = e.target.getAttribute("data-name");
+			        const memberPos = e.target.getAttribute("data-pos");
+			        
+			        // 중복 방지 
+			        const result = Array.from(selectUserList.querySelectorAll("input[data-id]"))
+		                .some(input => input.getAttribute("data-id") === memberNo);
+	
+		            if (result) {
+		                return;
+		            }
+			        
+			        const li = document.createElement("li");
+			        li.className = "list-group-item";
+			        li.innerHTML = `
+					    <input 
+					        type="button" 
+					        value="-"  
+					        data-id="${memberNo}" 
+					        class="deleteBtn btn-sm btn btn-rounded btn-light">
+					    ${memberName} (${memberPos})
+					`;
+
+					    
+			     // 함께 숨은 input 생성
+			        const hiddenInput = document.createElement("input");
+			        hiddenInput.type = "hidden";
+			        hiddenInput.name = "member_no"; // 백엔드에서 이 name으로 받아요!
+			        hiddenInput.value = memberNo;
+			        hiddenInput.setAttribute("data-id", memberNo);
+
+			        // 리스트와 숨은 input 추가
+			        selectUserList.appendChild(li);
+			        selectedUsersInputs.appendChild(hiddenInput);
+			        
+			    }
+			});
+			
+		});
 		
-		
-		// 회의실 예약 - 조직도 조회
-		$('#reserve_jstree').on("changed.jstree", function (e, data) {
-		    if (data && data.selected && data.selected.length > 0) {
-		        const selectedNodeId = data.selected[0]; // 예: '2'
-		        console.log("선택된 노드 ID:", selectedNodeId);
-	
-		        // 부서 ID로 사원 목록 요청
-		        fetch('/member/dept/'+selectedNodeId)
-		            .then(response => response.json())
-		            .then(data => {
-		                const list = document.getElementById("memberList");
-		                list.innerHTML = ""; // 기존 목록 초기화
-	
-		                if (data.length === 0) {
-		                    list.innerHTML = "<li class='list-group-item'>사원이 없습니다.</li>";
-		                    return;
-		                }
-	
-		                data.forEach(member => {
-		                    const li = document.createElement("li");
-		                    li.className = "list-group-item";
-							li.innerHTML = `<input type="checkbox" value="${member.member_no}" class="member-checkbox"> ${member.member_name} (${member.pos_name})`;
-		                    // li.textContent = `<input type="checkbox" th:value='${member.member_no}'>${member.member_name} (${member.pos_name})`;
-		                    list.appendChild(li);
-		                });
-		            })
-		            .catch(err => {
-		                console.error("사원 목록 불러오기 실패:", err);
-		            });
-		    }
+
+		// 회의실 예약 인원 삭제 
+		document.addEventListener("DOMContentLoaded",function(){
+			document.addEventListener("click", function (e) {
+			    if (e.target.classList.contains("deleteBtn")) {
+			    	  const memberNo = e.target.getAttribute("data-id"); // 👈 삭제 대상 ID
+			            const li = e.target.closest("li");
+			            if (li) li.remove();
+
+			            // 해당 memberNo를 가진 hidden input 삭제
+			            const hiddenInput = document.querySelector(`#selectedUsersInputs input[data-id='${memberNo}']`);
+			            if (hiddenInput) hiddenInput.remove();
+			    }
+			});
+			
 		});
 		
 		
 		
-	
+		// 회의실 예약 버튼 클릭 시 정보 저장 
+		const lastForm = document.meetingRoom_reservation_form;
+		
+		lastForm.addEventListener('submit',(e) => {
+			e.preventDefault()
+			
+			const selectedInputs = document.querySelectorAll("#selectedUsersInputs input[name='member_no']");
+
+			if (selectedInputs.length === 0) {
+			    alert("회의에 참석할 인원을 1명 이상 선택해주세요.");
+			    return;
+			}
+			
+			const payload = new FormData(lastForm);
+			fetch("/reservation",{
+				method:'post',
+				headers : {
+					'header': document.querySelector('meta[name="_csrf_header"]').content,
+	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+				},
+				body:payload,
+			})
+			.then(response => response.json())
+			.then(data => {
+				alert(data.res_msg);
+				if (data.res_code == "200") {
+					location.reload();
+				}
+			});
+			
+		})
+		
+		
 		// 회의실 등록 모달창 리셋
 		const modal = document.getElementById('dateInfoModal');
 		modal.addEventListener('hidden.bs.modal', () => {
@@ -416,22 +642,141 @@
 		
 		// 회의실 인원 선택 모달창 리셋
 		document.getElementById("selectMemberModal").addEventListener("hidden.bs.modal", () => {
-		    // 체크박스 다 해제
-		    document.querySelectorAll('#selectMemberModal input[type="checkbox"]').forEach(checkbox => {
-		        checkbox.checked = false;
-		    });
-		
-		    // 선택된 멤버 리스트 초기화 (만약 표시 중이라면)
-		    const selectedMemberList = document.getElementById("selected-member-list");
-		    if (selectedMemberList) {
-		        selectedMemberList.innerHTML = "";
-		    }
-		
-		    // 기타 hidden input 초기화
-		    if (form && form.participants) {
-		        form.participants.value = "";
-		    }
+			document.getElementById("selectMemberList").innerHTML = "";
+
+		    // 숨겨진 input 리스트 초기화
+		    selectedUsersInputs.innerHTML = "";
 		});
+			
+		
+		// 내 회의실 예약 내역 조회 필터
+		document.addEventListener("DOMContentLoaded", function () {
+		    const filters = document.getElementsByClassName("filter_btn");
+	
+		    for (let i = 0; i < filters.length; i++) {
+		      filters[i].addEventListener("change", function () {
+		    	const memberNo = document.getElementById("loginMemberNo").value;
+		        const roomNo = document.getElementById("roomSelect").value;
+		        const date = document.getElementById("dateSelect").value;
+		        console.log(roomNo, date, memberNo);
+		        
+		        fetch("/selectFilter", {
+		        	  method: 'POST',
+		        	  headers: {
+		        		  'Content-Type':'application/json',
+		        	    [document.querySelector('meta[name="_csrf_header"]').content]:
+		        	      document.querySelector('meta[name="_csrf"]').content
+		        	  },
+		        	  body: JSON.stringify({
+							roomNo:roomNo,
+							date:date,
+							memberNo:memberNo
+						})
+		        	})
+		        	  .then(response => response.json())
+		        	  .then(data => {
+		        		  const tbody = document.querySelector("#myReservationTable tbody");
+		                  tbody.innerHTML = ""; // ✅ 초기화는 여기서!
+
+		                  if (data.length === 0) {
+		                    const emptyRow = document.createElement("tr");
+		                    emptyRow.innerHTML = `
+		                      <td colspan="6" class="text-center">검색 결과가 없습니다.</td>
+		                    `;
+		                    tbody.appendChild(emptyRow);
+		                    return;
+		                  }
+
+		                  data.forEach(list => {
+		                    const tr = document.createElement("tr");
+
+		                    tr.innerHTML = `
+		                    	  <td>${list.meeting_room_name}</td>
+		                    	  <td>${list.meeting_title}</td>
+		                    	  <td>${Array.isArray(list.member_name) ? list.member_name.join(", ") : ''}</td>
+		                    	  <td>${list.meeting_date}</td>
+		                    	  <td>${Array.isArray(list.meeting_start_time) 
+		                    	        ? list.meeting_start_time.map(time => time.slice(0, 5)).join(", ") 
+		                    	        : ''}</td>
+		                    	  <td>
+		                    	    ${list.reservation_status === 'Y'
+		                    	      ? isFuture(list.meeting_date, list.meeting_start_time[0])
+		                    	        ? `<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1 cancel_btn" data-id="${list.reservation_no}">예약 취소</button>`
+		                    	        : `<button type="button" class="btn btn-rounded btn-light px-3 py-1" disabled>취소 불가</button>`
+		                    	      : `<button type="button" class="btn bg-danger-subtle text-danger px-3 py-1" disabled>취소 완료</button>`
+		                    	    }
+		                    	  </td>
+		                    	`;
+
+
+		                    tbody.appendChild(tr);
+		        		  })
+		        	  });
+		      });
+		    }
+		  });
+		
+		// 회의실 예약 내역 목록 개수 
+		document.addEventListener("DOMContentLoaded", function () {
+	        const reservationRows = document.querySelectorAll(".reservation-row");
+	        const noDataRow = document.getElementById("no-reservation-row");
+	
+	        if (reservationRows.length > 0) {
+	            noDataRow.style.display = "none";
+	        } else {
+	            noDataRow.style.display = "";
+	        }
+	    });
+		
+		// 취소 시간 비교 함수
+		function isFuture(dateStr, timeStr) {
+		  const now = new Date();
+		  const dateTime = new Date(`${dateStr}T${timeStr}`);
+		  return dateTime > now;
+		}
+
+	
+		// 회의실 예약 취소 cancel_btn
+		document.addEventListener("DOMContentLoaded", function () {
+		    const tbody = document.querySelector("#myReservationTable tbody");
+		
+		    tbody.addEventListener("click", function (e) {
+		        const btn = e.target.closest(".cancel_btn");
+		        if (btn) {
+		        	  const reservationNo = btn.getAttribute("data-id");
+
+		        	  async function cancelReservation(reservationNo) {
+		        	    const confirmed = await confirm("회의실 예약을 취소하시겠습니까?");
+		        	    if (!confirmed) return;
+
+		        	    try {
+		        	      const response = await fetch('/delete/' + reservationNo, {
+		        	        method: 'POST',
+		        	        headers: {
+		        	          'header': document.querySelector('meta[name="_csrf_header"]').content,
+		        	          'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+		        	        },
+		        	      });
+
+		        	      const data = await response.json();
+		        	      await alert(data.res_msg); // ✅ 커스텀 alert 작동됨
+
+		        	      if (data.res_code == 200) {
+		        	        location.reload();
+		        	      }
+		        	    } catch (error) {
+		        	      console.error("예약 취소 중 오류:", error);
+		        	    }
+		        	  }
+
+		        	  cancelReservation(reservationNo); 
+		        	}
+		    });
+		});
+
+
+
+	
 	</script>
 
 	<!-- Bootstrap Common JS Files Start -->
@@ -460,7 +805,7 @@
 
 	<script
 		src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-	<script src="../assets/libs/fullcalendar/index.global.min.js"></script>
-	<script src="../js/custom/meetingRoomCalendar.js"></script>
+	<script src="../js/ysw/fullcalendar/index.global.min.js"></script>
+	<script src="../js/ysw/meetingRoomCalendar.js"></script>
 </th:block>
 </html>

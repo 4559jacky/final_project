@@ -1,0 +1,356 @@
+package com.mjc.groupware.attendance.controller;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
+import com.mjc.groupware.attendance.dto.AttendPageDto;
+import com.mjc.groupware.attendance.dto.AttendanceDto;
+import com.mjc.groupware.attendance.dto.HolidayDto;
+import com.mjc.groupware.attendance.dto.MemberAttendanceDto;
+import com.mjc.groupware.attendance.dto.SearchDto;
+import com.mjc.groupware.attendance.dto.WeeklyWorkDto;
+import com.mjc.groupware.attendance.dto.WorkSchedulePolicyDto;
+import com.mjc.groupware.attendance.entity.AnnualLeavePolicy;
+import com.mjc.groupware.attendance.entity.Attendance;
+import com.mjc.groupware.attendance.entity.Holiday;
+import com.mjc.groupware.attendance.entity.WorkSchedulePolicy;
+import com.mjc.groupware.attendance.repository.AnnualLeavePolicyRepository;
+import com.mjc.groupware.attendance.repository.AttendanceRepository;
+import com.mjc.groupware.attendance.repository.HolidayRepository;
+import com.mjc.groupware.attendance.repository.WorkSchedulePolicyRepository;
+import com.mjc.groupware.attendance.service.AttendanceService;
+import com.mjc.groupware.attendance.service.HolidayService;
+import com.mjc.groupware.dept.entity.Dept;
+import com.mjc.groupware.dept.service.DeptService;
+import com.mjc.groupware.member.dto.MemberDto;
+import com.mjc.groupware.member.dto.MemberSearchDto;
+import com.mjc.groupware.member.dto.PageDto;
+import com.mjc.groupware.member.entity.Member;
+import com.mjc.groupware.member.repository.MemberRepository;
+import com.mjc.groupware.member.service.MemberService;
+import com.mjc.groupware.member.service.RoleService;
+import com.mjc.groupware.plan.entity.Plan;
+import com.mjc.groupware.plan.service.PlanService;
+import com.mjc.groupware.pos.entity.Pos;
+import com.mjc.groupware.pos.service.PosService;
+
+import lombok.RequiredArgsConstructor;
+
+@Controller
+@RequiredArgsConstructor
+public class AttendanceController {
+	
+	private final MemberService service;
+	private final PosService posService;
+	private final DeptService deptService;
+	private final RoleService roleService;
+	private final AttendanceService attendanceService;
+	private final WorkSchedulePolicyRepository workSchedulePolicyRepository;
+	private final AnnualLeavePolicyRepository annualLeavePolicyRepository;
+	private final MemberService memberService;
+	private final MemberRepository memberRepository;
+	private final AttendanceRepository attendanceRepository;
+	private final PlanService planService;
+	private final HolidayRepository holidayRepository;
+	private final HolidayService holidayService;
+	
+	@GetMapping("/attendance/management")
+	public String attendanceManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
+
+	    // 기본값: 오늘 날짜
+	    LocalDate targetDate = (searchDto.getTarget_date() != null) ? searchDto.getTarget_date() : LocalDate.now(ZoneId.of("Asia/Seoul"));
+
+	    // 페이징 처리
+	    if (pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    Page<Member> memberPage = service.selectMemberAll(searchDto, pageDto);
+	    pageDto.setTotalPage(memberPage.getTotalPages());
+
+	    // 날짜별 출근 정보 바인딩
+	    List<MemberAttendanceDto> dtoList = new ArrayList<>();
+	    for (Member member : memberPage.getContent()) {
+	        Attendance att = attendanceRepository.findByMemberAndAttendDate(member, targetDate);
+	        dtoList.add(new MemberAttendanceDto(member, att));
+	    }
+
+	    model.addAttribute("targetDate", targetDate); // 👉 뷰에서 날짜 초기값 표시용
+	    model.addAttribute("memberAttendanceList", dtoList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    
+	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	    model.addAttribute("workSchedulePolicy", wsp);
+	    
+	    // 부서/직책/정책 리스트
+	    model.addAttribute("deptList", deptService.selectDeptAll());
+	    model.addAttribute("posList", posService.selectPosAll());
+	    model.addAttribute("annualLeavePolicyList", annualLeavePolicyRepository.findAllByOrderByYearAsc());
+
+	    return "attendance/admin/attendanceManagement";
+	}
+	
+	// 근태 정책 업데이트
+	@PostMapping("/attendance/manage")
+	@ResponseBody
+	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		
+		resultMap = attendanceService.workTimeUpdateApi(dto);
+		
+		return resultMap;
+	}
+	
+	
+	// 사원의 근태 정보 업데이트
+	@PostMapping("/member/attendance/update/{id}")
+	@ResponseBody
+	public Map<String,String> memberAttendStatusUpdateApi(@PathVariable("id") Long id, @RequestBody AttendanceDto dto) {
+	    Member member = memberRepository.findById(id).orElse(null);
+	    Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "회원 근태 정보 수정을 실패하였습니다.");
+		
+		int result = attendanceService.memberAttendStatusUpdateApi(member, dto);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "회원 근태 정보가 수정되었습니다.");
+		}
+		
+		return resultMap;
+	    
+	}
+	
+	
+	
+	// 연차 관리페이지로 이동
+	@GetMapping("/annual/management")
+	public String annualManagementViewApi(Model model, MemberSearchDto searchDto, PageDto pageDto) {
+		
+		if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+		
+		Page<Member> memberList = service.selectMemberAllForAnnual(searchDto, pageDto);
+		
+		pageDto.setTotalPage(memberList.getTotalPages());
+		
+		List<Dept> deptList = deptService.selectDeptAll();
+		List<Pos> posList = posService.selectPosAll();
+		List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+//		List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+		
+		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+	    model.addAttribute("today", today);
+//		model.addAttribute("holidayList", holidayList);
+		model.addAttribute("memberList", memberList);
+		model.addAttribute("deptList", deptList);
+		model.addAttribute("posList", posList);
+		model.addAttribute("searchDto", searchDto);
+		model.addAttribute("pageDto", pageDto);
+		model.addAttribute("annualLeavePolicyList", annualLeavePolicyList);
+		
+		return "attendance/admin/annualLeaveManagement";
+	}
+	
+	@GetMapping("/holiday")
+	@ResponseBody
+	public List<Holiday> holidayPolicyViewApi() {
+		List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+		return holidayList;
+	}
+	
+	@PostMapping("/holiday/create")
+	@ResponseBody
+	public Map<String,Object> holidayCreateApi(HolidayDto holidayDto) {
+		Map<String,Object> resultMap = holidayService.holidayCreateApi(holidayDto);
+		return resultMap;
+	}
+	
+	@PostMapping("/holiday/update")
+	@ResponseBody
+	public Map<String,Object> holidayUpdateApi(HolidayDto holidayDto) {
+		Map<String,Object> resultMap = holidayService.holidayUpdateApi(holidayDto);
+		return resultMap;
+	}
+	
+	@DeleteMapping("/holiday/delete/{id}")
+	@ResponseBody
+	public Map<String,Object> holidayDeleteApi(@PathVariable("id") Long id) {
+		Map<String,Object> resultMap = holidayService.holidayDeleteApi(id);
+		return resultMap;
+	}
+	
+	
+	@GetMapping("/annual")
+	@ResponseBody
+	public List<AnnualLeavePolicy> annualPolicyViewApi() {
+		List<AnnualLeavePolicy> resultList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+		return resultList;
+	}
+	
+	// 연차 정책 업데이트
+	@PostMapping("/annualPolicy/update")
+	@ResponseBody
+	public Map<String,Object> annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		resultMap = attendanceService.annualPolicyUpdateApi(dto);
+		if(resultMap.get("res_code").equals("200")) {
+			List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+			resultMap.put("annualLeavePolicyList", annualLeavePolicyList);
+		}
+		return resultMap;
+	}
+	
+	// 연차 정책 삭제
+	@DeleteMapping("/annualPolicy/delete/{year}")
+	@ResponseBody
+	public Map<String,Object> annualPolicyDeleteApi(@PathVariable("year") int year) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		resultMap = attendanceService.annualPolicyDeleteApi(year);
+		
+		if(resultMap.get("res_code").equals("200")) {
+			List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+			resultMap.put("annualLeavePolicyList", annualLeavePolicyList);
+		}
+		
+		return resultMap;
+	}
+	
+	@PostMapping("/member/annual/update/{id}")
+	@ResponseBody
+	public Map<String,String> memberAnnualUpdateApi(@PathVariable("id") Long memberNo, @RequestParam("annual_leave") double annualLeave) {
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "500");
+		resultMap.put("res_msg", "회원 연차 수정을 실패하였습니다.");
+		
+		int result = attendanceService.memberAnnualUpdateApi(memberNo, annualLeave);
+		
+		if(result > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "회원 연차가 수정되었습니다.");
+		}
+		
+		return resultMap;
+	}
+	
+	
+	
+	// 일반 사용자 근태 정보
+	
+	// 근태 페이지로 이동
+	@GetMapping("/attendance/info")
+	public String attendanceInfoViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails, AttendPageDto pageDto, SearchDto searchDto) {
+		
+		String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+
+	    LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+
+	    Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(member.getMemberNo(), today);
+	    if (attendance != null) {
+	        AttendanceDto dto = new AttendanceDto().toDto(attendance);
+	        model.addAttribute("todayAttendance", dto);
+	    }
+	    model.addAttribute("member", member);
+	    
+	    // 오늘 날짜의 휴가가 있는지
+	    Plan plan = planService.selectAnnualPlan(member, today);
+	    System.out.println("휴가 일정 : " + plan);
+	    model.addAttribute("plan", plan);
+	    
+	    WorkSchedulePolicy wsp = workSchedulePolicyRepository.findById(1L).orElse(null);
+	    model.addAttribute("workPolicy", wsp);
+	    
+	    return "attendance/user/attendanceInfo";
+	}
+	
+	@GetMapping("/attendance/log")
+	public String attendanceLogViewApi(Model model, @AuthenticationPrincipal UserDetails userDetails, AttendPageDto pageDto, SearchDto searchDto) {
+		
+		String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member member = memberService.selectMemberOne(memberDto);
+	    
+	    if(pageDto.getNowPage() == 0) pageDto.setNowPage(1);
+	    
+	    Page<Attendance> attendancePageList = attendanceService.selectAttendanceAllByFilter(member, searchDto, pageDto);
+	    pageDto.setTotalPage(attendancePageList.getTotalPages());
+	    
+	    model.addAttribute("attendanceList", attendancePageList);
+	    model.addAttribute("pageDto", pageDto);
+	    model.addAttribute("searchDto", searchDto);
+	    model.addAttribute("member", member);
+		
+		return "attendance/user/attendanceLog";
+	}
+	
+	// 출근 시간 저장
+	@PostMapping("/attendance/saveStartTime")
+	@ResponseBody
+	public Map<String,Object> saveStartTime(@RequestBody AttendanceDto dto,
+	                            @AuthenticationPrincipal UserDetails userDetails) {
+
+	    // 유저 정보
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    Map<String,Object> resultMap = attendanceService.saveStartTime(member, dto);
+	    
+	    return resultMap;
+	}
+	
+	// 퇴근 시간 저장
+	@PostMapping("/attendance/saveEndTime")
+	@ResponseBody
+	public Map<String,Object> saveEndTime(@RequestBody AttendanceDto dto,
+								@AuthenticationPrincipal UserDetails userDetails) {
+		// 유저 정보
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    Map<String,Object> resultMap = attendanceService.saveEndTime(member, dto);
+	    
+	    return resultMap;
+	}
+	
+	
+	// 오늘 기준 이번주의 근무시간 가져오기
+	@GetMapping("/attendance/weeklyHours")
+	@ResponseBody
+	public List<WeeklyWorkDto> getWeeklyWorkTime( @RequestParam(name = "startDate") String startDate,
+		    @RequestParam(name = "endDate") String endDate, @AuthenticationPrincipal UserDetails userDetails) {
+		// 유저 정보
+	    String userId = userDetails.getUsername();
+	    MemberDto memberDto = new MemberDto();
+	    memberDto.setMember_id(userId);
+	    Member entity = memberService.selectMemberOne(memberDto);
+	    MemberDto member = new MemberDto().toDto(entity);
+	    
+	    return attendanceService.getWeeklyWorkTime(startDate, endDate, member);
+	}
+}

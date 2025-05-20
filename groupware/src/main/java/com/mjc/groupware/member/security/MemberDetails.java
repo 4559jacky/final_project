@@ -1,5 +1,6 @@
 package com.mjc.groupware.member.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,7 +24,10 @@ public class MemberDetails implements UserDetails {
 	// 사용자 권한 설정
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of(new SimpleGrantedAuthority(member.getRole().getRoleName()));
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority(member.getRole().getRoleName()));
+		
+		return authorities;
 	}
 	
 	// 사용자 PW 반환
@@ -31,7 +35,7 @@ public class MemberDetails implements UserDetails {
 	public String getPassword() {
 		return member.getMemberPw();
 	}
-
+	
 	// 사용자 ID 반환
 	@Override
 	public String getUsername() {
@@ -60,7 +64,10 @@ public class MemberDetails implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		// 계정이 사용 가능한지 확인하는 로직이 필요하다면 추가할 것
-		return true;
+		
+		// 로그인 직전 :: 로그인 하려는 멤버 객체의 상태를 뽑아서 300 || 400, 401, 402 || 900 일 경우 차단
+		int status = member.getStatus();
+	    return !(status == 300 || status >= 400 && status <= 402 || status == 900);
 	}
 	
 }

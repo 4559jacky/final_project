@@ -24,3 +24,149 @@
 	flex-grow: 1;
 	text-align: center;
 }
+
+.table td {
+		color: black !important;
+	}
+	
+.unread-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  height: auto;
+  line-height: 1;
+  display: inline-block;
+}
+
+#chat-alert-modal.show {
+  display: block !important;
+  position: fixed !important;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1080;
+  animation: fadeInUp 0.4s ease;
+}
+
+.chat-toast-wrapper {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+}
+
+.chat-toast {
+  width: 350px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  pointer-events: auto;
+}
+
+ #chat-alert-toast .toast {
+    border: none;
+    border-radius: 0.5rem; /* 전체 모서리 */
+    overflow: hidden;      /* 내부 요소 모서리 맞춤 */
+  }
+
+  #chat-alert-toast .toast-header {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+  }
+  
+  .download-btn {
+  transition: opacity 0.2s ease;
+}
+
+.file-hover-area:hover .download-btn {
+  opacity: 1 !important;
+}
+
+.app-chat-offcanvas {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-application {
+  height: 820px;  /* 누님 레이아웃이면 이게 깔끔 */
+  display: flex;
+  flex-direction: column;
+}
+.chat-box-inner {
+	display: block !important;
+	height: 660px !important;
+}
+
+.offcanvas-body {
+  overflow: auto !important;
+  height: auto !important; /* 또는 지우기 */
+  min-height: 0;
+}
+
+.px-9 py-6 border-top text-center {
+ 	display: block !important;
+ 	height: 40px !important;
+ }
+ 
+
+.simplebar-placeholder {
+  display: block !important;
+  height: 660px !important;
+}
+
+.chat-box.w-xs-100 {
+  display: block !important;
+  height: 740px !important;
+}
+
+.app-chat-right {
+  display: block !important;
+  height: 900px !important;
+}
+
+
+
+#chat-image-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+#chat-image-list > div {
+  width: 100%;
+}
+.chat-img-clickable {
+  width: 80px !important;
+  height: 80px !important;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.chat-file-list a {
+  display: flex;
+  flex-direction: column;     /* ✅ 위아래로 쌓게 해서 줄어듦 */
+  white-space: normal !important;  /* ✅ 줄바꿈 허용 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-file-list h6 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+#chat-file-list {
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.offcanvas-body {
+  overflow: hidden !important;
+}
+
+
+

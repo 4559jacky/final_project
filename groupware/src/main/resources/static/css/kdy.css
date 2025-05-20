@@ -1,1 +1,415 @@
 @charset "UTF-8";
+
+/* 기존 스타일 유지 */
+.table td {
+    color: black !important;
+}
+
+#start-editor img {
+    max-width: 50%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.file-link {
+    display: inline-block;
+    color: inherit; /* 관리자나 Bootstrap의 상위 요소 색상 따라감 */
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.file-link:hover {
+    color: inherit; /* 마우스 오버 시에도 상위 색상 유지 */
+    text-decoration: underline;
+}
+
+.file-preview img {
+    margin-top: 10px;
+    max-width: 200px;
+    height: auto;
+    display: block;
+}
+
+.fixed-row td {
+    background-color: #f3e5f5 !important;
+    color: black !important;
+    font-weight: bold;
+}
+
+.fixed-row {
+    background-color: #e8d9ff !important;
+    color: rgb(0, 0, 0) !important;
+}
+
+/* 게시글 상세 영역 스크롤 제한 */
+#board-detail {
+    max-height: 100vh; /* 화면 높이의 60%로 제한 */
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+/* 댓글 컨테이너 */
+#comment-container {
+    position: relative; /* 댓글창 고정의 기준점 */
+    padding: 20px;
+    margin-bottom: 80px; /* 댓글창 높이만큼 여백 */
+}
+
+/* 댓글 작성 영역 고정 */
+.comment-write {
+    position: static; /* #comment-container 내에서 하단 고정 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 1260px;
+    margin: 0 auto;
+    padding: 15px 20px;
+    background-color: white;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    
+}
+
+/* 대댓글 작성 영역 */
+.sub-reply-write {
+    background-color: #f8f9fa;
+    color: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+/* 댓글/대댓글 작성 텍스트 영역 */
+.comment-write textarea,
+.sub-reply-write textarea {
+    resize: none;
+    height: 80px; /* 버튼 높이와 동일 */
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* 댓글/대댓글 작성 버튼 */
+.comment-write button,
+.sub-reply-write button {
+    min-width: 80px;
+    height: 80px; /* 텍스트 영역과 동일 */
+    font-size: 1rem;
+}
+
+/* 로그인 후 댓글 작성 안내 메시지 */
+.comment-write .text-muted {
+    font-size: 0.875rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* 페이지 컨텐츠 여백 */
+body {
+    padding-bottom: 20px; /* 불필요한 여백 최소화 */
+}
+
+/* 댓글 아이템 */
+.reply-item {
+    background-color: #ffffff;
+    color: black;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+/* 댓글 프로필 아이콘 */
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #ffffff;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* 댓글 수정 폼 */
+.reply-edit-form {
+    display: none;
+}
+
+/* 대댓글 아이템 */
+.sub-reply-item {
+    background-color: #f1f3f5;
+    color: black;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+/* 대댓글 리스트 */
+.sub-reply-list {
+    padding-left: 30px;
+}
+
+/* 대댓글 리스트 접기/펴기 */
+.sub-reply-list.collapsed {
+    display: none;
+}
+
+/* 답글 버튼 스타일 */
+.reply-action-text {
+    color: rgb(128, 128, 128);
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+.reply-action-text.has-sub-replies {
+    font-weight: bold;
+    display: inline-block; /* 여백이 잘 적용되도록 설정 */
+    margin-top: 10px;        /* 위쪽 여백 */
+    margin-bottom: 10px;     /* 아래쪽 여백 */
+}
+
+/* 댓글 내용 */
+.reply-content {
+    white-space: pre-wrap; /* 긴 텍스트 줄바꿈 처리 */
+}
+/* 맨 앞 div창 크기 조절 */
+.custom-padding {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    min-height: 200px; /* 최소 높이 설정, 필요에 따라 값 조정 */
+}
+.x-remove-btn {
+  border: none;
+  background: none;
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #000;
+  cursor: pointer;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+.x-remove-btn:hover {
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+/* 🌞 기본 라이트 모드 */
+body:not(.dark-mode) .toastui-editor-defaultUI {
+  border: 1px solid #ced4da;
+  border-radius: 0.5rem;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #ffffff;
+  z-index: 1 !important;
+}
+
+body:not(.dark-mode) .toastui-editor-defaultUI-toolbar {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+body:not(.dark-mode) .toastui-editor-defaultUI-toolbar button {
+  border-radius: 0.375rem;
+  font-weight: 500;
+  color: #212529;
+}
+
+body:not(.dark-mode) .toastui-editor-defaultUI-toolbar button:hover {
+  background-color: #e2e6ea;
+}
+
+body:not(.dark-mode) .toastui-editor-contents {
+  font-size: 1rem;
+  color: #212529;
+  padding: 1rem;
+  background-color: #fff;
+  line-height: 1.6;
+}
+
+body:not(.dark-mode) .toastui-editor-contents img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+}
+
+body:not(.dark-mode) .toastui-editor-contents pre {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+body:not(.dark-mode) .toastui-editor-contents a {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+
+body:not(.dark-mode) .toastui-editor-md-container {
+  background-color: #ffffff;
+  padding: 1rem;
+}
+
+body:not(.dark-mode) .toastui-editor-defaultUI textarea,
+body:not(.dark-mode) .toastui-editor-defaultUI .ProseMirror {
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+body:not(.dark-mode) .toastui-editor-defaultUI .toastui-editor-ww-container {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* 🌙 다크 모드 (Editor + 읽기 전용 콘텐츠 대응) */
+body.dark-mode .toastui-editor-defaultUI,
+.toastui-editor-dark.toastui-editor-defaultUI {
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #1e1e2f;
+  z-index: 1 !important;
+}
+
+body.dark-mode .toastui-editor-defaultUI-toolbar,
+.toastui-editor-dark .toastui-editor-defaultUI-toolbar {
+  background-color: #2a2a3d;
+  border-bottom: 1px solid #444;
+}
+
+body.dark-mode .toastui-editor-defaultUI-toolbar button,
+.toastui-editor-dark .toastui-editor-defaultUI-toolbar button {
+  border-radius: 0.375rem;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+body.dark-mode .toastui-editor-defaultUI-toolbar button:hover,
+.toastui-editor-dark .toastui-editor-defaultUI-toolbar button:hover {
+  background-color: #444;
+}
+
+body.dark-mode .toastui-editor-contents,
+.toastui-editor-dark .toastui-editor-contents {
+  font-size: 1rem;
+  color: #e0e0e0;
+  padding: 1rem;
+  background-color: #1e1e2f;
+  line-height: 1.6;
+}
+
+body.dark-mode .toastui-editor-contents img,
+.toastui-editor-dark .toastui-editor-contents img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+}
+
+body.dark-mode .toastui-editor-contents pre,
+.toastui-editor-dark .toastui-editor-contents pre {
+  background-color: #2b2b3d;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+body.dark-mode .toastui-editor-contents a,
+.toastui-editor-dark .toastui-editor-contents a {
+  color: #9ecbff ;
+  text-decoration: underline;
+}
+
+body.dark-mode .toastui-editor-md-container,
+.toastui-editor-dark .toastui-editor-md-container {
+  background-color: #1e1e2f;
+  padding: 1rem;
+  color: #e0e0e0;
+}
+
+body.dark-mode .toastui-editor-defaultUI textarea,
+body.dark-mode .toastui-editor-defaultUI .ProseMirror,
+.toastui-editor-dark .toastui-editor-defaultUI textarea,
+.toastui-editor-dark .toastui-editor-defaultUI .ProseMirror {
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: #1e1e2f;
+  color: #e0e0e0;
+}
+
+body.dark-mode .toastui-editor-defaultUI .toastui-editor-ww-container,
+.toastui-editor-dark .toastui-editor-defaultUI .toastui-editor-ww-container {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+[data-bs-theme="dark"] .reply-item,
+[data-bs-theme="dark"] .sub-reply-item {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .comment-write {
+    background-color: #212529;
+    color: #f8f9fa;
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: #212529 !important;
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .custom-padding {
+    background-color: #1e1e1e !important;
+    color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] .sub-reply-write {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+    border-color: #444;
+}
+
+[data-bs-theme="dark"] .reply-content {
+    color: #f8f9fa;
+}
+
+.minus-btn-style {
+  background-color: #e0e0e0; /* 회색 배경 */
+  border: none;
+  padding: 4px 10px;
+  margin-left: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#voteResultChart {
+/*   box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4),
+              0 0 30px rgba(13, 110, 253, 0.2); */
+  border-radius: 12px;
+}
+

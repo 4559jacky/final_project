@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{include/layout :: layout}">
+<th:block layout:fragment="content">
+<style>
+  #member-tbody tr {
+    cursor: pointer; /* 커서 포인터 설정 */
+    transition: background 0.2s ease-in-out;
+  }
+
+  #member-tbody tr:hover {
+    background-color: #f1f3f5; /* 살짝 하이라이트 효과 */
+  }
+</style>
+	
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	
+	<link th:href="@{/css/cjs/member_list.css}" rel="stylesheet">
+	
+	<div class="page-titles mb-7 mb-md-5">
+	  <div class="row">
+	    <div class="col-12">
+	      <nav aria-label="breadcrumb">
+	        <ol class="breadcrumb align-items-center">
+	          <li class="breadcrumb-item">
+	            <a class="text-muted text-decoration-none" th:href="@{/home}">
+	              <i class="ti ti-home fs-5"></i>
+	            </a>
+	          </li>
+	          <li class="breadcrumb-item" aria-current="page">근태 / 연차 관리</li>
+	        </ol>
+	      </nav>
+	
+	      <div class="d-flex justify-content-between align-items-center mt-3">
+			  <h2 class="mb-0 fw-bolder fs-5">연차 관리</h2>
+			
+			  <div class="d-flex gap-2">
+			    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#holidayPolicyModal">
+			      휴일 정책 보기
+			    </button>
+			    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annualPolicyModal">
+			      연차 정책 보기
+			    </button>
+			  </div>
+			</div>
+	    </div>
+	  </div>
+	</div>
+
+
+	<div class="card w-100 border position-relative overflow-hidden">
+   		<div class="card-body p-4">
+   			<form name="attendance_members_form" action="/annual/management" method="get">
+   				<div class="d-flex justify-content-between align-items-center mb-3">
+		  
+				  <div class="d-flex align-items-center">
+				    <h4 class="card-title fw-bold mb-0 me-3" style="min-width: 100px;">사원 목록</h4>
+					
+				    <div class="input-group">
+				      <th:block th:if="${searchDto.search_text != null}">
+					  	<input type="text" id="search_text" name="search_text" th:value="${searchDto.search_text}" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
+				      </th:block>
+				      <th:block th:if="${searchDto.search_text == null}">
+				      	<input type="text" id="search_text" name="search_text" class="form-control form-control-sm" placeholder="사원명(사번) 검색" />
+				      </th:block>
+				      <button class="btn btn-primary btn-sm" id="searchBtn">검색</button>
+				      <button class="btn btn-secondary btn-sm" id="resetBtn" type="button">초기화</button>
+				    </div>
+				  </div>
+				  
+				  <div style="max-width: 200px;">
+					  <select name="reg_date_order" id="reg_date_order" class="form-select form-select-sm" style="width: 100%;">
+					    <option th:value="1" th:selected="${searchDto.reg_date_order == 1}">입사일 빠른 순</option>
+					    <option th:value="2" th:selected="${searchDto.reg_date_order == 2}">입사일 늦은 순</option>
+					  </select>
+					</div>
+				
+				</div>
+				<input type="hidden" th:value="${today}" id="today">
+				<div class="table-responsive mb-4 border rounded-1">
+		               <table class="table text-nowrap mb-0 align-middle">
+		                 <thead class="text-dark fs-4">
+		                   <tr>
+		                     <!-- <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">선택</h6>
+		                     </th> -->
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">사원명(사번)</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">입사일</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">근속 연수</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">연간 연차</h6>
+		                     </th>
+		                     <th>
+		                       <h6 class="fs-4 fw-semibold mb-0">남은 연차</h6>
+		                     </th>
+		                   </tr>
+		                 </thead>
+		                 <tbody id="member-tbody" class="member-tbody">
+		              		<tr th:each="member : ${memberList}" th:attr="data-member-no=${member.memberNo}">
+							<!-- <td>
+								<input type="checkbox" class="form-check-input member-checkbox me-2" th:attr="data-member-no=${member.memberNo}">
+							</td> -->
+							<td class="text-center">
+								<div>
+									<h6 class="fs-4 fw-semibold mb-0 member-name" th:text="${member.memberName}">사원명</h6>
+									<span class="fw-normal" th:text="|#${member.memberNo}|">#사번</span>
+								</div>
+								<input type="hidden" id="memberNo" th:value="${member.memberNo}">
+							</td>
+							<td class="text-center">
+							    <h6 class="fs-4 fw-semibold mb-0" th:text="${#temporals.format(member.regDate,'yyyy.MM.dd')}">입사일</h6>
+							</td>
+							<td class="text-center">
+							  	<h6 class="fs-4 fw-semibold mb-0 th-year" th:attr="data-reg-date=${#temporals.format(member.regDate, 'yyyy-MM-dd')}">0년차</h6>
+							</td>
+							<td class="text-center">
+							  <h6 class="fs-4 fw-semibold mb-0">
+							    <span th:each="policy : ${annualLeavePolicyList}"
+								        th:if="${policy.year == (T(java.time.LocalDate).now().isBefore(member.regDate.plusYears(1)) 
+								                                  ? 0 
+								                                  : T(java.time.Period).between(member.regDate, T(java.time.LocalDate).now()).getYears())}"
+								        th:text="${policy.leaveDays}">연차</span>
+								
+								  <!-- 연차 정책이 없는 경우: 1년 미만이면서 정책 없음 -->
+								  <span th:unless="${#lists.contains(annualLeavePolicyList.?[year == 0], true)}"
+								        th:if="${T(java.time.LocalDate).now().isBefore(member.regDate.plusYears(1))}">-</span>
+
+							  </h6>
+							</td>
+							<td class="text-center">
+								<h6 class="fs-4 fw-semibold mb-0" th:text="${member.annualLeave}">16</h6>
+							</td>
+					  	</tr>
+					  	<tr th:if="${memberList == null}">
+					  		<td colspan="7">사원 정보가 없습니다.</td>
+					  	</tr>
+		                 	</tbody>
+		               </table>
+		             
+		             </div>
+		              
+				<div class="d-flex justify-content-center align-items-center mt-3 position-relative">
+		
+				  <nav>
+					  <ul class="pagination mb-0">
+					
+					    <!-- 이전 페이지 -->
+					    <li class="page-item" th:if="${pageDto.prev}">
+					      <a class="page-link"
+					         th:href="@{/annual/management(
+					           nowPage=${pageDto.pageBarStart - 1},
+					           search_text=${searchDto.search_text},
+					           reg_date_order=${searchDto.reg_date_order}
+					         )}" aria-label="Previous">
+					        <span aria-hidden="true">&laquo;</span>
+					      </a>
+					    </li>
+					
+					    <!-- 페이지 번호 -->
+					    <th:block th:each="num : ${#numbers.sequence(pageDto.pageBarStart, pageDto.pageBarEnd)}">
+					      <li class="page-item" th:classappend="${pageDto.nowPage == num} ? 'active'">
+					        <a class="page-link"
+					           th:classappend="${pageDto.nowPage == num} ? ' text-bg-primary border-primary text-white'"
+					           th:href="@{/annual/management(
+					             nowPage=${num},
+					             search_text=${searchDto.search_text},
+					             reg_date_order=${searchDto.reg_date_order}
+					           )}"
+					           th:text="${num}">페이지</a>
+					      </li>
+					    </th:block>
+					
+					    <!-- 다음 페이지 -->
+					    <li class="page-item" th:if="${pageDto.next}">
+					      <a class="page-link"
+					         th:href="@{/annual/management(
+					           nowPage=${pageDto.pageBarEnd + 1},
+					           search_text=${searchDto.search_text},
+					           reg_date_order=${searchDto.reg_date_order}
+					         )}" aria-label="Next">
+					        <span aria-hidden="true">&raquo;</span>
+					      </a>
+					    </li>
+					
+					  </ul>
+					</nav>
+				  
+				</div>
+  			</form>
+  		</div>
+	</div>
+	
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const regDateOrder = document.getElementById('reg_date_order');
+		regDateOrder.addEventListener('change', function(){
+			const reg_date_order = this.value;
+			const search_text = document.getElementById('search_text').value;
+			
+			location.href = '/annual/management?search_text='+search_text+'&reg_date_order='+reg_date_order;
+		})
+	});
+	</script>
+	
+	<div class="modal fade" id="holidayPolicyModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" style="max-width: 1000px;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="fw-bold mb-0">휴일 정책 설정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	
+	      <div class="modal-body">
+	        <!-- 📌 등록 폼 영역 -->
+	        <form name="holiday_form" action="/holiday/create" method="post">
+	          <div class="d-flex justify-content-between align-items-center mb-4 w-100">
+	            <div class="d-flex align-items-center gap-2 flex-wrap">
+	              <span>이름</span>
+	              <input type="text" class="form-control" name="holiday_name" id="holiday_name" placeholder="휴일명" style="max-width: 120px;">
+	              <span>날짜</span>
+	              <input type="date" class="form-control" name="holiday_date" id="holiday_date" placeholder="연차일수" style="max-width: 150px;">
+	              
+	              <button type="submit" class="btn btn-primary">저장</button>
+	            </div>
+	          </div>
+	        </form>
+	
+	        <!-- 📌 연차 정책 보기 제목 -->
+	        <h5 class="fw-bold mb-3">휴일 정보</h5>
+	
+	        <!-- 📌 표 영역 -->
+	        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+	          <table class="table table-bordered text-center align-middle">
+	            <thead class="table-light">
+	              <tr>
+	                <th style="width:40%;">이름</th>
+	                <th style="width:40%;">날짜</th>
+	                <th style="width:10%;">수정</th>
+	                <th style="width:10%;">삭제</th>
+	              </tr>
+	            </thead>
+	            <tbody id="holiday-policy-body">
+					<tr>
+
+					</tr>
+	            </tbody>
+	          </table>
+	        </div>
+	      </div>
+	
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	
+	<div class="modal fade" id="annualPolicyModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" style="max-width: 1000px;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="fw-bold mb-0">연차 정책 설정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	
+	      <div class="modal-body">
+	        <!-- 📌 등록 폼 영역 -->
+	        <form name="annual_leave_form" action="/annualPolicy/update" method="post">
+	          <div class="d-flex justify-content-between align-items-center mb-4 w-100">
+	            <div class="d-flex align-items-center gap-2 flex-wrap">
+	              <input type="number" class="form-control" name="year" id="year" placeholder="근속연수" min="1" style="max-width: 120px;">
+	              <span>년차에</span>
+	              <input type="number" class="form-control" name="leave_days" id="leave_days" placeholder="연차일수" min="0" style="max-width: 120px;">
+	              <span>일</span>
+	              <button type="submit" class="btn btn-primary">저장</button>
+	            </div>
+	          </div>
+	        </form>
+	
+	        <!-- 📌 연차 정책 보기 제목 -->
+	        <h5 class="fw-bold mb-3">연차 정책 보기</h5>
+	
+	        <!-- 📌 표 영역 -->
+	        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+	          <table class="table table-bordered text-center align-middle">
+	            <thead class="table-light">
+	              <tr>
+	                <th style="width:45%;">근속 연수</th>
+	                <th style="width:45%;">연차 일수</th>
+	                <th style="width:10%;">삭제</th> <!-- ✅ 삭제 컬럼 추가 -->
+	              </tr>
+	            </thead>
+	            <tbody id="annual-policy-body">
+					<tr>
+						<td>1년 미만</td>
+						<td>만근 시 한달에 1일</td>
+						<td></td>
+					</tr>
+	            </tbody>
+	          </table>
+	        </div>
+	      </div>
+	
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<script>
+		const holidayForm = document.holiday_form;
+			holidayForm.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			
+			const holidayName = document.getElementById('holiday_name').value;
+		    const holidayDate = document.getElementById('holiday_date').value;
+			
+		    if (!holidayName || !holidayDate) {
+		        alert("휴일명과 날짜 모두 입력하셔야합니다.");
+		        return;
+		    }
+		    
+		    const payload = new FormData(holidayForm);
+		    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+		    
+			const isConfirmed = await confirm('휴일 정보를 저장하시겠습니까?');
+			if(!isConfirmed) return;
+			
+		    fetch('/holiday/create', {
+		    	method:'post',
+		    	headers: {
+		    		
+					[csrfHeader]: csrfToken
+				},
+		    	body: payload
+		    })
+		    .then(response => response.json())
+		    .then(async data => {
+		    	
+		    	await alert(data.res_msg);
+		    	document.getElementById('holiday_name').value = '';
+			    document.getElementById('holiday_date').value = '';
+		    	if(data.res_code == 200) {
+			      const tbody = document.getElementById("holiday-policy-body");
+			      tbody.innerHTML = ""; // 초기화
+			      
+
+			      data.holidayList.forEach(item => {
+			        const row = document.createElement("tr");
+			        row.innerHTML = `
+			        	<td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+				          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
+				          <td>
+				            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+				              수정
+				            </button>
+				          </td>
+				          <td>
+				            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+				              삭제
+				            </button>
+				          </td>
+			        `;
+			        tbody.appendChild(row);
+			      });
+		    	}
+		    	
+			})
+			.catch(err => console.error("휴일 정책 불러오기 실패:", err));
+		})
+	</script>
+		
+	<!-- 연차 정책 설정 (같은 줄 오른쪽) -->
+	<script>
+		const annualLeaveForm = document.annual_leave_form;
+		annualLeaveForm.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			
+			const year = document.getElementById('year').value;
+		    const leave_days = document.getElementById('leave_days').value;
+			
+		    if (!year || !leave_days) {
+		        alert("근속연수와 등록할 연차일수를 입력해주세요.");
+		        return;
+		    }
+		    
+		    const payload = new FormData(annualLeaveForm);
+		    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+		    
+			const isConfirmed = await confirm(`${year}년차의 연차 일수를 ${leave_days}일로 저장하시겠습니까?`);
+			if(!isConfirmed) return;
+			
+		    fetch('/annualPolicy/update', {
+		    	method:'post',
+		    	headers: {
+		    		
+					[csrfHeader]: csrfToken
+				},
+		    	body: payload
+		    })
+		    .then(response => response.json())
+		    .then(async data => {
+		    	
+		    	await alert(data.res_msg);
+		    	
+		    	if(data.res_code == '200') {
+		    		const tbody = document.getElementById("annual-policy-body");
+				      tbody.innerHTML = ""; // 초기화
+				      
+				      const rowOne = document.createElement("tr");
+				      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+				      tbody.appendChild(rowOne);
+
+				      // 전역 저장 (사원 목록 계산용)
+				      window.annualPolicyList = data.annualLeavePolicyList;
+
+				      data.annualLeavePolicyList.forEach(item => {
+				        const row = document.createElement("tr");
+				        row.innerHTML = `
+				          <td>${item.year}년차</td>
+				          <td>${item.leaveDays}일</td>
+				          <td>
+				            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
+				              삭제
+				            </button>
+				          </td>
+				        `;
+				        tbody.appendChild(row);
+				      });
+		    		} 
+			    })
+			    .catch(err => console.error("연차 정책 불러오기 실패:", err));
+		})
+	</script>
+	
+	<!-- 모달 -->
+	<div class="modal fade" id="memberAnnualUpdate" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title fw-bold">연차 수정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+	      </div>
+	      <div class="modal-body text-center">
+			  <p><strong id="memberName">사원명 (#123)</strong></p>
+			  <p>현재 연차: <span id="currentAnnual">0</span>일</p>
+			
+			  <!-- ✔ input + 버튼 줄 정렬 -->
+			  <div class="d-flex justify-content-center align-items-center gap-2">
+			    <input type="number" class="form-control text-center" step="1" id="annual_leave" style="max-width: 120px;">
+			    <div class="btn-group" role="group">
+			      <button type="button" class="btn btn-rounded btn-light" id="btnPlusAnnual">+</button>
+			      <button type="button" class="btn btn-rounded btn-light" id="btnMinusAnnual">-</button>
+			    </div>
+			  </div>
+			</div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" onclick="annualLeaveUpdate();">저장</button>
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<script>
+		let selectedMemberNo = null;
+		let currentAnnual = 0;
+	
+		document.querySelectorAll('.member-tbody').forEach(tbody => {
+			  tbody.addEventListener('click', function (e) {
+			    const tr = e.target.closest('tr');
+			    if (!tr) return;
+
+			    const name = tr.querySelector('.member-name')?.textContent.trim();
+			    const memberNo = tr.dataset.memberNo;
+			    const annualText = tr.querySelectorAll('td')[4]?.innerText.trim();
+			    currentAnnual = parseFloat(annualText) || 0;
+			    selectedMemberNo = memberNo;
+
+			    if (!memberNo || !name) return;
+
+			    document.getElementById('memberName').textContent = `${name} (#${memberNo})`;
+			    document.getElementById('currentAnnual').textContent = currentAnnual;
+			    document.getElementById('annual_leave').value = currentAnnual;
+
+			    const modalEl = document.getElementById('memberAnnualUpdate');
+			    const modal = new bootstrap.Modal(modalEl);
+			    modal.show();
+			  });
+			});
+	
+		document.getElementById('btnPlusAnnual').addEventListener('click', function () {
+			let val = parseFloat(document.getElementById('annual_leave').value) || 0;
+			val = val + 1;
+			document.getElementById('annual_leave').value = val.toFixed(1);
+			document.getElementById('currentAnnual').textContent = val.toFixed(1);
+		});
+	
+		document.getElementById('btnMinusAnnual').addEventListener('click', function () {
+			let val = parseFloat(document.getElementById('annual_leave').value) || 0;
+			if (val > 0) {
+				val = val - 1;
+				document.getElementById('annual_leave').value = val.toFixed(1);
+				document.getElementById('currentAnnual').textContent = val.toFixed(1);
+			}
+		});
+		
+		const annualLeaveUpdate = async function(){
+			const formData = new FormData();
+			formData.append("annual_leave", parseFloat(document.getElementById('annual_leave').value));
+			const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+			const isConfirmed = await confirm('연차 개수를 저장하시겠습니까?');
+			if(isConfirmed) {
+				fetch('/member/annual/update/'+selectedMemberNo, {
+					method:'post',
+					headers: {
+						[csrfHeader]: csrfToken
+					},
+					body: formData
+				})
+				.then(response => response.json())
+				.then(async data => {
+					await alert(data.res_msg);
+					if(data.res_code == 200) {
+						location.href = '/annual/management';
+					}
+				})
+			}
+		}
+		
+	</script>
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+		  $('#holidayPolicyModal').on('shown.bs.modal', function() {
+			 loadHolidayPolicy();
+		  });
+		  
+		  $('#holidayPolicyModal').on('hidden.bs.modal', function() {
+			    loadAnnualPolicy();
+			    document.getElementById('holiday_name').value = '';
+			    document.getElementById('holiday_date').value = '';
+		  });
+		});
+		
+		function loadHolidayPolicy() {
+			  fetch('/holiday', {
+			    method: 'get'
+			  })
+			    .then(res => res.json())
+			    .then(data => {
+			      const tbody = document.getElementById("holiday-policy-body");
+			      tbody.innerHTML = ""; // 초기화
+
+			      data.forEach(item => {
+			        const row = document.createElement("tr");
+			        row.innerHTML = `
+			          <td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+			          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
+			          <td>
+			            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+			              수정
+			            </button>
+			          </td>
+			          <td>
+			            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+			              삭제
+			            </button>
+			          </td>
+			        `;
+			        tbody.appendChild(row);
+			      });
+			    })
+			    .catch(err => console.error("휴일 정책 불러오기 실패:", err));
+			}
+		
+		async function updateHoliday(id) {
+			const isConfirmed = await confirm('휴일 정보를 수정하시겠습니까?');
+			  if (!isConfirmed) return;
+			  
+			  let holiday_name = document.getElementById(`name${id}`).value;
+			  let holiday_date = document.getElementById(`date${id}`).value;
+			  let payload = new FormData();
+			  payload.append("id", id);
+			  payload.append("holiday_name", holiday_name);
+			  payload.append("holiday_date", holiday_date);
+			  fetch('/holiday/update', {
+			    method: 'post',
+			    headers: {
+			      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			    },
+			    body:payload
+			  })
+			    .then(response => response.json())
+			    .then(async data => {
+			    	await alert(data.res_msg);
+			    	if(data.res_code == 200 || data.res_code == 409) {
+				      const tbody = document.getElementById("holiday-policy-body");
+				      tbody.innerHTML = ""; // 초기화
+				      
+				      
+				      data.holidayList.forEach(item => {
+				        const row = document.createElement("tr");
+				        row.innerHTML = `
+				        	 <td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+					          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
+					          <td>
+					            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+					              수정
+					            </button>
+					          </td>
+					          <td>
+					            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+					              삭제
+					            </button>
+					          </td>
+				        `;
+				        tbody.appendChild(row);
+				      });
+			    	}
+			    })
+			    .catch(err => console.error("휴일 수정 실패:", err));
+		}
+		
+		async function deleteHoliday(id) {
+			const isConfirmed = await confirm('정말 휴일 정보를 삭제하시겠습니까?');
+			  if (!isConfirmed) return;
+
+			  fetch('/holiday/delete/'+id, {
+			    method: 'DELETE',
+			    headers: {
+			      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			    }
+			  })
+			    .then(response => response.json())
+			    .then(async data => {
+			    	await alert(data.res_msg);
+			    	if(data.res_code == 200) {
+			    		 const tbody = document.getElementById("holiday-policy-body");
+					      tbody.innerHTML = ""; // 초기화
+					      
+					      if(!Array.isArray(data.holidayList) || data.holidayList.length === 0) {
+					    	  const row = document.createElement("tr");
+					    	  row.innerHTML = '<td colspan="4">조회된 데이터가 없습니다.</td>';
+					    	  tbody.appendChild(row);
+					    	  return;
+					      }
+
+					      data.holidayList.forEach(item => {
+					        const row = document.createElement("tr");
+					        row.innerHTML = `
+					        	<td><input type="text" class="form-control form-control-sm" id="name${item.id}" value="${item.name}"></td>
+						          <td><input type="date" class="form-control form-control-sm" id="date${item.id}" value="${item.date}"></td>
+						          <td>
+						            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+						              수정
+						            </button>
+						          </td>
+						          <td>
+						            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+						              삭제
+						            </button>
+						          </td>
+					        `;
+					        tbody.appendChild(row);
+					      });
+			    	}
+				     
+			    })
+			    .catch(err => console.error("휴일 삭제 실패:", err));
+		}
+	</script>	
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+		  $('#annualPolicyModal').on('shown.bs.modal', function() {
+		    loadAnnualPolicy();
+		  });
+		  
+		  $('#annualPolicyModal').on('hidden.bs.modal', function() {
+			    document.getElementById('year').value = '';
+			    document.getElementById('leave_days').value = '';
+			    location.reload();
+		  });
+		});
+		
+		function loadAnnualPolicy() {
+			  fetch('/annual', {
+			    method: 'get'
+			  })
+			    .then(res => res.json())
+			    .then(data => {
+			      const tbody = document.getElementById("annual-policy-body");
+			      tbody.innerHTML = ""; // 초기화
+			      
+			      const rowOne = document.createElement("tr");
+			      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+			      tbody.appendChild(rowOne);
+
+			      // 전역 저장 (사원 목록 계산용)
+			      window.annualPolicyList = data;
+
+			      data.forEach(item => {
+			        const row = document.createElement("tr");
+			        row.innerHTML = `
+			          <td>${item.year}년차</td>
+			          <td>${item.leaveDays}일</td>
+			          <td>
+			            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
+			              삭제
+			            </button>
+			          </td>
+			        `;
+			        tbody.appendChild(row);
+			      });
+			    })
+			    .catch(err => console.error("연차 정책 불러오기 실패:", err));
+			}
+		
+		async function deletePolicy(year) {
+			const isConfirmed = await confirm(`${year}년차 정책을 삭제하시겠습니까?`);
+			  if (!isConfirmed) return;
+
+			  fetch('/annualPolicy/delete/'+year, {
+			    method: 'DELETE',
+			    headers: {
+			      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			    }
+			  })
+			    .then(response => response.json())
+			    .then(async data => {
+			    	
+			    	await alert(data.res_msg);
+			    	
+			    	if(data.res_code == '200') {
+			    		const tbody = document.getElementById("annual-policy-body");
+					      tbody.innerHTML = ""; // 초기화
+					      
+					      const rowOne = document.createElement("tr");
+					      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+					      tbody.appendChild(rowOne);
+					      
+					      // 전역 저장 (사원 목록 계산용)
+					      window.annualPolicyList = data;
+
+					      data.annualLeavePolicyList.forEach(item => {
+					        const row = document.createElement("tr");
+					        row.innerHTML = `
+					          <td>${item.year}년차</td>
+					          <td>${item.leaveDays}일</td>
+					          <td>
+					            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
+					              삭제
+					            </button>
+					          </td>
+					        `;
+					        tbody.appendChild(row);
+					      });
+			    	}
+			    })
+			    .catch(err => console.error("연차 정책 불러오기 실패:", err));
+		}
+	</script>
+	
+	
+	<script>
+		  document.addEventListener("DOMContentLoaded", function () {
+		    const todayStr = document.getElementById("today")?.value;
+		    if (!todayStr) {
+		      console.error("⛔ today 값 없음");
+		      return;
+		    }
+		
+		    const today = new Date(todayStr); // "YYYY-MM-DD"
+		
+		    document.querySelectorAll(".th-year").forEach(el => {
+		      const regDateStr = el.dataset.regDate;
+		      if (!regDateStr) return;
+		
+		      const regDate = new Date(regDateStr);
+		      const yearDiff = today.getFullYear() - regDate.getFullYear();
+		
+		      const oneYearPassed =
+		        today.getMonth() > regDate.getMonth() ||
+		        (today.getMonth() === regDate.getMonth() && today.getDate() >= regDate.getDate());
+		
+		      if (yearDiff === 0 || (yearDiff === 1 && !oneYearPassed)) {
+		        el.textContent = "1년 미만";
+		        return;
+		      }
+		
+		      const serviceYears = oneYearPassed ? yearDiff + 1 : yearDiff;
+		      el.textContent = `${serviceYears - 1}년차`;
+		    });
+		  });
+	</script>
+	
+	<script>
+		// 초기화 버튼을 눌러서 검색을 무효화시키는 로직 
+		document.getElementById("resetBtn").addEventListener("click", function() {
+		    location.href="/annual/management";
+		});
+	</script>
+	
+	<!-- Bootstrap Common JS Files Start -->
+	
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+	
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
+  	
+  	<!-- jsTree -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+	<script th:src="@{/js/cjs/jstree.js}"></script>
+
+</th:block>
+</html>

@@ -35,7 +35,7 @@ public class Dept {
 	@Column(name="dept_no")
 	private Long deptNo;
 	
-	@Column(name="dept_name", nullable = false, unique = true)
+	@Column(name="dept_name", nullable = false)
 	private String deptName;
 	
 	@ManyToOne
@@ -49,7 +49,7 @@ public class Dept {
 	private String deptLocation;
 	
     @Column(name = "dept_status")
-    private String deptStatus;
+    private int deptStatus;
 	
 	@CreationTimestamp
 	@Column(updatable=false,name="reg_date")
@@ -66,4 +66,16 @@ public class Dept {
 	@OneToMany(mappedBy="dept")
 	private List<Member> members;
 	
+	public void clearDeptHead() {
+        if (this.member != null) {
+            this.member = null;
+        }
+    }
+	
+	public void changeDeptManager(Member newManager) {
+        if (this.member != null && this.member.equals(newManager)) {
+            return;
+        }
+        this.member = newManager;
+    }
 }

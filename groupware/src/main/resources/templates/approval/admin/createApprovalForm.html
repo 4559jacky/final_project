@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-bs-theme="light"
-	data-color-theme="Blue_Theme" data-layout="horizontal"
+<html
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{/include/layout}">
+	layout:decorate="~{include/layout :: layout}">
 
 <!-- HEAD 생략: layout에서 상속받음 -->
 
 <th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.css" crossorigin>
+	<link th:href="@{/css/jji.css}" rel="stylesheet">
 	<div class="col-lg-8 col-md-6 col-12 align-self-center">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb align-items-center">
@@ -23,10 +25,6 @@
 		<h2 class="mb-0 fw-bolder fs-8">결재 양식 생성</h2>
 	</div>
 	<br>
-	<!-- 📌 Summernote CSS는 그대로 유지 -->
-	<link
-		href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css"
-		rel="stylesheet">
 
 	<!-- 📌 Bootstrap 스타일 적용된 Form -->
 	<form name="create_approval_form" action="/admin/approvalForm/create"
@@ -49,9 +47,13 @@
 				</div>
 
 				<!-- 에디터 영역 -->
-				<div class="post-form">
-					<textarea name="approval_form" id="summernote"></textarea>
+				<div class="main-container">
+					<div class="editor-container editor-container_classic-editor" id="editor-container">
+						<div class="editor-container__editor"><div id="editor">
+						</div></div>
+					</div>
 				</div>
+				<script src="https://cdn.ckeditor.com/ckeditor5/45.0.0/ckeditor5.umd.js" crossorigin></script>
 			</div>
 		</div>
 	</form>
@@ -59,101 +61,309 @@
 
 <!-- 스크립트는 여기에 넣기 -->
 <th:block layout:fragment="scripts">
+    
 	<script>
-    $(document).ready(function () {
-      console.log("Summernote 상태:", $.fn.summernote);
+	
+	let editorInstance;
+	
+	document.addEventListener("DOMContentLoaded", function () {
+		const {
+			ClassicEditor,
+			Alignment,
+			Autoformat,
+			AutoImage,
+			Autosave,
+			Base64UploadAdapter,
+			BlockQuote,
+			Bold,
+			CloudServices,
+			Emoji,
+			Essentials,
+			Heading,
+			ImageBlock,
+			ImageCaption,
+			ImageInline,
+			ImageInsert,
+			ImageInsertViaUrl,
+			ImageResize,
+			ImageStyle,
+			ImageTextAlternative,
+			ImageToolbar,
+			ImageUpload,
+			Indent,
+			IndentBlock,
+			Italic,
+			Link,
+			LinkImage,
+			List,
+			ListProperties,
+			MediaEmbed,
+			Mention,
+			Paragraph,
+			PasteFromOffice,
+			Table,
+			TableCaption,
+			TableCellProperties,
+			TableColumnResize,
+			TableProperties,
+			TableToolbar,
+			TextTransformation,
+			TodoList,
+			Underline
+		} = window.CKEDITOR;
 
-      $('#summernote').summernote({
-    	    height: 800,
-    	    lang: 'ko-KR',
-    	    codeviewFilter: false,
-    	    toolbar: [
-    	      ['fontsize', ['fontsize']],
-    	      ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
-    	      ['color', ['color']],
-    	      ['table', ['table']],
-    	      ['para', ['ul', 'ol', 'paragraph']],
-    	      ['height', ['height']],
-    	      ['insert',['picture']]
-    	    ],
-    	    fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋음체','바탕체'],
-    	    fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72','96'],
-    	    focus: true,
-    	    callbacks: {
-    	      onInit: function () {
-    	        // 모든 드롭다운 항목 선택 시 닫힘 처리
-    	        $(document).on('click', '.dropdown-menu a, .note-dimension-picker', function () {
-    	          setTimeout(function () {
-    	            $('.dropdown-menu').removeClass('show');
-    	          }, 150); // 자연스럽게 닫히도록 딜레이
-    	        });
-    	      }
-    	    }
-    	  });
+		const LICENSE_KEY =
+			'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3Nzc1MDcxOTksImp0aSI6ImNhNmQ1ZTQ0LTYyZTMtNGEwMC04MzhkLTkyYzFmZWEzMzIwZiIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIl0sInZjIjoiYjZmNzMxMTkifQ.NfQuYgUhx47Twoi6uFjRsx7PbJa-jIDx1hAYfsFHOU30umGCgXGcLquB6EH9diFdHlCEjGB-Cv0VBZySQo-BaA';
 
-      // 👇 Bootstrap 5에서 dropdown toggle을 강제로 수동 연결
-      $('body').on('click', '.note-btn.dropdown-toggle', function (e) {
-        var $dropdown = $(this).next('.dropdown-menu');
-        $('.dropdown-menu').not($dropdown).removeClass('show'); // 다른 드롭다운 닫기
-        $dropdown.toggleClass('show');
-      });
+		const editorConfig = {
+			toolbar: {
+				items: [
+					'heading',
+					'|',
+					'bold',
+					'italic',
+					'underline',
+					'|',
+					'emoji',
+					'link',
+					'insertImage',
+					'mediaEmbed',
+					'insertTable',
+					'blockQuote',
+					'|',
+					'alignment',
+					'|',
+					'bulletedList',
+					'numberedList',
+					'todoList',
+					'outdent',
+					'indent'
+				],
+				shouldNotGroupWhenFull: false
+			},
+			plugins: [
+				Alignment,
+				Autoformat,
+				AutoImage,
+				Autosave,
+				Base64UploadAdapter,
+				BlockQuote,
+				Bold,
+				CloudServices,
+				Emoji,
+				Essentials,
+				Heading,
+				ImageBlock,
+				ImageCaption,
+				ImageInline,
+				ImageInsert,
+				ImageInsertViaUrl,
+				ImageResize,
+				ImageStyle,
+				ImageTextAlternative,
+				ImageToolbar,
+				ImageUpload,
+				Indent,
+				IndentBlock,
+				Italic,
+				Link,
+				LinkImage,
+				List,
+				ListProperties,
+				MediaEmbed,
+				Mention,
+				Paragraph,
+				PasteFromOffice,
+				Table,
+				TableToolbar,
+				TableCaption,
+				TableCellProperties,
+				TableColumnResize,
+				TableProperties,
+				TableToolbar,
+				TextTransformation,
+				TodoList,
+				Underline
+			],
+			heading: {
+				options: [
+					{
+						model: 'paragraph',
+						title: 'Paragraph',
+						class: 'ck-heading_paragraph'
+					},
+					{
+						model: 'heading1',
+						view: 'h1',
+						title: 'Heading 1',
+						class: 'ck-heading_heading1'
+					},
+					{
+						model: 'heading2',
+						view: 'h2',
+						title: 'Heading 2',
+						class: 'ck-heading_heading2'
+					},
+					{
+						model: 'heading3',
+						view: 'h3',
+						title: 'Heading 3',
+						class: 'ck-heading_heading3'
+					},
+					{
+						model: 'heading4',
+						view: 'h4',
+						title: 'Heading 4',
+						class: 'ck-heading_heading4'
+					},
+					{
+						model: 'heading5',
+						view: 'h5',
+						title: 'Heading 5',
+						class: 'ck-heading_heading5'
+					},
+					{
+						model: 'heading6',
+						view: 'h6',
+						title: 'Heading 6',
+						class: 'ck-heading_heading6'
+					}
+				]
+			},
+			image: {
+				toolbar: [
+					'toggleImageCaption',
+					'imageTextAlternative',
+					'|',
+					'imageStyle:inline',
+					'imageStyle:wrapText',
+					'imageStyle:breakText',
+					'|',
+					'resizeImage'
+				]
+			},
+			initialData: '',
+			licenseKey: LICENSE_KEY,
+			link: {
+				addTargetToExternalLinks: true,
+				defaultProtocol: 'https://',
+				decorators: {
+					toggleDownloadable: {
+						mode: 'manual',
+						label: 'Downloadable',
+						attributes: {
+							download: 'file'
+						}
+					}
+				}
+			},
+			list: {
+				properties: {
+					styles: true,
+					startIndex: true,
+					reversed: true
+				}
+			},
+			mention: {
+				feeds: [
+					{
+						marker: '@',
+						feed: [
+							/* See: https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html */
+						]
+					}
+				]
+			},
+			placeholder: 'Type or paste your content here!',
+			table: {
+				contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+			}
+		};
 
-      // 👇 다른 곳 클릭하면 드롭다운 닫기
-      $(document).on('click', function (e) {
-        if (!$(e.target).closest('.note-editor').length) {
-          $('.dropdown-menu').removeClass('show');
-        }
-      });
-    });
-    
-    const form = document.create_approval_form;
-    form.addEventListener('submit', (e) => {
-    	  e.preventDefault();
+		ClassicEditor.create(document.querySelector('#editor'), editorConfig)
+	    .then(editor => {
+	        editorInstance = editor; // 에디터 인스턴스 저장
 
-    	  let vali_check = false;
-    	  let vali_text = "";
+	        const form = document.create_approval_form;
+	        form.addEventListener('submit', async (e) => {
+	            e.preventDefault();
 
-    	  const title = form.approval_form_name.value;
-    	  const content = $('#summernote').summernote('code');
+	            let vali_check = false;
+	            let vali_text = "";
+	            
+	            const isConfirmed = await confirm('새로운 양식을 생성하시겠습니까?');
+	            if(!isConfirmed) return;
 
-    	  if (!title) {
-    	    vali_text += "제목을 입력하세요.";
-    	  } else if (!content || content === '<p><br></p>') {
-    	    vali_text += "내용을 입력하세요.";
-    	  } else {
-    	    vali_check = true;
-    	  }
+	            const title = form.approval_form_name.value;
+	            const content = editorInstance.getData(); // 여기 수정 (editorInstance)
+	            
+	            // ★ approval_form input이 없으니까 숨은 input 추가해줘야 함
+	            let hiddenInput = form.querySelector('input[name="approval_form"]');
+	            if (!hiddenInput) {
+	                hiddenInput = document.createElement('input');
+	                hiddenInput.type = 'hidden';
+	                hiddenInput.name = 'approval_form';
+	                form.appendChild(hiddenInput);
+	            }
+	            hiddenInput.value = content;
 
-    	  if (!vali_check) {
-    	    alert(vali_text);
-    	  } else {
-    	    // 👉 summernote 값 수동 주입!
-    	    $('#summernote').val(content);
+	            if (!title) {
+	                vali_text += "제목을 입력하세요.";
+	            } else if (!content || content === '<p><br></p>') {
+	                vali_text += "내용을 입력하세요.";
+	            } else {
+	                vali_check = true;
+	            }
 
-    	    const payload = new FormData(form);
+	            if (!vali_check) {
+	                alert(vali_text);
+	            } else {
+	                const payload = new FormData(form);
 
-    	    fetch("/admin/approvalForm/create", {
-    	      	method: 'post',
-    	      	headers : {
-					'header': document.querySelector('meta[name="_csrf_header"]').content,
-	              	'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
-				},
-    	      	body: payload
-    	    })
-    	    .then(response => response.json())
-    	    .then(data => {
-    	      console.log(data);
-    	      alert(data.res_msg);
-    	      if (data.res_code === '200') {
-    	        location.href = '/admin/approval';
-    	      }
-    	    })
-    	    .catch(error => {
-    	      console.log(error);
-    	    });
-    	  }
-    	});
-    
+	                fetch("/admin/approvalForm/create", {
+	                    method: 'post',
+	                    headers : {
+	                        'header': document.querySelector('meta[name="_csrf_header"]').content,
+	                        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+	                    },
+	                    body: payload
+	                })
+	                .then(response => response.json())
+	                .then(async data => {
+	                    console.log(data);
+	                    await alert(data.res_msg);
+	                    if (data.res_code === '200') {
+	                        location.href = '/admin/approval';
+	                    }
+	                })
+	                .catch(error => {
+	                    console.log(error);
+	                });
+	            }
+	        });
+	    })
+	    .catch(error => {
+	        console.error(error);
+	    });
+	});
   </script>
+  <!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  	
+  	<!-- Bootstrap Common JS Files End -->
 </th:block>
 </html>

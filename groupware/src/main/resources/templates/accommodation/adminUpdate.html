@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{include/layout :: layout}">
+<th:block layout:fragment="content">
+	<!-- Toast UI Editor CSS & JS -->
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<link rel="stylesheet" th:href="@{/css/psb.css}">
+	<link href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" rel="stylesheet" />
+	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+	
+	<div class="container-fluid px-4">
+		<!-- 제목 & 경로 -->
+	    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+	      <nav aria-label="breadcrumb">
+	        <ol class="breadcrumb align-items-center">
+	          <li class="breadcrumb-item">
+	            <a class="text-muted text-decoration-none" th:href="@{/home}">
+	              <i class="ti ti-home fs-5"></i>
+	            </a>
+	          </li>
+	          <li class="breadcrumb-item" aria-current="page">사내복지 / 제휴숙소 관리 / 제휴 숙소 등록</li>
+	        </ol>
+	      </nav><br>
+	      <h2 class="mb-0 fw-bolder fs-8">제휴 숙소 등록</h2>
+	    </div><br>
+
+	    <!-- 1번째 테이블 -->
+	    <div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+	    <div class="table-responsive">
+	    <div class="container mt-5">
+		  <div class="row justify-content-center">
+		    <!-- 왼쪽: 이미지 업로드 -->
+		    <div class="col-md-5 mb-4">
+			  <div id="uploadBox" class="border bg-light text-center rounded position-relative"
+			       style="height: 300px;">
+			    <!-- 설명 문구 + 버튼 -->
+			    <div id="uploadText"
+			         style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			      <span>@이곳에 파일을 드래그 하세요.</span><br>
+			      <span> 또는 파일 업로드를 클릭하세요</span><br>
+			      <label for="imageUpload" class="btn btn-outline-primary mt-3">파일 업로드</label>
+			    </div>
+			
+			    <!-- 파일 선택 input -->
+			    <input type="file" name="files" id="imageUpload" class="d-none" accept="image/*">
+			
+			    <!-- 이미지 미리보기: 박스를 꽉 채움 -->
+			    <th:block th:if="${attachList != null and !attachList.isEmpty()}">
+				  <img th:src="@{'/uploads/accommodation/' + ${attachList[0].new_name}}"
+				       id="preview_image"
+				       style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; z-index:1;"
+				       class="rounded">
+				</th:block>
+			  </div>
+			</div>
+		            <input type="hidden" id="accommodation_no"
+		            	th:value="${accommodation.accommodation_no}">
+					<input type="hidden" id="room_count" value="1" >
+					<input type="hidden" id="accommodation_location" value="서울 강남구">
+					<input type="datetime-local" id="reg_date" style="display: none;">
+					<input type="datetime-local" id="mod_date" style="display: none;">
+					
+		
+		    <!-- 오른쪽: 숙소 정보 -->
+		    <div class="col-md-7">
+		      <table class="table table-borderless align-middle">
+		        <tbody>
+		          <tr>
+		          
+		            <td class="text-end"><label for="type" class="form-label">숙소 타입 : </label></td>
+		            <td class="text-start">
+		              <select id="type" name="accommodation_type" class="form-select w-75">
+		                <option disabled>숙소타입</option>
+						<option value="1" th:selected="${accommodation.accommodation_type == 1}">리조트</option>
+						<option value="2" th:selected="${accommodation.accommodation_type == 2}">호텔</option>
+		              </select>
+		            </td>
+		          </tr>
+		          <tr>
+		            <td class="text-end"><label for="name" class="form-label">숙소명 : </label></td>
+		            <td class="text-start"><input type="text" id="name"  name="accommodation_name" 
+		            	class="form-control w-75" placeholder="숙소명을 입력해주세요."
+		            	th:value="${accommodation.accommodation_name}"></td>
+		          </tr>
+		          
+		          <!-- 주소 -->
+		          <tr>
+					  <td class="text-end"><label for="addr1" class="form-label">주소(광역) : </label></td>
+					  <td class="text-start">
+					    <select class="form-select w-75" id="addr1" name="addr1">
+					      <option value="">-</option>
+					      <option th:each="address : ${addr1List}"
+					              th:value="${address}"
+					              th:text="${address}"
+					              th:selected="${address == selectedAddr1}">
+					      </option>
+					    </select>
+					  </td>
+				  </tr>
+				  <tr>
+				    <td class="text-end"><label for="addr2" class="form-label">주소(지역) : </label></td>
+				    <td class="text-start">
+				      <select class="form-select w-75" id="addr2" name="addr2">
+				        <option value="">-</option>
+				        <option th:each="addr2 : ${addr2List}"
+				                th:value="${addr2}"
+				                th:text="${addr2}"
+				                th:selected="${addr2 == selectedAddr2}">
+				        </option>
+				      </select> 
+				    </td>
+				  </tr>
+		          
+		          
+		          <!-- <tr>
+		            <td class="text-end"><label for="address" class="form-label">주소 : </label></td>
+		            <td class="text-start"><input type="text" id="address" name="accommodation_address" 
+		            	class="form-control w-75" placeholder="숙소 주소를 입력해주세요."
+		            	th:value="${accommodation.accommodation_address}"></td>
+		          </tr> -->
+		          <tr>
+		            <td class="text-end"><label for="phone" class="form-label">연락처 : </label></td>
+		            <td class="text-start"><input type="text" id="phone" name="accommodation_phone" 
+			            class="form-control w-75" placeholder="숙소 연락처를 입력해주세요."
+			            th:value="${accommodation.accommodation_phone}"></td>
+		          </tr>
+		          <tr>
+		            <td class="text-end"><label for="email" class="form-label">이메일 : </label></td>
+		            <td class="text-start"><input type="email" id="email" name="accommodation_email" 
+		            class="form-control w-75" placeholder="숙소 이메일을 입력해주세요."
+		            th:value="${accommodation.accommodation_email}"></td>
+		          </tr>
+		          <tr>
+		            <td class="text-end"><label for="site" class="form-label">공식 사이트 : </label></td>
+		            <td class="text-start"><input type="url" id="site" name="accommodation_site" 
+		            class="form-control w-75" placeholder="공식 사이트 주소를 입력해주세요."
+		            th:value="${accommodation.accommodation_site}"></td>
+		          </tr>
+		          <tr>
+		            <td class="text-end"><label for="price" class="form-label">가격 : </label></td>
+		            <td class="text-start"><input type="text" id="price" name="room_price" 
+		            class="form-control w-75" placeholder="가격을 입력해주세요."
+		            th:value="${accommodation.room_price}"></td>
+		          </tr>
+		        </tbody>
+		      </table>
+		    </div>
+		  </div>
+		</div>
+	</div>
+</div>
+	<br>
+	
+		<!-- 2번째 테이블 -->
+		<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm mt-1">
+	    <div class="table-responsive">
+	   		<!-- 에디터 삽입 -->
+			<div class="post-form mt-3">
+      			<h6 class="fw-semibold mb-2" style="font-size: 1.2rem;">숙소 상세 설명</h6>
+			    <div id="editor" style="margin-top: 25px;"></div>
+			    <textarea id="content" name="accommodation_content" hidden
+			    th:text="${accommodation != null ? accommodation.accommodation_content : ''}"></textarea>
+			</div>
+	    </div>
+	    </div>
+		
+		<!-- 수정 버튼 -->
+		<div class="d-flex justify-content-end mt-3" 
+		     th:if="${accommodation != null and accommodation.accommodation_no != null}">
+		    <button type="submit" class="btn btn-primary me-2" id="updateBtn">수정 완료</button>
+		    <a th:href="@{/adminHome}" class="btn btn-danger">취소</a>
+		</div>
+
+		<br><br>
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+			  const editor = new toastui.Editor({
+			    el: document.querySelector('#editor'),
+			    height: '400px',
+			    initialEditType: 'wysiwyg',
+			    previewStyle: 'vertical'
+			  });
+			
+			  // textarea -> editor로 값 반영
+			  const content = document.getElementById("content").value;
+			  editor.setHTML(content);
+			
+			  // 이미지 수정
+			  const imageInput = document.getElementById("imageUpload");
+			  const preview = document.getElementById("preview_image");
+				
+			  if (preview && imageInput) {
+				    preview.addEventListener("click", function () {
+				      imageInput.click();
+				    });
+				  }
+				
+				imageInput.addEventListener("change", function (e) {
+				   const file = e.target.files[0];
+				   if (file) {
+				     const reader = new FileReader();
+				     reader.onload = function (event) {
+				       preview.src = event.target.result;
+				       preview.style.display = "block";
+				       uploadText.style.display = "none"; // 설명 텍스트 숨기기
+				        
+				    // label 클릭 비활성화 → 중복 방지
+					const label = document.querySelector("#uploadText label");
+					if (label) {
+						label.style.pointerEvents = "none";
+					}
+				  };
+				  reader.readAsDataURL(file);
+				 }
+			  });
+				
+			   // 연락처 - 숫자와 하이픈만 허용
+			   const phoneInput = document.getElementById("phone");
+			   phoneInput.addEventListener("input", function () {
+			       this.value = this.value.replace(/[^0-9\-]/g, '');
+			   });
+			  
+			  // 수정 완료 버튼 클릭 시
+			  const updateBtn = document.getElementById("updateBtn");
+			  if (updateBtn) {
+			    updateBtn.addEventListener("click", async function (e) {
+			      e.preventDefault();
+			
+			      const updatedContent = editor.getHTML();
+			      document.getElementById("content").value = updatedContent;
+			
+			        const name = document.getElementById("name").value.trim();
+				    const type = document.getElementById("type").value;
+				    const addr1 = document.getElementById("addr1")?.value || "";
+				    const addr2 = document.getElementById("addr2")?.value || "";
+				    const fullAddress = addr1 + " " + addr2;
+				    const priceInput = document.getElementById("price");
+				    const price = priceInput.value.replace(/,/g, '').trim(); // 쉼표 제거 후 값 추출
+
+				    // 유효성 검사
+				    if (!name || content === '<p><br></p>') {
+				        alert("숙소명과 내용을 모두 입력하세요.");
+				        return;
+				    }
+
+				    if (type === "숙소타입" || !type) {
+				        alert("숙소 타입을 선택하세요.");
+				        return;
+				    }
+
+				    if (!addr1 || !addr2) {
+				        alert("주소(광역/지역)를 모두 선택하세요.");
+				        return;
+				    }
+
+				    if (!price || isNaN(price) || Number(price) <= 0) {
+				        alert("가격을 숫자로 입력하세요.");
+				        return;
+				    }
+			      
+			      
+			      const form = new FormData();
+			      const accommodationNo = document.getElementById("accommodation_no").value;
+			      
+			      form.append("accommodation_no", accommodationNo);
+			      form.append("accommodation_name", document.getElementById("name").value);
+			      form.append("accommodation_type", document.getElementById("type").value);
+			      form.append("accommodation_address", fullAddress);
+			      form.append("accommodation_phone", document.getElementById("phone").value);
+			      form.append("accommodation_email", document.getElementById("email").value);
+			      form.append("accommodation_site", document.getElementById("site").value);
+			      form.append("room_price", price);
+			      form.append("accommodation_content", updatedContent);
+			      form.append("accommodation_location", document.getElementById("accommodation_location").value);
+			      form.append("room_count", document.getElementById("room_count").value);
+			      form.append("mod_date", document.getElementById("mod_date").value);
+			
+			      
+			      const imageFile = document.getElementById("imageUpload").files[0];
+			      if (imageFile) {
+			        form.append("files", imageFile);
+			      }
+				  
+			      fetch("/accommodation/update/"+ accommodationNo, {
+			        method: "POST",
+			        body: form,
+			        headers: {
+			          "X-CSRF-TOKEN": document.querySelector('meta[name="_csrf"]').content
+			        }
+			      })
+			        .then(res => {
+				       if (!res.ok) throw new Error("HTTP error " + res.status);
+				       return res.json();
+				     })
+			        .then(async data => {
+			          if (data.res_code === "200") {
+			           await alert("수정이 완료되었습니다.");
+			            location.href = "/accommodation/adminHome";
+			          } else {
+			            alert("수정 실패: " + data.res_msg);
+			          }
+			        })
+			        .catch(err => {
+			          console.error("수정 중 오류:", err);
+			          alert("서버 오류 발생");
+			        });
+			    });
+			  }
+			});
+		</script>
+		<script>
+		  // 주소
+			document.addEventListener('DOMContentLoaded', function() {
+			    const addr1Select = document.getElementById('addr1');
+			    const addr2Select = document.getElementById('addr2');
+			
+			    addr1Select.addEventListener('change', function() {
+			        const addr1 = addr1Select.value;
+			        if (addr1) {
+			            fetch(`/address/addr2?addr1=${encodeURIComponent(addr1)}`)
+			                .then(response => response.json())
+			                .then(data => {
+			                    addr2Select.innerHTML = '<option value="">-</option>';
+			                    data.forEach(function(addr2) {
+			                        const option = document.createElement('option');
+			                        option.value = addr2;
+			                        option.textContent = addr2;
+			                        addr2Select.appendChild(option);
+			                    });
+			                })
+			                .catch(error => {
+			                    console.error(error);
+			                });
+			        } else {
+			            addr2Select.innerHTML = '<option value="">-</option>';
+			        }
+			    });
+			});
+		</script>
+	</div>
+
+  <!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  
+  </th:block>
+</html>

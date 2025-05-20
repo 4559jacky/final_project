@@ -1,4 +1,6 @@
-<html xmlns:th="http://www.thymeleaf.org"
+<!DOCTYPE html>
+<html lang="en" dir="ltr" th:attr="data-bs-theme=${theme}, data-color-theme=${latestProfile != null ? latestProfile.theme_color : 'Blue_Theme'}" data-layout="horizontal" data-boxed-layout="boxed" data-card="shadow" data-sidebartype="mini-sidebar" 
+xmlns:th="http://www.thymeleaf.org"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
 	<!-- Required meta tags -->
@@ -11,7 +13,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<meta id="_csrf_header" name="_csrf_header" th:attr="content=${_csrf.headerName}">
 	
 	<!-- Favicon icon-->
-	<link rel="shortcut icon" type="image/png" th:href="@{/assets/images/logos/favicon.png}" />
+	<link rel="shortcut icon" type="image/png" th:href="@{/img/mjc_profile_favicon.png}" />
 	
 	<title>Groupware</title>
 	
@@ -31,14 +33,75 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<div class="position-relative overflow-hidden radial-gradient min-vh-100 w-100 d-flex align-items-center justify-content-center">
       <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
-          <div class="col-md-8 col-lg-6 col-xxl-3 auth-card">
+          <div class="col-md-8 col-lg-6 col-xxl-3 auth-card" style="position: relative;">
             <div class="card mb-0">
               <div class="card-body">
-                <a href="../main/index.html" class="text-nowrap logo-img text-center d-block mb-5 w-100">
-                  <img th:src="@{/assets/images/logos/dark-logo.svg}" class="dark-logo" alt="Logo-Dark" />
-				  <!-- <img th:src="@{/assets/images/logos/light-logo.svg}" class="light-logo" alt="Logo-Light" /> -->
-                </a>
-                <form name="login_form" th:action="@{/login}" method="post">
+              
+              <!-- 작은화면일 때 로고 -->
+              	<th:block th:if="${latestProfile != null}">
+					<div class="d-block d-md-none text-center">	
+						<th:block th:if="${theme} != dark">	
+							<a th:href="@{/home}" class="text-nowrap nav-link d-flex align-items-center justify-content-center">
+			            		<img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" >
+				            	<span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
+				            </a>
+				        </th:block>
+			        	<th:block th:if="${theme} == dark">	
+							<a th:href="@{/home}" class="text-nowrap nav-link d-flex align-items-center justify-content-center">
+			            		<img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light">
+				            	<span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
+				            </a>
+			        	</th:block>
+		            </div>
+				</th:block>
+				<th:block th:if="${latestProfile == null}">
+					<div class="d-block d-md-none text-center">
+			            <th:block th:if="${theme} != dark">
+			              	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
+			                	<img th:src="@{/img/mjc_profile.png}" class="dark-logo" alt="Logo-Dark" />
+			            	</a>
+			            </th:block>
+			            <th:block th:if="${theme} == dark">
+			              	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
+								<img th:src="@{/img/mjc_profile_dark.png}" class="light-logo" alt="Logo-Light" />
+			            	</a>
+			        	</th:block>
+			        </div>
+	            </th:block>
+				
+			<!-- 큰화면일 때 로고 -->
+              <th:block th:if="${latestProfile != null}">
+				  <li class="d-none d-md-block">
+				    <th:block th:if="${theme} != dark">
+				      <a th:href="@{/home}" class="text-nowrap nav-link d-flex align-items-center justify-content-center">
+				        <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="dark-logo" alt="Logo-Dark" />
+				        <span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
+				      </a>
+				    </th:block>
+				    <th:block th:if="${theme} == dark">
+				      <a th:href="@{/home}" class="text-nowrap nav-link d-flex align-items-center justify-content-center">
+				        <img th:src="@{'/uploads/' + ${latestProfile.new_name}}" style="max-height: 45px;" class="light-logo" alt="Logo-Light" />
+				        <span th:text="${latestProfileName}" class="logo-text fw-semibold fs-6 ps-2 text-body-emphasis"></span>
+				      </a>
+				    </th:block>
+				  </li>
+			  </th:block>
+              <th:block th:if="${latestProfile == null}">
+	          	<li class="d-none d-md-block">
+		          	<th:block th:if="${theme} != dark">
+			          	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
+			            	<img th:src="@{/img/mjc_profile.png}" class="dark-logo" alt="Logo-Dark" />
+			            </a>
+			      	</th:block>
+			        <th:block th:if="${theme} == dark">
+			        	<a th:href="@{/home}" class="text-nowrap logo-img text-center d-block mb-5 w-100">
+							<img th:src="@{/img/mjc_profile_dark.png}" class="light-logo" alt="Logo-Light" />
+			            </a>
+			      	</th:block>
+		      	</li>
+              </th:block>
+				
+                <form name="login_form" id="login_form" th:action="@{/login}" method="post">
                   <div class="mb-3">
                   	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                   </div>
@@ -51,13 +114,21 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
                     <input type="password" class="form-control" id="password" name="password">
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div class="form-check">
-                      <input class="form-check-input primary" type="checkbox" id="remember-me" name="remember-me">
-                      <label class="form-check-label text-dark" for="remember-me">
-                         자동 로그인
-                      </label>
-                    </div>
-                    <a class="text-primary fw-medium" href="../main/authentication-forgot-password.html">
+                    <div class="d-flex gap-3">
+					    <div class="form-check">
+					      <input class="form-check-input primary" type="checkbox" id="save-me" name="save-me">
+					      <label class="form-check-label text-dark" for="save-me">
+					        아이디 저장
+					      </label>
+					    </div>
+					    <div class="form-check">
+					      <input class="form-check-input primary" type="checkbox" id="remember-me" name="remember-me">
+					      <label class="form-check-label text-dark" for="remember-me">
+					        자동 로그인
+					      </label>
+					    </div>
+					</div>
+                    <a class="text-primary fw-medium" th:href="@{/forgetPassword}">
                     	비밀번호 찾기
                     </a>
                   </div>
@@ -71,7 +142,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     </div>
 	
 	<th:block th:if="${error != null}">
-		<div id="custom-alert" class="alert bg-danger text-white d-flex align-items-center alert-dismissible fade show" role="alert" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
+		<div id="custom-alert" class="alert bg-danger text-white d-flex align-items-center alert-dismissible fade show" role="alert" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 400px; width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 15px 25px; background-color: rgba(255, 53, 69, 0.65) !important;">
     		<i class="bi bi-exclamation-triangle-fill me-2"></i>
     		<div id="alert-msg" th:text="${errorMsg}" style="font-size: 1.0rem; text-align: center;"></div>
     		<button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -91,16 +162,42 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	    	const alertBox = document.getElementById("custom-alert");
 	    	
 	    	if (alertBox) {
+	    		positionAlert();
+	    		
 				setTimeout(function () {
 					alertBox.classList.remove('show');
 					alertBox.classList.add('fade');
 				
 					setTimeout(function () {
 						alertBox.classList.add('d-none');
+						
+						// URL에서 에러 관련 파라미터를 제거(새로고침 했을 때는 안 떠야하기 때문)
+						const url = new URL(window.location);
+						url.searchParams.delete('error');
+						url.searchParams.delete('errorMsg');
+						window.history.replaceState({}, document.title, url.pathname);
 					}, 300);
 				}, 3000);
 			}
 	  	});
+	</script>
+	
+	<script>
+		// 얼럿창 위치 조절
+		function positionAlert() {
+		    const alertBox = document.getElementById("custom-alert");
+		    const cardEl = document.querySelector('.auth-card .card');
+		    if (!alertBox || !cardEl) return;
+	
+		    const cardRect = cardEl.getBoundingClientRect();
+		    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+		    const cardTop = cardRect.top + scrollTop;
+	
+		    const alertHeight = alertBox.offsetHeight || 60;
+		    const offsetTop = cardTop - alertHeight - 15;
+	
+		    alertBox.style.top = `${offsetTop}px`;
+		}
 	</script>
 	
 	<script>
@@ -114,6 +211,38 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
             	});
         	}
     	});
+	</script>
+	
+	<script>
+    	// 단순 아이디 저장 : 서버를 통하는 쿠키 말고 로컬 스토리지에서 저장하는 방식을 쓰는 걸로 결정  
+		document.addEventListener("DOMContentLoaded", function () {
+    		const savedId = localStorage.getItem("savedId");
+    		const usernameField = document.getElementById("username");
+    		const saveIdCheckbox = document.getElementById("save-me");
+			
+    		if (savedId) {
+				// 저장된 아이디가 있으면 해당 값으로 인풋박스를 채워줌 + 체크박스도 체크된채로 유지함
+        		usernameField.value = savedId;
+        		saveIdCheckbox.checked = true;
+    		}
+		});
+		
+		document.getElementById("login_form").addEventListener("submit", function (e) {
+		    e.preventDefault();								// 로그인을 잠깐 멈춰놓고 체크여부에 따라 아이디 저장, 삭제 작업을 진행
+			
+		    const username = document.getElementById("username").value;
+		    const isSaveIdChecked = document.getElementById("save-me").checked;
+			
+		    if (isSaveIdChecked) {
+		        localStorage.setItem("savedId", username);	// 저장
+		    } else {
+		        localStorage.removeItem("savedId");			// 삭제
+		    }
+			
+		    setTimeout(function () {
+	            e.target.submit();							// 미뤄뒀던 로그인 진행
+	        }, 0);
+		});
 	</script>
 	
 </th:block>

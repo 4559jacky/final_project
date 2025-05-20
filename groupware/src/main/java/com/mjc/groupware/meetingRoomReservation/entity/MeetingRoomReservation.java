@@ -1,6 +1,7 @@
 package com.mjc.groupware.meetingRoomReservation.entity;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,19 +15,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Entity
 @Table(name="meeting_room_reservation")
 @Builder
+@Getter
+@Setter
 public class MeetingRoomReservation {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="reservation_no")
-	private int reservationNo;
+	private Long reservationNo;
 	
 	@ManyToOne
 	@JoinColumn(name="meeting_room_no")
@@ -39,5 +42,8 @@ public class MeetingRoomReservation {
 	private LocalDate meetingDate;
 	
 	@Column(name="meeting_start_time")
-	private LocalDate meetingStartTime;
+	private LocalTime meetingStartTime;
+	
+	@Column(name="reservation_status")
+	private String reservationStatus;
 }

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html
+xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+layout:decorate="~{include/layout :: layout}">
+<th:block layout:fragment="content">
+	<script th:src="@{/js/jquery-3.7.1.js}"></script>
+	<div class="container-fluid px-4">
+		<!-- 제목 & 경로 -->
+	    <div class="col-lg-8 col-md-6 col-12 align-self-center">
+	      <nav aria-label="breadcrumb">
+	        <ol class="breadcrumb align-items-center">
+	          <li class="breadcrumb-item">
+	            <a class="text-muted text-decoration-none" th:href="@{/home}">
+	              <i class="ti ti-home fs-5"></i>
+	            </a>
+	          </li>
+	          <li class="breadcrumb-item" aria-current="page">사내복지 / 제휴숙소 관리</li>
+	        </ol>
+	      </nav><br>
+	      <h2 class="mb-0 fw-bolder fs-8">제휴숙소 관리</h2>
+	    </div><br>
+    	<!-- 검색조건 + 검색창 왼쪽 / 정렬 오른쪽 -->
+	    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+	      <!-- 왼쪽: 검색 조건 + 검색창 -->
+	      <form th:action="@{/notice}" method="get" class="d-flex align-items-center gap-2 flex-wrap">
+	        <select name="search_type" class="form-select w-auto bg-primary-subtle border-0" style="width: 120px;">
+	          <option th:value="''" th:selected="${search_type == null}">선택</option>
+	          <option th:value="1" th:selected="${search_type == 1}">숙소명</option>
+	          <option th:value="2" th:selected="${search_type == 2}">숙소타입</option>
+	        </select>
+	
+	        <div class="position-relative" style="max-width: 350px;">
+	          <input type="text"
+	                 name="keyword"
+	                 th:value="${keyword}"
+	                 class="form-control search-chat py-2 ps-5"
+	                 id="text-srh"
+	                 placeholder="검색어를 입력해주세요." />
+	          <button type="submit"
+	                  class="btn position-absolute top-50 start-0 translate-middle-y bg-transparent border-0 p-0 ms-3">
+	            <i class="ti ti-search fs-6 text-dark"></i>
+	          </button>
+	        </div>
+	      </form>
+	      
+	      <!-- 정렬 + 버튼들 정렬용 컨테이너 -->
+		  <div class="d-flex justify-content-end align-items-center gap-2 p-4">
+		  <!-- 숙소등록 버튼 -->
+		  <a href="javascript:void(0)" class="btn btn-primary" th:href="@{/admin/accommodation/create}">숙소등록</a>
+	      <!-- 오른쪽: 정렬 -->
+	      <form th:action="@{/accommodation/adminHome}" method="get"> 
+	        <select name="reg_date_sort"
+	                class="form-select w-auto bg-primary-subtle border-0"
+	                onchange="this.form.submit()"
+	                th:value="${searchDto.reg_date_sort}">
+	          <option th:value="desc" th:selected="${searchDto.reg_date_sort == 'desc'}">최신순</option>
+	          <option th:value="asc" th:selected="${searchDto.reg_date_sort == 'asc'}">오래된순</option>
+	        </select>
+	      </form>
+	      </div>
+	    </div>
+	
+	    <!-- 숙소 목록 테이블 -->
+		<div class="table-wrapper p-4 bg-white rounded-4 shadow-sm">
+		  <div class="table-responsive">
+		    <table class="table align-middle text-center">
+		      <colgroup>
+		        <col style="width: 10%;">   <!-- 번호 -->
+		        <col style="width: 25%;">  <!-- 숙소명 -->
+		        <col style="width: 10%;">  <!-- 숙소타입 -->
+		        <col style="width: 15%;">  <!-- 등록일 -->
+		        <col style="width: 15%;">  <!-- 수정일 -->
+		        <col style="width: 10%;">  <!-- 가격 -->
+		        <col style="width: 20%;">  <!-- 예약현황 버튼 -->
+		      </colgroup>
+		
+		      <thead class="bg-light">
+		        <tr>
+		          <th>번호</th>
+		          <th>숙소명</th>
+		          <th>숙소타입</th>
+		          <th>등록일</th>
+		          <th>수정일</th>
+		          <th>가격</th>
+		          <th>예약현황</th>
+		        </tr>
+		      </thead>
+		
+		      <tbody>
+		        <!-- 숙소가 없을 때 -->
+		        <tr th:if="${accommodations.isEmpty()}">
+		          <td colspan="7" class="text-center text-muted">등록된 숙소가 없습니다.</td>
+		        </tr>
+		
+		        <!-- 숙소 리스트 출력 -->
+		        <tr th:each="accom, number : ${accommodations}"
+		        	th:onclick="|location.href='/admin/accommodation/detail/${accom.accommodation_no}'|"
+			      style="cursor: pointer;">
+		          <td th:text="${number.index+1}">번호</td>
+		          <td th:text="${accom.accommodation_name}">숙소명</td>
+		          <td th:if="${accom.accommodation_type == '호텔'}">호텔</td>
+		          <td th:if="${accom.accommodation_type == '리조트'}">리조트</td>
+		          <td th:text="${accom.reg_date != null ? #temporals.format(accom.reg_date, 'yyyy-MM-dd HH:mm') : ''}">등록일</td>
+		          <td th:text="${accom.mod_date != null ? #temporals.format(accom.mod_date, 'yyyy-MM-dd HH:mm') : ''}">수정일</td>
+		          <td th:text="${accom.room_price != null ? #numbers.formatInteger(accom.room_price, 3, 'COMMA') + '원' : '0원'}">가격</td>
+		          <td>
+		            <a th:href="@{/admin/accommodation/reservation/list(accommodation_no=${accom.accommodation_no})}" 
+		               class="btn btn-primary px-3">예약현황</a>
+		          </td>
+		        </tr>
+		      </tbody>
+		    </table>
+		  </div>
+		</div>
+	</div>
+
+	<!-- Import vendorJs Files -->
+	<script th:src="@{/assets/js/vendor.min.js}"></script>
+	
+  	<!-- Import Js Files -->
+  	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+  	<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.init.js}"></script>
+  	<script th:src="@{/assets/js/theme/theme.js}"></script>
+  	<script th:src="@{/assets/js/theme/app.min.js}"></script>
+  	<script th:src="@{/assets/js/theme/sidebarmenu.js}"></script>
+
+  	<!-- solar icons -->
+  	<script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  	<script th:src="@{/assets/libs/owl.carousel/dist/owl.carousel.min.js}"></script>
+  	<script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
+  	<script th:src="@{/assets/js/dashboards/dashboard.js}"></script>
+  
+</th:block>
+</html>
