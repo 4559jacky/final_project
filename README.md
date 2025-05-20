@@ -13,7 +13,7 @@
 
 </div>
 
-![스크린샷 2025-05-20 121732](https://github.com/user-attachments/assets/5159b857-7f50-48fe-a891-adc1c4e65c55)
+![홈화면](https://github.com/user-attachments/assets/d5c0fd77-a442-428f-9e0b-9ce028bdc577)
 
 
 # 주요기능
