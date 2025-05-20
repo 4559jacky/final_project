@@ -15,8 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import com.mjc.groupware.accommodationReservation.controller.AccommodationAdminController;
-import com.mjc.groupware.approval.entity.Approval;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.mjc.groupware.attendance.dto.AnnualLeavePolicyDto;
 import com.mjc.groupware.attendance.dto.AttendPageDto;
 import com.mjc.groupware.attendance.dto.AttendanceDto;
@@ -50,6 +50,7 @@ public class AttendanceService {
 
 
 	// 근태 정책 변경
+	@Transactional(rollbackFor=Exception.class)
 	public Map<String,Object> workTimeUpdateApi(WorkSchedulePolicyDto dto) {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
@@ -68,9 +69,9 @@ public class AttendanceService {
 		return resultMap;
 	}
 
-
-	public int annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
-		int result = 0;
+	@Transactional(rollbackFor=Exception.class)
+	public Map<String,Object> annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		
 		try {
 			
@@ -85,15 +86,17 @@ public class AttendanceService {
 				AnnualLeavePolicy newEntity = dto.toEntity();
 				annualLeavePolicyRepository.save(newEntity);
 			}
-			
-			result = 1;
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "연차 정책 설정이 완료되었습니다.");
 		} catch(Exception e) {
 			e.printStackTrace();
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "연차 정책 설정 중 오류가 발생하였습니다.");
 		}
-		return result;
+		return resultMap;
 	}
 
-	
+	@Transactional(rollbackFor=Exception.class)
 	public int memberAnnualUpdateApi(Long memberNo, double annualLeave) {
 		
 		int result = 0;
@@ -137,8 +140,9 @@ public class AttendanceService {
 
 	
 	// 연차 정책 삭제
-	public int annualPolicyDeleteApi(int year) {
-		int result = 0;
+	@Transactional(rollbackFor=Exception.class)
+	public Map<String, Object> annualPolicyDeleteApi(int year) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		try {
 			AnnualLeavePolicy entity = annualLeavePolicyRepository.findByYear(year);
 			
@@ -146,14 +150,18 @@ public class AttendanceService {
 				annualLeavePolicyRepository.delete(entity);
 			}
 			
-			result = 1;
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "연차 정책이 삭제 되었습니다.");
 		} catch(Exception e) {
 			e.printStackTrace();
+			resultMap.put("res_code", "500");
+			resultMap.put("res_msg", "연차 정책 삭제에 실패하였습니다.");
 		}
-		return result;
+		return resultMap;
 	}
 
 	// 근무 출근 저장
+	@Transactional(rollbackFor=Exception.class)
 	public Map<String, Object> saveStartTime(MemberDto member, AttendanceDto dto) {
 	    Map<String, Object> resultMap = new HashMap<>();
 	    try {
@@ -194,10 +202,9 @@ public class AttendanceService {
 	}
 
 	// 퇴근 시간 저장
+	@Transactional(rollbackFor=Exception.class)
 	public Map<String, Object> saveEndTime(MemberDto member, AttendanceDto dto) {
 	    Map<String, Object> resultMap = new HashMap<>();
-	    System.out.println(">>> memberNo: " + member.getMember_no());
-	    System.out.println(">>> attendDate: " + dto.getAttend_date());
 	    try {
 	        Attendance attendance = attendanceRepository.findByMember_MemberNoAndAttendDate(
 	            member.getMember_no(), dto.getAttend_date());
@@ -240,6 +247,10 @@ public class AttendanceService {
 	        } else {
 	            requiredMinutes = (long) (workDuration * 60);
 	        }
+	        
+	        if (workDuration >= 9.0) {
+	            requiredMinutes -= 60;
+	        }
 
 	        if (workedMinutes < requiredMinutes) {
 	            oldAttendanceDto.setEarly_leave_yn("Y");
@@ -263,7 +274,7 @@ public class AttendanceService {
 	    return resultMap;
 	}
 
-
+	@Transactional(rollbackFor=Exception.class)
 	public List<WeeklyWorkDto> getWeeklyWorkTime(String startDate, String endDate, MemberDto memberDto) {
 	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	    LocalDate start = LocalDate.parse(startDate, formatter);
@@ -315,6 +326,7 @@ public class AttendanceService {
 	}
 
 	// 근무 이력 검색 필터 페이징
+	@Transactional(rollbackFor=Exception.class)
 	public Page<Attendance> selectAttendanceAllByFilter(Member member, SearchDto searchDto, AttendPageDto pageDto) {
 		Pageable pageable = PageRequest.of(pageDto.getNowPage() -1, pageDto.getNumPerPage(),
 				Sort.by("attendDate").descending());
@@ -334,6 +346,7 @@ public class AttendanceService {
 	}
 
 	// 관리자 - 회원 근태 정보 수정
+	@Transactional(rollbackFor=Exception.class)
 	public int memberAttendStatusUpdateApi(Member member, AttendanceDto dto) {
 		
 		int result = 0;
