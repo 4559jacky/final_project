@@ -31,10 +31,6 @@
 
 
 
-# System Architecture
-![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/1a594e9d-4d40-4403-8293-eaab96075978)
-
-
 # Tech Stack
 
 | Backend | Frontend | DB | DevOps | IDE |
