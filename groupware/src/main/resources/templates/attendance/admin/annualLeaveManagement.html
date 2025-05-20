@@ -413,29 +413,34 @@ layout:decorate="~{include/layout :: layout}">
 		    })
 		    .then(response => response.json())
 		    .then(async data => {
-			      const tbody = document.getElementById("annual-policy-body");
-			      tbody.innerHTML = ""; // 초기화
-			      
-			      const rowOne = document.createElement("tr");
-			      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
-			      tbody.appendChild(rowOne);
+		    	
+		    	await alert(data.res_msg);
+		    	
+		    	if(data.res_code == '200') {
+		    		const tbody = document.getElementById("annual-policy-body");
+				      tbody.innerHTML = ""; // 초기화
+				      
+				      const rowOne = document.createElement("tr");
+				      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+				      tbody.appendChild(rowOne);
 
-			      // 전역 저장 (사원 목록 계산용)
-			      window.annualPolicyList = data;
+				      // 전역 저장 (사원 목록 계산용)
+				      window.annualPolicyList = data.annualLeavePolicyList;
 
-			      data.forEach(item => {
-			        const row = document.createElement("tr");
-			        row.innerHTML = `
-			          <td>${item.year}년차</td>
-			          <td>${item.leaveDays}일</td>
-			          <td>
-			            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
-			              삭제
-			            </button>
-			          </td>
-			        `;
-			        tbody.appendChild(row);
-			      });
+				      data.annualLeavePolicyList.forEach(item => {
+				        const row = document.createElement("tr");
+				        row.innerHTML = `
+				          <td>${item.year}년차</td>
+				          <td>${item.leaveDays}일</td>
+				          <td>
+				            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
+				              삭제
+				            </button>
+				          </td>
+				        `;
+				        tbody.appendChild(row);
+				      });
+		    		} 
 			    })
 			    .catch(err => console.error("연차 정책 불러오기 실패:", err));
 		})
@@ -737,32 +742,37 @@ layout:decorate="~{include/layout :: layout}">
 			    }
 			  })
 			    .then(response => response.json())
-			    .then(data => {
-				      const tbody = document.getElementById("annual-policy-body");
-				      tbody.innerHTML = ""; // 초기화
-				      
-				      const rowOne = document.createElement("tr");
-				      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
-				      tbody.appendChild(rowOne);
-				      
-				      // 전역 저장 (사원 목록 계산용)
-				      window.annualPolicyList = data;
+			    .then(async data => {
+			    	
+			    	await alert(data.res_msg);
+			    	
+			    	if(data.res_code == '200') {
+			    		const tbody = document.getElementById("annual-policy-body");
+					      tbody.innerHTML = ""; // 초기화
+					      
+					      const rowOne = document.createElement("tr");
+					      rowOne.innerHTML = '<td>1년 미만</td><td>만근 시 한 달 기준 1일</td><td></td>';
+					      tbody.appendChild(rowOne);
+					      
+					      // 전역 저장 (사원 목록 계산용)
+					      window.annualPolicyList = data;
 
-				      data.forEach(item => {
-				        const row = document.createElement("tr");
-				        row.innerHTML = `
-				          <td>${item.year}년차</td>
-				          <td>${item.leaveDays}일</td>
-				          <td>
-				            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
-				              삭제
-				            </button>
-				          </td>
-				        `;
-				        tbody.appendChild(row);
-				      });
-				    })
-				    .catch(err => console.error("연차 정책 불러오기 실패:", err));
+					      data.annualLeavePolicyList.forEach(item => {
+					        const row = document.createElement("tr");
+					        row.innerHTML = `
+					          <td>${item.year}년차</td>
+					          <td>${item.leaveDays}일</td>
+					          <td>
+					            <button class="btn btn-primary" onclick="deletePolicy(${item.year})">
+					              삭제
+					            </button>
+					          </td>
+					        `;
+					        tbody.appendChild(row);
+					      });
+			    	}
+			    })
+			    .catch(err => console.error("연차 정책 불러오기 실패:", err));
 		}
 	</script>
 	

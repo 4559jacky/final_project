@@ -11,11 +11,11 @@
 					class="text-muted text-decoration-none" href="/home"> <i
 						class="ti ti-home fs-5"></i>
 				</a></li>
-				<li class="breadcrumb-item" aria-current="page">근태 / 근태 정보</li>
+				<li class="breadcrumb-item" aria-current="page">근태 / 근무 이력 </li>
 			</ol>
 		</nav>
 		<br>
-		<h2 class="mb-0 fw-bolder fs-8">근태 정보</h2>
+		<h2 class="mb-0 fw-bolder fs-8">근무 이력</h2>
 	</div>
 
 	<div class="container-fluid">
@@ -54,7 +54,7 @@
 				      <i class="bi bi-clock-history me-1 text-primary"></i> 근태관리
 				    </h5>
 				    <button class="btn btn-primary btn-sm rounded-pill" onclick="myAttendLogView();">
-				      내 근무 이력
+				      근무 이력 상세
 				    </button>
 				  </div>
 				
@@ -247,7 +247,7 @@
 									textClass = "text-secondary";
 							}
 		
-							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+							statusSpan.className = `badge fw-semibold px-3 rounded-pill rounded ${bgClass} ${textClass}`;
 							statusSpan.innerText = statusText;
 						}
 					})
@@ -362,9 +362,10 @@
 									statusText = "퇴근";
 									bgClass = "bg-secondary-subtle";
 									textClass = "text-secondary";
+									addClass = "badge bg-success-subtle text-success fw-semibold px-3 rounded-pill";
 							}
 
-							statusSpan.className = `badge fw-semibold px-2 py-1 rounded ${bgClass} ${textClass}`;
+							statusSpan.className = `badge fw-semibold px-3 rounded-pill rounded ${bgClass} ${textClass}`;
 							statusSpan.innerText = statusText;
 							
 							updateWeeklyHours();

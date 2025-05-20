@@ -207,28 +207,29 @@ public class AttendanceController {
 	// 연차 정책 업데이트
 	@PostMapping("/annualPolicy/update")
 	@ResponseBody
-	public List<AnnualLeavePolicy> annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
-		
-		int result = attendanceService.annualPolicyUpdateApi(dto);
-		if(result > 0) {
-			return annualLeavePolicyRepository.findAllByOrderByYearAsc();
+	public Map<String,Object> annualPolicyUpdateApi(AnnualLeavePolicyDto dto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		resultMap = attendanceService.annualPolicyUpdateApi(dto);
+		if(resultMap.get("res_code").equals("200")) {
+			List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+			resultMap.put("annualLeavePolicyList", annualLeavePolicyList);
 		}
-		
-		return new ArrayList<>();
+		return resultMap;
 	}
 	
 	// 연차 정책 삭제
 	@DeleteMapping("/annualPolicy/delete/{year}")
 	@ResponseBody
-	public List<AnnualLeavePolicy> annualPolicyDeleteApi(@PathVariable("year") int year) {
+	public Map<String,Object> annualPolicyDeleteApi(@PathVariable("year") int year) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		resultMap = attendanceService.annualPolicyDeleteApi(year);
 		
-		int result = attendanceService.annualPolicyDeleteApi(year);
-		
-		if(result > 0) {
-			return annualLeavePolicyRepository.findAllByOrderByYearAsc();
+		if(resultMap.get("res_code").equals("200")) {
+			List<AnnualLeavePolicy> annualLeavePolicyList = annualLeavePolicyRepository.findAllByOrderByYearAsc();
+			resultMap.put("annualLeavePolicyList", annualLeavePolicyList);
 		}
 		
-		return new ArrayList<>();
+		return resultMap;
 	}
 	
 	@PostMapping("/member/annual/update/{id}")
