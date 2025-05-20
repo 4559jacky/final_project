@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SharedChartService {
 	 private final FileRepository fileRepository;
-	 private static final long TOTAL_CAPACITY_BYTES = 1048576L; // 1MB
+	 private static final long TOTAL_CAPACITY_BYTES = 500L * 1024 * 1024; // 500MB
 	 
 	 public Map<String, Long> getUsageStats(String type, Member member) {
 		    long active = 0;

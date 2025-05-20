@@ -496,7 +496,9 @@ function renderFolderTable(data, parentFolderNo, currentFolderId){
 		const tr = document.createElement("tr");
 		tr.style.cursor = "pointer";
 		
-		let icon = item.type === "folder" ? "📁" : "📄";
+		let iconHtml = item.type === "folder"
+		  ? `<iconify-icon icon="mdi:folder" width="22" height="22" class="me-1 text-warning"></iconify-icon>`
+		  : getIconifyIconByExtension(item.name);
 		let typeLabel = item.type === "folder" ? "폴더" : "파일";
 		let size = item.size ? formatFileSize(item.size) : "-";
 		let regDate = formatDate(item.regDate);
@@ -504,7 +506,7 @@ function renderFolderTable(data, parentFolderNo, currentFolderId){
 		
 		tr.innerHTML = `
 		  <td class="doc-checkbox-cell"><input type="checkbox" class="doc-checkbox" data-id="${item.id}" data-type="${item.type}"></td>
-		  <td title="${item.name}">${icon} ${item.name}</td>
+		  <td>${iconHtml}${item.name}</td>
 		  <td>${typeLabel}</td>
 		  <td>${size}</td>
 		  <td>${regDate}</td>
@@ -677,14 +679,14 @@ function restoreSelected() {
 }
 
 // 휴지통 삭제 버튼
-function deleteSelected() {
+async function deleteSelected() {
   const checkboxes = document.querySelectorAll(".trash-checkbox:checked");
   if (checkboxes.length === 0) {
     alert("삭제할 항목을 선택해주세요.");
     return;
   }
 
-  if (!confirm("선택한 항목을 완전히 삭제하시겠습니까? 복구할 수 없습니다.")) return;
+  if (!await confirm("선택한 항목을 완전히 삭제하시겠습니까? 복구할 수 없습니다.")) return;
 
   const folderIds = [];
   const fileIds = [];
@@ -765,7 +767,7 @@ window.deleteSelectedDocs = async function () {
     return;
   }
 
-  if (!confirm("선택한 항목을 삭제하시겠습니까?")) return;
+  if (!await confirm("선택한 항목을 삭제하시겠습니까?")) return;
 
   const folderIds = [];
   const fileIds = [];
@@ -815,8 +817,7 @@ window.deleteSelectedDocs = async function () {
     alert("삭제 중 오류 발생: " + err.message);
   }
 }
-
-/*// 💥 alert 완전 대체
+/*
 window.alert = function(message) {
   const msgEl = document.getElementById("customAlertMsg");
   msgEl.textContent = message;
@@ -825,7 +826,6 @@ window.alert = function(message) {
   modal.show();
 };
 
-// 💥 confirm 완전 대체 (비동기 Promise 버전)
 window.confirm = function(message) {
   return new Promise((resolve) => {
     const msgEl = document.getElementById("customConfirmMsg");
@@ -848,8 +848,8 @@ window.confirm = function(message) {
       resolve(false);
     }, { once: true });
   });
-};*/
-
+};
+*/
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("fileUpload");
   const fileNameSpan = document.getElementById("selectedFileNames");
@@ -867,3 +867,25 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+function getIconifyIconByExtension(fileName) {
+  const ext = fileName.split('.').pop().toLowerCase();
+  const iconMap = {
+    pdf: 'mdi:file-pdf-box',
+    docx: 'mdi:file-word-box',
+    xlsx: 'mdi:file-excel-box',
+    pptx: 'mdi:file-powerpoint-box',
+    txt: 'mdi:file-document-outline',
+    json: 'mdi:code-json',
+    mp4: 'mdi:file-video',
+    jpg: 'mdi:file-image',
+    png: 'mdi:file-image',
+    zip: 'mdi:archive',
+    css: 'mdi:language-css3',
+    html: 'mdi:language-html5',
+    exe: 'mdi:file-cog-outline',
+    default: 'mdi:file-outline'
+  };
+
+  const icon = iconMap[ext] || iconMap['default'];
+  return `<iconify-icon icon="${icon}" width="22" height="22" class="me-1"></iconify-icon>`;
+}
