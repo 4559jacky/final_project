@@ -44,16 +44,6 @@
 
 
 
-# API
-<details>
-  <summary><b>상세보기</b></summary>
-  <div markdown="1">
-    <img src=https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/a9b9c913-4af1-4219-93b4-de623a0ec638/>
-    <img src=https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/07b98fce-157e-46a3-b00e-7c0f5d841652/>
-    <img src=https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/bf656010-ca31-4c8a-8226-0f618d8d0cae/>
-   </div>
-</details>
-
 # Team Member
 
 
