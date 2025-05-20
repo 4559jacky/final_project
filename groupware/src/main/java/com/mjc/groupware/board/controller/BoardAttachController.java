@@ -37,12 +37,7 @@ public class BoardAttachController {
 
     @CheckPermission("BOARD_R")
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> fileDownload(@PathVariable("id") Long id, HttpServletRequest request) throws IOException {
-    	// URL 직접 접근을 차단 :: Ajax 요청이 아니면 차단
-    	String header = request.getHeader("X-Custom-Ajax");
-    	if (!"true".equals(header)) {
-    		throw new ResponseStatusException(HttpStatus.FORBIDDEN, "허용되지 않은 접근입니다.");
-    	}
+    public ResponseEntity<Resource> fileDownload(@PathVariable("id") Long id) throws IOException {
     	
         BoardAttach fileData = boardAttachService.selectAttachOne(id);
         if (fileData == null) {
