@@ -1,24 +1,33 @@
-# Re:Use
-빠르게 바뀌는 유행으로 버려지는 옷들이 많은 요즘,
+# 커스텀 그룹웨어 프로젝트 [무자코]
+<div align="center">
+  
+‘무자코’는 기업 환경에 맞춰 사용할 수 있는 **맞춤형 그룹웨어 시스템** 입니다. <br> 
+  
+회사명, 로고, 부서, 직급, 권한 등을 관리자가 자유롭게 설정할 수 있고, <br>
+**일정 관리, 전자결재, 근태 관리, 채팅, 게시판 등 주요 기능들을 선택적으로 활성화**할 수 있어  <br>
+기업 규모나 성격에 따라 유연하게 활용할 수 있도록 설계되었습니다. <br>
 
-리유즈는 버려지는 옷에게 다시 새로운 주인을 찾아줄 수 있지 않을까라는 고민에서 고안된 
-옷 중심 중고거래 서비스입니다.
+**사용자 편의성과 실용성**을 중점으로 개발하였으며, <br>
+직관적인 UI와 기능 모듈화를 통해 실무에 바로 적용 가능한 구조로 구성되어 있습니다.
 
-프로젝트 링크: www.re-use.store
+</div>
 
-[
-![이미지600*340](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/837868ee-6f52-42bd-92a2-84d271f3548b)
-](url)
+![스크린샷 2025-05-19 173738](https://github.com/user-attachments/assets/19b1ffe0-d729-4740-bc51-70ff7fce8eaf)
 
 
 # Demo
-| 메인화면 및 로그인 | 상품 등록 |
+| 메인화면 및 로그인 | 그룹웨어 커스텀 |
 | :---: | :---: |
 |![1](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/fab31f21-b242-44ec-8886-c9456955478f)|![2](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/586e1359-071a-4871-9dec-f303dc063855) |
-| **찜하기 & 상점 이동** | **실시간 채팅** |
+| **일정** | **실시간 채팅** |
 |![3](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/2fdeddfc-71fe-418c-a9fd-6da7ad97d257)|![4](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/3dd722f2-f50b-4498-8d02-276cb2d88bd5)|
-| **마이 페이지 & 리뷰 작성**| **상점 페이지**|
+| **근태관리**| **전자결재**|
 |![5](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/8d29cb84-07ea-40cd-afe4-58de4ee0c13a)|![6](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/50d98bd5-6d79-4aa8-bd9a-ec875c783de3)|
+| **게시판**| **공유문서함**|
+|![5](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/8d29cb84-07ea-40cd-afe4-58de4ee0c13a)|![6](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/50d98bd5-6d79-4aa8-bd9a-ec875c783de3)|
+| **사내복지**| **인사관리**|
+|![5](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/8d29cb84-07ea-40cd-afe4-58de4ee0c13a)|![6](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/50d98bd5-6d79-4aa8-bd9a-ec875c783de3)|
+
 
 
 # System Architecture
@@ -47,8 +56,9 @@
 # Team Member
 
 
+
 | Name | 정재익 | 최진수 | 황정현 | 곽도영 | 양서원 | 박수빈 |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Profile | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/90740546-dd12-46c0-b997-f706aaa91c6c) | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/a2481260-483a-4d80-a81b-9fe72f8c4298) | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/ac00e265-012f-4b47-9d48-68c9e164ef88) | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/3d4eec0f-aaaa-426c-8b71-a018cd3aa051) | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/9d84cb40-9bc5-4be7-a71d-0f2fdd44695e) | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/71379413-a4ee-4e5b-928a-1db7ca30ec3b) | ![image](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/18aac8ed-191d-4872-843d-be75c2f59dda) |
-| Role | Team Leader<br/>Backend<br/>DevOps | Backend | Backend | Backend | Vice Leader<br/>Frontend | Frontend | Design |
-| GitHub | [박정훈](https://github.com/iksadNorth) | [강찬영](https://github.com/CHANYOUNGKANG) | [김경윤](https://github.com/gukjan9) | [정재익](https://github.com/JeongJaeIk1207) | [김용빈](https://github.com/rladydqls99) | [이지은](https://github.com/egg-silver) | - |
+| Profile | ![취업사진 정재익](https://github.com/user-attachments/assets/50742583-3564-4bec-ab3b-44e6bb92e3f6) | ![증명사진_2](https://github.com/user-attachments/assets/2c707900-b670-413c-91ec-a1024ae83f3d) | ![황정현 증-1](https://github.com/user-attachments/assets/b3f3d096-afb0-40fc-8153-cb08e824541e) | ![곽도영](https://github.com/user-attachments/assets/96fc5feb-c551-44d1-bef3-bdc14808c6a1) | ![IMG_2174](https://github.com/user-attachments/assets/b1355d35-c18c-47d9-925b-b04939245138) | ![IMG_1927](https://github.com/user-attachments/assets/f8abc225-d156-4700-8fbb-30299d9b175c) |
+| Role | Team Leader<br/>Backend | Backend | Backend | Backend | Backend | Backend |
+| GitHub | [정재익](https://github.com/4559jacky) | [최진수](https://github.com/jayden6849) | [황정현](https://github.com/gdhjh82) | [곽도영](https://github.com/kdy0241) | [양서원](https://github.com/3412ysw) | [박수빈](https://github.com/sbsophie) | - |
