@@ -57,24 +57,24 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
         loginLogRepository.save(log);
         
         // Redis 저장
-//        LogRedisDto redisDto = LogRedisDto.builder()
-//                .loginTime(log.getLoginTime())
-//                .loginIp(log.getLoginIp())
-//                .loginAgent(log.getLoginAgent())
-//                .build();
-//        
-//        redisLoginLogService.saveLoginLog(memberNo, redisDto);
+        LogRedisDto redisDto = LogRedisDto.builder()
+                .loginTime(log.getLoginTime())
+                .loginIp(log.getLoginIp())
+                .loginAgent(log.getLoginAgent())
+                .build();
+        
+        redisLoginLogService.saveLoginLog(memberNo, redisDto);
         
         // Redis에 "member:session:" + memberNo를 키로 세션 수를 저장 :: 동시로그인 제어
-//        String key = "member:session:" + memberNo;  // 예: member:session:123
-//        Long sessionCount = redisTemplate.opsForValue().increment(key, 1);  // 세션 수 1 증가
-//        
-//        if (sessionCount > 3) {
-//        	redisTemplate.opsForValue().decrement(key);
-//        	String errorMsg = "동시 접속 허용 수(3)를 초과했습니다.";
-//            response.sendRedirect("/login?error=true&errorMsg=" + URLEncoder.encode(errorMsg, "UTF-8"));
-//            return;
-//        }
+        String key = "member:session:" + memberNo;  // 예: member:session:123
+        Long sessionCount = redisTemplate.opsForValue().increment(key, 1);  // 세션 수 1 증가
+        
+        if (sessionCount > 3) {
+        	redisTemplate.opsForValue().decrement(key);
+        	String errorMsg = "동시 접속 허용 수(3)를 초과했습니다.";
+            response.sendRedirect("/login?error=true&errorMsg=" + URLEncoder.encode(errorMsg, "UTF-8"));
+            return;
+        }
         
 		System.out.println("MyLoginSuccessHandler :: 로그인 성공");
 		
