@@ -19,21 +19,6 @@
 - **화면 설계서 (Figma)**: [무자코_화면_설계서](https://www.figma.com/design/Ap84GhfJk1KaxbGGkWdDhO/%EB%AC%B4%EC%9E%90%EC%BD%94-%ED%8C%8C%EC%9D%B4%EB%84%90%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8--%EA%B7%B8%EB%A3%B9%EC%9B%A8%EC%96%B4?node-id=34-26287&p=f&t=eVL5BXZjcwBRTDnU-0)
 
 
-# 주요기능
-| 메인화면 및 로그인 | 그룹웨어 커스텀 |
-| :---: | :---: |
-|![1](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/fab31f21-b242-44ec-8886-c9456955478f)|![2](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/586e1359-071a-4871-9dec-f303dc063855) |
-| **일정** | **실시간 채팅** |
-|![3](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/2fdeddfc-71fe-418c-a9fd-6da7ad97d257)|![4](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/3dd722f2-f50b-4498-8d02-276cb2d88bd5)|
-| **근태관리**| **전자결재**|
-|![5](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/8d29cb84-07ea-40cd-afe4-58de4ee0c13a)|![6](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/50d98bd5-6d79-4aa8-bd9a-ec875c783de3)|
-| **게시판**| **공유문서함**|
-|![5](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/8d29cb84-07ea-40cd-afe4-58de4ee0c13a)|![6](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/50d98bd5-6d79-4aa8-bd9a-ec875c783de3)|
-| **사내복지**| **인사관리**|
-|![5](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/8d29cb84-07ea-40cd-afe4-58de4ee0c13a)|![6](https://github.com/main-project-team-4/main-project-team-4-frontend/assets/133847649/50d98bd5-6d79-4aa8-bd9a-ec875c783de3)|
-
-
-
 # 기술 스택
 
 | **분류** | **기술** |
