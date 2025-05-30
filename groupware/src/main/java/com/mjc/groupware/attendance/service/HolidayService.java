@@ -95,7 +95,7 @@ public class HolidayService {
 
             holidayRepository.save(holiday);
         }
-    }
+    } 
     
     @Transactional(rollbackFor=Exception.class)
     public Map<String, Object> holidayCreateApi(HolidayDto holidayDto) {
