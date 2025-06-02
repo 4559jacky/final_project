@@ -52,5 +52,5 @@ public class ApprAgreementer {
 	@ManyToOne
 	@JoinColumn(name="agreementer_no", nullable=false)
 	private Member member;
-	
+
 }
