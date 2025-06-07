@@ -18,15 +18,15 @@ public class HolidayInit {
 
     private final HolidayService holidayService;
 
-    @PostConstruct
-    public void init() {
-        try {
-			holidayService.fetchAndSaveHolidays(2025);
-			System.out.println("실행 test");
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			e.printStackTrace();
-		} // 연초에 1회만 저장
-    }
+//    @PostConstruct
+//    public void init() {
+//        try {
+//			holidayService.fetchAndSaveHolidays(2025);
+//			System.out.println("실행 test");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} // 연초에 1회만 저장
+//    }
     
 //    @EventListener(ApplicationReadyEvent.class)
 //    public void init() {
