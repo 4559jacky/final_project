@@ -68,13 +68,14 @@ public class RegularEventScheduler {
 		System.out.println("연차 지급 완료 : " + givenCount + "명");
 	}
 	
+	// 1월1일에 한번 그 해의 공휴일 데이터를 가져옴
 	@Scheduled(cron = "0 0 0 1 1 *")
 	public void fetchHolidayOnNewYear() {
 	    int nextYear = LocalDate.now(ZoneId.of("Asia/Seoul")).getYear();
 	    try {
 	        holidayService.fetchAndSaveHolidays(nextYear);
 	    } catch (Exception e) {
-	        e.printStackTrace(); // 로그 처리 ㄱㄱ
+	        e.printStackTrace();
 	    }
 	}
 	
@@ -85,8 +86,8 @@ public class RegularEventScheduler {
 	    List<Member> allMembers = memberRepository.findAll();
 	    List<Holiday> holidays = holidayRepository.findByDateBetween(today.minusMonths(1), today);
 
-	    System.out.println("🕐 스케줄러 동작중");
-	    System.out.println("📅 오늘 날짜 : " + today);
+	    System.out.println("스케줄러 동작중");
+	    System.out.println("오늘 날짜 : " + today);
 
 	    for (Member member : allMembers) {
 	        LocalDate regDate = member.getRegDate();
