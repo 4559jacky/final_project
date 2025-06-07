@@ -5,10 +5,12 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,12 +18,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.mjc.groupware.attendance.dto.HolidayDto;
 import com.mjc.groupware.attendance.entity.Holiday;
 import com.mjc.groupware.attendance.repository.HolidayRepository;
 
@@ -94,4 +96,87 @@ public class HolidayService {
             holidayRepository.save(holiday);
         }
     }
+    
+    @Transactional(rollbackFor=Exception.class)
+    public Map<String, Object> holidayCreateApi(HolidayDto holidayDto) {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            // 중복 체크
+            boolean exists = holidayRepository.existsByNameAndDate(
+                holidayDto.getHoliday_name(), holidayDto.getHoliday_date());
+
+            if (exists) {
+                resultMap.put("res_code", "409"); // Conflict
+                resultMap.put("res_msg", "같은 이름과 날짜의 휴일이 이미 존재합니다.");
+                return resultMap;
+            }
+
+            Holiday holidayEntity = holidayDto.toEntity();
+            holidayRepository.save(holidayEntity);
+
+            List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+            resultMap.put("holidayList", holidayList);
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "휴일 정보를 추가하였습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", "휴일 정보 추가 중 오류가 발생하였습니다.");
+        }
+
+        return resultMap;
+    }
+
+    @Transactional(rollbackFor=Exception.class)
+	public Map<String, Object> holidayUpdateApi(HolidayDto holidayDto) {
+    	Map<String, Object> resultMap = new HashMap<>();
+        try {
+            // 중복 체크
+            boolean exists = holidayRepository.existsByNameAndDate(
+                holidayDto.getHoliday_name(), holidayDto.getHoliday_date());
+
+            if (exists) {
+            	List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+                resultMap.put("holidayList", holidayList);
+                resultMap.put("res_code", "409"); // Conflict
+                resultMap.put("res_msg", "같은 이름과 날짜의 휴일이 이미 존재합니다.");
+                return resultMap;
+            }
+
+            Holiday holidayEntity = holidayDto.toEntity();
+            holidayRepository.save(holidayEntity);
+
+            List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+            resultMap.put("holidayList", holidayList);
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "휴일 정보를 수정하였습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", "휴일 정보 수정 중 오류가 발생하였습니다.");
+        }
+
+        return resultMap;
+	}
+    
+    @Transactional(rollbackFor=Exception.class)
+	public Map<String, Object> holidayDeleteApi(Long id) {
+		Map<String, Object> resultMap = new HashMap<>();
+        try {
+
+            Holiday holidayEntity = holidayRepository.findById(id).orElse(null);
+            holidayRepository.delete(holidayEntity);
+
+            List<Holiday> holidayList = holidayRepository.findAllByOrderByDateAsc();
+            resultMap.put("holidayList", holidayList);
+            resultMap.put("res_code", "200");
+            resultMap.put("res_msg", "휴일 정보를 삭제하였습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("res_code", "500");
+            resultMap.put("res_msg", "휴일 정보 삭제 중 오류가 발생하였습니다.");
+        }
+
+        return resultMap;
+	}
 }

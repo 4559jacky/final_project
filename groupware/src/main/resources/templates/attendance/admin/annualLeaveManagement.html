@@ -35,11 +35,17 @@ layout:decorate="~{/include/layout}">
 	      </nav>
 	
 	      <div class="d-flex justify-content-between align-items-center mt-3">
-	        <h2 class="mb-0 fw-bolder fs-8">연차 관리</h2>
-	        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annualPolicyModal">
-	          연차 정책 보기
-	        </button>
-	      </div>
+			  <h2 class="mb-0 fw-bolder fs-5">연차 관리</h2>
+			
+			  <div class="d-flex gap-2">
+			    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#holidayPolicyModal">
+			      휴일 정책 보기
+			    </button>
+			    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annualPolicyModal">
+			      연차 정책 보기
+			    </button>
+			  </div>
+			</div>
 	    </div>
 	  </div>
 	</div>
@@ -204,6 +210,59 @@ layout:decorate="~{/include/layout}">
 		})
 	});
 	</script>
+	
+	<div class="modal fade" id="holidayPolicyModal" tabindex="-1" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" style="max-width: 1000px;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="fw-bold mb-0">휴일 정책 설정</h5>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	
+	      <div class="modal-body">
+	        <!-- 📌 등록 폼 영역 -->
+	        <form name="holiday_form" action="/holiday/create" method="post">
+	          <div class="d-flex justify-content-between align-items-center mb-4 w-100">
+	            <div class="d-flex align-items-center gap-2 flex-wrap">
+	              <span>이름</span>
+	              <input type="text" class="form-control" name="holiday_name" id="holiday_name" placeholder="휴일명" style="max-width: 120px;">
+	              <span>날짜</span>
+	              <input type="date" class="form-control" name="holiday_date" id="holiday_date" placeholder="연차일수" style="max-width: 150px;">
+	              
+	              <button type="submit" class="btn btn-primary">저장</button>
+	            </div>
+	          </div>
+	        </form>
+	
+	        <!-- 📌 연차 정책 보기 제목 -->
+	        <h5 class="fw-bold mb-3">연차 정책 보기</h5>
+	
+	        <!-- 📌 표 영역 -->
+	        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+	          <table class="table table-bordered text-center align-middle">
+	            <thead class="table-light">
+	              <tr>
+	                <th style="width:40%;">이름</th>
+	                <th style="width:40%;">날짜</th>
+	                <th style="width:10%;">수정</th>
+	                <th style="width:10%;">삭제</th>
+	              </tr>
+	            </thead>
+	            <tbody id="holiday-policy-body">
+					<tr>
+
+					</tr>
+	            </tbody>
+	          </table>
+	        </div>
+	      </div>
+	
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 
 	
 	<div class="modal fade" id="annualPolicyModal" tabindex="-1" aria-hidden="true">
@@ -258,6 +317,68 @@ layout:decorate="~{/include/layout}">
 	    </div>
 	  </div>
 	</div>
+	
+	<script>
+		const holidayForm = document.holiday_form;
+			holidayForm.addEventListener('submit', function(e) {
+			e.preventDefault();
+			
+			const holidayName = document.getElementById('holiday_name').value;
+		    const holidayDate = document.getElementById('holiday_date').value;
+			
+		    if (!holidayName || !holidayDate) {
+		        alert("휴일명과 날짜 모두 입력하셔야합니다.");
+		        return;
+		    }
+		    
+		    const payload = new FormData(holidayForm);
+		    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+		    
+			if(!confirm('휴일 정보를 저장하시겠습니까?')) return;
+			
+		    fetch('/holiday/create', {
+		    	method:'post',
+		    	headers: {
+		    		
+					[csrfHeader]: csrfToken
+				},
+		    	body: payload
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+		    	
+		    	alert(data.res_msg);
+		    	document.getElementById('holiday_name').value = '';
+			    document.getElementById('holiday_date').value = '';
+		    	if(data.res_code == 200) {
+			      const tbody = document.getElementById("holiday-policy-body");
+			      tbody.innerHTML = ""; // 초기화
+
+			      data.holidayList.forEach(item => {
+			        const row = document.createElement("tr");
+			        row.innerHTML = `
+			        	<td><input type="text" id="name${item.id}" value="${item.name}"></td>
+				          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+				          <td>
+				            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+				              수정
+				            </button>
+				          </td>
+				          <td>
+				            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+				              삭제
+				            </button>
+				          </td>
+			        `;
+			        tbody.appendChild(row);
+			      });
+		    	}
+		    	
+			})
+			.catch(err => console.error("휴일 정책 불러오기 실패:", err));
+		})
+	</script>
 		
 	<!-- 연차 정책 설정 (같은 줄 오른쪽) -->
 	<script>
@@ -416,14 +537,145 @@ layout:decorate="~{/include/layout}">
 	
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
+		  $('#holidayPolicyModal').on('shown.bs.modal', function() {
+			 loadHolidayPolicy();
+		  });
+		  
+		  $('#holidayPolicyModal').on('hidden.bs.modal', function() {
+			    loadAnnualPolicy();
+			    document.getElementById('holiday_name').value = '';
+			    document.getElementById('holiday_date').value = '';
+		  });
+		});
+		
+		function loadHolidayPolicy() {
+			  fetch('/holiday', {
+			    method: 'get'
+			  })
+			    .then(res => res.json())
+			    .then(data => {
+			      const tbody = document.getElementById("holiday-policy-body");
+			      tbody.innerHTML = ""; // 초기화
+
+			      data.forEach(item => {
+			        const row = document.createElement("tr");
+			        row.innerHTML = `
+			          <td><input type="text" id="name${item.id}" value="${item.name}"></td>
+			          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+			          <td>
+			            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+			              수정
+			            </button>
+			          </td>
+			          <td>
+			            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+			              삭제
+			            </button>
+			          </td>
+			        `;
+			        tbody.appendChild(row);
+			      });
+			    })
+			    .catch(err => console.error("휴일 정책 불러오기 실패:", err));
+			}
+		
+		function updateHoliday(id) {
+			  if (!confirm('휴일 정보를 수정하시겠습니까?')) return;
+			  
+			  let holiday_name = document.getElementById(`name${id}`).value;
+			  let holiday_date = document.getElementById(`date${id}`).value;
+			  let payload = new FormData();
+			  payload.append("id", id);
+			  payload.append("holiday_name", holiday_name);
+			  payload.append("holiday_date", holiday_date);
+			  fetch('/holiday/update', {
+			    method: 'post',
+			    headers: {
+			      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			    },
+			    body:payload
+			  })
+			    .then(response => response.json())
+			    .then(data => {
+			    	alert(data.res_msg);
+			    	if(data.res_code == 200 || data.res_code == 409) {
+				      const tbody = document.getElementById("holiday-policy-body");
+				      tbody.innerHTML = ""; // 초기화
+				      
+				      data.holidayList.forEach(item => {
+				        const row = document.createElement("tr");
+				        row.innerHTML = `
+				        	 <td><input type="text" id="name${item.id}" value="${item.name}"></td>
+					          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+					          <td>
+					            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+					              수정
+					            </button>
+					          </td>
+					          <td>
+					            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+					              삭제
+					            </button>
+					          </td>
+				        `;
+				        tbody.appendChild(row);
+				      });
+			    	}
+			    })
+			    .catch(err => console.error("휴일 수정 실패:", err));
+		}
+		
+		function deleteHoliday(id) {
+			  if (!confirm('정말 휴일 정보를 삭제하시겠습니까?')) return;
+
+			  fetch('/holiday/delete/'+id, {
+			    method: 'DELETE',
+			    headers: {
+			      'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').content
+			    }
+			  })
+			    .then(response => response.json())
+			    .then(data => {
+			    	alert(data.res_msg);
+			    	if(data.res_code == 200) {
+			    		 const tbody = document.getElementById("holiday-policy-body");
+					      tbody.innerHTML = ""; // 초기화
+
+					      data.holidayList.forEach(item => {
+					        const row = document.createElement("tr");
+					        row.innerHTML = `
+					        	<td><input type="text" id="name${item.id}" value="${item.name}"></td>
+						          <td><input type="date" id="date${item.id}" value="${item.date}"></td>
+						          <td>
+						            <button class="btn btn-primary" onclick="updateHoliday(${item.id})">
+						              수정
+						            </button>
+						          </td>
+						          <td>
+						            <button class="btn btn-primary" onclick="deleteHoliday(${item.id})">
+						              삭제
+						            </button>
+						          </td>
+					        `;
+					        tbody.appendChild(row);
+					      });
+			    	}
+				     
+			    })
+			    .catch(err => console.error("휴일 삭제 실패:", err));
+		}
+	</script>	
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
 		  $('#annualPolicyModal').on('shown.bs.modal', function() {
 		    loadAnnualPolicy();
 		  });
 		  
 		  $('#annualPolicyModal').on('hidden.bs.modal', function() {
-			    loadAnnualPolicy();
 			    document.getElementById('year').value = '';
 			    document.getElementById('leave_days').value = '';
+			    location.reload();
 		  });
 		});
 		
