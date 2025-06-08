@@ -143,7 +143,6 @@ public class ApprovalController {
 	}
 	
 	
-	
 	// 사용자 : 인증받은 모든 사원이 접근 가능한 url
 	
 	@GetMapping("/approval")
