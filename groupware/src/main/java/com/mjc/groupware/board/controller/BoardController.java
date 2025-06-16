@@ -1,10 +1,13 @@
 package com.mjc.groupware.board.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -43,6 +46,7 @@ import com.mjc.groupware.vote.dto.VoteCreateRequest;
 import com.mjc.groupware.vote.repository.VoteRepository;
 import com.mjc.groupware.vote.service.VoteService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 
@@ -262,4 +266,24 @@ public class BoardController {
         }
         return resultMap;
     }
+    
+//    // 게시판에 아파치 포이 추가 코드
+//    @GetMapping("/board/excel")
+//    public void downloadBoardExcel(@ModelAttribute SearchDto searchDto,
+//                                   @ModelAttribute PageDto pageDto,
+//                                   HttpServletResponse response) throws IOException {
+//        pageDto.setNowPage(1);
+//        pageDto.setNumPerPage(1000); // 최대 1000건까지 다운로드
+//
+//        List<BoardDto> boardList = boardService.selectBoardDtoList(searchDto, pageDto);
+//
+//        ByteArrayInputStream excelFile = boardExcelService.createExcel(boardList);
+//
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//        response.setHeader("Content-Disposition", "attachment; filename=board_list.xlsx");
+//
+//        IOUtils.copy(excelFile, response.getOutputStream());
+//        response.flushBuffer();
+//    }
+    
 }
